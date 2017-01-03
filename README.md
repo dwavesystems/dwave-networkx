@@ -1,0 +1,1 @@
+Wrapper for NetworkX (https://networkx.github.io/) with some methods added.
