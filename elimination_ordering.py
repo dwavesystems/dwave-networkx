@@ -3,8 +3,17 @@ import networkx as nx
 
 
 def treewidth_branch_and_bound(G):
-    """Computes the treewidth of a graph G and an elimination ordering"""
-    pass
+    """computes the treewidth of a graph G and a corresponding perfect elimination ordering.
+
+    Gogate & Dechter, "A Complete Anytime Algorithm for Treewidth", https://arxiv.org/abs/1207.4109
+    """
+    ub, order = min_width_heuristic(G)  # an upper bound on the treewidth
+    h = minor_min_width(G)  # a lower bound on the treewidth
+
+    if h == ub:
+        return ub, order
+
+    raise NotImplementedError('remainder of the algorithm is not yet implemented')
 
 
 def minor_min_width(G):
