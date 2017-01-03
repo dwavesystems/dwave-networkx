@@ -1,4 +1,5 @@
 import itertools
+import networkx as nx
 
 
 def treewidth_branch_and_bound(G):
@@ -6,11 +7,39 @@ def treewidth_branch_and_bound(G):
     pass
 
 
-def min_width(G):
-    """computes an upper bound on the treewidth of a graph based on the min-width heuristic
-    for the elimination ordering.
+def minor_min_width(G):
+    """computes a lower bound on the treewidth of G.
 
     Gogate & Dechter, "A Complete Anytime Algorithm for Treewidth", https://arxiv.org/abs/1207.4109
+
+    lb = minor_min_width(G)
+        G : a NetworkX graph
+        lb : a lower bound on the treewidth
+    """
+    lb = 0
+    while len(G.nodes()) > 1:
+        # get the node with the smallest degree
+        degreeG = G.degree(G.nodes())
+        v = min(degreeG, key=degreeG.get)
+
+        # find the vertex u such that the degree of u is minimal in the neighborhood of v
+        Nv = G.subgraph(G[v].keys())
+
+        degreeNv = Nv.degree(Nv.nodes())
+        u = min(degreeNv, key=degreeNv.get)
+
+        # update the lower bound
+        lb = max(lb, degreeG[v])
+
+        # contract the edge between u, v
+        G = nx.contracted_edge(G, (u, v), self_loops=False)
+
+    return lb
+
+
+def min_width_heuristic(G):
+    """computes an upper bound on the treewidth of a graph based on the min-width heuristic
+    for the elimination ordering.
 
     ub, order = min_width(G)
         G : a NetworkX graph
@@ -23,8 +52,6 @@ def min_width(G):
     upper_bound = 0
 
     while G.nodes():
-        degreeG = G.degree(G.nodes())
-
         # get the node with the smallest degree
         degreeG = G.degree(G.nodes())
         v = min(degreeG, key=degreeG.get)
