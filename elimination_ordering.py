@@ -6,6 +6,11 @@ def treewidth_branch_and_bound(G):
     """computes the treewidth of a graph G and a corresponding perfect elimination ordering.
 
     Gogate & Dechter, "A Complete Anytime Algorithm for Treewidth", https://arxiv.org/abs/1207.4109
+
+    treewidth, order = treewidth_branch_and_bound(G)
+        G : a NetworkX graph G
+        treewidth : the treewidth of the graph G
+        order : an elimination order that induces the treewidth
     """
     ub, order = min_width_heuristic(G)  # an upper bound on the treewidth
     h = minor_min_width(G)  # a lower bound on the treewidth
