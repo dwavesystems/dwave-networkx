@@ -52,10 +52,6 @@ def is_complete(G):
 
 
 def _BB(G, x, nv, ub, order, g, f, graph_reductions):
-    print 'G:', G.nodes()
-    print 'x:', x
-    print 'ub:', ub
-    print 'f:', f
     if len(G.nodes()) < 2:
         return min(ub, f), x + G.nodes()  # ub, order
 
@@ -79,10 +75,8 @@ def _BB(G, x, nv, ub, order, g, f, graph_reductions):
 
         # we also note that for n1, n2 in G, if |intersection(N(n1), N(n2))| >= ub + 1
         # we should add an edge between n1 and n2. This will help us in the next step
-        for n1, n2 in itertools.combinations(Gs.nodes(), 2):
-            if (n1, n2) in Gs.edges() or (n2, n1) in Gs.edges():
-                continue
-            if len(set(Gs[n1]) & set(Gs[n2])) >= ub + 1:
+        for n1, n2 in nx.non_edges(Gs):
+            if len(list(nx.common_neighbors(Gs, n1, n2))) >= ub + 1:
                 Gs.add_edge((n1, n2))
 
         # now we want to reduce the graph by eliminating all of the simplical or almost simplical
@@ -126,7 +120,7 @@ def _reduce_graph(G, g, f, lb, x, graph_reductions):
             for (n1, n2) in itertools.combinations(G[v], 2):
                 Gs.add_edge(n1, n2)
 
-            gs = max(g, len(G[v]))
+            gs = max(g, G.degree(v))
             fs = max(gs, f)
             xs = x + [v]
             graph_reductions[G_tuple] = _reduce_graph(Gs, gs, fs, lb, xs, graph_reductions)
