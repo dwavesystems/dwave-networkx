@@ -1,4 +1,0 @@
-build/*
-dist/*
-dw_networkx.egg-info/*
-*.pyc
