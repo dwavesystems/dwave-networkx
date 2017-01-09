@@ -15,7 +15,7 @@ def treewidth_branch_and_bound(G):
         treewidth : the treewidth of the graph G
         order : an elimination order that induces the treewidth
     """
-    ub, order = min_fill_heuristic(G)  # an upper bound on the treewidth
+    ub, order = min_width_heuristic(G)  # an upper bound on the treewidth
     lb = minor_min_width(G)  # a lower bound on the treewidth
 
     if lb == ub:
@@ -47,13 +47,15 @@ def _BB(state, upper_bound, info):
     # so let's be proactive and add them now
     for v1, v2 in itertools.combinations(G, 2):
         if len(tuple(nx.common_neighbors(G, v1, v2))) > ub:
-            G.add_edge((v1, v2))
+            G.add_edge(v1, v2)
 
     # next we are going to remove some nodes from G and add them to the partial_order
+    # lets try to keep as close to order as we can, the order does not matter for the
+    # final treewidth but it might make some elimiation orders slightly faster
     sflag = True
     while sflag:
         sflag = False
-        for v in G:
+        for v in (u for u in order if u in G):
             if is_simplicial(G, v) or (is_almost_simplicial(G, v) and G.degree(v) <= lb):
                 sflag = True
                 partial_order.append(v)
