@@ -132,6 +132,10 @@ def minor_min_width(G):
         # find the vertex u such that the degree of u is minimal in the neighborhood of v
         Nv = G.subgraph(G[v].keys())
 
+        if not Nv.nodes():
+            G.remove_node(v)
+            continue
+
         degreeNv = Nv.degree(Nv.nodes())
         u = min(degreeNv, key=degreeNv.get)
 
