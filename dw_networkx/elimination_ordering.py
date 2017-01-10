@@ -132,7 +132,7 @@ def minor_min_width(G):
         # find the vertex u such that the degree of u is minimal in the neighborhood of v
         Nv = G.subgraph(G[v].keys())
 
-        if not Nv.nodes():
+        if not Nv.nodes():  # in this case there is no edge to contract, happens in unconnected graphs
             G.remove_node(v)
             continue
 
