@@ -134,7 +134,7 @@ def minor_min_width(G):
         Nv = G.subgraph(G[v].keys())
 
         if not Nv.nodes():  # in this case there is no edge to contract, happens in unconnected graphs
-            G = G.copy()  # otherwise would act upon G itself
+            G = G.copy()  # otherwise function would act on G in place
             G.remove_node(v)
             continue
 
