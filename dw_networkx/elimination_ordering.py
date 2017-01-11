@@ -70,6 +70,7 @@ def _BB(state, upper_bound, info):
     if len(G.nodes()) < 2:
         return min(ub, lb), partial_order+G.nodes()
 
+    # finally we try removing each of the variables from G and see which is the best
     for v in G:
         if v in nv:  # we can skip direct neighbors
             continue
@@ -95,7 +96,7 @@ def _BB(state, upper_bound, info):
 
 def is_simplicial(G, v):
     """Determines whether a vertex v in G is simplicial.
-    A vertex is simplicual if its neighbors form a clique."""
+    A vertex is simplicial if its neighbors form a clique."""
     return is_complete(G.subgraph(G[v]))
 
 
@@ -133,6 +134,7 @@ def minor_min_width(G):
         Nv = G.subgraph(G[v].keys())
 
         if not Nv.nodes():  # in this case there is no edge to contract, happens in unconnected graphs
+            G = G.copy()  # otherwise would act upon G itself
             G.remove_node(v)
             continue
 
