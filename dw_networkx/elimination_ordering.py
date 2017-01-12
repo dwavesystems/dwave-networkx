@@ -1,11 +1,12 @@
 import itertools
+import random
 import networkx as nx
 
 __all__ = ['treewidth_branch_and_bound', 'minor_min_width', 'min_width_heuristic', 'is_simplicial',
            'is_complete', 'is_almost_simplicial', 'min_fill_heuristic']
 
 
-def treewidth_branch_and_bound(G):
+def treewidth_branch_and_bound(G, randomize=False):
     """computes the treewidth of a graph G and a corresponding perfect elimination ordering.
 
     Gogate & Dechter, "A Complete Anytime Algorithm for Treewidth", https://arxiv.org/abs/1207.4109
@@ -15,7 +16,7 @@ def treewidth_branch_and_bound(G):
         treewidth : the treewidth of the graph G
         order : an elimination order that induces the treewidth
     """
-    ub, order = min_width_heuristic(G)  # an upper bound on the treewidth
+    ub, order = min_width_heuristic(G, randomize=randomize)  # an upper bound on the treewidth
     lb = minor_min_width(G)  # a lower bound on the treewidth
 
     if lb == ub:
@@ -71,7 +72,7 @@ def _BB(state, upper_bound, info):
         return min(ub, lb), partial_order+G.nodes()
 
     # finally we try removing each of the variables from G and see which is the best
-    for v in G:
+    for v in (randomize and random.sample(G.nodes(), len(G)) or G):
         if v in nv:  # we can skip direct neighbors
             continue
 
@@ -174,7 +175,6 @@ def min_fill_heuristic(G):
     upper_bound = 0
 
     while G.nodes():
-
         # get the node that adds the fewest number of nodes when eliminated from the graph
         v = min(G.nodes(), key=needed_edges)
 
@@ -187,14 +187,16 @@ def min_fill_heuristic(G):
     return upper_bound, order
 
 
-def min_width_heuristic(G):
+def min_width_heuristic(G, randomize=False):
     """computes an upper bound on the treewidth of a graph based on the min-width heuristic
     for the elimination ordering.
 
-    ub, order = min_width(G)
+    ub, order = min_width_heuristic(G)
+    ub, order = min_width_heuristic(G, randomize)
         G : a NetworkX graph
         ub : an upper bound on the treewidth of G
         order : an elimination ordering that induces that upper bound
+        randomize : variable order will not be fixed for G
     """
     G = G.copy()  # we will be manipulating G
 
@@ -204,7 +206,10 @@ def min_width_heuristic(G):
     while G.nodes():
         # get the node with the smallest degree
         degreeG = G.degree(G.nodes())
-        v = min(degreeG, key=degreeG.get)
+        if randomize:
+            v = min(random.sample(degreeG.keys(), len(degreeG)), key=degreeG.get)
+        else:
+            v = min(degreeG, key=degreeG.get)
 
         # if the number of neighbours of v is higher then upper_bound, update
         upper_bound = max(upper_bound, G.degree(v))
