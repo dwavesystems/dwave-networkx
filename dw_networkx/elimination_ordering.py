@@ -31,10 +31,10 @@ def treewidth_branch_and_bound(G, randomize=False):
     upper_bound = (ub, order)
     state = (G.copy(), partial_order, nv)
     info = (lb, 0)  # lb, g
-    return _BB(state, upper_bound, info)
+    return _BB(state, upper_bound, info, randomize=randomize)
 
 
-def _BB(state, upper_bound, info):
+def _BB(state, upper_bound, info, randomize=False):
     """helper function for treewidth_branch_and_bound
     NB: acts on G in place
     lb == f from paper"""
