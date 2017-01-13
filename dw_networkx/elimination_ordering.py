@@ -16,7 +16,7 @@ def treewidth_branch_and_bound(G, randomize=False):
         treewidth : the treewidth of the graph G
         order : an elimination order that induces the treewidth
     """
-    ub, order = min_width_heuristic(G, randomize=randomize)  # an upper bound on the treewidth
+    ub, order = min_width_heuristic(G, randomize)  # an upper bound on the treewidth
     lb = minor_min_width(G)  # a lower bound on the treewidth
 
     if lb == ub:
@@ -31,7 +31,7 @@ def treewidth_branch_and_bound(G, randomize=False):
     upper_bound = (ub, order)
     state = (G.copy(), partial_order, nv)
     info = (lb, 0)  # lb, g
-    return _BB(state, upper_bound, info, randomize=randomize)
+    return _BB(state, upper_bound, info, randomize)
 
 
 def _BB(state, upper_bound, info, randomize=False):
@@ -89,7 +89,7 @@ def _BB(state, upper_bound, info, randomize=False):
         new_info = (lb_s, g_s)
 
         if lb_s < ub:  # we need to keep going
-            upper_bound = _BB(new_state, upper_bound, new_info)
+            upper_bound = _BB(new_state, upper_bound, new_info, randomize)
             ub, order = upper_bound
 
     return upper_bound
@@ -187,7 +187,7 @@ def min_fill_heuristic(G):
     return upper_bound, order
 
 
-def min_width_heuristic(G, randomize=False):
+def min_width_heuristic(G, randomize):
     """computes an upper bound on the treewidth of a graph based on the min-width heuristic
     for the elimination ordering.
 
