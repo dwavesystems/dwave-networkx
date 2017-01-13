@@ -51,12 +51,19 @@ def _BB(state, upper_bound, info, randomize=False):
             G.add_edge(v1, v2)
 
     # next we are going to remove some nodes from G and add them to the partial_order
-    # lets try to keep as close to order as we can, the order does not matter for the
-    # final treewidth but it might make some elimiation orders slightly faster
+    # specifically, we can remove simplicial or almost simplicial nodes from G and update
+    # our lower bound
     sflag = True
     while sflag:
         sflag = False
-        for v in (u for u in order if u in G):
+
+        # we may want to sample in a random order
+        if randomize:
+            node_set = random.sample(G.nodes(), len(G))
+        else:
+            node_set = G.nodes()
+
+        for v in sorted(node_set, key=G.degree):
             if is_simplicial(G, v) or (is_almost_simplicial(G, v) and G.degree(v) <= lb):
                 sflag = True
                 partial_order.append(v)
@@ -228,7 +235,7 @@ def min_width_heuristic(G, randomize=False):
 
         # make v simplicial by making its neighborhood a clique then remove the node
         # add v to order
-        _elim(v)
+        _elim(G, v)
         order.append(v)
 
     return upper_bound, order
