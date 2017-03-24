@@ -16,6 +16,8 @@ def treewidth_branch_and_bound(G, randomize=False):
         treewidth : the treewidth of the graph G
         order : an elimination order that induces the treewidth
     """
+    # variable names were chosen to be consistent with the paper
+
     ub, order = min_width_heuristic(G, randomize)  # an upper bound on the treewidth
     lb = minor_min_width(G)  # a lower bound on the treewidth
 
@@ -30,7 +32,7 @@ def treewidth_branch_and_bound(G, randomize=False):
 
     upper_bound = (ub, order)
     state = (G.copy(), partial_order, nv)
-    info = (lb, 0)  # lb, g
+    info = (lb, 0)  # lb, g is a variable in the paper
     return _BB(state, upper_bound, info, randomize)
 
 
@@ -74,7 +76,7 @@ def _BB(state, upper_bound, info, randomize=False):
 
     # now the terminal rule
     if len(G.nodes()) < 2:
-        return min(ub, lb), partial_order+G.nodes()
+        return min(ub, lb), partial_order+G.nodes()  # ub, order
 
     # finally we try removing each of the variables from G and see which is the best
     for v in (randomize and random.sample(G.nodes(), len(G)) or G):
@@ -180,11 +182,11 @@ def min_fill_heuristic(G, randomize=False):
 
     G = G.copy()  # we will be manipulating G
 
-    order = []
+    order = []  # variable elimination order
     upper_bound = 0
 
     while G.nodes():
-        # get the node that adds the fewest number of nodes when eliminated from the graph
+        # get the node that adds the fewest number of edges when eliminated from the graph
         # nodes are eliminated by making them simplicial, that is making their neighborhood
         # a clique
         if randomize:

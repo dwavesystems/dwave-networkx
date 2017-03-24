@@ -2,14 +2,22 @@
 
 import networkx as nx
 import json
+import itertools
 
 
 class Graph(nx.Graph):
+    # TODO doc string
     def canonical_form(self):
         raise NotImplementedError('this is for dw_graph only, not yet implemented')
 
     def toJSON(self):
+        # there might be a more pythonic way to do this
         raise NotImplementedError('this is for dw_graph only, not yet implemented')
+
+    def add_complete_structure(self, k):
+        """adds edges/nodes corresponding to a complete graph with k nodes (indexed starting
+        at 0)"""
+        self.add_edges_from(itertools.combinations(range(k), 2))
 
     def add_chimera_structure(self, m, n=None, t=None):
         """adds the edges from a Chimera-strucuted graph defined by (m, n, t)
