@@ -1,14 +1,12 @@
-## Requirements
+# Requirements
 networkx https://networkx.github.io/
 
 `pip install networkx`
 
-## Installation
-
+# Installation
 `python setup.py install`
 
-## Example
-
+# Example
 ```
 import dwave_networkx as dnx
 
@@ -21,7 +19,7 @@ graph.edges()
 #>> [(0, 4), (0, 5), (0, 6), (0, 7), (1, 4), (1, 5), (1, 6), (1, 7), (2, 4), (2, 5), (2, 6), (2, 7), (3, 4), (3, 5), (3, 6), (3, 7)]
 ```
 
-## NetworkX License
+# NetworkX License
 Copywrite notice from NetworkX:
 
 Copyright (C) 2004-2012, NetworkX Developers
