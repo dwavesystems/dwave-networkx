@@ -17,6 +17,7 @@ class Graph(nx.Graph):
     def add_complete_structure(self, k):
         """adds edges/nodes corresponding to a complete graph with k nodes (indexed starting
         at 0)"""
+        self.add_nodes_from(range(k))
         self.add_edges_from(itertools.combinations(range(k), 2))
 
     def add_chimera_structure(self, m, n=None, t=None):
