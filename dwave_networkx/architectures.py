@@ -19,8 +19,8 @@ def chimera_graph(m, n=None, t=None, create_using=None):
     A Chimera lattice is an m by n grid of Chimera Tiles. Each Chimera tile is itself a bipartite
     graph with shores of size t. The connection in a Chimera lattice can expressed using a node indexing
     notation (i,j,u,k) for each node. (i,j) indexes the (row, column) of the Chimera Tile. i must be
-    between 0 and m−1 inclusive, and j must be between 0 and n−1 inclusive. u=0 indicates the left hand
-    nodes in the tile, and u=1 indicates the right hand nodes. k=0,1,⋯,t−1 indexes nodes within either
+    between 0 and m-1 inclusive, and j must be between 0 and n-1 inclusive. u=0 indicates the left hand
+    nodes in the tile, and u=1 indicates the right hand nodes. k=0,1,...,t-1 indexes nodes within either
     the left- or right-hand shores of a tile.
     In this notation, two nodes (i, j, u, k) and (i', j', u', k') are neighbors if and only if:
         (i = i' AND j = j' AND u != u') OR
