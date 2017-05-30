@@ -1,5 +1,11 @@
+"""
+Algorithms for variable elimination.
+
+
+"""
 import itertools
 import random
+
 import networkx as nx
 
 __all__ = ['treewidth_branch_and_bound', 'minor_min_width', 'min_width_heuristic', 'is_simplicial',
@@ -7,14 +13,26 @@ __all__ = ['treewidth_branch_and_bound', 'minor_min_width', 'min_width_heuristic
 
 
 def treewidth_branch_and_bound(G, randomize=False):
-    """computes the treewidth of a graph G and a corresponding perfect elimination ordering.
+    """Computes the treewidth of a graph G and a corresponding perfect elimination ordering.
 
-    Gogate & Dechter, "A Complete Anytime Algorithm for Treewidth", https://arxiv.org/abs/1207.4109
+    Parameters
+    ----------
+    G : graph
+        A NetworkX graph.
+    randomize : bool, optional (default False)
+        Apply randomization when choosing the elimination ordering.
 
-    treewidth, order = treewidth_branch_and_bound(G)
-        G : a NetworkX graph G
-        treewidth : the treewidth of the graph G
-        order : an elimination order that induces the treewidth
+    Returns
+    -------
+    treewidth : int
+        The treewidth of the graph G.
+    order : list
+        An elimination order that induces the treewidth.
+
+    References
+    ----------
+       Gogate & Dechter, "A Complete Anytime Algorithm for Treewidth", https://arxiv.org/abs/1207.4109
+
     """
     # variable names were chosen to be consistent with the paper
 
@@ -39,7 +57,8 @@ def treewidth_branch_and_bound(G, randomize=False):
 def _BB(state, upper_bound, info, randomize=False):
     """helper function for treewidth_branch_and_bound
     NB: acts on G in place
-    lb == f from paper"""
+    lb == f from paper
+    """
 
     G, partial_order, nv = state  # extract the base graph and associated partial order
     ub, order = upper_bound
@@ -102,35 +121,80 @@ def _BB(state, upper_bound, info, randomize=False):
     return upper_bound
 
 
-def is_simplicial(G, v):
-    """Determines whether a vertex v in G is simplicial.
-    A vertex is simplicial if its neighbors form a clique."""
-    return is_complete(G.subgraph(G[v]))
+def is_simplicial(G, n):
+    """Determines whether a node n in G is simplicial.
+
+    Parameters
+    ----------
+    G : graph
+        A NetworkX graph.
+    n : node
+        A node in G.
+
+    Returns:
+    is_simplicial : bool
+        True if its neighbors form a clique.
+
+    """
+    return is_complete(G.subgraph(G[n]))
 
 
-def is_almost_simplicial(G, v):
-    """determines whether a vertex v in G is almost simplicial.
-    A vertex is almost simplicial if all but one of its neighbors induce a clique"""
-    for u in G[v]:
-        if is_complete(G.subgraph([w for w in G[v] if w != u])):
+def is_almost_simplicial(G, n):
+    """Determines whether a node n in G is almost simplicial.
+
+    Parameters
+    ----------
+    G : graph
+        A NetworkX graph.
+    n : node
+        A node in G.
+
+    Returns:
+    is_almost_simplicial : bool
+        True if all but one of its neighbors induce a clique
+
+    """
+    for u in G[n]:
+        if is_complete(G.subgraph([w for w in G[n] if w != u])):
             return True
     return False
 
 
 def is_complete(G):
-    """returns true if G is a complete graph"""
+    """Determines if G is a complete graph.
+
+    Parameters
+    ----------
+    G : graph
+        A NetworkX graph.
+
+    Returns
+    -------
+    is_complete : bool
+        True if G is a complete graph
+
+    """
     n = len(G.nodes())  # get the number of nodes
     return len(G.edges()) == n*(n-1)/2
 
 
 def minor_min_width(G):
-    """computes a lower bound on the treewidth of G.
+    """Computes a lower bound on the treewidth of G.
 
-    Gogate & Dechter, "A Complete Anytime Algorithm for Treewidth", https://arxiv.org/abs/1207.4109
+    Parameters
+    ----------
+    G : graph
+        A NetworkX graph.
 
-    lb = minor_min_width(G)
-        G : a NetworkX graph
-        lb : a lower bound on the treewidth
+    Returns
+    -------
+    lb : int
+        A lower bound on the treewidth.
+
+    References
+    ----------
+       Gogate & Dechter, "A Complete Anytime Algorithm for Treewidth", https://arxiv.org/abs/1207.4109
+
     """
     lb = 0
     while len(G.nodes()) > 1:
@@ -166,14 +230,23 @@ def _elim(G, v):
 
 
 def min_fill_heuristic(G, randomize=False):
-    """computes an upper bound on the treewidth of a graph based on the min-full heuristic
-    for the elimination ordering
+    """Computes an upper bound on the treewidth of a graph based on the min-fill heuristic
+    for the elimination ordering.
 
-    ub, order = min_width(G)
-        G : a NetworkX graph
-        ub : an upper bound on the treewidth of G
-        order : an elimination ordering that induces that upper bound
-        randomize : variable order will not be fixed for G
+    Parameters
+    ----------
+    G : graph
+        A NetworkX graph.
+    randomize : bool, optional (default False)
+        Apply randomization when choosing the elimination ordering.
+
+    Returns
+    -------
+    treewidth_upper_bound : int
+        An upper bound on the treewidth of the graph G.
+    order : list
+        An elimination order that induces the treewidth.
+
     """
 
     # finds the number of edges that would need to be added in order to make the node's
@@ -207,15 +280,23 @@ def min_fill_heuristic(G, randomize=False):
 
 
 def min_width_heuristic(G, randomize=False):
-    """computes an upper bound on the treewidth of a graph based on the min-width heuristic
+    """Computes an upper bound on the treewidth of a graph based on the min-width heuristic
     for the elimination ordering.
 
-    ub, order = min_width_heuristic(G)
-    ub, order = min_width_heuristic(G, randomize)
-        G : a NetworkX graph
-        ub : an upper bound on the treewidth of G
-        order : an elimination ordering that induces that upper bound
-        randomize : variable order will not be fixed for G
+    Parameters
+    ----------
+    G : graph
+        A NetworkX graph.
+    randomize : bool, optional (default False)
+        Apply randomization when choosing the elimination ordering.
+
+    Returns
+    -------
+    treewidth_upper_bound : int
+        An upper bound on the treewidth of the graph G.
+    order : list
+        An elimination order that induces the treewidth.
+
     """
     G = G.copy()  # we will be manipulating G in place
 
