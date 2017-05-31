@@ -1,3 +1,7 @@
+# DWave_NetworkX
+
+An extension of the [NetworkX](http://networkx.github.io/) Python package that includes graph structures and algorithms relevent to the D-Wave System.
+
 # Requirements
 networkx https://networkx.github.io/
 
@@ -7,15 +11,13 @@ networkx https://networkx.github.io/
 `python setup.py install`
 
 # Example
-```
-import dwave_networkx as dnx
-
-graph = dnx.chimera_graph(1, 1, 4)
-
-graph.nodes()
-#>> [0, 1, 2, 3, 4, 5, 6, 7]
-graph.edges()
-#>> [(0, 4), (0, 5), (0, 6), (0, 7), (1, 4), (1, 5), (1, 6), (1, 7), (2, 4), (2, 5), (2, 6), (2, 7), (3, 4), (3, 5), (3, 6), (3, 7)]
+```python
+>>> import dwave_networkx as dnx
+>>> graph = dnx.chimera_graph(1, 1, 4)
+>>> list(graph.nodes())
+[0, 1, 2, 3, 4, 5, 6, 7]
+>>> list(graph.edges())
+[(0, 4), (0, 5), (0, 6), (0, 7), (1, 4), (1, 5), (1, 6), (1, 7), (2, 4), (2, 5), (2, 6), (2, 7), (3, 4), (3, 5), (3, 6), (3, 7)]
 ```
 
 # NetworkX License
