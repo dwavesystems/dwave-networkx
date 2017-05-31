@@ -10,8 +10,7 @@ networkx https://networkx.github.io/
 ```
 import dwave_networkx as dnx
 
-graph = dnx.Graph()
-graph.add_chimera_structure(1, 1, 4)
+graph = dnx.chimera_graph(1, 1, 4)
 
 graph.nodes()
 #>> [0, 1, 2, 3, 4, 5, 6, 7]
