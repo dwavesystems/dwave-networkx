@@ -14,3 +14,9 @@ try:
     from dwave_networkx.x_architectures import *
 except ImportError:
     pass
+
+import dwave_networkx.algorithms
+from dwave_networkx.algorithms import *
+
+# import dwave_networkx.exception
+from dwave_networkx.exception import *
