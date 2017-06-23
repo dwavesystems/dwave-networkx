@@ -44,7 +44,7 @@ def maximum_independent_set_qa(G, solver, **solver_args):
 
     Notes
     -----
-    Quantum annealers by their nature to not necessarily return correct
+    Quantum annealers by their nature do not necessarily return correct
     answers. This function makes no attempt to check the quality of the
     solution.
 
