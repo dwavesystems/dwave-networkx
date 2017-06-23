@@ -50,6 +50,8 @@ def maximum_independent_set_qa(G, solver, **solver_args):
 
     https://en.wikipedia.org/wiki/Independent_set_(graph_theory)
 
+    https://en.wikipedia.org/wiki/Quadratic_unconstrained_binary_optimization
+
     References
     ----------
     .. [1] Lucas, A. (2014). Ising formulations of many NP problems.
@@ -62,6 +64,14 @@ def maximum_independent_set_qa(G, solver, **solver_args):
         raise TypeError("expected solver to have a 'solve_unstructured_qubo' method")
 
     # We assume that the solver can handle an unstructured QUBO problem, so let's set one up.
+    # Let us define the largest independent set to be S.
+    # For each node n in the graph, we assign a boolean variable v_n, where v_n = 1 when n
+    # is in S and v_n = 0 otherwise.
+    # We call the matrix defining our QUBO problem Q.
+    # On the diagnonal, we assign the linear bias for each node to be -1. This means that each
+    # node is biased towards being in S
+    # On the off diagnonal, we assign the off-diagonal terms of Q to be 2. Thus, if both
+    # nodes are in S, the overall energy is increased by 2.
     Q = {(node, node): -1 for node in G}
     Q.update({edge: 2 for edge in G.edges_iter()})
 
