@@ -40,6 +40,6 @@ class Solver(object):
         result = solve_ising(solver, h0, j)
         ans = unembed_answer(result['solutions'], embeddings, 'minimize_energy', h, J)
 
-        # unapply the relabelling and return
+        # unapply the relabelling and convert back from spin
         inv_label = {label[n]: n for n in label}
-        return {inv_label[i]: spin for i, spin in enumerate(ans[0])}
+        return {inv_label[i]: (spin+1)/2 for i, spin in enumerate(ans[0])}
