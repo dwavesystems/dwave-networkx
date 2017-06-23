@@ -11,7 +11,7 @@ def maximum_independent_set_qa(G, solver, **solver_args):
 
     An independent set is a set of nodes such that the subgraph
     of G induced by these nodes contains no edges. A maximum
-    independent set and independent set of largest possible size.
+    independent set is an independent set of largest possible size.
 
     Parameters
     ----------
@@ -47,6 +47,8 @@ def maximum_independent_set_qa(G, solver, **solver_args):
     Quantum annealers by their nature to not necessarily return correct
     answers. This function makes no attempt to check the quality of the
     solution.
+
+    https://en.wikipedia.org/wiki/Independent_set_(graph_theory)
 
     References
     ----------
