@@ -23,11 +23,10 @@ class TestPacking(unittest.TestCase):
         indep_set = dnx.maximum_independent_set_qa(G, Solver())
         self.set_independence_check(G, indep_set)
 
-        G = dnx.gnp_random_graph(20, .5)
-        indep_set = dnx.maximum_independent_set_qa(G, Solver())
-        self.set_independence_check(G, indep_set)
-
-        print indep_set
+        for __ in range(10):
+            G = dnx.gnp_random_graph(20, .5)
+            indep_set = dnx.maximum_independent_set_qa(G, Solver())
+            self.set_independence_check(G, indep_set)
 
 #######################################################################################
 # Helper functions
