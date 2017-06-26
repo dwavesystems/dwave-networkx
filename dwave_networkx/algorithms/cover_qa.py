@@ -28,7 +28,7 @@ def min_vertex_cover_qa(G, solver, **solver_args):
     -------
     vertex_cover : list
        List of nodes that the form a the minimum vertex cover, as
-       determined by the quantum annealer.
+       determined by the given solver.
 
     Raises
     ------
