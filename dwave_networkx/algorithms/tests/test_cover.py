@@ -28,5 +28,9 @@ class TestCover(unittest.TestCase):
 #######################################################################################
 
     def vertex_cover_check(self, G, cover):
+        # each node in the vertex cover should be in G
+        self.assertTrue(all(node in G for node in cover))
+
+        # a vertex cover should contain at least one of the nodes for each edge
         for (node1, node2) in G.edges():
             self.assertTrue(node1 in cover or node2 in cover)
