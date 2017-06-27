@@ -31,7 +31,9 @@ class Solver(object):
 
         # get the embedding, this function assumes that the given problem is
         # unstructured
-        embeddings = find_embedding(Qrl, A)
+        embeddings = find_embedding(Qrl, A, tries=50)
+        if not embeddings:
+            raise Exception('problem is too large to be embedded')
         [h0, j0, jc, embeddings] = embed_problem(h, J, embeddings, A)
 
         # actually solve the thing
