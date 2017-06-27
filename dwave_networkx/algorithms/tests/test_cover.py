@@ -2,10 +2,12 @@ import unittest
 
 import dwave_networkx as dnx
 
-from dwave_networkx.algorithms.tests.solver import Solver
+from dwave_networkx.algorithms.tests.solver import Solver, _solver_found
 
 
 class TestCover(unittest.TestCase):
+
+    @unittest.skipIf(not _solver_found, "No solver found to test with")
     def test_vertex_cover_basic(self):
 
         G = dnx.chimera_graph(2, 2, 4)

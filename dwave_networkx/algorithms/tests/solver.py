@@ -1,8 +1,12 @@
 # we need a test solver
-from dwave_sapi2.local import local_connection
-from dwave_sapi2.core import solve_ising, solve_qubo
-from dwave_sapi2.util import get_chimera_adjacency, qubo_to_ising
-from dwave_sapi2.embedding import find_embedding, embed_problem, unembed_answer
+_solver_found = True
+try:
+    from dwave_sapi2.local import local_connection
+    from dwave_sapi2.core import solve_ising, solve_qubo
+    from dwave_sapi2.util import get_chimera_adjacency, qubo_to_ising
+    from dwave_sapi2.embedding import find_embedding, embed_problem, unembed_answer
+except ImportError as e:
+    _solver_found = False
 
 
 class Solver(object):
