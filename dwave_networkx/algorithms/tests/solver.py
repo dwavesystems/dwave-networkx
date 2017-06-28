@@ -13,7 +13,7 @@ class Solver(object):
     """These qa functions all assume that there is a solver that can handle them
     This is quick-and-dirty solver that wraps the sapi software solver.
     """
-    def solve_unstructured_qubo(self, Q, **args):
+    def solve_qubo(self, Q, **args):
         # relabel Q with indices
         label = {}
         idx = 0
@@ -48,4 +48,4 @@ class Solver(object):
 
         # unapply the relabelling and convert back from spin
         inv_label = {label[n]: n for n in label}
-        return {inv_label[i]: (spin+1)/2 for i, spin in enumerate(ans[0])}
+        return {inv_label[i]: (spin + 1) / 2 for i, spin in enumerate(ans[0])}
