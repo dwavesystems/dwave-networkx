@@ -32,19 +32,24 @@ class Solver(object):
 
         # convert the problem to Ising
         (h, J, ising_offset) = qubo_to_ising(Qrl)
+        print 'h:', h
+        print 'J:', J
 
-        # get the embedding, this function assumes that the given problem is
-        # unstructured
-        embeddings = find_embedding(Qrl, A, tries=50)
-        if not embeddings:
-            raise Exception('problem is too large to be embedded')
-        [h0, j0, jc, embeddings] = embed_problem(h, J, embeddings, A)
+        if not J:
+            ans = [[bias > 0 and -1 or 1 for bias in h]]
+        else:
+            # get the embedding, this function assumes that the given problem is
+            # unstructured
+            embeddings = find_embedding(Qrl, A, tries=50)
+            if not embeddings:
+                raise Exception('problem is too large to be embedded')
+            [h0, j0, jc, embeddings] = embed_problem(h, J, embeddings, A)
 
-        # actually solve the thing
-        j = j0
-        j.update(jc)
-        result = solve_ising(solver, h0, j)
-        ans = unembed_answer(result['solutions'], embeddings, 'minimize_energy', h, J)
+            # actually solve the thing
+            j = j0
+            j.update(jc)
+            result = solve_ising(solver, h0, j)
+            ans = unembed_answer(result['solutions'], embeddings, 'minimize_energy', h, J)
 
         # unapply the relabelling and convert back from spin
         inv_label = {label[n]: n for n in label}
