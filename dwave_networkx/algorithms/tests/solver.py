@@ -1,15 +1,19 @@
 # we need a test solver
-from dwave_sapi2.local import local_connection
-from dwave_sapi2.core import solve_ising, solve_qubo
-from dwave_sapi2.util import get_chimera_adjacency, qubo_to_ising
-from dwave_sapi2.embedding import find_embedding, embed_problem, unembed_answer
+_solver_found = True
+try:
+    from dwave_sapi2.local import local_connection
+    from dwave_sapi2.core import solve_ising, solve_qubo
+    from dwave_sapi2.util import get_chimera_adjacency, qubo_to_ising
+    from dwave_sapi2.embedding import find_embedding, embed_problem, unembed_answer
+except ImportError as e:
+    _solver_found = False
 
 
 class Solver(object):
     """These qa functions all assume that there is a solver that can handle them
     This is quick-and-dirty solver that wraps the sapi software solver.
     """
-    def solve_unstructured_qubo(self, Q, **args):
+    def solve_qubo(self, Q, **args):
         # relabel Q with indices
         label = {}
         idx = 0
@@ -44,4 +48,4 @@ class Solver(object):
 
         # unapply the relabelling and convert back from spin
         inv_label = {label[n]: n for n in label}
-        return {inv_label[i]: (spin+1)/2 for i, spin in enumerate(ans[0])}
+        return {inv_label[i]: (spin + 1) / 2 for i, spin in enumerate(ans[0])}

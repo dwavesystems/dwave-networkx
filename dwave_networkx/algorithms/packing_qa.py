@@ -2,9 +2,12 @@
 TODO
 """
 
+from dwave_networkx.utils_qa.decorators import quantum_annealer_solver
+
 __all__ = ["maximum_independent_set_qa"]
 
 
+@quantum_annealer_solver(1)
 def maximum_independent_set_qa(G, solver, **solver_args):
     """Tries to determine a maximum independent set of nodes using
     the provided quantum annealing (qa) solver.
@@ -59,10 +62,6 @@ def maximum_independent_set_qa(G, solver, **solver_args):
 
     """
 
-    if not hasattr(solver, "solve_unstructured_qubo") \
-            or not callable(solver.solve_unstructured_qubo):
-        raise TypeError("expected solver to have a 'solve_unstructured_qubo' method")
-
     # We assume that the solver can handle an unstructured QUBO problem, so let's set one up.
     # Let us define the largest independent set to be S.
     # For each node n in the graph, we assign a boolean variable v_n, where v_n = 1 when n
@@ -76,7 +75,7 @@ def maximum_independent_set_qa(G, solver, **solver_args):
     Q.update({edge: 2 for edge in G.edges_iter()})
 
     # we expect that the solution will be a dict of the form {node: bool}
-    solution = solver.solve_unstructured_qubo(Q, **solver_args)
+    solution = solver.solve_qubo(Q, **solver_args)
 
     # nodes that are spin up or true are exactly the ones in S.
     return [node for node in solution if solution[node] > 0]

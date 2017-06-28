@@ -2,7 +2,7 @@ import unittest
 
 import dwave_networkx as dnx
 
-from dwave_networkx.algorithms.tests.solver import Solver
+from dwave_networkx.algorithms.tests.solver import Solver, _solver_found
 
 
 #######################################################################################
@@ -10,6 +10,8 @@ from dwave_networkx.algorithms.tests.solver import Solver
 #######################################################################################
 
 class TestPacking(unittest.TestCase):
+
+    @unittest.skipIf(not _solver_found, "No solver found to test with")
     def test_maximum_independent_set_basic(self):
         """Runs the function on some small and simple graphs, just to make
         sure it works in basic functionality.

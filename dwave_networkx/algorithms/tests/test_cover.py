@@ -2,10 +2,12 @@ import unittest
 
 import dwave_networkx as dnx
 
-from dwave_networkx.algorithms.tests.solver import Solver
+from dwave_networkx.algorithms.tests.solver import Solver, _solver_found
 
 
 class TestCover(unittest.TestCase):
+
+    @unittest.skipIf(not _solver_found, "No solver found to test with")
     def test_vertex_cover_basic(self):
 
         G = dnx.chimera_graph(2, 2, 4)
@@ -26,5 +28,9 @@ class TestCover(unittest.TestCase):
 #######################################################################################
 
     def vertex_cover_check(self, G, cover):
+        # each node in the vertex cover should be in G
+        self.assertTrue(all(node in G for node in cover))
+
+        # a vertex cover should contain at least one of the nodes for each edge
         for (node1, node2) in G.edges():
             self.assertTrue(node1 in cover or node2 in cover)

@@ -2,9 +2,12 @@
 TODO
 """
 
+from dwave_networkx.utils_qa.decorators import quantum_annealer_solver
+
 __all__ = ['min_vertex_cover_qa']
 
 
+@quantum_annealer_solver(1)
 def min_vertex_cover_qa(G, solver, **solver_args):
     """Tries to determine a minimum vertex cover using the provided
     quantum annealing (qa) solver.
@@ -59,10 +62,6 @@ def min_vertex_cover_qa(G, solver, **solver_args):
 
     """
 
-    if not hasattr(solver, "solve_unstructured_qubo") \
-            or not callable(solver.solve_unstructured_qubo):
-        raise TypeError("expected solver to have a 'solve_unstructured_qubo' method")
-
     # our weights for the two components. We need B < A
     A = 1  # term for ensuring that each edge has at least one node
     B = .5  # term for minimizing the number of nodes colored
@@ -80,7 +79,7 @@ def min_vertex_cover_qa(G, solver, **solver_args):
     Q.update({edge: A for edge in G.edges_iter()})
 
     # we expect that the solution will be a dict of the form {node: int(bool)}
-    solution = solver.solve_unstructured_qubo(Q, **solver_args)
+    solution = solver.solve_qubo(Q, **solver_args)
 
     # nodes that are true are in the cover
     return [node for node in G if solution[node] > 0]
