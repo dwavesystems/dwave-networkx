@@ -2,23 +2,27 @@
 TODO
 """
 
+import sys
 import math
 import itertools
 
 import dwave_networkx as dnx
+from dwave_networkx.utils_qa.decorators import quantum_annealer_solver
+from dwave_networkx.exception import DWaveNetworkXQAException
 
 __all__ = ["min_vertex_coloring_qa"]
 
+# compatibility for python 2/3
+if sys.version_info[0] == 2:
+    range = xrange
 
+
+@quantum_annealer_solver(1)
 def min_vertex_coloring_qa(G, solver, **solver_args):
     """TODO
 
     https://en.wikipedia.org/wiki/Brooks%27_theorem
     """
-
-    if not hasattr(solver, "solve_unstructured_qubo") \
-            or not callable(solver.solve_unstructured_qubo):
-        raise TypeError("expected solver to have a 'solve_unstructured_qubo' method")
 
     N = len(G)  # number of nodes
     M = len(G.edges())  # number of edges
@@ -30,7 +34,7 @@ def min_vertex_coloring_qa(G, solver, **solver_args):
         return {node: 0 for node in G}
 
     # Complete graphs have chromatic number N
-    if M == N*(N-1)/2:
+    if M == N * (N - 1) / 2:
         return {node: color for color, node in enumerate(G)}
 
     # The number of variables in the QUBO is approximately the number of nodes in the graph
@@ -46,109 +50,98 @@ def min_vertex_coloring_qa(G, solver, **solver_args):
         ub = max(G.degree(node) for node in G)
 
     # we also know that chi*(chi-1) <= 2*|E|, so using the quadratic formula
-    ub = min(ub, int((1 + math.sqrt(1 + 8*M))/2))
+    ub = min(ub, int(math.ceil((1 + math.sqrt(1 + 8 * M)) / 2)))
 
-    # before we get started building the QUBO, we can reduce the problem size by assigning
-    # some colors directly. Specifically, for a random edge, we can assign one node color 0
-    # and its neighbor color 1
-    n0, n1 = next(G.edges_iter())
-    coloring = {n0: 0, n1: 1}
-    lb = 2  # lower bound on the number of colors needed
+    # now we can start coloring. We start by finding a clique. Without loss of
+    # generality, we can color all of the nodes in the clique with unique colors.
+    # This also gives us a lower bound on the number of colors we need
+    clique = _greedy_clique_about_node(G, next(G.nodes_iter()))
+    coloring = {node: idx for idx, node in enumerate(clique)}
+    lb = len(clique) - 1
 
-    # now we might as well see if we're already in a clique. Each node in the clique gets its
-    # own color
-    shared = reduce(set.intersection, [set(G[node]) for node in coloring])
-    while shared:
-        node = shared.pop()
-        lb += 1
-        coloring[node] = lb
-        shared = reduce(set.intersection, [set(G[node]) for node in coloring])
+    # ok, now that we have an upper bound, it is time to start building the QUBO. For each
+    # node n, and for each color c, we define a boolean variable v_n_c that is 1 when node
+    # n is color c, and 0 otherwise.
 
-    # Ok, we have everything we need to start building the QUBO! For each node n in the graph
-    # and for each color c, we need a boolean variable v_n_c which is 1 when node n is colored
-    # c and 0 otherwise.
-    qubo_variables = {node: {color: 'v_{}_{}'.format(node, color) for color in range(ub)}
-                      for node in G}
+    # We assign each variable an integer label
+    counter = itertools.count()
+    qubo_variables = {}
+    for node in G:
+        if node not in coloring:
+            impossible_colors = {coloring[n] for n in G[node] if n in coloring}
 
-    # ok, for the nodes that are already colored, we can remove all of their associated
-    # variables, and we can remove the variables associated with their color for all
-    # of their neighbors
-    for node in coloring:
-        qubo_variables[node] = {}
+            qubo_variables[node] = {color: next(counter) for color in range(ub)
+                                    if color not in impossible_colors}
 
-        color = coloring[node]
-        for neighbor in G[node]:
-            if color in qubo_variables[neighbor]:
-                del qubo_variables[neighbor][color]
-
-    # # finally it is possible that some have only one possible color, so let's go ahead and
-    # # remove those
-    # while any(len(colors) == 1 for colors in qubo_variables.values()):
-    #     for node in G:
-    #         if len(qubo_variables[node]) == 1:
-    #             color = next(iter(qubo_variables[node]))
-    #             coloring[node] = color
-
-    #             qubo_variables[node] = {}
-    #             for neighbor in G[node]:
-    #                 if color in qubo_variables[neighbor]:
-    #                     del qubo_variables[neighbor][color]
-
-    # it is possible that we are already done
-    if all(node in coloring for node in G):
-        return coloring
-
-    # Now with all of the variables set, we can actually start building the qubo
+    # now we have three different constraints we wish to add.
     Q = {}
 
-    # First, for each two nodes that are neighbors, we need that their color is not equal
-    for n0, n1 in G.edges_iter():
+    # first, we want neighboring nodes to have different colors. To this we add a penalty
+    # in the QUBO when v_n0_c and v_n1_c
+    for n0, n1 in itertools.combinations(qubo_variables, 2):
+        if n0 not in G[n1]:
+            # we can ignore these if they are not neighbors
+            continue
         for color in qubo_variables[n0]:
             if color in qubo_variables[n1]:
-                Q[(qubo_variables[n0][color], qubo_variables[n1][color])] = 2
+                idx0 = qubo_variables[n0][color]
+                idx1 = qubo_variables[n1][color]
 
-    # now for each node, we require that they get assigned exactly one color
-    for node in G:
-        # disincentize having more than one color
-        for color1, color2 in itertools.combinations(qubo_variables[node], 2):
-            Q[(qubo_variables[node][color1], qubo_variables[node][color2])] = 2
+                Q[(idx0, idx1)] = 1
 
-        # incentivize colors being present
+    # second, we want each node to have exactly one color
+    for node in qubo_variables:
         for color in qubo_variables[node]:
-            Q[(qubo_variables[node][color], qubo_variables[node][color])] = -1
+            idx = qubo_variables[node][color]
+            Q[(idx, idx)] = -1
 
-    # # finally, we want to disincentivize colors beyond the lower bound, by adding a small h bias to
-    # # them
-    # for color in range(lb, ub):
-    #     for node in G:
-    #         if color in indices[node]:
-    #             Q[(indices[node][color], indices[node][color])] += 1.*(color-lb+1)/(ub - lb + 1)
+        for c0, c1 in itertools.combinations(qubo_variables[node], 2):
+            idx0 = qubo_variables[node][c0]
+            idx1 = qubo_variables[node][c1]
 
-    if not Q:
-        print coloring
-        print G.nodes()
-        print G.edges()
-        print qubo_variables
-        raise Exception
+            Q[(idx0, idx1)] = 2
 
-    solution = solver.solve_unstructured_qubo(Q, **solver_args)
+    # third, since we want the minimum vertex color, we want to disincentivize
+    # the colors we have not already used. In increasing amounts
+    for c in range(lb + 1, ub + 1):
+        penalty = .5 * (c - lb) / (ub - lb)
 
-    # decode the solution by reading off the color variables
-    for node in G:
-        if node in coloring:
-            continue
+        print c, penalty
 
+        for node in qubo_variables:
+            if c in qubo_variables[node]:
+                idx = qubo_variables[node][c]
+                Q[(idx, idx)] += penalty
+
+    # ok, let's solve
+    print qubo_variables
+    print Q
+    solution = solver.solve_qubo(Q, **solver_args)
+
+    print solution
+
+
+    for node in qubo_variables:
         for color in qubo_variables[node]:
-            var = qubo_variables[node][color]
-            if solution[var] > 0:
+            idx = qubo_variables[node][color]
+
+            if solution[idx]:
                 coloring[node] = color
-                continue
+                break
 
-    if not all(node in coloring for node in G):
-        raise dnx.DWaveNetworkXQAException('Not every node was assigned a color.')
+        if node not in coloring:
+            raise DWaveNetworkXQAException("node {} did not recieve a color".format(node))
 
     # finally return the coloring
     return coloring
+
+
+def _greedy_clique_about_node(G, n):
+    """Really simple attempt to find the largest clique containing node n"""
+    H = G.subgraph(G[n])
+    if not H:
+        return [n]
+    return [n] + _greedy_clique_about_node(H, next(H.nodes_iter()))
 
 
 def is_cycle(G):

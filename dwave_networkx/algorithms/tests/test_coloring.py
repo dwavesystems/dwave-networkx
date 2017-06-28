@@ -39,6 +39,24 @@ class TestColor(unittest.TestCase):
         coloring = dnx.min_vertex_coloring_qa(G, Solver())
         self.vertex_coloring_check(G, coloring)
 
+    def test_vertex_color_random_graph(self):
+
+        G = dnx.gnp_random_graph(4, .3)
+        mapping = dict(zip(G.nodes(), "abcdefghijklmnopqrstuvwxyz"))
+        G = dnx.relabel_nodes(G, mapping)
+        coloring = dnx.min_vertex_coloring_qa(G, Solver())
+        self.vertex_coloring_check(G, coloring)
+
+    def test_vertex_color_almost_complete(self):
+
+        G = dnx.complete_graph(10)
+        mapping = dict(zip(G.nodes(), "abcdefghijklmnopqrstuvwxyz"))
+        G = dnx.relabel_nodes(G, mapping)
+        n0, n1 = next(G.edges_iter())
+        G.remove_edge(n0, n1)
+        coloring = dnx.min_vertex_coloring_qa(G, Solver())
+        self.vertex_coloring_check(G, coloring)
+
 #######################################################################################
 # Helper functions
 #######################################################################################
