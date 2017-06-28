@@ -15,7 +15,7 @@ try:
 except ImportError:
     pass
 
-import dwave_networkx.algorithms
+# import dwave_networkx.algorithms
 from dwave_networkx.algorithms import *
 
 # import dwave_networkx.exception
