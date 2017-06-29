@@ -75,7 +75,7 @@ def min_vertex_cover_qa(G, solver, **solver_args):
     # of these, our final hamiltonian is
     # H_a = A*(|E| + sum_(n) -(deg(n)*v_n) + sum_(n1,n2) v_n1*v_n2)
     # additionally, we want to have the minimum cover, so we add H_b = B*sum_(n) v_n
-    Q = {(node, node): B - A*G.degree(node) for node in G}
+    Q = {(node, node): B - A * G.degree(node) for node in G}
     Q.update({edge: A for edge in G.edges_iter()})
 
     # we expect that the solution will be a dict of the form {node: int(bool)}
