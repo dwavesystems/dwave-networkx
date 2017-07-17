@@ -75,7 +75,9 @@ def maximum_independent_set_qa(G, solver, **solver_args):
     Q.update({edge: 2 for edge in G.edges_iter()})
 
     # we expect that the solution will be a dict of the form {node: bool}
-    solution = solver.solve_qubo(Q, **solver_args)
+    response = solver.sample_qubo(Q, **solver_args)
+
+    solution = next(response.samples())
 
     # nodes that are spin up or true are exactly the ones in S.
     return [node for node in solution if solution[node] > 0]

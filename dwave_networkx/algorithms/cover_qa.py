@@ -79,7 +79,10 @@ def min_vertex_cover_qa(G, solver, **solver_args):
     Q.update({edge: A for edge in G.edges_iter()})
 
     # we expect that the solution will be a dict of the form {node: int(bool)}
-    solution = solver.solve_qubo(Q, **solver_args)
+    response = solver.sample_qubo(Q, **solver_args)
+
+    # we want the lowest energy sample
+    solution = next(response.samples())
 
     # nodes that are true are in the cover
     return [node for node in G if solution[node] > 0]

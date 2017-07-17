@@ -23,9 +23,9 @@ def quantum_annealer_solver(which_arg):
 
         solver = args[which_arg]
 
-        if not hasattr(solver, "solve_qubo") \
-                or not callable(solver.solve_qubo):
-            raise TypeError("expected solver to have a 'solve_unstructured_qubo' method")
+        if not hasattr(solver, "sample_qubo") \
+                or not callable(solver.sample_qubo):
+            raise TypeError("expected solver to have a 'sample_qubo' method")
 
         return f(*args, **kw)
     return _quantum_annealer_solver
