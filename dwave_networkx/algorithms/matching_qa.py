@@ -4,8 +4,6 @@ TODO
 import sys
 import itertools
 
-from collections import defaultdict
-
 from dwave_networkx.utils_qa.decorators import quantum_annealer_solver
 
 __all__ = ['maximal_matching']
@@ -36,11 +34,13 @@ def maximal_matching(G, solver, **solver_args):
     edge_mapping = _edge_mapping(G)
 
     # build the QUBO
-    Q = _maximal_matching_qubo(G, edge_mapping, magnitude=B)  # Q is a defaultdict
+    Q = _maximal_matching_qubo(G, edge_mapping, magnitude=B)
     Qm = _matching_qubo(G, edge_mapping, magnitude=A)
     for edge, bias in Qm.items():
-        Q[edge] += bias
-    Q = dict(Q)  # we are not necessarily sure that the given sampler can handle a defaultdict
+        if edge not in Q:
+            Q[edge] = bias
+        else:
+            Q[edge] += bias
 
     # get a response from the solver
     response = solver.sample_qubo(Q, **solver_args)
@@ -143,10 +143,8 @@ def _maximal_matching_qubo(G, edge_mapping, magnitude=1.):
 
     ground_energy = -1 * magnitude * |edges|
     infeasible_gap >= magnitude
-
-    #NB: returns a defaultdict
     """
-    Q = defaultdict(float)
+    Q = {}
 
     # for each node n in G, define a variable y_n to be 1 when n has a colored edge
     # and 0 otherwise.
@@ -158,12 +156,18 @@ def _maximal_matching_qubo(G, edge_mapping, magnitude=1.):
         # for each edge connected to u
         for edge in G.edges_iter(u):
             x = edge_mapping[edge]
-            Q[(x, x)] -= magnitude
+            if (x, x) not in Q:
+                Q[(x, x)] = -1 * magnitude
+            else:
+                Q[(x, x)] -= magnitude
 
         # for each edge connected to v
         for edge in G.edges_iter(v):
             x = edge_mapping[edge]
-            Q[(x, x)] -= magnitude
+            if (x, x) not in Q:
+                Q[(x, x)] = -1 * magnitude
+            else:
+                Q[(x, x)] -= magnitude
 
         for e0 in G.edges_iter(v):
             x0 = edge_mapping[e0]
@@ -171,9 +175,15 @@ def _maximal_matching_qubo(G, edge_mapping, magnitude=1.):
                 x1 = edge_mapping[e1]
 
                 if x0 < x1:
-                    Q[(x0, x1)] += magnitude
+                    if (x0, x1) not in Q:
+                        Q[(x0, x1)] = magnitude
+                    else:
+                        Q[(x0, x1)] += magnitude
                 else:
-                    Q[(x1, x0)] += magnitude
+                    if (x1, x0) not in Q:
+                        Q[(x1, x0)] = magnitude
+                    else:
+                        Q[(x1, x0)] += magnitude
 
     return Q
 
