@@ -6,7 +6,7 @@ import itertools
 
 from dwave_networkx.utils_qa.decorators import quantum_annealer_solver
 
-__all__ = ['maximal_matching']
+__all__ = ['maximal_matching', 'minimal_maximal_matching', 'is_matching', 'is_maximal_matching']
 
 # compatibility for python 2/3
 if sys.version_info[0] == 2:
@@ -23,12 +23,12 @@ def maximal_matching(G, solver, **solver_args):
     # the maximum degree
     delta = max(G.degree(node) for node in G)
 
-    if delta == 2:
-        raise NotImplementedError('not implemented for degree 2 yet')
-
     # use the maximum degree to determine the infeasible gaps
     A = 1.
-    B = .75 * A / (delta - 2.)  # we want A > (delta - 2) * B
+    if delta == 2:
+        B = .75
+    else:
+        B = .75 * A / (delta - 2.)  # we want A > (delta - 2) * B
 
     # each edge in G gets a variable, so let's create those
     edge_mapping = _edge_mapping(G)
@@ -51,61 +51,50 @@ def maximal_matching(G, solver, **solver_args):
     # the matching are the edges that are 1 in the solution
     return set(edge for edge in G.edges_iter() if solution[edge_mapping[edge]] > 0)
 
-# @quantum_annealer_solver(1)
-# def minimal_maximal_matching(G, solver, **solver_args):
-#     """
-#     TODO
-#     """
 
-#     delta = max(G.degree(node) for node in G)
+@quantum_annealer_solver(1)
+def minimal_maximal_matching(G, solver, **solver_args):
+    """TODO"""
 
-#     A = 1.  # we want this to be a float
-#     if delta == 2:
-#         B = .75 * A
-#     else:
-#         B = .75 * A / (delta - 2.)
-#     C = .75 * B
+    # the maximum degree
+    delta = max(G.degree(node) for node in G)
 
-#     # For each edge e in G, we define a binary variable v_e which is 1 when e is in the matching,
-#     # and 0 otherwise.
-#     qubo_variables = {edge: idx for idx, edge in enumerate(G.edges_iter())}
-#     qubo_variables.update({(n1, n0): idx for (n0, n1), idx in iteritems(qubo_variables)})
+    # use the maximum degree to determine the infeasible gaps
+    A = 1.
+    if delta == 2:
+        B = .75
+    else:
+        B = .75 * A / (delta - 2.)  # we want A > (delta - 2) * B
+    C = .75 * B  # we want B > C
 
-#     # the first condition we which to enforce, is we wish no node to have two colored edges
-#     Q = _matching_qubo(G, edge_mapping=qubo_variables, magnitude=A)
+    # each edge in G gets a variable, so let's create those
+    edge_mapping = _edge_mapping(G)
 
-#     # now some magic that I have no idea how to explain
-#     for node in G:
-#         for edge in G.edges_iter(node):
-#             v = qubo_variables[edge]
-#             if (v, v) not in Q:
-#                 Q[(v, v)] = B * G.degree(node)
-#             else:
-#                 Q[(v, v)] += B * G.degree(node)
+    # build the QUBO
+    Q = _maximal_matching_qubo(G, edge_mapping, magnitude=B)
+    Qm = _matching_qubo(G, edge_mapping, magnitude=A)
+    for edge, bias in Qm.items():
+        if edge not in Q:
+            Q[edge] = bias
+        else:
+            Q[edge] += bias
 
-#     for n0, n1 in G.edges_iter():
-#         for e in G.edges_iter(n0):
-#             ve = qubo_variables[e]
-#             for d in G.edges_iter(n1):
-#                 vd = qubo_variables[d]
+    # to enforce the minimal constraint, we additionally add a small bias to
+    # each variable
+    for v in G:
+        if (v, v) not in Q:
+            Q[(v, v)] = C
+        else:
+            Q[(v, v)] += C
 
-#                 if (ve, vd) not in Q:
-#                     Q[(ve, vd)] = B
-#                 else:
-#                     Q[(ve, vd)] += B
+    # get a response from the solver
+    response = solver.sample_qubo(Q, **solver_args)
 
-#     # finally we want to color as few edges as possible
-#     for edge in G.edges_iter():
-#         v = qubo_variables[edge]
-#         Q[(v, v)] += C
+    # we want the lowest energy sample
+    solution = next(response.samples())
 
-#     # we expect that the solution will be a dict of the form {node: int(bool)}
-#     response = solver.sample_qubo(Q, **solver_args)
-
-#     # we want the lowest energy sample
-#     solution = next(response.samples())
-
-#     return set(edge for edge in G.edges_iter() if solution[qubo_variables[edge]] > 0)
+    # the matching are the edges that are 1 in the solution
+    return set(edge for edge in G.edges_iter() if solution[edge_mapping[edge]] > 0)
 
 
 def is_matching(matching):
@@ -131,6 +120,9 @@ def is_maximal_matching(G, matching):
 
 
 def _edge_mapping(G):
+    """Assigns a variable for each edge in G.
+    (u, v) and (v, u) map to the same variable.
+    """
     edge_mapping = {edge: idx for idx, edge in enumerate(G.edges_iter())}
     edge_mapping.update({(e1, e0): idx for (e0, e1), idx in edge_mapping.items()})
     return edge_mapping

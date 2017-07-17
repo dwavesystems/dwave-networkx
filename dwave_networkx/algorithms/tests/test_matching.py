@@ -9,7 +9,7 @@ from dwave_networkx.algorithms.tests.solver import Sampler, sampler_found
 
 from dwave_networkx.algorithms.matching_qa import _matching_qubo, _maximal_matching_qubo
 from dwave_networkx.algorithms.matching_qa import is_matching, is_maximal_matching, _edge_mapping
-from dwave_networkx import maximal_matching
+from dwave_networkx import maximal_matching, minimal_maximal_matching
 
 
 class TestMatching(unittest.TestCase):
@@ -280,7 +280,7 @@ class TestMatching(unittest.TestCase):
                           (3, 5), (3, 6), (4, 5), (4, 6), (4, 7), (5, 7)])
         delta = max(G.degree(node) for node in G)  # maximum degree
         A = 1  # magnitude arg for _matching_qubo
-        B = .75 * A / (delta - 2.)  # magnitude arg for _maximal_matching_qubo
+        B = .95 * A / (delta - 2.)  # magnitude arg for _maximal_matching_qubo
 
         edge_mapping = _edge_mapping(G)
         inv_edge_mapping = {idx: edge for edge, idx in edge_mapping.items()}
@@ -356,13 +356,11 @@ class TestMatching(unittest.TestCase):
         edge_mapping = _edge_mapping(G)
         inv_edge_mapping = {idx: edge for edge, idx in edge_mapping.items()}
 
-        Qmm = _maximal_matching_qubo(G, edge_mapping, magnitude=B)  # Q is a defaultdict
+        Qmm = _maximal_matching_qubo(G, edge_mapping, magnitude=B)
         Qm = _matching_qubo(G, edge_mapping, magnitude=A)
         Q = Qmm.copy()
         for edge, bias in Qm.items():
             Q[edge] += bias
-        Q = dict(Q)  # we are not necessarily sure that the given sampler can handle a defaultdict
-        Qmm = dict(Qmm)
 
         # now for each combination of edges, we check that if the combination
         # is a maximal matching, and if so that is has ground energy, else
@@ -420,10 +418,36 @@ class TestMatching(unittest.TestCase):
         self.assertTrue(is_maximal_matching(G, matching))
 
         for __ in range(10):
-            G = dnx.gnp_random_graph(8, .5)
+            G = dnx.gnp_random_graph(7, .5)
             matching = maximal_matching(G, Sampler())
-            print G.edges(), G.nodes(), matching
             self.assertTrue(is_maximal_matching(G, matching))
+
+    def test_minimal_maximal_matching_typical(self):
+
+        G = dnx.complete_graph(5)
+        matching = minimal_maximal_matching(G, Sampler())
+        self.assertTrue(is_maximal_matching(G, matching))
+
+        for __ in range(10):
+            G = dnx.gnp_random_graph(7, .5)
+            matching = minimal_maximal_matching(G, Sampler())
+            self.assertTrue(is_maximal_matching(G, matching))
+
+    def test_path_graph(self):
+        G = dnx.path_graph(10)
+        matching = maximal_matching(G, Sampler())
+        self.assertTrue(is_maximal_matching(G, matching))
+
+        matching = minimal_maximal_matching(G, Sampler())
+        self.assertTrue(is_maximal_matching(G, matching))
+
+        G.add_edge(0, 9)
+
+        matching = maximal_matching(G, Sampler())
+        self.assertTrue(is_maximal_matching(G, matching))
+
+        matching = minimal_maximal_matching(G, Sampler())
+        self.assertTrue(is_maximal_matching(G, matching))
 
 
 def powerset(iterable):
