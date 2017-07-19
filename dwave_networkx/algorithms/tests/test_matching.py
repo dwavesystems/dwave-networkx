@@ -9,7 +9,7 @@ from dwave_networkx.algorithms.tests.solver import Sampler, sampler_found
 
 from dwave_networkx.algorithms.matching_qa import _matching_qubo, _maximal_matching_qubo
 from dwave_networkx.algorithms.matching_qa import is_matching, is_maximal_matching, _edge_mapping
-from dwave_networkx import maximal_matching, minimal_maximal_matching
+from dwave_networkx import maximal_matching_dm, minimal_maximal_matching_dm
 
 
 class TestMatching(unittest.TestCase):
@@ -414,39 +414,39 @@ class TestMatching(unittest.TestCase):
     def test_maximal_matching_typical(self):
 
         G = dnx.complete_graph(5)
-        matching = maximal_matching(G, Sampler())
+        matching = maximal_matching_dm(G, Sampler())
         self.assertTrue(is_maximal_matching(G, matching))
 
         for __ in range(10):
             G = dnx.gnp_random_graph(7, .5)
-            matching = maximal_matching(G, Sampler())
+            matching = maximal_matching_dm(G, Sampler())
             self.assertTrue(is_maximal_matching(G, matching))
 
     def test_minimal_maximal_matching_typical(self):
 
         G = dnx.complete_graph(5)
-        matching = minimal_maximal_matching(G, Sampler())
+        matching = minimal_maximal_matching_dm(G, Sampler())
         self.assertTrue(is_maximal_matching(G, matching))
 
         for __ in range(10):
             G = dnx.gnp_random_graph(7, .5)
-            matching = minimal_maximal_matching(G, Sampler())
+            matching = minimal_maximal_matching_dm(G, Sampler())
             self.assertTrue(is_maximal_matching(G, matching))
 
     def test_path_graph(self):
         G = dnx.path_graph(10)
-        matching = maximal_matching(G, Sampler())
+        matching = maximal_matching_dm(G, Sampler())
         self.assertTrue(is_maximal_matching(G, matching))
 
-        matching = minimal_maximal_matching(G, Sampler())
+        matching = minimal_maximal_matching_dm(G, Sampler())
         self.assertTrue(is_maximal_matching(G, matching))
 
         G.add_edge(0, 9)
 
-        matching = maximal_matching(G, Sampler())
+        matching = maximal_matching_dm(G, Sampler())
         self.assertTrue(is_maximal_matching(G, matching))
 
-        matching = minimal_maximal_matching(G, Sampler())
+        matching = minimal_maximal_matching_dm(G, Sampler())
         self.assertTrue(is_maximal_matching(G, matching))
 
 

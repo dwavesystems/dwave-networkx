@@ -6,7 +6,8 @@ import itertools
 
 from dwave_networkx.utils_dw.decorators import discrete_model_sampler
 
-__all__ = ['maximal_matching', 'minimal_maximal_matching', 'is_matching', 'is_maximal_matching']
+__all__ = ['maximal_matching_dm', 'minimal_maximal_matching_dm',
+           'is_matching', 'is_maximal_matching']
 
 # compatibility for python 2/3
 if sys.version_info[0] == 2:
@@ -17,7 +18,7 @@ else:
 
 
 @discrete_model_sampler(1)
-def maximal_matching(G, solver, **solver_args):
+def maximal_matching_dm(G, solver, **solver_args):
     """TODO"""
 
     # the maximum degree
@@ -53,7 +54,7 @@ def maximal_matching(G, solver, **solver_args):
 
 
 @discrete_model_sampler(1)
-def minimal_maximal_matching(G, solver, **solver_args):
+def minimal_maximal_matching_dm(G, solver, **solver_args):
     """TODO"""
 
     # the maximum degree

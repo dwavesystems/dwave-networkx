@@ -23,14 +23,14 @@ class TestSocial(unittest.TestCase):
             for p1 in redteam1:
                 S.add_edge(p0, p1, sign=-1)
 
-        colors, frustrated_edges = dnx.network_imbalance_qubo(S, Sampler())
+        colors, frustrated_edges = dnx.network_imbalance_dm(S, Sampler())
 
         greenteam = ['Ted']
         for p0 in S.nodes():
             for p1 in greenteam:
                 S.add_edge(p0, p1, sign=1)
 
-        colors, frustrated_edges = dnx.network_imbalance_qubo(S, Sampler())
+        colors, frustrated_edges = dnx.network_imbalance_dm(S, Sampler())
 
     def test_network_imbalance_docstring_example(self):
         sampler = Sampler()
@@ -39,10 +39,10 @@ class TestSocial(unittest.TestCase):
         S.add_edge('Alice', 'Bob', sign=1)  # Alice and Bob are friendly
         S.add_edge('Alice', 'Eve', sign=-1)  # Alice and Eve are hostile
         S.add_edge('Bob', 'Eve', sign=-1)  # Bob and Eve are hostile
-        frustrated_edges, colors = dnx.network_imbalance_qubo(S, sampler)
+        frustrated_edges, colors = dnx.network_imbalance_dm(S, sampler)
         self.assertEqual(frustrated_edges, {})
         S.add_edge('Ted', 'Bob', sign=1)  # Ted is friendly with all
         S.add_edge('Ted', 'Alice', sign=1)
         S.add_edge('Ted', 'Eve', sign=1)
-        frustrated_edges, colors = dnx.network_imbalance_qubo(S, sampler)
+        frustrated_edges, colors = dnx.network_imbalance_dm(S, sampler)
         self.assertEqual(frustrated_edges, {('Ted', 'Eve'): {'sign': 1}})

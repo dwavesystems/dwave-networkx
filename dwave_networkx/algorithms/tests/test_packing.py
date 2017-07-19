@@ -18,16 +18,16 @@ class TestPacking(unittest.TestCase):
         """
 
         G = dnx.chimera_graph(2, 2, 4)
-        indep_set = dnx.maximum_independent_set_qa(G, Sampler())
+        indep_set = dnx.maximum_independent_set_dm(G, Sampler())
         self.set_independence_check(G, indep_set)
 
         G = dnx.path_graph(5)
-        indep_set = dnx.maximum_independent_set_qa(G, Sampler())
+        indep_set = dnx.maximum_independent_set_dm(G, Sampler())
         self.set_independence_check(G, indep_set)
 
         for __ in range(10):
             G = dnx.gnp_random_graph(20, .5)
-            indep_set = dnx.maximum_independent_set_qa(G, Sampler())
+            indep_set = dnx.maximum_independent_set_dm(G, Sampler())
             self.set_independence_check(G, indep_set)
 
 #######################################################################################

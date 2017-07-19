@@ -5,7 +5,7 @@ import sys
 
 from dwave_networkx.utils_dw.decorators import discrete_model_sampler
 
-__all__ = ["network_imbalance_qubo"]
+__all__ = ["network_imbalance_dm"]
 
 # compatibility for python 2/3
 PY2 = sys.version_info[0] == 2
@@ -16,7 +16,7 @@ else:
 
 
 @discrete_model_sampler(1)
-def network_imbalance_qubo(S, sampler, **solver_args):
+def network_imbalance_dm(S, sampler, **solver_args):
     """Determines the imbalance of the given social network.
 
     Parameters
