@@ -18,8 +18,48 @@ else:
 
 
 @discrete_model_sampler(1)
-def maximal_matching_dm(G, solver, **solver_args):
-    """TODO"""
+def maximal_matching_dm(G, sampler, **sampler_args):
+    """Uses a discrete model sampler to find a maximal cardinalty
+    matching in a graph.
+
+    A matching is a subset of edges in which no node occurs more than
+    once. The cardinality of a matching is the number of matched edges.
+
+    Parameters
+    ----------
+    G : NetworkX graph
+
+    sampler
+        A discrete model sampler. A sampler is a process that samples
+        from low energy states in models defined by an Ising equation
+        or a Quadratic Unconstrainted Binary Optimization Problem
+        (QUBO). A sampler is expected to have a 'sample_qubo' and
+        'sample_ising' method. A sampler is expected to return an
+        iterable of samples, in order of increasing energy.
+
+    Additional keyword parameters are passed to the sampler.
+
+    Returns
+    -------
+    matching : set
+        A maximal matching of the graph.
+
+    Notes
+    -----
+    Discrete model samplers by their nature may not return the lowest
+    energy solution. This function does not attempt to confirm the
+    quality of the returned sample.
+
+    https://en.wikipedia.org/wiki/Matching_(graph_theory)
+
+    https://en.wikipedia.org/wiki/Quadratic_unconstrained_binary_optimization
+
+    References
+    ----------
+    .. [1] Lucas, A. (2014). Ising formulations of many NP problems.
+       Frontiers in Physics, Volume 2, Article 5.
+
+    """
 
     # the maximum degree
     delta = max(G.degree(node) for node in G)
@@ -43,8 +83,8 @@ def maximal_matching_dm(G, solver, **solver_args):
         else:
             Q[edge] += bias
 
-    # get a response from the solver
-    response = solver.sample_qubo(Q, **solver_args)
+    # get a response from the sampler
+    response = sampler.sample_qubo(Q, **sampler_args)
 
     # we want the lowest energy sample
     solution = next(response.samples())
@@ -54,8 +94,48 @@ def maximal_matching_dm(G, solver, **solver_args):
 
 
 @discrete_model_sampler(1)
-def minimal_maximal_matching_dm(G, solver, **solver_args):
-    """TODO"""
+def minimal_maximal_matching_dm(G, sampler, **sampler_args):
+    """Uses a discrete model sampler to find a maximal cardinalty
+    matching in a graph with the minimum number of edges.
+
+    A matching is a subset of edges in which no node occurs more than
+    once. The cardinality of a matching is the number of matched edges.
+
+    Parameters
+    ----------
+    G : NetworkX graph
+
+    sampler
+        A discrete model sampler. A sampler is a process that samples
+        from low energy states in models defined by an Ising equation
+        or a Quadratic Unconstrainted Binary Optimization Problem
+        (QUBO). A sampler is expected to have a 'sample_qubo' and
+        'sample_ising' method. A sampler is expected to return an
+        iterable of samples, in order of increasing energy.
+
+    Additional keyword parameters are passed to the sampler.
+
+    Returns
+    -------
+    matching : set
+        A maximal matching of the graph.
+
+    Notes
+    -----
+    Discrete model samplers by their nature may not return the lowest
+    energy solution. This function does not attempt to confirm the
+    quality of the returned sample.
+
+    https://en.wikipedia.org/wiki/Matching_(graph_theory)
+
+    https://en.wikipedia.org/wiki/Quadratic_unconstrained_binary_optimization
+
+    References
+    ----------
+    .. [1] Lucas, A. (2014). Ising formulations of many NP problems.
+       Frontiers in Physics, Volume 2, Article 5.
+
+    """
 
     # the maximum degree
     delta = max(G.degree(node) for node in G)
@@ -88,8 +168,8 @@ def minimal_maximal_matching_dm(G, solver, **solver_args):
         else:
             Q[(v, v)] += C
 
-    # get a response from the solver
-    response = solver.sample_qubo(Q, **solver_args)
+    # get a response from the sampler
+    response = sampler.sample_qubo(Q, **sampler_args)
 
     # we want the lowest energy sample
     solution = next(response.samples())
@@ -98,13 +178,47 @@ def minimal_maximal_matching_dm(G, solver, **solver_args):
     return set(edge for edge in G.edges_iter() if solution[edge_mapping[edge]] > 0)
 
 
-def is_matching(matching):
-    """TODO"""
-    return len(set().union(*matching)) == len(matching) * 2
+def is_matching(edges):
+    """Determines whether the given set of edges is a matching.
+
+    A matching is a subset of edges in which no node occurs more than
+    once.
+
+    Parameters
+    ----------
+    edges : iterable
+        A iterable of edges.
+
+    Returns
+    -------
+    is_matching : bool
+        True if the given edges are a matching.
+
+    """
+    return len(set().union(*edges)) == len(edges) * 2
 
 
 def is_maximal_matching(G, matching):
-    """TODO"""
+    """Determines whether the given set of edges is a matching.
+
+    A matching is a subset of edges in which no node occurs more than
+    once. The cardinality of a matching is the number of matched edges.
+    A maximal matching is one where one cannot add any more edges
+    without violating the matching rule.
+
+    Parameters
+    ----------
+    G : NetworkX graph
+
+    edges : iterable
+        A iterable of edges.
+
+    Returns
+    -------
+    is_matching : bool
+        True if the given edges are a maximal matching.
+
+    """
     touched_nodes = set().union(*matching)
 
     # first check if a matching

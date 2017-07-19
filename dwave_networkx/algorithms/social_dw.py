@@ -1,6 +1,5 @@
-"""
-TODO
-"""
+from __future__ import absolute_import
+
 import sys
 
 from dwave_networkx.utils_dw.decorators import discrete_model_sampler
@@ -16,19 +15,33 @@ else:
 
 
 @discrete_model_sampler(1)
-def network_imbalance_dm(S, sampler, **solver_args):
-    """Determines the imbalance of the given social network.
+def network_imbalance_dm(S, sampler, **sampler_args):
+    """Uses a discrete model sampler to determine the imbalance of
+    the given social network.
+
+    A signed social network graph is a graph whose signed edges
+    represent friendly/hostile interactions between nodes. A
+    signed social network is considered balanced if it can be cleanly
+    divided into two factions, where all relations within a faction are
+    friendly, and all relations between factions are hostile. The measure
+    of imbalance or frustration is the minimum number of edges that
+    violate this rule.
 
     Parameters
     ----------
     S : NetworkX graph
         Must be a social graph, that is each edge should have a 'sign'
-        attribute.
+        attribute with a numeric value.
 
     sampler
-        TODO
+        A discrete model sampler. A sampler is a process that samples
+        from low energy states in models defined by an Ising equation
+        or a Quadratic Unconstrainted Binary Optimization Problem
+        (QUBO). A sampler is expected to have a 'sample_qubo' and
+        'sample_ising' method. A sampler is expected to return an
+        iterable of samples, in order of increasing energy.
 
-    Additional keyword parameters are passed to the given solver.
+    Additional keyword parameters are passed to the sampler.
 
     Returns
     -------
@@ -37,7 +50,7 @@ def network_imbalance_dm(S, sampler, **solver_args):
         of the network is the length of frustrated_edges.
 
     colors: dict
-        A bicoloring of the nodes into two teams.
+        A bicoloring of the nodes into two factions.
 
     Raises
     ------
@@ -64,6 +77,20 @@ def network_imbalance_dm(S, sampler, **solver_args):
     >>> print(colors)
     {'Bob': 1, 'Ted': 1, 'Alice': 1, 'Eve': 0}
 
+    Notes
+    -----
+    Discrete model samplers by their nature may not return the lowest
+    energy solution. This function does not attempt to confirm the
+    quality of the returned sample.
+
+    https://en.wikipedia.org/wiki/Ising_model
+
+    References
+    ----------
+    .. [1] Facchetti, G., Iacono G., and Altafini C. (2011). Computing
+       global structural balance in large-scale signed social networks.
+       PNAS, 108, no. 52, 20953-20958
+
     """
 
     # format as an Ising problem
@@ -77,13 +104,13 @@ def network_imbalance_dm(S, sampler, **solver_args):
                               "each edge should have a 'sign' attr"))
 
     # put the problem on the sampler
-    result = sampler.sample_ising(h, J)
+    result = sampler.sample_ising(h, J, **sampler_args)
 
     # get the lowest energy sample
-    sample, energy = next(result.items())
+    sample = next(iter(result))
 
     # spins determine the color
-    colors = {v: (spin + 1) / 2 for v, spin in iteritems(sample)}
+    colors = {v: (spin + 1) // 2 for v, spin in iteritems(sample)}
 
     # frustrated edges are the ones that are violated
     frustrated_edges = {}
