@@ -4,7 +4,7 @@ TODO
 import sys
 import itertools
 
-from dwave_networkx.utils_qa.decorators import quantum_annealer_solver
+from dwave_networkx.utils_dw.decorators import discrete_model_sampler
 
 __all__ = ['maximal_matching', 'minimal_maximal_matching', 'is_matching', 'is_maximal_matching']
 
@@ -16,7 +16,7 @@ else:
     iteritems = lambda d: d.items()
 
 
-@quantum_annealer_solver(1)
+@discrete_model_sampler(1)
 def maximal_matching(G, solver, **solver_args):
     """TODO"""
 
@@ -52,7 +52,7 @@ def maximal_matching(G, solver, **solver_args):
     return set(edge for edge in G.edges_iter() if solution[edge_mapping[edge]] > 0)
 
 
-@quantum_annealer_solver(1)
+@discrete_model_sampler(1)
 def minimal_maximal_matching(G, solver, **solver_args):
     """TODO"""
 

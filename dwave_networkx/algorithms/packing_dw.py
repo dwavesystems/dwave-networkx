@@ -2,12 +2,12 @@
 TODO
 """
 
-from dwave_networkx.utils_qa.decorators import quantum_annealer_solver
+from dwave_networkx.utils_dw.decorators import discrete_model_sampler
 
 __all__ = ["maximum_independent_set_qa"]
 
 
-@quantum_annealer_solver(1)
+@discrete_model_sampler(1)
 def maximum_independent_set_qa(G, solver, **solver_args):
     """Tries to determine a maximum independent set of nodes using
     the provided quantum annealing (qa) solver.

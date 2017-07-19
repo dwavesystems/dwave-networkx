@@ -2,12 +2,12 @@
 TODO
 """
 
-from dwave_networkx.utils_qa.decorators import quantum_annealer_solver
+from dwave_networkx.utils_dw.decorators import discrete_model_sampler
 
 __all__ = ['min_vertex_cover_qa']
 
 
-@quantum_annealer_solver(1)
+@discrete_model_sampler(1)
 def min_vertex_cover_qa(G, solver, **solver_args):
     """Tries to determine a minimum vertex cover using the provided
     quantum annealing (qa) solver.

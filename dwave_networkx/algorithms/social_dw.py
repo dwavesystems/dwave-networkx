@@ -3,7 +3,7 @@ TODO
 """
 import sys
 
-from dwave_networkx.utils_qa.decorators import quantum_annealer_solver
+from dwave_networkx.utils_dw.decorators import discrete_model_sampler
 
 __all__ = ["network_imbalance_qubo"]
 
@@ -15,7 +15,7 @@ else:
     iteritems = lambda d: d.items()
 
 
-@quantum_annealer_solver(1)
+@discrete_model_sampler(1)
 def network_imbalance_qubo(S, sampler, **solver_args):
     """Determines the imbalance of the given social network.
 

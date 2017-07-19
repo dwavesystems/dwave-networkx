@@ -19,6 +19,6 @@ except ImportError:
 from dwave_networkx.algorithms import *
 
 # import dwave_networkx.exception
-from dwave_networkx.exception import *
+from dwave_networkx.exceptions import *
 
 __version__ = '1.0'

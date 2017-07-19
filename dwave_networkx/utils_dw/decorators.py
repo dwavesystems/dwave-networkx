@@ -27,13 +27,14 @@ def discrete_model_sampler(which_args):
     """
     @decorator
     def _discrete_model_sampler(f, *args, **kw):
-
         # convert into a sequence if necessary
         if isinstance(which_args, int):
-            which_args = (which_args,)
+            iter_args = (which_args,)
+        else:
+            iter_args = iter(which_args)
 
         # check each sampler for the correct methods
-        for idx in iter(which_args):
+        for idx in iter_args:
             sampler = args[idx]
 
             if not hasattr(sampler, "sample_qubo") or not callable(sampler.sample_qubo):
