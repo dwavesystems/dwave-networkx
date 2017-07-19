@@ -55,12 +55,20 @@ def network_imbalance_qubo(S, sampler, **solver_args):
     {}
     >>> print(colors)
     {'Alice': 0, 'Bob': 0, 'Eve': 1}
+    >>> S.add_edge('Ted', 'Bob', sign=1)  # Ted is friendly with all
+    >>> S.add_edge('Ted', 'Alice', sign=1)
+    >>> S.add_edge('Ted', 'Eve', sign=1)
+    >>> frustrated_edges, colors = dnx.network_imbalance_qubo(S, sampler)
+    >>> print(frustrated_edges)
+    {('Ted', 'Eve'): {'sign': 1}}
+    >>> print(colors)
+    {'Bob': 1, 'Ted': 1, 'Alice': 1, 'Eve': 0}
 
     """
 
     # format as an Ising problem
-    h = {v: 0 for v in S}
-    J = {}
+    h = {v: 0 for v in S}  # linear biases
+    J = {}  # quadratic biases
     for u, v, data in S.edges_iter(data=True):
         try:
             J[(u, v)] = -1. * data['sign']
@@ -68,7 +76,7 @@ def network_imbalance_qubo(S, sampler, **solver_args):
             raise ValueError(("graph should be a signed social graph,"
                               "each edge should have a 'sign' attr"))
 
-    # put the problem on the solver
+    # put the problem on the sampler
     result = sampler.sample_ising(h, J)
 
     # get the lowest energy sample

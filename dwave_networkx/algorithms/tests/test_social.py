@@ -31,4 +31,18 @@ class TestSocial(unittest.TestCase):
                 S.add_edge(p0, p1, sign=1)
 
         colors, frustrated_edges = dnx.network_imbalance_qubo(S, Sampler())
-        print colors, frustrated_edges
+
+    def test_network_imbalance_docstring_example(self):
+        sampler = Sampler()
+
+        S = dnx.Graph()
+        S.add_edge('Alice', 'Bob', sign=1)  # Alice and Bob are friendly
+        S.add_edge('Alice', 'Eve', sign=-1)  # Alice and Eve are hostile
+        S.add_edge('Bob', 'Eve', sign=-1)  # Bob and Eve are hostile
+        frustrated_edges, colors = dnx.network_imbalance_qubo(S, sampler)
+        self.assertEqual(frustrated_edges, {})
+        S.add_edge('Ted', 'Bob', sign=1)  # Ted is friendly with all
+        S.add_edge('Ted', 'Alice', sign=1)
+        S.add_edge('Ted', 'Eve', sign=1)
+        frustrated_edges, colors = dnx.network_imbalance_qubo(S, sampler)
+        self.assertEqual(frustrated_edges, {('Ted', 'Eve'): {'sign': 1}})
