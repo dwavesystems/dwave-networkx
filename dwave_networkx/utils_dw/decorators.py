@@ -1,5 +1,7 @@
 from decorator import decorator
 
+import dwave_networkx as dnx
+
 __all__ = ['discrete_model_sampler']
 
 
@@ -34,8 +36,19 @@ def discrete_model_sampler(which_args):
             iter_args = iter(which_args)
 
         # check each sampler for the correct methods
+        new_args = [arg for arg in args]
         for idx in iter_args:
             sampler = args[idx]
+
+            # if no sampler is provided, get the default sampler if it has
+            # been set
+            if sampler is None:
+                # this sampler has already been vetted
+                default_sampler = dnx.get_default_sampler()
+                if default_sampler is None:
+                    raise dnx.DWaveNetworkXMissingSampler('no default sampler set')
+                new_args[idx] = default_sampler
+                continue
 
             if not hasattr(sampler, "sample_qubo") or not callable(sampler.sample_qubo):
                 raise TypeError("expected sampler to have a 'sample_qubo' method")
@@ -43,5 +56,5 @@ def discrete_model_sampler(which_args):
                 raise TypeError("expected sampler to have a 'sample_ising' method")
 
         # now run the function and return the results
-        return f(*args, **kw)
+        return f(*new_args, **kw)
     return _discrete_model_sampler

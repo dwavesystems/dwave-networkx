@@ -18,4 +18,8 @@ from dwave_networkx.algorithms import *
 # import dwave_networkx.exception
 from dwave_networkx.exceptions import *
 
+import dwave_networkx.utils_dw
+
+from dwave_networkx.default_sampler import *
+
 __version__ = '1.0'
