@@ -71,11 +71,11 @@ def maximum_independent_set_dm(G, sampler, **sampler_args):
     Q = {(node, node): -1 for node in G}
     Q.update({edge: 2 for edge in G.edges_iter()})
 
-    # put the problem on the sampler
-    result = sampler.sample_qubo(Q, **sampler_args)
+    # use the sampler to find low energy states
+    response = sampler.sample_qubo(Q, **sampler_args)
 
-    # get the lowest energy sample
-    sample = next(iter(result))
+    # we want the lowest energy sample
+    sample = next(iter(response))
 
     # nodes that are spin up or true are exactly the ones in S.
     return [node for node in sample if sample[node] > 0]

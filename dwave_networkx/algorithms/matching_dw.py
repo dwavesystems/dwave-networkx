@@ -83,11 +83,11 @@ def maximal_matching_dm(G, sampler, **sampler_args):
         else:
             Q[edge] += bias
 
-    # get a response from the sampler
+    # use the sampler to find low energy states
     response = sampler.sample_qubo(Q, **sampler_args)
 
     # we want the lowest energy sample
-    solution = next(response.samples())
+    sample = next(iter(response))
 
     # the matching are the edges that are 1 in the solution
     return set(edge for edge in G.edges_iter() if solution[edge_mapping[edge]] > 0)
@@ -168,11 +168,11 @@ def minimal_maximal_matching_dm(G, sampler, **sampler_args):
         else:
             Q[(v, v)] += C
 
-    # get a response from the sampler
+    # use the sampler to find low energy states
     response = sampler.sample_qubo(Q, **sampler_args)
 
     # we want the lowest energy sample
-    solution = next(response.samples())
+    sample = next(iter(response))
 
     # the matching are the edges that are 1 in the solution
     return set(edge for edge in G.edges_iter() if solution[edge_mapping[edge]] > 0)

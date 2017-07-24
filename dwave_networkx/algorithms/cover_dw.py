@@ -74,11 +74,11 @@ def min_vertex_cover_dm(G, sampler, **sampler_args):
     Q = {(node, node): B - A * G.degree(node) for node in G}
     Q.update({edge: A for edge in G.edges_iter()})
 
-    # put the problem on the sampler
-    result = sampler.sample_qubo(Q, **sampler_args)
+    # use the sampler to find low energy states
+    response = sampler.sample_qubo(Q, **sampler_args)
 
-    # get the lowest energy sample
-    sample = next(iter(result))
+    # we want the lowest energy sample
+    sample = next(iter(response))
 
     # nodes that are true are in the cover
     return [node for node in G if sample[node] > 0]

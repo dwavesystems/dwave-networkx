@@ -103,11 +103,11 @@ def network_imbalance_dm(S, sampler, **sampler_args):
             raise ValueError(("graph should be a signed social graph,"
                               "each edge should have a 'sign' attr"))
 
-    # put the problem on the sampler
-    result = sampler.sample_ising(h, J, **sampler_args)
+    # use the sampler to find low energy states
+    response = sampler.sample_qubo(Q, **sampler_args)
 
-    # get the lowest energy sample
-    sample = next(iter(result))
+    # we want the lowest energy sample
+    sample = next(iter(response))
 
     # spins determine the color
     colors = {v: (spin + 1) // 2 for v, spin in iteritems(sample)}
