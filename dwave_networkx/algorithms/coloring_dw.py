@@ -118,14 +118,6 @@ def min_vertex_coloring_dm(G, sampler=None, **sampler_args):
             if sample[x_vars[v][c]]:
                 partial_coloring[v] = c
 
-    # check that every node is colored
-    for v in G:
-        if v not in partial_coloring:
-            # try to color it
-            for c in possible_colors[v]:
-                print v, c
-            raise NotImplementedError
-
     return partial_coloring
 
 
@@ -150,9 +142,9 @@ def _vertex_different_colors_qubo(G, x_vars):
 
     Notes
     -----
-        Does not enforce each node having a single color
+    Does not enforce each node having a single color
 
-        Ground energy is 0, infeasible gap is 1
+    Ground energy is 0, infeasible gap is 1
     """
     Q = {}
     for u, v in G.edges_iter():
@@ -169,9 +161,9 @@ def _vertex_one_color_qubo(x_vars):
 
     Notes
     -----
-        Does not enforce neighboring vertices having different colors.
+    Does not enforce neighboring vertices having different colors.
 
-        Ground energy is -1 * |G|, infeasible gap is 1
+    Ground energy is -1 * |G|, infeasible gap is 1
     """
     Q = {}
     for v in x_vars:
@@ -191,23 +183,31 @@ def _vertex_one_color_qubo(x_vars):
 def _partial_precolor(G, chi_ub):
     """colors some of the nodes"""
 
-    possible_colors = {v: set(range(chi_ub)) for v in G}
+    # possible_colors = {v: set(range(chi_ub)) for v in G}
 
-    # for now let's just pick an edge and color them
-    u, v = next(iter(G.edges_iter()))
-    partial_coloring = {u: 0, v: 1}
-    chi_lb = 2  # lower bound for the chromatic number
+    # find a random maximal clique and give each node in it a unique color
+    v = next(iter(G))
 
-    for w in G[u]:
-        possible_colors[w].discard(0)
-    for w in G[v]:
-        possible_colors[w].discard(1)
+    clique = [v]
+    for u in G[v]:
+        if all(w in G[u] for w in clique):
+            clique.append(u)
 
-    del possible_colors[u]
-    del possible_colors[v]
+    partial_coloring = {v: c for c, v in enumerate(clique)}
+    chi_lb = len(partial_coloring)  # lower bound for the chromatic number
 
-    # TODO: I think if any variable has |colors| chi_ub - chi_lb we can wlog
-    # assign it a color. Need to think more about this before implementing
+    possible_colors = {}
+    for v in G:
+
+        # already colored nodes are not included
+        if v in partial_coloring:
+            continue
+
+        possible_colors[v] = set()
+        for color in range(chi_ub):
+            if any(partial_coloring[u] == color for u in G[v] if u in partial_coloring):
+                continue
+            possible_colors[v].add(color)
 
     return partial_coloring, possible_colors, chi_lb
 
