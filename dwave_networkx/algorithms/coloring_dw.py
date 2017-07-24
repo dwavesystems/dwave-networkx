@@ -1,7 +1,3 @@
-"""
-TODO
-"""
-
 from __future__ import division, absolute_import
 
 import sys
@@ -11,7 +7,7 @@ import itertools
 import dwave_networkx as dnx
 from dwave_networkx.utils_dw.decorators import discrete_model_sampler
 
-__all__ = ["min_vertex_coloring_dm", "is_vertex_coloring"]
+__all__ = ["min_vertex_coloring_dm", "is_vertex_coloring", "is_cycle"]
 
 # compatibility for python 2/3
 if sys.version_info[0] == 2:
@@ -23,7 +19,33 @@ else:
 
 @discrete_model_sampler(1)
 def min_vertex_coloring_dm(G, sampler=None, **sampler_args):
-    """TODO
+    """Find a minimum vertex cover of the given graph.
+
+    Parameters
+    ----------
+    G : NetworkX graph
+
+    sampler
+        A discrete model sampler. A sampler is a process that samples
+        from low energy states in models defined by an Ising equation
+        or a Quadratic Unconstrainted Binary Optimization Problem
+        (QUBO). A sampler is expected to have a 'sample_qubo' and
+        'sample_ising' method. A sampler is expected to return an
+        iterable of samples, in order of increasing energy.
+
+    Additional keyword parameters are passed to the sampler.
+
+    Returns
+    -------
+    coloring : dict
+        A coloring for each vertex in G such that no adjacent nodes
+        share the same color. A dict of the form {node: color, ...}
+
+    Notes
+    -----
+    Discrete model samplers by their nature may not return the lowest
+    energy solution. This function does not attempt to confirm the
+    quality of the returned sample.
 
     https://en.wikipedia.org/wiki/Brooks%27_theorem
     """
@@ -91,7 +113,7 @@ def min_vertex_coloring_dm(G, sampler=None, **sampler_args):
     # disincentivize the colors we might not need.
     Q_min_color = _minimum_coloring_qubo(x_vars, chi_lb, chi_ub, magnitude=.75)
 
-    # combine all three constraints and solve
+    # combine all three constraints
     Q = Q_neighbor
     for (u, v), bias in iteritems(Q_vertex):
         if (u, v) in Q:
@@ -122,12 +144,19 @@ def min_vertex_coloring_dm(G, sampler=None, **sampler_args):
 
 
 def _minimum_coloring_qubo(x_vars, chi_lb, chi_ub, magnitude=1.):
+    """We want to disincentivize unneeded colors. Generates the QUBO
+    that does that.
+    """
+    # if we already know the chromatic number, then we don't need to
+    # disincentivize any colors.
     if chi_lb == chi_ub:
-        # we know the chromatic number and there is no need for this
         return {}
 
+    # we might need to use some of the colors, so we want to disincentivize
+    # them in increasing amounts, linearly.
     scaling = magnitude / (chi_ub - chi_lb)
 
+    # build the QUBO
     Q = {}
     for v in x_vars:
         for f, color in enumerate(range(chi_lb, chi_ub)):
@@ -138,13 +167,14 @@ def _minimum_coloring_qubo(x_vars, chi_lb, chi_ub, magnitude=1.):
 
 
 def _vertex_different_colors_qubo(G, x_vars):
-    """For each vertex, it should not have the same color as any of its neighbors.
+    """For each vertex, it should not have the same color as any of its
+    neighbors. Generates the QUBO to enforce this constraint.
 
     Notes
     -----
-    Does not enforce each node having a single color
+    Does not enforce each node having a single color.
 
-    Ground energy is 0, infeasible gap is 1
+    Ground energy is 0, infeasible gap is 1.
     """
     Q = {}
     for u, v in G.edges_iter():
@@ -157,13 +187,14 @@ def _vertex_different_colors_qubo(G, x_vars):
 
 
 def _vertex_one_color_qubo(x_vars):
-    """For each vertex, it should have exactly one color
+    """For each vertex, it should have exactly one color. Generates
+    the QUBO to enforce this constraint.
 
     Notes
     -----
     Does not enforce neighboring vertices having different colors.
 
-    Ground energy is -1 * |G|, infeasible gap is 1
+    Ground energy is -1 * |G|, infeasible gap is 1.
     """
     Q = {}
     for v in x_vars:
@@ -181,13 +212,33 @@ def _vertex_one_color_qubo(x_vars):
 
 
 def _partial_precolor(G, chi_ub):
-    """colors some of the nodes"""
+    """In order to reduce the number of variables in the QUBO, we want to
+    color as many nodes as possible without affecting the min vertex
+    coloring. Without loss of generality, we can choose a single maximal
+    clique and color each node in it uniquely.
 
-    # possible_colors = {v: set(range(chi_ub)) for v in G}
+    Returns
+    -------
+        partial_coloring : dict
+        A dict describing a partial coloring of the nodes of G. Of the form
+        {node: color, ...}.
+
+        possible_colors : dict
+        A dict giving the possible colors for each node in G not already
+        colored. Of the form {node: set([color, ...]), ...}.
+
+        chi_lb : int
+        A lower bound on the chromatic number chi.
+
+    Notes
+    -----
+        partial_coloring.keys() and possible_colors.keys() should be
+        disjoint.
+
+    """
 
     # find a random maximal clique and give each node in it a unique color
     v = next(iter(G))
-
     clique = [v]
     for u in G[v]:
         if all(w in G[u] for w in clique):
@@ -196,32 +247,46 @@ def _partial_precolor(G, chi_ub):
     partial_coloring = {v: c for c, v in enumerate(clique)}
     chi_lb = len(partial_coloring)  # lower bound for the chromatic number
 
-    possible_colors = {}
-    for v in G:
+    # now for each uncolored node determine the possible colors
+    possible_colors = {v: set(range(chi_ub)) for v in G if v not in partial_coloring}
 
-        # already colored nodes are not included
-        if v in partial_coloring:
-            continue
+    for v, color in iteritems(partial_coloring):
+        for u in G[v]:
+            if u in possible_colors:
+                possible_colors[u].discard(color)
 
-        possible_colors[v] = set()
-        for color in range(chi_ub):
-            if any(partial_coloring[u] == color for u in G[v] if u in partial_coloring):
-                continue
-            possible_colors[v].add(color)
+    # TODO: there is more here that can be done. For instance some nodes now
+    # might only have one possible color. Or there might only be one node
+    # remaining to color
 
     return partial_coloring, possible_colors, chi_lb
 
 
 def _quadratic_chi_bound(n_edges):
+    """For an arbitary graph, one can bound the chromatic number chi by
+    chi * (chi - 1) <= 2 * |E|.
+
+    For a given number of edges this function provides an int bound on chi.
+    """
     return int(math.ceil((1 + math.sqrt(1 + 8 * n_edges)) / 2))
 
 
 def is_cycle(G):
-    """Determines whether the given graph is a connected cycle graph.
+    """Determines whether the given graph is a cycle or circule graph.
 
-    TODO
+    A cycle graph or circular graph is a graph that consists of a single cycle.
 
     https://en.wikipedia.org/wiki/Cycle_graph
+
+    Parameters
+    ----------
+    G : NetworkX graph
+
+    Returns
+    -------
+    is_cycle : bool
+        True if the graph consists of a single cycle.
+
     """
     trailing, leading = next(iter(G.edges()))
     start_node = trailing
@@ -249,5 +314,21 @@ def is_cycle(G):
 
 
 def is_vertex_coloring(G, coloring):
-    """TODO"""
+    """Determines whether the given coloring is a vertex coloring of G.
+
+    Parameters
+    ----------
+    G : NetworkX graph
+
+    coloring : dict
+        A coloring of the nodes of G. Should be a dict of the form
+        {node: color, ...}.
+
+    Returns
+    -------
+    is_vertex_coloring : bool
+        True if the given coloring defines a vertex coloring. That is no
+        two adjacent vertices share a color.
+
+    """
     return all(coloring[u] != coloring[v] for u, v in G.edges_iter())
