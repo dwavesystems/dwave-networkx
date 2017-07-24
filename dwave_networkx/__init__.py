@@ -3,9 +3,6 @@ from __future__ import absolute_import
 import networkx
 from networkx import *
 
-import dwave_networkx.elimination_ordering
-from dwave_networkx.elimination_ordering import *
-
 import dwave_networkx.architectures
 from dwave_networkx.architectures import *
 
@@ -19,4 +16,10 @@ except ImportError:
 from dwave_networkx.algorithms import *
 
 # import dwave_networkx.exception
-from dwave_networkx.exception import *
+from dwave_networkx.exceptions import *
+
+import dwave_networkx.utils_dw
+
+from dwave_networkx.default_sampler import *
+
+__version__ = '1.0'

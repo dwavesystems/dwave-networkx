@@ -2,15 +2,15 @@
 TODO
 """
 
-from dwave_networkx.utils_qa.decorators import quantum_annealer_solver
+from dwave_networkx.utils_dw.decorators import discrete_model_sampler
 
-__all__ = ["maximum_independent_set_qa"]
+__all__ = ["maximum_independent_set_dm"]
 
 
-@quantum_annealer_solver(1)
-def maximum_independent_set_qa(G, solver, **solver_args):
-    """Tries to determine a maximum independent set of nodes using
-    the provided quantum annealing (qa) solver.
+@discrete_model_sampler(1)
+def maximum_independent_set_dm(G, sampler, **sampler_args):
+    """Uses a discrete model sampler to determine the maximimum
+    independent set of the given graph.
 
     An independent set is a set of nodes such that the subgraph
     of G induced by these nodes contains no edges. A maximum
@@ -20,36 +20,33 @@ def maximum_independent_set_qa(G, solver, **solver_args):
     ----------
     G : NetworkX graph
 
-    solver
-        A quantum annealing solver. Expectes the solver to have a
-        "solve_unstructured_qubo" method that returns a single
-        solution of the form {node: spin, ...}.
+    sampler
+        A discrete model sampler. A sampler is a process that samples
+        from low energy states in models defined by an Ising equation
+        or a Quadratic Unconstrainted Binary Optimization Problem
+        (QUBO). A sampler is expected to have a 'sample_qubo' and
+        'sample_ising' method. A sampler is expected to return an
+        iterable of samples, in order of increasing energy.
 
-    Additional keyword parameters are passed to the given solver.
+    Additional keyword parameters are passed to the sampler.
 
     Returns
     -------
     indep_nodes : list
        List of nodes that the form a maximum independent set, as
-       determined by the given solver.
-
-    Raises
-    ------
-    TypeError
-        If the provided solver does not have a
-        "solve_unstructured_qubo" method, an exception is raised.
+       determined by the given sampler.
 
     Examples
     --------
     >>> G = nx.path_graph(5)
-    >>> dnx.maximum_independent_set_qa(G, solver)
+    >>> dnx.maximum_independent_set_qa(G, sampler)
     [0, 2, 4]
 
     Notes
     -----
-    Quantum annealers by their nature do not necessarily return correct
-    answers. This function makes no attempt to check the quality of the
-    solution.
+    Discrete model samplers by their nature may not return the lowest
+    energy solution. This function does not attempt to confirm the
+    quality of the returned sample.
 
     https://en.wikipedia.org/wiki/Independent_set_(graph_theory)
 
@@ -62,7 +59,7 @@ def maximum_independent_set_qa(G, solver, **solver_args):
 
     """
 
-    # We assume that the solver can handle an unstructured QUBO problem, so let's set one up.
+    # We assume that the sampler can handle an unstructured QUBO problem, so let's set one up.
     # Let us define the largest independent set to be S.
     # For each node n in the graph, we assign a boolean variable v_n, where v_n = 1 when n
     # is in S and v_n = 0 otherwise.
@@ -74,8 +71,11 @@ def maximum_independent_set_qa(G, solver, **solver_args):
     Q = {(node, node): -1 for node in G}
     Q.update({edge: 2 for edge in G.edges_iter()})
 
-    # we expect that the solution will be a dict of the form {node: bool}
-    solution = solver.solve_qubo(Q, **solver_args)
+    # put the problem on the sampler
+    result = sampler.sample_qubo(Q, **sampler_args)
+
+    # get the lowest energy sample
+    sample = next(iter(result))
 
     # nodes that are spin up or true are exactly the ones in S.
-    return [node for node in solution if solution[node] > 0]
+    return [node for node in sample if sample[node] > 0]

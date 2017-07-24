@@ -2,15 +2,14 @@
 TODO
 """
 
-from dwave_networkx.utils_qa.decorators import quantum_annealer_solver
+from dwave_networkx.utils_dw.decorators import discrete_model_sampler
 
-__all__ = ['min_vertex_cover_qa']
+__all__ = ['min_vertex_cover_dm']
 
 
-@quantum_annealer_solver(1)
-def min_vertex_cover_qa(G, solver, **solver_args):
-    """Tries to determine a minimum vertex cover using the provided
-    quantum annealing (qa) solver.
+@discrete_model_sampler(1)
+def min_vertex_cover_dm(G, sampler, **sampler_args):
+    """Uses a discrete model sampler to determine a minimum vertex cover.
 
     A vertex cover is a set of verticies such that each edge of the graph
     is incident with at least one vertex in the set. A minimum vertex cover
@@ -20,24 +19,21 @@ def min_vertex_cover_qa(G, solver, **solver_args):
     ----------
     G : NetworkX graph
 
-    solver
-        A quantum annealing solver. Expectes the solver to have a
-        "solve_unstructured_qubo" method that returns a single
-        solution of the form {node: spin, ...}.
+    sampler
+        A discrete model sampler. A sampler is a process that samples
+        from low energy states in models defined by an Ising equation
+        or a Quadratic Unconstrainted Binary Optimization Problem
+        (QUBO). A sampler is expected to have a 'sample_qubo' and
+        'sample_ising' method. A sampler is expected to return an
+        iterable of samples, in order of increasing energy.
 
-    Additional keyword parameters are passed to the given solver.
+    Additional keyword parameters are passed to the sampler.
 
     Returns
     -------
     vertex_cover : list
        List of nodes that the form a the minimum vertex cover, as
-       determined by the given solver.
-
-    Raises
-    ------
-    TypeError
-        If the provided solver does not have a
-        "solve_unstructured_qubo" method, an exception is raised.
+       determined by the given sampler.
 
     Examples
     --------
@@ -47,9 +43,9 @@ def min_vertex_cover_qa(G, solver, **solver_args):
 
     Notes
     -----
-    Quantum annealers by their nature do not necessarily return correct
-    answers. This function makes no attempt to check the quality of the
-    solution.
+    Discrete model samplers by their nature may not return the lowest
+    energy solution. This function does not attempt to confirm the
+    quality of the returned sample.
 
     https://en.wikipedia.org/wiki/Vertex_cover
 
@@ -75,11 +71,14 @@ def min_vertex_cover_qa(G, solver, **solver_args):
     # of these, our final hamiltonian is
     # H_a = A*(|E| + sum_(n) -(deg(n)*v_n) + sum_(n1,n2) v_n1*v_n2)
     # additionally, we want to have the minimum cover, so we add H_b = B*sum_(n) v_n
-    Q = {(node, node): B - A*G.degree(node) for node in G}
+    Q = {(node, node): B - A * G.degree(node) for node in G}
     Q.update({edge: A for edge in G.edges_iter()})
 
-    # we expect that the solution will be a dict of the form {node: int(bool)}
-    solution = solver.solve_qubo(Q, **solver_args)
+    # put the problem on the sampler
+    result = sampler.sample_qubo(Q, **sampler_args)
+
+    # get the lowest energy sample
+    sample = next(iter(result))
 
     # nodes that are true are in the cover
-    return [node for node in G if solution[node] > 0]
+    return [node for node in G if sample[node] > 0]
