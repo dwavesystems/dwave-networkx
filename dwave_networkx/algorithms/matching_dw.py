@@ -89,8 +89,8 @@ def maximal_matching_dm(G, sampler, **sampler_args):
     # we want the lowest energy sample
     sample = next(iter(response))
 
-    # the matching are the edges that are 1 in the solution
-    return set(edge for edge in G.edges_iter() if solution[edge_mapping[edge]] > 0)
+    # the matching are the edges that are 1 in the sample
+    return set(edge for edge in G.edges_iter() if sample[edge_mapping[edge]] > 0)
 
 
 @discrete_model_sampler(1)
@@ -174,8 +174,8 @@ def minimal_maximal_matching_dm(G, sampler, **sampler_args):
     # we want the lowest energy sample
     sample = next(iter(response))
 
-    # the matching are the edges that are 1 in the solution
-    return set(edge for edge in G.edges_iter() if solution[edge_mapping[edge]] > 0)
+    # the matching are the edges that are 1 in the sample
+    return set(edge for edge in G.edges_iter() if sample[edge_mapping[edge]] > 0)
 
 
 def is_matching(edges):

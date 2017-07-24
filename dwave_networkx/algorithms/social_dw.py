@@ -104,7 +104,7 @@ def network_imbalance_dm(S, sampler, **sampler_args):
                               "each edge should have a 'sign' attr"))
 
     # use the sampler to find low energy states
-    response = sampler.sample_qubo(Q, **sampler_args)
+    response = sampler.sample_ising(h, J, **sampler_args)
 
     # we want the lowest energy sample
     sample = next(iter(response))
