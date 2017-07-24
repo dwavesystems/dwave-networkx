@@ -7,50 +7,50 @@ import math
 import itertools
 
 import dwave_networkx as dnx
-from dwave_networkx.utils_qa.decorators import quantum_annealer_solver
-from dwave_networkx.exception import DWaveNetworkXQAException
+from dwave_networkx.utils_dw.decorators import discrete_model_sampler
 
-__all__ = ["min_vertex_coloring_qa"]
+__all__ = ["min_vertex_coloring_dm", "is_vertex_coloring"]
 
 # compatibility for python 2/3
 if sys.version_info[0] == 2:
     range = xrange
 
 
-@quantum_annealer_solver(1)
-def min_vertex_coloring_qa(G, solver, **solver_args):
+@discrete_model_sampler(1)
+def min_vertex_coloring_dm(G, sampler, **solver_args):
     """TODO
 
     https://en.wikipedia.org/wiki/Brooks%27_theorem
     """
 
-    N = len(G)  # number of nodes
-    M = len(G.edges())  # number of edges
+    n_nodes = len(G)  # number of nodes
+    n_edges = len(G.edges())  # number of edges
 
     # ok, first up, we can eliminate a few graph types trivially
 
     # Graphs with no edges, have chromatic number 1
-    if not M:
+    if not n_edges:
         return {node: 0 for node in G}
 
     # Complete graphs have chromatic number N
-    if M == N * (N - 1) / 2:
+    if n_edges == n_nodes * (n_nodes - 1) / 2:
         return {node: color for color, node in enumerate(G)}
 
     # The number of variables in the QUBO is approximately the number of nodes in the graph
     # times the number of potential colors, so we want as tight an upper bound on the
     # chromatic number (chi) as possible
 
-    # we know that chi <= max degree, unless it is complete or a cycle graph, in which
-    # case chi <= max degree + 1 (Brook's Theorem)
-    if N % 2 == 1 and is_cycle(G):
+    # we know that chi <= max degree, unless it is complete or a cycle graph of odd length,
+    # in which case chi <= max degree + 1 (Brook's Theorem)
+    # we have already taken care of complete graphs.
+    if n_nodes % 2 == 1 and is_cycle(G):
         # odd cycle graphs need three colors
-        ub = 3
+        chi_ub = 3
     else:
-        ub = max(G.degree(node) for node in G)
+        chi_ub = max(G.degree(node) for node in G)
 
     # we also know that chi*(chi-1) <= 2*|E|, so using the quadratic formula
-    ub = min(ub, int(math.ceil((1 + math.sqrt(1 + 8 * M)) / 2)))
+    chi_ub = min(chi_ub, _quadratic_chi_bound(n_edges))
 
     # now we can start coloring. We start by finding a clique. Without loss of
     # generality, we can color all of the nodes in the clique with unique colors.
@@ -70,7 +70,7 @@ def min_vertex_coloring_qa(G, solver, **solver_args):
         if node not in coloring:
             impossible_colors = {coloring[n] for n in G[node] if n in coloring}
 
-            qubo_variables[node] = {color: next(counter) for color in range(ub)
+            qubo_variables[node] = {color: next(counter) for color in range(chi_ub)
                                     if color not in impossible_colors}
 
     # now we have three different constraints we wish to add.
@@ -103,8 +103,8 @@ def min_vertex_coloring_qa(G, solver, **solver_args):
 
     # third, since we want the minimum vertex color, we want to disincentivize
     # the colors we have not already used. In increasing amounts
-    for c in range(lb + 1, ub + 1):
-        penalty = .5 * (c - lb) / (ub - lb)
+    for c in range(lb + 1, chi_ub + 1):
+        penalty = .5 * (c - lb) / (chi_ub - lb)
 
         print c, penalty
 
@@ -136,6 +136,10 @@ def min_vertex_coloring_qa(G, solver, **solver_args):
     return coloring
 
 
+def _quadratic_chi_bound(n_edges):
+    return int(math.ceil((1 + math.sqrt(1 + 8 * n_edges)) / 2))
+
+
 def _greedy_clique_about_node(G, n):
     """Really simple attempt to find the largest clique containing node n"""
     H = G.subgraph(G[n])
@@ -146,6 +150,8 @@ def _greedy_clique_about_node(G, n):
 
 def is_cycle(G):
     """Determines whether the given graph is a connected cycle graph.
+
+    TODO
 
     https://en.wikipedia.org/wiki/Cycle_graph
     """
@@ -172,3 +178,8 @@ def is_cycle(G):
 
     # if we havent visited all of the nodes, then it is not a connected cycle
     return n_visited == len(G)
+
+
+def is_vertex_coloring(G, coloring):
+    """TODO"""
+    return all(coloring[u] != coloring[v] for u, v in G.edges_iter())
