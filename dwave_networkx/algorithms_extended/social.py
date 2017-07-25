@@ -13,7 +13,7 @@ else:
 
 
 @discrete_model_sampler(1)
-def network_imbalance_dm(S, sampler, **sampler_args):
+def network_imbalance_dm(S, sampler=None, **sampler_args):
     """Uses a discrete model sampler to determine the imbalance of
     the given social network.
 

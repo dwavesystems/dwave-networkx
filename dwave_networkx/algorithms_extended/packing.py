@@ -4,7 +4,7 @@ __all__ = ["maximum_independent_set_dm"]
 
 
 @discrete_model_sampler(1)
-def maximum_independent_set_dm(G, sampler, **sampler_args):
+def maximum_independent_set_dm(G, sampler=None, **sampler_args):
     """Uses a discrete model sampler to determine the maximimum
     independent set of the given graph.
 

@@ -5,7 +5,7 @@ from itertools import chain, combinations
 
 import dwave_networkx as dnx
 
-from dwave_networkx.algorithms_extended.tests.samplers import ExactSolver, FastSampler
+from dwave_networkx.algorithms_extended.tests.samplers import ExactSolver, FastSampler, qubo_energy
 
 from dwave_networkx.algorithms_extended.matching import _matching_qubo, _maximal_matching_qubo
 from dwave_networkx.algorithms_extended.matching import _edge_mapping
@@ -430,7 +430,8 @@ class TestMatching(unittest.TestCase):
         for __ in range(10):
             G = dnx.gnp_random_graph(7, .5)
             matching = dnx.minimal_maximal_matching_dm(G, ExactSolver())
-            self.assertTrue(dnx.is_maximal_matching(G, matching))
+            self.assertTrue(dnx.is_maximal_matching(G, matching),
+                            "nodes: {}\nedges:{}".format(G.nodes(), G.edges()))
 
     def test_path_graph(self):
         G = dnx.path_graph(10)
@@ -448,20 +449,105 @@ class TestMatching(unittest.TestCase):
         matching = dnx.minimal_maximal_matching_dm(G, ExactSolver())
         self.assertTrue(dnx.is_maximal_matching(G, matching))
 
+    def test_default_sampler(self):
+        G = dnx.complete_graph(5)
+
+        dnx.set_default_sampler(ExactSolver())
+        self.assertIsNot(dnx.get_default_sampler(), None)
+        matching = dnx.maximal_matching_dm(G)
+        matching = dnx.minimal_maximal_matching_dm(G)
+        dnx.unset_default_sampler()
+        self.assertEqual(dnx.get_default_sampler(), None, "sampler did not unset correctly")
+
+    @unittest.skipIf(FastSampler is None, "no dimod sampler provided")
+    def test_dimod_vs_list(self):
+        G = dnx.path_graph(5)
+
+        matching = dnx.minimal_maximal_matching_dm(G, ExactSolver())
+        matching = dnx.maximal_matching_dm(G, ExactSolver())
+        matching = dnx.minimal_maximal_matching_dm(G, FastSampler())
+        matching = dnx.maximal_matching_dm(G, FastSampler())
+
+    def test_minimal_maximal_matching_bug1(self):
+        G = dnx.Graph()
+        G.add_nodes_from(range(7))
+        G.add_edges_from([(0, 2), (0, 3), (0, 5), (0, 6), (1, 5), (2, 3), (2, 4), (2, 5), (3, 4),
+                          (4, 6), (5, 6)])
+
+        delta = max(G.degree(node) for node in G)  # maximum degree
+        A = 1  # magnitude arg for _matching_qubo
+        B = .75 * A / (delta - 2.)  # magnitude arg for _maximal_matching_qubo
+        C = .5 * B
+
+        edge_mapping = _edge_mapping(G)
+        inv_edge_mapping = {idx: edge for edge, idx in edge_mapping.items()}
+
+        Qmm = _maximal_matching_qubo(G, edge_mapping, magnitude=B)
+        Qm = _matching_qubo(G, edge_mapping, magnitude=A)
+        Qmmm = {(v, v): C for v in edge_mapping.values()}
+        Q = Qmm.copy()
+        for edge, bias in Qm.items():
+            Q[edge] += bias
+        for edge, bias in Qmmm.items():
+            Q[edge] += bias
+
+        # now for each combination of edges, we check that if the combination
+        # is a maximal matching, and if so that is has ground energy, else
+        # there is an infeasible gap
+        ground_energy = -1. * B * len(G.edges())  # from maximal matching
+        infeasible_gap = float('inf')
+        for edge_vars in powerset(set(edge_mapping.values())):
+
+            # get the matching from the variables
+            potential_matching = {inv_edge_mapping[v] for v in edge_vars}
+
+            # get the sample from the edge_vars
+            sample = {v: 0 for v in edge_mapping.values()}
+            for v in edge_vars:
+                sample[v] = 1
+
+            en_matching = qubo_energy(Qm, sample)
+            en_maximal = qubo_energy(Qmm, sample)
+            en_minimal = qubo_energy(Qmmm, sample)
+
+            en = qubo_energy(Q, sample)
+
+            self.assertLess(abs(en_matching + en_maximal + en_minimal - en), 10**-8)
+
+            if dnx.is_maximal_matching(G, potential_matching):
+                # if the sample is a maximal matching, then let's check each qubo
+                # and combined together
+                self.assertEqual(en_matching, 0.0)  # matching
+                self.assertLess(abs(en_maximal - ground_energy), 10**-8)
+
+            elif dnx.is_matching(potential_matching):
+                # in this case we expect the energy contribution of Qm to be 0
+                self.assertEqual(en_matching, 0.0)  # matching
+
+                # but there should be a gap to Qmm, because the matching is not maximal
+                self.assertGreater(en_maximal, ground_energy)
+
+                gap = en_matching + en_maximal + en_minimal - ground_energy
+                if gap < infeasible_gap:
+                    infeasible_gap = gap
+            else:
+                # ok, these are not even matching
+                self.assertGreater(en_matching, 0)  # so matching energy should be > 0
+
+                self.assertGreater(gap, 0)
+
+                gap = en_matching + en_maximal + en_minimal - ground_energy
+                if gap < infeasible_gap:
+                    infeasible_gap = gap
+
+        self.assertGreater(infeasible_gap, 0)
+
+        # finally let's test it using the function
+        matching = dnx.minimal_maximal_matching_dm(G, ExactSolver())
+        self.assertTrue(dnx.is_maximal_matching(G, matching))
+
 
 def powerset(iterable):
     "powerset([1,2,3]) --> () (1,) (2,) (3,) (1,2) (1,3) (2,3) (1,2,3)"
     s = list(iterable)
     return chain.from_iterable(combinations(s, r) for r in range(len(s) + 1))
-
-
-def qubo_energy(Q, sample):
-    """Calculate the quadratic polynomial value of the given sample
-    to a quadratic unconstrained binary optimization (QUBO) problem.
-    """
-    energy = 0
-
-    for v0, v1 in Q:
-        energy += sample[v0] * sample[v1] * Q[(v0, v1)]
-
-    return energy

@@ -2,7 +2,7 @@ import unittest
 import itertools
 
 import dwave_networkx as dnx
-from dwave_networkx.algorithms_extended.tests.samplers import ExactSolver
+from dwave_networkx.algorithms_extended.tests.samplers import ExactSolver, FastSampler
 
 
 class TestSocial(unittest.TestCase):
@@ -56,3 +56,25 @@ class TestSocial(unittest.TestCase):
         for c in colors.values():
             self.assertIsInstance(c, int)
             self.assertTrue(c in (0, 1))
+
+    def test_default_sampler(self):
+        S = dnx.Graph()
+        S.add_edge('Alice', 'Bob', sign=1)  # Alice and Bob are friendly
+        S.add_edge('Alice', 'Eve', sign=-1)  # Alice and Eve are hostile
+        S.add_edge('Bob', 'Eve', sign=-1)  # Bob and Eve are hostile
+
+        dnx.set_default_sampler(ExactSolver())
+        self.assertIsNot(dnx.get_default_sampler(), None)
+        frustrated_edges, colors = dnx.network_imbalance_dm(S)
+        dnx.unset_default_sampler()
+        self.assertEqual(dnx.get_default_sampler(), None, "sampler did not unset correctly")
+
+    @unittest.skipIf(FastSampler is None, "no dimod sampler provided")
+    def test_dimod_vs_list(self):
+        S = dnx.Graph()
+        S.add_edge('Alice', 'Bob', sign=1)  # Alice and Bob are friendly
+        S.add_edge('Alice', 'Eve', sign=-1)  # Alice and Eve are hostile
+        S.add_edge('Bob', 'Eve', sign=-1)  # Bob and Eve are hostile
+
+        frustrated_edges, colors = dnx.network_imbalance_dm(S, ExactSolver())
+        frustrated_edges, colors = dnx.network_imbalance_dm(S, FastSampler())

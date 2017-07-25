@@ -10,12 +10,14 @@ __all__ = ['maximal_matching_dm', 'minimal_maximal_matching_dm',
 if sys.version_info[0] == 2:
     range = xrange
     iteritems = lambda d: d.iteritems()
+    itervalues = lambda d: d.itervalues()
 else:
     iteritems = lambda d: d.items()
+    itervalues = lambda d: d.values()
 
 
 @discrete_model_sampler(1)
-def maximal_matching_dm(G, sampler, **sampler_args):
+def maximal_matching_dm(G, sampler=None, **sampler_args):
     """Uses a discrete model sampler to find a maximal cardinalty
     matching in a graph.
 
@@ -91,7 +93,7 @@ def maximal_matching_dm(G, sampler, **sampler_args):
 
 
 @discrete_model_sampler(1)
-def minimal_maximal_matching_dm(G, sampler, **sampler_args):
+def minimal_maximal_matching_dm(G, sampler=None, **sampler_args):
     """Uses a discrete model sampler to find a maximal cardinalty
     matching in a graph with the minimum number of edges.
 
@@ -159,7 +161,7 @@ def minimal_maximal_matching_dm(G, sampler, **sampler_args):
 
     # to enforce the minimal constraint, we additionally add a small bias to
     # each variable
-    for v in G:
+    for v in set(edge_mapping.values()):
         if (v, v) not in Q:
             Q[(v, v)] = C
         else:

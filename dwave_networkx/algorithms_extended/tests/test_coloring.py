@@ -2,7 +2,7 @@ import unittest
 import itertools
 
 import dwave_networkx as dnx
-from dwave_networkx.algorithms_extended.tests.samplers import ExactSolver, FastSampler
+from dwave_networkx.algorithms_extended.tests.samplers import ExactSolver, FastSampler, qubo_energy
 
 from dwave_networkx.algorithms_extended.coloring import _quadratic_chi_bound
 from dwave_networkx.algorithms_extended.coloring import _vertex_different_colors_qubo
@@ -141,15 +141,3 @@ class TestColor(unittest.TestCase):
         G = dnx.chimera_graph(1, 1, 3)
         coloring = dnx.min_vertex_coloring_dm(G, ExactSolver())
         coloring = dnx.min_vertex_coloring_dm(G, FastSampler())
-
-
-def qubo_energy(Q, sample):
-    """Calculate the quadratic polynomial value of the given sample
-    to a quadratic unconstrained binary optimization (QUBO) problem.
-    """
-    energy = 0
-
-    for v0, v1 in Q:
-        energy += sample[v0] * sample[v1] * Q[(v0, v1)]
-
-    return energy

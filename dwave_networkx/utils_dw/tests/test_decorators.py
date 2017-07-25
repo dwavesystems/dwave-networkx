@@ -14,13 +14,13 @@ class MockSampler:
 
 @discrete_model_sampler(1)
 def mock_function(G, sampler=None, **sampler_args):
-    pass
+    assert sampler is not None
 
 
 class TestDecorators(unittest.TestCase):
 
     def test_default_set(self):
-        dnx.set_default_sampler(MockSampler)
+        dnx.set_default_sampler(MockSampler())
         mock_function(0)
         dnx.unset_default_sampler()
 
