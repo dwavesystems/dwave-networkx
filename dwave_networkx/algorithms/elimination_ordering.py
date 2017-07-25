@@ -31,7 +31,8 @@ def treewidth_branch_and_bound(G, randomize=False):
 
     References
     ----------
-       Gogate & Dechter, "A Complete Anytime Algorithm for Treewidth", https://arxiv.org/abs/1207.4109
+    .. [1] Gogate & Dechter, "A Complete Anytime Algorithm for Treewidth",
+       https://arxiv.org/abs/1207.4109
 
     """
     # variable names were chosen to be consistent with the paper
@@ -95,7 +96,7 @@ def _BB(state, upper_bound, info, randomize=False):
 
     # now the terminal rule
     if len(G.nodes()) < 2:
-        return min(ub, lb), partial_order+G.nodes()  # ub, order
+        return min(ub, lb), partial_order + G.nodes()  # ub, order
 
     # finally we try removing each of the variables from G and see which is the best
     for v in (randomize and random.sample(G.nodes(), len(G)) or G):
@@ -175,7 +176,7 @@ def is_complete(G):
 
     """
     n = len(G.nodes())  # get the number of nodes
-    return len(G.edges()) == n*(n-1)/2
+    return len(G.edges()) == n * (n - 1) / 2
 
 
 def minor_min_width(G):
@@ -193,7 +194,8 @@ def minor_min_width(G):
 
     References
     ----------
-       Gogate & Dechter, "A Complete Anytime Algorithm for Treewidth", https://arxiv.org/abs/1207.4109
+    .. [1] Gogate & Dechter, "A Complete Anytime Algorithm for Treewidth",
+       https://arxiv.org/abs/1207.4109
 
     """
     lb = 0
@@ -205,7 +207,7 @@ def minor_min_width(G):
         # find the vertex u such that the degree of u is minimal in the neighborhood of v
         Nv = G.subgraph(G[v].keys())
 
-        if not Nv.nodes():  # in this case there is no edge to contract, happens in unconnected graphs
+        if not Nv.nodes():  # in this case there is no edge to contract, unconnected graph
             G = G.copy()  # otherwise function would act on G in place
             G.remove_node(v)
             continue

@@ -21,7 +21,6 @@ networkx https://networkx.github.io/
 ```
 
 All of the functionality in networkx is also present in dwave_networkx
-
 ```python
 >>> import dwave_networkx as dnx
 >>> graph = dnx.complete_graph(3)
