@@ -14,7 +14,7 @@ def set_default_sampler(sampler):
 
     Parameters
     ----------
-        sampler
+    sampler
         A discrete model sampler. A sampler is a process that samples
         from low energy states in models defined by an Ising equation
         or a Quadratic Unconstrainted Binary Optimization Problem
