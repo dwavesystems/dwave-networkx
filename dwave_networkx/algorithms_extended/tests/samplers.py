@@ -1,7 +1,7 @@
 """In order to test the discrete model functions, we need a discrete model
 sampler. This module provides one.
 """
-
+import itertools
 import bisect
 
 try:

@@ -5,11 +5,10 @@ from itertools import chain, combinations
 
 import dwave_networkx as dnx
 
-from dwave_networkx.algorithms.tests.solver import Sampler, sampler_found
+from dwave_networkx.algorithms_extended.tests.samplers import ExactSolver, FastSampler
 
-from dwave_networkx.algorithms.matching_qa import _matching_qubo, _maximal_matching_qubo
-from dwave_networkx.algorithms.matching_qa import is_matching, is_maximal_matching, _edge_mapping
-from dwave_networkx import maximal_matching_dm, minimal_maximal_matching_dm
+from dwave_networkx.algorithms_extended.matching import _matching_qubo, _maximal_matching_qubo
+from dwave_networkx.algorithms_extended.matching import _edge_mapping
 
 
 class TestMatching(unittest.TestCase):
@@ -41,7 +40,7 @@ class TestMatching(unittest.TestCase):
             for v in edge_vars:
                 sample[v] = 1
 
-            if is_matching(potential_matching):
+            if dnx.is_matching(potential_matching):
                 self.assertEqual(qubo_energy(Q, sample), 0.)
             else:
                 en = qubo_energy(Q, sample)
@@ -78,7 +77,7 @@ class TestMatching(unittest.TestCase):
             for v in edge_vars:
                 sample[v] = 1
 
-            if is_matching(potential_matching):
+            if dnx.is_matching(potential_matching):
                 self.assertEqual(qubo_energy(Q, sample), 0.)
             else:
                 en = qubo_energy(Q, sample)
@@ -113,9 +112,9 @@ class TestMatching(unittest.TestCase):
             for v in edge_vars:
                 sample[v] = 1
 
-            if is_maximal_matching(G, potential_matching):
+            if dnx.is_maximal_matching(G, potential_matching):
                 self.assertEqual(qubo_energy(Q, sample), ground_energy)
-            elif not is_matching(potential_matching):
+            elif not dnx.is_matching(potential_matching):
                 # for now we don't care about these, they should be covered by the _matching_qubo
                 # part of the QUBO function
                 pass
@@ -155,10 +154,10 @@ class TestMatching(unittest.TestCase):
             for v in edge_vars:
                 sample[v] = 1
 
-            if is_maximal_matching(G, potential_matching):
+            if dnx.is_maximal_matching(G, potential_matching):
                 # print potential_matching, qubo_energy(Q, sample)
                 self.assertLess(abs(qubo_energy(Q, sample) - ground_energy), 10**-8)
-            elif not is_matching(potential_matching):
+            elif not dnx.is_matching(potential_matching):
                 # for now we don't care about these, they should be covered by the _matching_qubo
                 # part of the QUBO function
                 pass
@@ -209,7 +208,7 @@ class TestMatching(unittest.TestCase):
             for v in edge_vars:
                 sample[v] = 1
 
-            if is_maximal_matching(G, potential_matching):
+            if dnx.is_maximal_matching(G, potential_matching):
                 # print potential_matching, qubo_energy(Q, sample)
                 self.assertLess(abs(qubo_energy(Q, sample) - ground_energy), 10**-8)
             else:
@@ -259,7 +258,7 @@ class TestMatching(unittest.TestCase):
             for v in edge_vars:
                 sample[v] = 1
 
-            if is_maximal_matching(G, potential_matching):
+            if dnx.is_maximal_matching(G, potential_matching):
                 # print potential_matching, qubo_energy(Q, sample)
                 self.assertLess(abs(qubo_energy(Q, sample) - ground_energy), 10**-8)
             else:
@@ -314,13 +313,13 @@ class TestMatching(unittest.TestCase):
 
             self.assertLess(abs(en_matching + en_maximal - en), 10**-8)
 
-            if is_maximal_matching(G, potential_matching):
+            if dnx.is_maximal_matching(G, potential_matching):
                 # if the sample is a maximal matching, then let's check each qubo
                 # and combined together
                 self.assertEqual(en_matching, 0.0)  # matching
                 self.assertLess(abs(en_maximal - ground_energy), 10**-8)
 
-            elif is_matching(potential_matching):
+            elif dnx.is_matching(potential_matching):
                 # in this case we expect the energy contribution of Qm to be 0
                 self.assertEqual(en_matching, 0.0)  # matching
 
@@ -383,13 +382,13 @@ class TestMatching(unittest.TestCase):
 
             self.assertLess(abs(en_matching + en_maximal - en), 10**-8)
 
-            if is_maximal_matching(G, potential_matching):
+            if dnx.is_maximal_matching(G, potential_matching):
                 # if the sample is a maximal matching, then let's check each qubo
                 # and combined together
                 self.assertEqual(en_matching, 0.0)  # matching
                 self.assertLess(abs(en_maximal - ground_energy), 10**-8)
 
-            elif is_matching(potential_matching):
+            elif dnx.is_matching(potential_matching):
                 # in this case we expect the energy contribution of Qm to be 0
                 self.assertEqual(en_matching, 0.0)  # matching
 
@@ -414,40 +413,40 @@ class TestMatching(unittest.TestCase):
     def test_maximal_matching_typical(self):
 
         G = dnx.complete_graph(5)
-        matching = maximal_matching_dm(G, Sampler())
-        self.assertTrue(is_maximal_matching(G, matching))
+        matching = dnx.maximal_matching_dm(G, ExactSolver())
+        self.assertTrue(dnx.is_maximal_matching(G, matching))
 
         for __ in range(10):
             G = dnx.gnp_random_graph(7, .5)
-            matching = maximal_matching_dm(G, Sampler())
-            self.assertTrue(is_maximal_matching(G, matching))
+            matching = dnx.maximal_matching_dm(G, ExactSolver())
+            self.assertTrue(dnx.is_maximal_matching(G, matching))
 
     def test_minimal_maximal_matching_typical(self):
 
         G = dnx.complete_graph(5)
-        matching = minimal_maximal_matching_dm(G, Sampler())
-        self.assertTrue(is_maximal_matching(G, matching))
+        matching = dnx.minimal_maximal_matching_dm(G, ExactSolver())
+        self.assertTrue(dnx.is_maximal_matching(G, matching))
 
         for __ in range(10):
             G = dnx.gnp_random_graph(7, .5)
-            matching = minimal_maximal_matching_dm(G, Sampler())
-            self.assertTrue(is_maximal_matching(G, matching))
+            matching = dnx.minimal_maximal_matching_dm(G, ExactSolver())
+            self.assertTrue(dnx.is_maximal_matching(G, matching))
 
     def test_path_graph(self):
         G = dnx.path_graph(10)
-        matching = maximal_matching_dm(G, Sampler())
-        self.assertTrue(is_maximal_matching(G, matching))
+        matching = dnx.maximal_matching_dm(G, ExactSolver())
+        self.assertTrue(dnx.is_maximal_matching(G, matching))
 
-        matching = minimal_maximal_matching_dm(G, Sampler())
-        self.assertTrue(is_maximal_matching(G, matching))
+        matching = dnx.minimal_maximal_matching_dm(G, ExactSolver())
+        self.assertTrue(dnx.is_maximal_matching(G, matching))
 
         G.add_edge(0, 9)
 
-        matching = maximal_matching_dm(G, Sampler())
-        self.assertTrue(is_maximal_matching(G, matching))
+        matching = dnx.maximal_matching_dm(G, ExactSolver())
+        self.assertTrue(dnx.is_maximal_matching(G, matching))
 
-        matching = minimal_maximal_matching_dm(G, Sampler())
-        self.assertTrue(is_maximal_matching(G, matching))
+        matching = dnx.minimal_maximal_matching_dm(G, ExactSolver())
+        self.assertTrue(dnx.is_maximal_matching(G, matching))
 
 
 def powerset(iterable):

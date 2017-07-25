@@ -2,13 +2,12 @@ import unittest
 import itertools
 
 import dwave_networkx as dnx
-from dwave_networkx.algorithms.tests.solver import Sampler, sampler_found
+from dwave_networkx.algorithms_extended.tests.samplers import ExactSolver
 
 
 class TestSocial(unittest.TestCase):
-    @unittest.skipIf(not sampler_found, "No solver found to test with")
     def test_network_imbalance_basic(self):
-        sampler = Sampler()
+        sampler = ExactSolver()
 
         blueteam = ['Alice', 'Bob', 'Carol']
         redteam0 = ['Eve']
@@ -35,9 +34,8 @@ class TestSocial(unittest.TestCase):
         frustrated_edges, colors = dnx.network_imbalance_dm(S, sampler)
         self.check_bicolor(colors)
 
-    @unittest.skipIf(not sampler_found, "No solver found to test with")
     def test_network_imbalance_docstring_example(self):
-        sampler = Sampler()
+        sampler = ExactSolver()
 
         S = dnx.Graph()
         S.add_edge('Alice', 'Bob', sign=1)  # Alice and Bob are friendly
