@@ -5,7 +5,7 @@ import math
 import itertools
 
 import dwave_networkx as dnx
-from dwave_networkx.utils_dw.decorators import discrete_model_sampler
+from dwave_networkx.utils_dw import discrete_model_sampler
 
 __all__ = ["min_vertex_coloring_dm", "is_vertex_coloring", "is_cycle"]
 

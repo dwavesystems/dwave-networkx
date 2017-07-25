@@ -1,15 +1,10 @@
-"""
-Algorithms for variable elimination.
-
-
-"""
 import itertools
 import random
 
 import networkx as nx
 
 __all__ = ['treewidth_branch_and_bound', 'minor_min_width', 'min_width_heuristic', 'is_simplicial',
-           'is_complete', 'is_almost_simplicial', 'min_fill_heuristic']
+           'is_almost_simplicial', 'min_fill_heuristic']
 
 
 def treewidth_branch_and_bound(G, randomize=False):

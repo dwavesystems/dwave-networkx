@@ -1,8 +1,4 @@
-"""
-TODO
-"""
-
-from dwave_networkx.utils_dw.decorators import discrete_model_sampler
+from dwave_networkx.utils_dw import discrete_model_sampler
 
 __all__ = ["maximum_independent_set_dm"]
 

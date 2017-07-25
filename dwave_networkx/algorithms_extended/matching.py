@@ -1,10 +1,7 @@
-"""
-TODO
-"""
 import sys
 import itertools
 
-from dwave_networkx.utils_dw.decorators import discrete_model_sampler
+from dwave_networkx.utils_dw import discrete_model_sampler
 
 __all__ = ['maximal_matching_dm', 'minimal_maximal_matching_dm',
            'is_matching', 'is_maximal_matching']

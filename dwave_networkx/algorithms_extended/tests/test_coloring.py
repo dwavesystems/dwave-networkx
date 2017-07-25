@@ -2,11 +2,12 @@ import unittest
 import itertools
 
 import dwave_networkx as dnx
-from dwave_networkx.algorithms.tests.solver import Sampler, sampler_found
-from dwave_networkx.algorithms.coloring_dw import _quadratic_chi_bound
-from dwave_networkx.algorithms.coloring_dw import _vertex_different_colors_qubo
-from dwave_networkx.algorithms.coloring_dw import _vertex_one_color_qubo
-from dwave_networkx.algorithms.coloring_dw import _minimum_coloring_qubo
+from dwave_networkx.algorithms_extended.tests.samplers import ExactSolver, FastSampler
+
+from dwave_networkx.algorithms_extended.coloring import _quadratic_chi_bound
+from dwave_networkx.algorithms_extended.coloring import _vertex_different_colors_qubo
+from dwave_networkx.algorithms_extended.coloring import _vertex_one_color_qubo
+from dwave_networkx.algorithms_extended.coloring import _minimum_coloring_qubo
 
 
 class TestColor(unittest.TestCase):

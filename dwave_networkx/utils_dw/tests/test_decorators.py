@@ -1,7 +1,7 @@
 import unittest
 
 import dwave_networkx as dnx
-from dwave_networkx.utils_dw.decorators import discrete_model_sampler
+from dwave_networkx.utils_dw import discrete_model_sampler
 
 
 class MockSampler:

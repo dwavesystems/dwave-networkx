@@ -1,1 +1,1 @@
-from networkx.utils.decorators import *
+from dwave_networkx.utils_dw.decorators import *

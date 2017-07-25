@@ -1,4 +1,4 @@
-# DWave_NetworkX
+# D-Wave NetworkX
 
 An extension of the [NetworkX](http://networkx.github.io/) Python package that includes graph structures and algorithms relevent to the D-Wave System.
 

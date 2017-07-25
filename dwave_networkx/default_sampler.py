@@ -1,5 +1,3 @@
-from __future__ import absolute_import
-
 from dwave_networkx.utils_dw.decorators import discrete_model_sampler
 
 __all__ = ['set_default_sampler', 'get_default_sampler', 'unset_default_sampler']
