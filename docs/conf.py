@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# DWaveNetworkx documentation build configuration file, created by
+# DWaveNetworkX documentation build configuration file, created by
 # sphinx-quickstart on Wed Jul 26 10:55:26 2017.
 #
 # This file is execfile()d with the current directory set to its
@@ -22,10 +22,8 @@
 # sys.path.insert(0, os.path.dirname(os.path.abspath('.')))
 
 # -- General configuration ------------------------------------------------
-
-# If your documentation needs a minimal Sphinx version, state it here.
-#
-# needs_sphinx = '1.0'
+# import sphinx
+# if sphinx.__version__  # can check here
 
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
@@ -44,8 +42,7 @@ extensions = [
 
 autosummary_generate = True
 
-# Add any paths that contain templates here, relative to this directory.
-templates_path = ['_templates']
+# templates_path = ['_templates']
 
 # The suffix(es) of source filenames.
 # You can specify multiple suffix as a list of string:
@@ -57,7 +54,7 @@ source_parsers = {'.md': 'recommonmark.parser.CommonMarkParser'}
 master_doc = 'index'
 
 # General information about the project.
-project = u'DWaveNetworkx'
+project = u'D-Wave NetworkX'
 copyright = u'2017, D-Wave Systems Inc'
 author = u'D-Wave Systems Inc'
 
@@ -116,26 +113,10 @@ html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 # so a file named "default.css" will overwrite the builtin "default.css".
 # html_static_path = ['_static']
 
-# Custom sidebar templates, must be a dictionary that maps document names
-# to template names.
-#
-# This is required for the alabaster theme
-# refs: http://alabaster.readthedocs.io/en/latest/installation.html#sidebars
-html_sidebars = {
-    '**': [
-        'about.html',
-        'navigation.html',
-        'relations.html',  # needs 'show_related': True theme option to display
-        'searchbox.html',
-        'donate.html',
-    ]
-}
-
-
 # -- Options for HTMLHelp output ------------------------------------------
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'DWaveNetworkxdoc'
+htmlhelp_basename = 'DWaveNetworkXdoc'
 
 
 # -- Options for LaTeX output ---------------------------------------------
@@ -162,7 +143,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'DWaveNetworkx.tex', u'DWaveNetworkx Documentation',
+    (master_doc, 'DWaveNetworkX.tex', u'DWaveNetworkX Documentation',
      u'D-Wave Systems Inc', 'manual'),
 ]
 
@@ -172,7 +153,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'dwavenetworkx', u'DWaveNetworkx Documentation',
+    (master_doc, 'dwavenetworkx', u'DWaveNetworkX Documentation',
      [author], 1)
 ]
 
@@ -183,11 +164,10 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'DWaveNetworkx', u'DWaveNetworkx Documentation',
-     author, 'DWaveNetworkx', 'One line description of project.',
+    (master_doc, 'DWaveNetworkX', u'DWaveNetworkX Documentation',
+     author, 'DWaveNetworkX', 'One line description of project.',
      'Miscellaneous'),
 ]
-
 
 
 # -- Options for Epub output ----------------------------------------------
@@ -211,6 +191,6 @@ epub_copyright = copyright
 epub_exclude_files = ['search.html']
 
 
-
 # Example configuration for intersphinx: refer to the Python standard library.
-intersphinx_mapping = {'https://docs.python.org/': None}
+intersphinx_mapping = {'https://docs.python.org/': None,
+                       'http://networkx.readthedocs.io/en/latest/': None}

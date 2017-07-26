@@ -1,5 +1,6 @@
 """
-TODO
+Decorators allow for input checking and default parameter setting for
+algorithms.
 """
 
 from decorator import decorator

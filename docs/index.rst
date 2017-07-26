@@ -5,13 +5,24 @@
 Overview
 ========
 
-TODO
+NetworkX
+--------
 
-Another Section
----------------
+NetworkX is a Python language package for exploration and analysis of networks and network algorithms [NX]_.
 
-TODO Again
+NetworkX can be found at http://networkx.github.io.
 
+TODO: Some more description, credits to authors
+
+About D-Wave
+------------
+
+TODO: Boilerplate about D-Wave.
+
+Project Goals
+-------------
+
+TODO: ref implementation, etc
 
 Documentation
 -------------
@@ -24,6 +35,7 @@ Documentation
 .. toctree::
    :maxdepth: 1
 
+   discrete_model_samplers
    reference/index
    license
 
