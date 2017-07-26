@@ -22,9 +22,12 @@ def maximum_independent_set_dm(G, sampler=None, **sampler_args):
         or a Quadratic Unconstrainted Binary Optimization Problem
         (QUBO). A sampler is expected to have a 'sample_qubo' and
         'sample_ising' method. A sampler is expected to return an
-        iterable of samples, in order of increasing energy.
+        iterable of samples, in order of increasing energy. If no
+        sampler is provided, one must be provided using the
+        `set_default_sampler` function.
 
-    Additional keyword parameters are passed to the sampler.
+    sampler_args
+        Additional keyword parameters are passed to the sampler.
 
     Returns
     -------

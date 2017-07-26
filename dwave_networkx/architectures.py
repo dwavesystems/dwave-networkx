@@ -16,20 +16,29 @@ if sys.version_info[0] == 2:
 def chimera_graph(m, n=None, t=None, create_using=None):
     """Creates a Chimera lattice of size (m, n, t).
 
-    A Chimera lattice is an m by n grid of Chimera Tiles. Each Chimera tile is itself a bipartite
-    graph with shores of size t. The connection in a Chimera lattice can expressed using a node indexing
-    notation (i,j,u,k) for each node. (i,j) indexes the (row, column) of the Chimera Tile. i must be
-    between 0 and m-1 inclusive, and j must be between 0 and n-1 inclusive. u=0 indicates the left hand
-    nodes in the tile, and u=1 indicates the right hand nodes. k=0,1,...,t-1 indexes nodes within either
-    the left- or right-hand shores of a tile.
-    In this notation, two nodes (i, j, u, k) and (i', j', u', k') are neighbors if and only if:
+    A Chimera lattice is an m by n grid of Chimera Tiles. Each Chimera
+    tile is itself a bipartite graph with shores of size t. The
+    connection in a Chimera lattice can expressed using a node indexing
+    notation (i,j,u,k) for each node. (i,j) indexes the (row, column)
+    of the Chimera Tile. i must be between 0 and m-1 inclusive, and j
+    must be between 0 and n-1 inclusive. u=0 indicates the left hand
+    nodes in the tile, and u=1 indicates the right hand nodes.
+    k=0,1,...,t-1 indexes nodes within either the left- or right-hand
+    shores of a tile.
+
+    In this notation, two nodes (i, j, u, k) and (i', j', u', k') are
+    neighbors if and only if::
+
         (i = i' AND j = j' AND u != u') OR
         (i = i' +/- 1 AND j = j' AND u = 0 AND u' = 0 AND k = k') OR
         (i = i' AND j = j' +/- 1 AND u = 1 AND u' = 1 AND k = k')
-    The first line gives the bipartite connections within the tile. The second and third give the
-    vertical and horizontal connections between blocks respectively.
+
+    The first line gives the bipartite connections within the tile.
+    The second and third give the vertical and horizontal connections
+    between blocks respectively.
 
     Node (i, j, u, k) is labelled by:
+
         label = (i-1)*m + (j-1)*n + u*t + k
 
     Parameters
@@ -46,7 +55,7 @@ def chimera_graph(m, n=None, t=None, create_using=None):
 
     Returns
     -------
-    G : a networkx Graph
+    G : a NetworkX Graph
         An (m, n, t) Chimera lattice. Nodes are labelled by integers.
 
     Examples
@@ -57,8 +66,8 @@ def chimera_graph(m, n=None, t=None, create_using=None):
     >>> list(G.nodes())
     [1, 2, 3, 4, 5, 6, 7]
     >>> list(G.edges())
-    [(0, 4), (0, 5), (0, 6), (0, 7), (1, 4), (1, 5), (1, 6), (1, 7), (2, 4), (2, 5), (2, 6), (2, 7),
-    (3, 4), (3, 5), (3, 6), (3, 7)]
+    [(0, 4), (0, 5), (0, 6), (0, 7), (1, 4), (1, 5), (1, 6), (1, 7),
+    (2, 4), (2, 5), (2, 6), (2, 7), (3, 4), (3, 5), (3, 6), (3, 7)]
 
     """
 

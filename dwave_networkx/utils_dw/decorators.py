@@ -1,3 +1,7 @@
+"""
+TODO
+"""
+
 from decorator import decorator
 
 import dwave_networkx as dnx
@@ -17,15 +21,19 @@ def discrete_model_sampler(which_args):
     Returns
     -------
     _discrete_model_sampler : function
-        Function which checks the sampler for correctness.
+        Function which checks the sampler for correctness. A sampler
+        is expected to have "sample_qubo" and "sample_ising" methods.
+        Alternatively, if no sampler is provided (or sampler is None)
+        the sampler as set by set_default_sampler will be provided to
+        the function.
 
     Examples
     --------
     Decorate functions like this::
 
-    @discrete_model_sampler(1)
-    def maximal_matching(G, sampler, **sampler_args):
-        pass
+        @discrete_model_sampler(1)
+        def maximal_matching(G, sampler, **sampler_args):
+            pass
     """
     @decorator
     def _discrete_model_sampler(f, *args, **kw):

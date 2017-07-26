@@ -1,3 +1,10 @@
+"""
+Base exceptions and errors for D-Wave NetworkX.
+
+All are derived from NetworkXException.
+
+"""
+
 from dwave_networkx import NetworkXException
 
 
@@ -6,4 +13,5 @@ class DWaveNetworkXException(NetworkXException):
 
 
 class DWaveNetworkXMissingSampler(DWaveNetworkXException):
-    """No sampler provided."""
+    """Exception raised by an algorithm requiring a discrete model
+    sampler when none is provided."""

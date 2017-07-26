@@ -1,5 +1,4 @@
 from dwave_networkx.algorithms_extended.packing import *
-from dwave_networkx.algorithms_extended.clique import *
 from dwave_networkx.algorithms_extended.cover import *
 from dwave_networkx.algorithms_extended.matching import *
 from dwave_networkx.algorithms_extended.social import *

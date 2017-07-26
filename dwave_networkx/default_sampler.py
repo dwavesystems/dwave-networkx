@@ -1,3 +1,79 @@
+"""Allows the user to specify a discrete model sampler in a single place.
+
+A sampler is a process that samples
+from low energy states in models defined by an Ising equation
+or a Quadratic Unconstrainted Binary Optimization Problem
+(QUBO). A sampler is expected to have a 'sample_qubo' and
+'sample_ising' method. A sampler is expected to return an
+iterable of samples, in order of increasing energy.
+
+Example sampler
+---------------
+First we can create a stand in for a discrete model sampler that can be
+used in the following examples.
+
+>>> class ExampleSampler:
+        # an example sampler, only works for independent set on complete
+        # graphs
+        def __init__(self, name):
+            self.name = name
+        def sample_ising(self, h, J):
+            sample = {v: -1 for v in h}
+            sample[0] = 1  # set one node to true
+            return [sample]
+        def sample_qubo(self, Q):
+            sample = {v: 0 for v in set().union(*Q)}
+            sample[0] = 1  # set one node to true
+            return [sample]
+        def __str__(self):
+            return self.name
+
+No default sampler set
+----------------------
+If the user wishes to specify which sampler each discrete model
+algorithm uses, the user can provide the sampler directly to
+the functions.
+
+>>> sampler = ExampleSampler('sampler')
+>>> G = dnx.complete_graph(5)
+>>> indep_set = dnx.maximum_independent_set_dm(G, sampler)
+>>> print(indep_set)
+'[0]'
+
+Setting a default sampler
+-------------------------
+Alternatively, the user can specify a sampler that will be used
+by default.
+
+>>> sampler0 = ExampleSampler('sampler0')
+>>> dnx.set_default_sampler(sampler0)
+
+This sampler will now be used by any function where no sampler
+is specified
+
+>>> indep_set = dnx.maximum_independent_set_dm(G)
+>>> print(indep_set)
+'[0]'
+
+A different sampler can still be provided, in which case the
+provided sampler will be used instead of the default.
+
+>>> sampler1 = ExampleSampler('sampler1')
+>>> dnx.set_default_sampler(sampler0)
+>>> indep_set = dnx.maximum_independent_set_dm(G, sampler1)
+>>> print(indep_set)
+'[0]'
+
+Unsetting a default sampler
+---------------------------
+The user can also unset the default.
+
+>>> dnx.unset_default_sampler()
+>>> print(dnx.get_default_sampler())
+'None'
+
+"""
+
 from dwave_networkx.utils_dw.decorators import discrete_model_sampler
 
 __all__ = ['set_default_sampler', 'get_default_sampler', 'unset_default_sampler']
@@ -54,9 +130,9 @@ def get_default_sampler():
     --------
     >>> print(dnx.get_default_sampler())
     'None'
-    >>> dnx.set_default_sampler(sampler0)
+    >>> dnx.set_default_sampler(sampler)
     >>> print(dnx.get_default_sampler())
-    'sampler0'
+    'sampler'
 
     """
     return _SAMPLER
