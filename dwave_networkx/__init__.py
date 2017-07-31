@@ -30,4 +30,7 @@ from dwave_networkx.exceptions import *
 import dwave_networkx.default_sampler
 from dwave_networkx.default_sampler import *
 
+import dwave_networkx.drawing_extended
+from dwave_networkx.drawing_extended import *
+
 __version__ = '1.0'
