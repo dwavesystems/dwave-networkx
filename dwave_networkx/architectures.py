@@ -13,7 +13,7 @@ if sys.version_info[0] == 2:
     range = xrange
 
 
-def chimera_graph(m, n=None, t=None, create_using=None):
+def chimera_graph(m, n=None, t=None, create_using=None, data=True):
     """Creates a Chimera lattice of size (m, n, t).
 
     A Chimera lattice is an m by n grid of Chimera Tiles. Each Chimera
@@ -39,7 +39,7 @@ def chimera_graph(m, n=None, t=None, create_using=None):
 
     Node (i, j, u, k) is labelled by:
 
-        label = (i-1)*m + (j-1)*n + u*t + k
+        label = i * m + j * n + u * t + k
 
     Parameters
     ----------
@@ -52,6 +52,10 @@ def chimera_graph(m, n=None, t=None, create_using=None):
     create_using : Graph, optional (default None)
         If provided this graph is cleared of nodes and edges and filled
         with the new graph. Usually used to set the type of the graph.
+    data : bool, optional (default True)
+        If True, each node has a chimera_index attribute. The attribute's
+        value is 4-tuple Chimera index as defined above.
+
 
     Returns
     -------
@@ -65,6 +69,15 @@ def chimera_graph(m, n=None, t=None, create_using=None):
     8
     >>> list(G.nodes())
     [1, 2, 3, 4, 5, 6, 7]
+    >>> list(G.nodes(data=True))
+    [(0, {'chimera_index': (0, 0, 0, 0)}),
+     (1, {'chimera_index': (0, 0, 0, 1)}),
+     (2, {'chimera_index': (0, 0, 0, 2)}),
+     (3, {'chimera_index': (0, 0, 0, 3)}),
+     (4, {'chimera_index': (0, 0, 1, 0)}),
+     (5, {'chimera_index': (0, 0, 1, 1)}),
+     (6, {'chimera_index': (0, 0, 1, 2)}),
+     (7, {'chimera_index': (0, 0, 1, 3)})]
     >>> list(G.edges())
     [(0, 4), (0, 5), (0, 6), (0, 7), (1, 4), (1, 5), (1, 6), (1, 7),
     (2, 4), (2, 5), (2, 6), (2, 7), (3, 4), (3, 5), (3, 6), (3, 7)]
@@ -76,7 +89,18 @@ def chimera_graph(m, n=None, t=None, create_using=None):
     if t is None:
         t = 4
 
-    G = dnx.empty_graph(m * n * t * 2, create_using)
+    if data:
+        G = dnx.empty_graph(0, create_using)
+        label = 0
+        for i in range(m):
+            for j in range(n):
+                for u in range(2):
+                    for k in range(t):
+                        G.add_node(label, chimera_index=(i, j, u, k))
+                        label += 1
+    else:
+        G = dnx.empty_graph(m * n * 2 * t, create_using)
+
     G.name = "chimera_graph(%s, %s, %s)" % (m, n, t)
 
     hoff = 2 * t
