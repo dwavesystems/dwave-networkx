@@ -1,3 +1,7 @@
+"""
+Tools to visualize Chimera lattices and weighted graph problems on them.
+"""
+
 from __future__ import division
 
 import sys
@@ -20,8 +24,39 @@ else:
 __all__ = ['chimera_layout', 'draw_chimera']
 
 
-def chimera_layout(G, scale=1, center=None, dim=2):
-    """
+def chimera_layout(G, scale=1., center=None, dim=2):
+    """Positions the nodes in a Chimera lattice.
+
+    NumPy (http://scipy.org) is required for this function.
+
+    Parameters
+    ----------
+    G : graph
+        A networkx graph. Should be a Chimera graph or a subgraph of a
+        Chimera graph. If every node in G has a 'chimera_index'
+        attribute, then those are used to place the nodes. Otherwise will
+        attempt to find positions, but is not guarunteed to succeed.
+
+    scale : float (default 1.)
+        Scale factor. When scale = 1 the all positions will fit within [0, 1]
+        on the x-axis and [-1, 0] on the y-axis.
+
+    center : None or array (default None)
+        Coordinates of the top left corner.
+
+    dim : int (default 2)
+        Number of dimensions. When dim > 2, all extra dimensions are
+        set to 0.
+
+    Returns
+    -------
+    pos : dict
+        A dictionary of positions keyed by node.
+
+    Examples
+    --------
+    >>> G = dnx.chimera_graph(1)
+    >>> pos = dnx.chimera_layout(G)
 
     """
 
@@ -58,20 +93,23 @@ def chimera_node_placer_2d(m, n, t, scale=1., center=None, dim=2):
     ----------
     m : int
         The number of rows in the Chimera lattice.
+
     n : int
         The number of columns in the Chimera lattice.
+
     t : int
         The size of the shore within each Chimera tile.
+
     scale : float (default 1.)
         Scale factor. When scale = 1 the all positions will fit within [0, 1]
         on the x-axis and [-1, 0] on the y-axis.
+
     center : None or array (default None)
         Coordinates of the top left corner.
+
     dim : int (default 2)
         Number of dimensions. When dim > 2, all extra dimensions are
         set to 0.
-    paddims : int (optional, default 0)
-        The number of additional dimensions.
 
     Returns
     -------
@@ -187,10 +225,37 @@ def draw_chimera(G, linear_biases={}, quadratic_biases={},
                  nodelist=None, edgelist=None, cmap=None, edge_cmap=None, vmin=None, vmax=None,
                  edge_vmin=None, edge_vmax=None,
                  **kwargs):
-    """TODO
+    """Draw graph G with a Chimera layout.
+
+    If linear_biases and/or quadratic_biases are provided then the biases
+    are visualized on the plot.
+
+    Parameters
+    ----------
+    G : graph
+        A networkx graph. Should be a Chimera graph or a subgraph of a
+        Chimera graph.
+
+    linear_biases : dict (optional, default {})
+        A dict of biases associated with each node in G. Should be of the
+        form {node: bias, ...}. Each bias should be numeric.
+
+    quadratic biases : dict (optional, default {})
+        A dict of biases associated with each edge in G. Should be of the
+        form {edge: bias, ...}. Each bias should be numeric. Self-loop
+        edges are treated as linear biases.
+
+    kwargs : optional keywords
+       See networkx.draw_networkx() for a description of optional keywords,
+       with the exception of the pos parameter which is not used by this
+       function. If linear_biases or quadratic_biases are provided, then
+       any provided node_color or edge_color arguments are ignored.
+
     """
 
     if linear_biases or quadratic_biases:
+        # if linear biases and/or quadratic biases are provided, then color accordingly.
+
         try:
             import matplotlib.pyplot as plt
             import matplotlib as mpl
@@ -209,10 +274,7 @@ def draw_chimera(G, linear_biases={}, quadratic_biases={},
         if edge_cmap is None:
             edge_cmap = plt.get_cmap('coolwarm')
 
-        if 'node_color' in kwargs or 'edge_color' in kwargs:
-            raise ValueError(('if linear_biases and/or quadratic_biases are provided,',
-                              'cannot also provide node_color or edge_color'))
-
+        # any edges or nodes with an unspecified bias default to 0
         def edge_color(u, v):
             c = 0.
             if (u, v) in quadratic_biases:
@@ -235,6 +297,8 @@ def draw_chimera(G, linear_biases={}, quadratic_biases={},
         kwargs['edge_color'] = edge_color
         kwargs['node_color'] = node_color
 
+        # the range of the color map is shared for nodes/edges and is symmetric
+        # around 0.
         vmag = max(max(abs(c) for c in node_color), max(abs(c) for c in edge_color))
         if vmin is None:
             vmin = -1 * vmag
@@ -250,6 +314,7 @@ def draw_chimera(G, linear_biases={}, quadratic_biases={},
          edge_vmax=edge_vmax,
          **kwargs)
 
+    # if the biases are provided, then add a legend explaining the color map
     if linear_biases or quadratic_biases:
         fig = plt.figure(1)
         # cax = fig.add_axes([])

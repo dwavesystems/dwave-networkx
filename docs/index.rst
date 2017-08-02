@@ -36,6 +36,7 @@ Documentation
    :maxdepth: 1
 
    discrete_model_samplers
+   drawing/index
    reference/index
    license
 

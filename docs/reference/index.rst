@@ -10,6 +10,7 @@ Reference
    :maxdepth: 2
 
    algorithms/index
+   drawing
    generators
    utilities
    default_sampler
