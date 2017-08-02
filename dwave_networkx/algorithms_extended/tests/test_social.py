@@ -49,7 +49,8 @@ class TestSocial(unittest.TestCase):
         S.add_edge('Ted', 'Eve', sign=1)
         frustrated_edges, colors = dnx.network_imbalance_dm(S, sampler)
         self.check_bicolor(colors)
-        self.assertEqual(frustrated_edges, {('Ted', 'Eve'): {'sign': 1}})
+        self.assertTrue(frustrated_edges == {('Ted', 'Eve'): {'sign': 1}} or
+                        frustrated_edges == {('Eve', 'Ted'): {'sign': 1}})
 
     def check_bicolor(self, colors):
         # colors should be ints and either 0 or 1

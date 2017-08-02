@@ -8,8 +8,10 @@ import sys
 import re
 
 import networkx as nx
-from networkx import draw, diameter
+from networkx import draw
 from networkx.algorithms.bipartite import color
+
+from dwave_networkx.architectures import find_chimera_indices
 
 
 # compatibility for python 2/3
@@ -66,17 +68,15 @@ def chimera_layout(G, scale=1., center=None, dim=2):
         G = empty_graph
 
     # best case scenario, each node in G has a chimera_index attribute. Otherwise
-    # we will try to determine it
+    # we will try to determine it using the find_chimera_indices function.
     if all('chimera_index' in dat for __, dat in G.nodes_iter(data=True)):
         chimera_indices = {v: dat['chimera_index'] for v, dat in G.nodes_iter(data=True)}
-        m = max(idx[0] for idx in itervalues(chimera_indices)) + 1
-        n = max(idx[1] for idx in itervalues(chimera_indices)) + 1
-        t = max(idx[3] for idx in itervalues(chimera_indices)) + 1
     else:
-        raise NotImplementedError
-        # m = re.match("chimera_graph\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)", G.name)
-        # if m:
-        #     M, N, T = m.group(1), m.group(2), m.group(3)
+        chimera_indices = find_chimera_indices(G)
+
+    m = max(idx[0] for idx in itervalues(chimera_indices)) + 1
+    n = max(idx[1] for idx in itervalues(chimera_indices)) + 1
+    t = max(idx[3] for idx in itervalues(chimera_indices)) + 1
 
     # ok, given the chimera indices, let's determine the coordinates
     xy_coords = chimera_node_placer_2d(m, n, t, scale, center, dim)
