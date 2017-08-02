@@ -168,59 +168,6 @@ def chimera_node_placer_2d(m, n, t, scale=1., center=None, dim=2):
     return _xy_coords
 
 
-def _find_chimera_indices(G):
-    """Tries to determine the chimera dimensions of G, not intended to
-    be particularily fast. Makes a good faith effort, but it may fail.
-
-    Fun facts:
-        diameter(G) == M + N
-        max_degree(G) == shore size <==> M == 1 and N == 1
-    """
-
-    # if the nodes are orderable, we want the lowest order one.
-    try:
-        nlist = sorted(G.nodes_iter())
-    except TypeError:
-        nlist = G.nodes()
-
-    # need to check that the graph is bipartite. color gets a 2-color of the graph and raises
-    # an exception if G is not bipartite
-    coloring = color(G)
-
-    # we want the lowest order node to have color 1
-    # generally, we would actually like it to have color 0, but by default color seems to
-    # choose 1 for the lowest labelled node, so for performance we'll go with 1
-    if coloring[nlist[0]] != 1:
-        coloring = {v: 1 - coloring[v] for v in coloring}
-
-    # we also need the max degree, which will tell us about the shores of the bipartite
-    delta = max(G.degree(v) for v in G)
-
-    # let's determine the size of the shores
-    shores = [0, 0]
-    for v in coloring:
-        shores[coloring[v]] += 1
-    shore_size = max(shores)
-
-    # if the max degree is the same size as the largest shore, then we are dealing with a single
-    # tile
-    if shore_size == delta:
-        chimera_indices = {}
-        shore_indices = [0, 0]
-
-        for v in nlist:
-            u = 1 - coloring[v]  # 1-colored
-            chimera_indices[v] = (0, 0, u, shore_indices[u])
-            shore_indices[u] += 1
-
-        return chimera_indices
-
-    # ok, so we have more than one tile, we need to figure out the dimensions of the lattice
-
-    dia = diameter(G)
-    raise NotImplementedError
-
-
 def draw_chimera(G, linear_biases={}, quadratic_biases={},
                  nodelist=None, edgelist=None, cmap=None, edge_cmap=None, vmin=None, vmax=None,
                  edge_vmin=None, edge_vmax=None,

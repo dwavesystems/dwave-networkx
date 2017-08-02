@@ -12,3 +12,4 @@ Architectures
    :toctree: generated/
 
    chimera_graph
+   find_chimera_indices

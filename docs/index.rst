@@ -39,6 +39,7 @@ Documentation
    drawing/index
    reference/index
    license
+   bibliography
 
 Indices and tables
 ------------------

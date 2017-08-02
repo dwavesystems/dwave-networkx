@@ -3,10 +3,15 @@ Generators for some graphs derived from the D-Wave System.
 
 """
 import sys
+import itertools
+
+from networkx.algorithms.bipartite import color
+from networkx import diameter
 
 import dwave_networkx as dnx
+from dwave_networkx.exceptions import DWaveNetworkXException
 
-__all__ = ['chimera_graph']
+__all__ = ['chimera_graph', 'find_chimera_indices']
 
 # compatibility for python 2/3
 if sys.version_info[0] == 2:
@@ -126,3 +131,82 @@ def chimera_graph(m, n=None, t=None, create_using=None, data=True):
                      for k in range(j, mi - voff, voff))
 
     return G
+
+
+def find_chimera_indices(G):
+    """Tries to determine the Chimera indices of the nodes in G.
+
+    See chimera_graph for a definition of a Chimera graph and Chimera
+    indices.
+
+    Currently only works for single tile Chimera graphs.
+
+    Parameters
+    ----------
+    G : a NetworkX graph.
+
+    Returns
+    -------
+    chimera_indices : dict
+        A dict of the form {node: (i, j, u, k), ...} where (i, j, u, k)
+        is a 4-tuple of integer Chimera indices.
+
+    Examples
+    --------
+    >>> G = dnx.chimera_graph(1, 1, 4)
+    >>> chimera_indices = find_chimera_indices(G)
+
+    >>> G = dnx.Graph()
+    >>> G.add_edges_from([(0, 2), (1, 2), (1, 3), (0, 3)])
+    >>> chimera_indices = dnx.find_chimera_indices(G)
+    >>> nx.set_node_attributes(G, 'chimera_index', chimera_indices)
+
+    """
+
+    # if the nodes are orderable, we want the lowest order one.
+    try:
+        nlist = sorted(G.nodes_iter())
+    except TypeError:
+        nlist = G.nodes()
+
+    n_nodes = len(nlist)
+
+    # create the object that will store the indices
+    chimera_indices = {}
+
+    # ok, let's first check for the simple cases
+    if n_nodes == 0:
+        return chimera_indices
+    elif n_nodes == 1:
+        raise DWaveNetworkXException('Singleton graphs are not Chimera-stuructured')
+    elif n_nodes == 2:
+        return {nlist[0]: (0, 0, 0, 0), nlist[1]: (0, 0, 1, 0)}
+
+    # next, let's get the bicoloring of the graph, this raises an exception of the graph is
+    # not bipartite
+    coloring = color(G)
+
+    # we want the color of the node to be the u term in the Chimera-index, so we want the
+    # first node in nlist to be color 0
+    if coloring[nlist[0]] == 1:
+        coloring = {v: 1 - coloring[v] for v in coloring}
+
+    # we also want the diameter of the graph
+    # claim: diameter(G) == m + n for |G| > 2
+    dia = diameter(G)
+
+    # we have already handled the |G| <= 2 case, so we know, for diameter == 2, that the Chimera
+    # graph is a single tile
+    if dia == 2:
+        shore_indices = [0, 0]
+
+        for v in nlist:
+            u = coloring[v]
+            chimera_indices[v] = (0, 0, u, shore_indices[u])
+            shore_indices[u] += 1
+
+        return chimera_indices
+
+    # NB: max degree == shore size <==> one tile
+
+    raise NotImplementedError('not yet implemented for Chimera graphs with more than one tile')
