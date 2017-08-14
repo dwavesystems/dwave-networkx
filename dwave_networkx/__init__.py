@@ -33,4 +33,4 @@ from dwave_networkx.default_sampler import *
 import dwave_networkx.drawing
 from dwave_networkx.drawing import *
 
-__version__ = '1.0.1'
+__version__ = '1.1.0'
