@@ -20,13 +20,6 @@ networkx https://networkx.github.io/
 [(0, 4), (0, 5), (0, 6), (0, 7), (1, 4), (1, 5), (1, 6), (1, 7), (2, 4), (2, 5), (2, 6), (2, 7), (3, 4), (3, 5), (3, 6), (3, 7)]
 ```
 
-All of the functionality in networkx is also present in dwave_networkx
-
-```python
->>> import dwave_networkx as dnx
->>> graph = dnx.complete_graph(3)
-```
-
 # NetworkX License
 Copywrite notice from NetworkX:
 
