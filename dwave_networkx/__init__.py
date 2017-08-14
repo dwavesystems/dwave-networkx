@@ -9,7 +9,6 @@ TODO
 from __future__ import absolute_import
 
 import sys
-_PY2 = sys.version_info[0] == 2
 
 import dwave_networkx.architectures
 from dwave_networkx.architectures import *
@@ -34,3 +33,4 @@ import dwave_networkx.drawing
 from dwave_networkx.drawing import *
 
 __version__ = '1.1.0'
+_PY2 = sys.version_info[0] == 2
