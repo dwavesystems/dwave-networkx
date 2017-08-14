@@ -1,10 +1,10 @@
-from dwave_networkx.utils_dw import discrete_model_sampler
+from dwave_networkx.utils import binary_quadratic_model_sampler
 
-__all__ = ['min_vertex_cover_dm']
+__all__ = ['min_vertex_cover']
 
 
-@discrete_model_sampler(1)
-def min_vertex_cover_dm(G, sampler=None, **sampler_args):
+@binary_quadratic_model_sampler(1)
+def min_vertex_cover(G, sampler=None, **sampler_args):
     """Uses a discrete model sampler to determine a minimum vertex cover.
 
     A vertex cover is a set of verticies such that each edge of the graph

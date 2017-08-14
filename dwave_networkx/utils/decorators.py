@@ -7,10 +7,10 @@ from decorator import decorator
 
 import dwave_networkx as dnx
 
-__all__ = ['discrete_model_sampler']
+__all__ = ['binary_quadratic_model_sampler']
 
 
-def discrete_model_sampler(which_args):
+def binary_quadratic_model_sampler(which_args):
     """Decorator to check sampler arguments.
 
     Parameters
@@ -21,7 +21,7 @@ def discrete_model_sampler(which_args):
 
     Returns
     -------
-    _discrete_model_sampler : function
+    _binary_quadratic_model_sampler : function
         Function which checks the sampler for correctness. A sampler
         is expected to have "sample_qubo" and "sample_ising" methods.
         Alternatively, if no sampler is provided (or sampler is None)
@@ -32,12 +32,12 @@ def discrete_model_sampler(which_args):
     --------
     Decorate functions like this::
 
-        @discrete_model_sampler(1)
+        @binary_quadratic_model_sampler(1)
         def maximal_matching(G, sampler, **sampler_args):
             pass
     """
     @decorator
-    def _discrete_model_sampler(f, *args, **kw):
+    def _binary_quadratic_model_sampler(f, *args, **kw):
         # convert into a sequence if necessary
         if isinstance(which_args, int):
             iter_args = (which_args,)
@@ -66,4 +66,4 @@ def discrete_model_sampler(which_args):
 
         # now run the function and return the results
         return f(*new_args, **kw)
-    return _discrete_model_sampler
+    return _binary_quadratic_model_sampler

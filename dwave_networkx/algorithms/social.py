@@ -1,8 +1,8 @@
 import sys
 
-from dwave_networkx.utils_dw import discrete_model_sampler
+from dwave_networkx.utils import binary_quadratic_model_sampler
 
-__all__ = ["network_imbalance_dm"]
+__all__ = ["network_imbalance"]
 
 # compatibility for python 2/3
 PY2 = sys.version_info[0] == 2
@@ -12,8 +12,8 @@ else:
     iteritems = lambda d: d.items()
 
 
-@discrete_model_sampler(1)
-def network_imbalance_dm(S, sampler=None, **sampler_args):
+@binary_quadratic_model_sampler(1)
+def network_imbalance(S, sampler=None, **sampler_args):
     """Uses a discrete model sampler to determine the imbalance of
     the given social network.
 

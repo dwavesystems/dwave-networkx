@@ -3,6 +3,7 @@ from __future__ import division
 import unittest
 
 import matplotlib.pyplot as plt
+import networkx as nx
 import dwave_networkx as dnx
 
 
@@ -16,7 +17,7 @@ class TestDrawing(unittest.TestCase):
         pos = dnx.chimera_layout(G)
 
     def test_chimera_layout_no_chimera_indices(self):
-        G = dnx.Graph()
+        G = nx.Graph()
         G.add_edges_from([(0, 2), (1, 2), (1, 3), (0, 3)])
         pos = dnx.chimera_layout(G)
         pos2 = dnx.chimera_layout(dnx.chimera_graph(1, 1, 2))

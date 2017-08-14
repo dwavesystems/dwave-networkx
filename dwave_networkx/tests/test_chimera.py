@@ -1,5 +1,6 @@
 import unittest
 
+import networkx as nx
 import dwave_networkx as dnx
 
 alpha_map = dict(enumerate('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'))
@@ -34,7 +35,7 @@ class TestChimeraGraph(unittest.TestCase):
 
     def test_find_chimera_indices_single_tile_alpha_labels(self):
         for k in range(1, 10):
-            G = dnx.relabel_nodes(dnx.chimera_graph(1, 1, k), alpha_map)
+            G = nx.relabel_nodes(dnx.chimera_graph(1, 1, k), alpha_map)
 
             # get the chimera indices, check that they match the ones already
             # present

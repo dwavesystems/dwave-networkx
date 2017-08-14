@@ -1,13 +1,14 @@
 import sys
 import itertools
 
-from dwave_networkx.utils_dw import discrete_model_sampler
+from dwave_networkx.utils import binary_quadratic_model_sampler
+from dwave_networkx import _PY2
 
-__all__ = ['maximal_matching_dm', 'minimal_maximal_matching_dm',
+__all__ = ['maximal_matching', 'minimal_maximal_matching',
            'is_matching', 'is_maximal_matching']
 
 # compatibility for python 2/3
-if sys.version_info[0] == 2:
+if _PY2:
     range = xrange
     iteritems = lambda d: d.iteritems()
     itervalues = lambda d: d.itervalues()
@@ -16,8 +17,8 @@ else:
     itervalues = lambda d: d.values()
 
 
-@discrete_model_sampler(1)
-def maximal_matching_dm(G, sampler=None, **sampler_args):
+@binary_quadratic_model_sampler(1)
+def maximal_matching(G, sampler=None, **sampler_args):
     """Uses a discrete model sampler to find a maximal cardinalty
     matching in a graph.
 
@@ -95,8 +96,8 @@ def maximal_matching_dm(G, sampler=None, **sampler_args):
     return set(edge for edge in G.edges_iter() if sample[edge_mapping[edge]] > 0)
 
 
-@discrete_model_sampler(1)
-def minimal_maximal_matching_dm(G, sampler=None, **sampler_args):
+@binary_quadratic_model_sampler(1)
+def minimal_maximal_matching(G, sampler=None, **sampler_args):
     """Uses a discrete model sampler to find a maximal cardinalty
     matching in a graph with the minimum number of edges.
 

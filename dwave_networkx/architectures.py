@@ -2,19 +2,19 @@
 Generators for some graphs derived from the D-Wave System.
 
 """
-import sys
 import itertools
 
+import networkx as nx
 from networkx.algorithms.bipartite import color
 from networkx import diameter
 
-import dwave_networkx as dnx
+from dwave_networkx import _PY2
 from dwave_networkx.exceptions import DWaveNetworkXException
 
 __all__ = ['chimera_graph', 'find_chimera_indices']
 
 # compatibility for python 2/3
-if sys.version_info[0] == 2:
+if _PY2:
     range = xrange
 
 
@@ -95,7 +95,7 @@ def chimera_graph(m, n=None, t=None, create_using=None, data=True):
         t = 4
 
     if data:
-        G = dnx.empty_graph(0, create_using)
+        G = nx.empty_graph(0, create_using)
         label = 0
         for i in range(m):
             for j in range(n):
@@ -104,7 +104,7 @@ def chimera_graph(m, n=None, t=None, create_using=None, data=True):
                         G.add_node(label, chimera_index=(i, j, u, k))
                         label += 1
     else:
-        G = dnx.empty_graph(m * n * 2 * t, create_using)
+        G = nx.empty_graph(m * n * 2 * t, create_using)
 
     G.name = "chimera_graph(%s, %s, %s)" % (m, n, t)
 
@@ -156,7 +156,7 @@ def find_chimera_indices(G):
     >>> G = dnx.chimera_graph(1, 1, 4)
     >>> chimera_indices = find_chimera_indices(G)
 
-    >>> G = dnx.Graph()
+    >>> G = nx.Graph()
     >>> G.add_edges_from([(0, 2), (1, 2), (1, 3), (0, 3)])
     >>> chimera_indices = dnx.find_chimera_indices(G)
     >>> nx.set_node_attributes(G, 'chimera_index', chimera_indices)

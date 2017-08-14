@@ -74,7 +74,7 @@ The user can also unset the default.
 
 """
 
-from dwave_networkx.utils_dw.decorators import discrete_model_sampler
+from dwave_networkx.utils.decorators import binary_quadratic_model_sampler
 
 __all__ = ['set_default_sampler', 'get_default_sampler', 'unset_default_sampler']
 
@@ -82,7 +82,7 @@ __all__ = ['set_default_sampler', 'get_default_sampler', 'unset_default_sampler'
 _SAMPLER = None
 
 
-@discrete_model_sampler(0)
+@binary_quadratic_model_sampler(0)
 def set_default_sampler(sampler):
     """Sets a default discrete model sampler.
 

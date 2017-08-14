@@ -1,13 +1,14 @@
 import unittest
 import itertools
 
+import networkx as nx
 import dwave_networkx as dnx
-from dwave_networkx.algorithms_extended.tests.samplers import ExactSolver, FastSampler, qubo_energy
+from dwave_networkx.algorithms.tests.samplers import ExactSolver, FastSampler, qubo_energy
 
-from dwave_networkx.algorithms_extended.coloring import _quadratic_chi_bound
-from dwave_networkx.algorithms_extended.coloring import _vertex_different_colors_qubo
-from dwave_networkx.algorithms_extended.coloring import _vertex_one_color_qubo
-from dwave_networkx.algorithms_extended.coloring import _minimum_coloring_qubo
+from dwave_networkx.algorithms.coloring import _quadratic_chi_bound
+from dwave_networkx.algorithms.coloring import _vertex_different_colors_qubo
+from dwave_networkx.algorithms.coloring import _vertex_one_color_qubo
+from dwave_networkx.algorithms.coloring import _minimum_coloring_qubo
 
 
 class TestColor(unittest.TestCase):
@@ -79,65 +80,65 @@ class TestColor(unittest.TestCase):
     def test_vertex_color_basic(self):
         # all small enough for an exact solver to handle them reasonably
         G = dnx.chimera_graph(1, 2, 2)
-        coloring = dnx.min_vertex_coloring_dm(G, ExactSolver())
+        coloring = dnx.min_vertex_coloring(G, ExactSolver())
         self.assertTrue(dnx.is_vertex_coloring(G, coloring))
 
-        G = dnx.path_graph(5)
-        coloring = dnx.min_vertex_coloring_dm(G, ExactSolver())
+        G = nx.path_graph(5)
+        coloring = dnx.min_vertex_coloring(G, ExactSolver())
         self.assertTrue(dnx.is_vertex_coloring(G, coloring))
 
         for __ in range(10):
-            G = dnx.gnp_random_graph(5, .5)
-            coloring = dnx.min_vertex_coloring_dm(G, ExactSolver())
+            G = nx.gnp_random_graph(5, .5)
+            coloring = dnx.min_vertex_coloring(G, ExactSolver())
             self.assertTrue(dnx.is_vertex_coloring(G, coloring))
 
     def test_vertex_color_complete_graph(self):
         # this should get eliminated in software so be fast to run
-        G = dnx.complete_graph(101)
-        coloring = dnx.min_vertex_coloring_dm(G, ExactSolver())
+        G = nx.complete_graph(101)
+        coloring = dnx.min_vertex_coloring(G, ExactSolver())
         self.assertTrue(dnx.is_vertex_coloring(G, coloring))
 
     def test_vertex_color_odd_cycle_graph(self):
         """Graph that is an odd circle"""
-        G = dnx.cycle_graph(5)
-        coloring = dnx.min_vertex_coloring_dm(G, ExactSolver())
+        G = nx.cycle_graph(5)
+        coloring = dnx.min_vertex_coloring(G, ExactSolver())
         self.assertTrue(dnx.is_vertex_coloring(G, coloring))
 
     def test_vertex_color_no_edge_graph(self):
         """Graph with many nodes but no edges, should be caught before QUBO"""
         # this should get eliminated in software so be fast to run
-        G = dnx.Graph()
+        G = nx.Graph()
         G.add_nodes_from(range(100))
-        coloring = dnx.min_vertex_coloring_dm(G, ExactSolver())
+        coloring = dnx.min_vertex_coloring(G, ExactSolver())
         self.assertTrue(dnx.is_vertex_coloring(G, coloring))
 
     def test_vertex_color_disconnected_graph(self):
         """One edge and one disconnected node"""
-        G = dnx.path_graph(2)
+        G = nx.path_graph(2)
         G.add_node(3)
 
-        coloring = dnx.min_vertex_coloring_dm(G, ExactSolver())
+        coloring = dnx.min_vertex_coloring(G, ExactSolver())
         self.assertTrue(dnx.is_vertex_coloring(G, coloring))
 
     def test_vertex_color_disconnected_cycle_graph(self):
-        G = dnx.complete_graph(3)  # odd 3-cycle
+        G = nx.complete_graph(3)  # odd 3-cycle
         G.add_node(4)  # floating node
-        coloring = dnx.min_vertex_coloring_dm(G, ExactSolver())
+        coloring = dnx.min_vertex_coloring(G, ExactSolver())
         self.assertTrue(dnx.is_vertex_coloring(G, coloring))
 
     def test_vertex_color_almost_complete(self):
         # this should get eliminated in software so be fast to run
-        G = dnx.complete_graph(10)
+        G = nx.complete_graph(10)
         mapping = dict(zip(G.nodes(), "abcdefghijklmnopqrstuvwxyz"))
-        G = dnx.relabel_nodes(G, mapping)
+        G = nx.relabel_nodes(G, mapping)
         n0, n1 = next(G.edges_iter())
         G.remove_edge(n0, n1)
-        coloring = dnx.min_vertex_coloring_dm(G, ExactSolver())
+        coloring = dnx.min_vertex_coloring(G, ExactSolver())
         self.assertTrue(dnx.is_vertex_coloring(G, coloring))
 
     @unittest.skipIf(FastSampler is None, "no FastSampler to test with")
     def test_dimod_response_vs_list(self):
         # should be able to handle either a dimod response or a list of dicts
         G = dnx.chimera_graph(1, 1, 3)
-        coloring = dnx.min_vertex_coloring_dm(G, ExactSolver())
-        coloring = dnx.min_vertex_coloring_dm(G, FastSampler())
+        coloring = dnx.min_vertex_coloring(G, ExactSolver())
+        coloring = dnx.min_vertex_coloring(G, FastSampler())

@@ -1,24 +1,24 @@
-from __future__ import division, absolute_import
+from __future__ import division
 
-import sys
 import math
 import itertools
 
-import dwave_networkx as dnx
-from dwave_networkx.utils_dw import discrete_model_sampler
+import networkx as nx
+from dwave_networkx import _PY2
+from dwave_networkx.utils import binary_quadratic_model_sampler
 
-__all__ = ["min_vertex_coloring_dm", "is_vertex_coloring", "is_cycle"]
+__all__ = ["min_vertex_coloring", "is_vertex_coloring", "is_cycle"]
 
 # compatibility for python 2/3
-if sys.version_info[0] == 2:
+if _PY2:
     range = xrange
     iteritems = lambda d: d.iteritems()
 else:
     iteritems = lambda d: d.items()
 
 
-@discrete_model_sampler(1)
-def min_vertex_coloring_dm(G, sampler=None, **sampler_args):
+@binary_quadratic_model_sampler(1)
+def min_vertex_coloring(G, sampler=None, **sampler_args):
     """Find a minimum vertex cover of the given graph.
 
     Parameters
@@ -55,10 +55,10 @@ def min_vertex_coloring_dm(G, sampler=None, **sampler_args):
 
     # if the given graph is not connected, apply the function to each connected component
     # seperately.
-    if not dnx.is_connected(G):
+    if not nx.is_connected(G):
         coloring = {}
-        for subG in dnx.connected_component_subgraphs(G):
-            sub_coloring = min_vertex_coloring_dm(subG, sampler, **sampler_args)
+        for subG in nx.connected_component_subgraphs(G):
+            sub_coloring = min_vertex_coloring(subG, sampler, **sampler_args)
             coloring.update(sub_coloring)
         return coloring
 

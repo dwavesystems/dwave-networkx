@@ -1,10 +1,10 @@
-from dwave_networkx.utils_dw import discrete_model_sampler
+from dwave_networkx.utils import binary_quadratic_model_sampler
 
-__all__ = ["maximum_independent_set_dm"]
+__all__ = ["maximum_independent_set"]
 
 
-@discrete_model_sampler(1)
-def maximum_independent_set_dm(G, sampler=None, **sampler_args):
+@binary_quadratic_model_sampler(1)
+def maximum_independent_set(G, sampler=None, **sampler_args):
     """Uses a discrete model sampler to determine the maximimum
     independent set of the given graph.
 

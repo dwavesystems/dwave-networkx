@@ -5,7 +5,7 @@ All are derived from NetworkXException.
 
 """
 
-from dwave_networkx import NetworkXException
+from networkx import NetworkXException
 
 
 class DWaveNetworkXException(NetworkXException):

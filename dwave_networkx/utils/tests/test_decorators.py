@@ -1,7 +1,7 @@
 import unittest
 
 import dwave_networkx as dnx
-from dwave_networkx.utils_dw import discrete_model_sampler
+from dwave_networkx.utils import binary_quadratic_model_sampler
 
 
 class MockSampler:
@@ -12,7 +12,7 @@ class MockSampler:
         pass
 
 
-@discrete_model_sampler(1)
+@binary_quadratic_model_sampler(1)
 def mock_function(G, sampler=None, **sampler_args):
     assert sampler is not None
 
