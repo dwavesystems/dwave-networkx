@@ -2,9 +2,9 @@
 Coloring
 ********
 
-.. automodule:: dwave_networkx.algorithms_extended.coloring
+.. automodule:: dwave_networkx.algorithms.coloring
 .. autosummary::
    :toctree: generated/
 
-   min_vertex_coloring_dm
+   min_vertex_coloring
    is_vertex_coloring

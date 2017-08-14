@@ -2,11 +2,11 @@
 Matching
 ********
 
-.. automodule:: dwave_networkx.algorithms_extended.matching
+.. automodule:: dwave_networkx.algorithms.matching
 .. autosummary::
    :toctree: generated/
 
-    maximal_matching_dm
-    minimal_maximal_matching_dm
+    maximal_matching
+    minimal_maximal_matching
     is_matching
     is_maximal_matching

@@ -4,7 +4,7 @@
 Algorithms
 **********
 
-.. currentmodule:: networkx
+.. currentmodule:: dwave_networkx
 
 .. toctree::
    :maxdepth: 2

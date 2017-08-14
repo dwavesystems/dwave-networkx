@@ -5,7 +5,7 @@ Drawing
 
 .. currentmodule:: dwave_networkx
 
-.. automodule:: dwave_networkx.drawing_extended.chimera_layout
+.. automodule:: dwave_networkx.drawing.chimera_layout
 
 Chimera graph functions
 -----------------------

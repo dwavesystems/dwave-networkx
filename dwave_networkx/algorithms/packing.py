@@ -17,11 +17,11 @@ def maximum_independent_set(G, sampler=None, **sampler_args):
     G : NetworkX graph
 
     sampler
-        A discrete model sampler. A sampler is a process that samples
-        from low energy states in models defined by an Ising equation
-        or a Quadratic Unconstrainted Binary Optimization Problem
-        (QUBO). A sampler is expected to have a 'sample_qubo' and
-        'sample_ising' method. A sampler is expected to return an
+        A binary quadratic model sampler. A sampler is a process that
+        samples from low energy states in models defined by an Ising
+        equation or a Quadratic Unconstrainted Binary Optimization
+        Problem (QUBO). A sampler is expected to have a 'sample_qubo'
+        and 'sample_ising' method. A sampler is expected to return an
         iterable of samples, in order of increasing energy. If no
         sampler is provided, one must be provided using the
         `set_default_sampler` function.
@@ -38,7 +38,7 @@ def maximum_independent_set(G, sampler=None, **sampler_args):
     Examples
     --------
     >>> G = nx.path_graph(5)
-    >>> dnx.maximum_independent_set_qa(G, sampler)
+    >>> dnx.maximum_independent_set(G, sampler)
     [0, 2, 4]
 
     Notes

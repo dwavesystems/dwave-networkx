@@ -2,7 +2,7 @@
 Elimination ordering
 ********************
 
-.. automodule:: dwave_networkx.algorithms_extended.elimination_ordering
+.. automodule:: dwave_networkx.algorithms.elimination_ordering
 .. autosummary::
    :toctree: generated/
 

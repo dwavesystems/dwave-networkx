@@ -2,8 +2,8 @@
 Cover
 *****
 
-.. automodule:: dwave_networkx.algorithms_extended.cover
+.. automodule:: dwave_networkx.algorithms.cover
 .. autosummary::
    :toctree: generated/
 
-   min_vertex_cover_dm
+   min_vertex_cover

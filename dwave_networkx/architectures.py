@@ -69,23 +69,18 @@ def chimera_graph(m, n=None, t=None, create_using=None, data=True):
 
     Examples
     ========
-    >>> G = dnx.chimera_graph(1, 1, 4)  # a single Chimera tile
+    >>> G = dnx.chimera_graph(1, 1, 2)  # a single Chimera tile
     >>> len(G)
-    8
+    4
     >>> list(G.nodes())
-    [1, 2, 3, 4, 5, 6, 7]
-    >>> list(G.nodes(data=True))
+    [0, 1, 2, 3]
+    >>> list(G.nodes(data=True))  # doctest: +SKIP
     [(0, {'chimera_index': (0, 0, 0, 0)}),
      (1, {'chimera_index': (0, 0, 0, 1)}),
-     (2, {'chimera_index': (0, 0, 0, 2)}),
-     (3, {'chimera_index': (0, 0, 0, 3)}),
-     (4, {'chimera_index': (0, 0, 1, 0)}),
-     (5, {'chimera_index': (0, 0, 1, 1)}),
-     (6, {'chimera_index': (0, 0, 1, 2)}),
-     (7, {'chimera_index': (0, 0, 1, 3)})]
+     (2, {'chimera_index': (0, 0, 1, 0)}),
+     (3, {'chimera_index': (0, 0, 1, 1)})]
     >>> list(G.edges())
-    [(0, 4), (0, 5), (0, 6), (0, 7), (1, 4), (1, 5), (1, 6), (1, 7),
-    (2, 4), (2, 5), (2, 6), (2, 7), (3, 4), (3, 5), (3, 6), (3, 7)]
+    [(0, 2), (0, 3), (1, 2), (1, 3)]
 
     """
 
@@ -154,7 +149,7 @@ def find_chimera_indices(G):
     Examples
     --------
     >>> G = dnx.chimera_graph(1, 1, 4)
-    >>> chimera_indices = find_chimera_indices(G)
+    >>> chimera_indices = dnx.find_chimera_indices(G)
 
     >>> G = nx.Graph()
     >>> G.add_edges_from([(0, 2), (1, 2), (1, 3), (0, 3)])

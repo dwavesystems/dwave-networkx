@@ -2,16 +2,16 @@
 Utilities
 *********
 
-.. automodule:: dwave_networkx.utils_dw
-.. currentmodule:: dwave_networkx.utils_dw
+.. automodule:: dwave_networkx.utils
+.. currentmodule:: dwave_networkx.utils
 
 Decorators
 ----------
-.. automodule:: dwave_networkx.utils_dw.decorators
+.. automodule:: dwave_networkx.utils.decorators
 .. autosummary::
    :toctree: generated/
 
-   discrete_model_sampler
+   binary_quadratic_model_sampler
 
 Exceptions
 ----------

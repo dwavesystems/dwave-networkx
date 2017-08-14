@@ -32,11 +32,11 @@ def network_imbalance(S, sampler=None, **sampler_args):
         attribute with a numeric value.
 
     sampler
-        A discrete model sampler. A sampler is a process that samples
-        from low energy states in models defined by an Ising equation
-        or a Quadratic Unconstrainted Binary Optimization Problem
-        (QUBO). A sampler is expected to have a 'sample_qubo' and
-        'sample_ising' method. A sampler is expected to return an
+        A binary quadratic model sampler. A sampler is a process that
+        samples from low energy states in models defined by an Ising
+        equation or a Quadratic Unconstrainted Binary Optimization
+        Problem (QUBO). A sampler is expected to have a 'sample_qubo'
+        and 'sample_ising' method. A sampler is expected to return an
         iterable of samples, in order of increasing energy. If no
         sampler is provided, one must be provided using the
         `set_default_sampler` function.
@@ -60,22 +60,22 @@ def network_imbalance(S, sampler=None, **sampler_args):
 
     Examples
     --------
-    >>> S = dnx.Graph()
+    >>> S = nx.Graph()
     >>> S.add_edge('Alice', 'Bob', sign=1)  # Alice and Bob are friendly
     >>> S.add_edge('Alice', 'Eve', sign=-1)  # Alice and Eve are hostile
     >>> S.add_edge('Bob', 'Eve', sign=-1)  # Bob and Eve are hostile
-    >>> frustrated_edges, colors = dnx.network_imbalance_qubo(S, sampler)
+    >>> frustrated_edges, colors = dnx.network_imbalance(S, sampler)
     >>> print(frustrated_edges)
     {}
-    >>> print(colors)
+    >>> print(colors)  # doctest: +SKIP
     {'Alice': 0, 'Bob': 0, 'Eve': 1}
     >>> S.add_edge('Ted', 'Bob', sign=1)  # Ted is friendly with all
     >>> S.add_edge('Ted', 'Alice', sign=1)
     >>> S.add_edge('Ted', 'Eve', sign=1)
-    >>> frustrated_edges, colors = dnx.network_imbalance_qubo(S, sampler)
+    >>> frustrated_edges, colors = dnx.network_imbalance(S, sampler)
     >>> print(frustrated_edges)
     {('Ted', 'Eve'): {'sign': 1}}
-    >>> print(colors)
+    >>> print(colors)  # doctest: +SKIP
     {'Bob': 1, 'Ted': 1, 'Alice': 1, 'Eve': 0}
 
     Notes

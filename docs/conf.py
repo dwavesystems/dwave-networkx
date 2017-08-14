@@ -16,10 +16,10 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
-# import os
-# import sys
-# sys.path.insert(0, os.path.abspath('.'))
-# sys.path.insert(0, os.path.dirname(os.path.abspath('.')))
+import os
+import sys
+sys.path.insert(0, os.path.abspath('.'))
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 # -- General configuration ------------------------------------------------
 # import sphinx
@@ -90,7 +90,7 @@ todo_include_todos = True
 
 modindex_common_prefix = ['dwave_networkx.']
 
-doctest_global_setup = "import dwave_networkx as dnx"
+doctest_global_setup = "import dwave_networkx as dnx\nimport networkx as nx\nfrom dwave_networkx.algorithms.tests.samplers import ExactSolver\nsampler = ExactSolver()"
 
 
 # -- Options for HTML output ----------------------------------------------

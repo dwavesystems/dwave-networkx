@@ -16,11 +16,11 @@ def min_vertex_cover(G, sampler=None, **sampler_args):
     G : NetworkX graph
 
     sampler
-        A discrete model sampler. A sampler is a process that samples
-        from low energy states in models defined by an Ising equation
-        or a Quadratic Unconstrainted Binary Optimization Problem
-        (QUBO). A sampler is expected to have a 'sample_qubo' and
-        'sample_ising' method. A sampler is expected to return an
+        A binary quadratic model sampler. A sampler is a process that
+        samples from low energy states in models defined by an Ising
+        equation or a Quadratic Unconstrainted Binary Optimization
+        Problem (QUBO). A sampler is expected to have a 'sample_qubo'
+        and 'sample_ising' method. A sampler is expected to return an
         iterable of samples, in order of increasing energy. If no
         sampler is provided, one must be provided using the
         `set_default_sampler` function.
@@ -36,9 +36,9 @@ def min_vertex_cover(G, sampler=None, **sampler_args):
 
     Examples
     --------
-    >>> G = dnx.chimera_graph(2, 2, 4)
-    >>> dnx.min_vertex_cover_qa(G, Solver())
-    [0, 1, 2, 3, 12, 13, 14, 15, 20, 21, 22, 23, 24, 25, 26, 27]
+    >>> G = dnx.chimera_graph(1, 2, 3)
+    >>> dnx.min_vertex_cover(G, sampler)
+    [0, 1, 2, 9, 10, 11]
 
     Notes
     -----
