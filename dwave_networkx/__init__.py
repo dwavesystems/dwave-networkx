@@ -32,5 +32,5 @@ from dwave_networkx.default_sampler import *
 import dwave_networkx.drawing
 from dwave_networkx.drawing import *
 
-__version__ = '1.1.0'
+__version__ = '0.3.0'
 _PY2 = sys.version_info[0] == 2
