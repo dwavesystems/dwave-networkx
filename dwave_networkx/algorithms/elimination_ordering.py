@@ -4,18 +4,16 @@ import random
 import networkx as nx
 
 __all__ = ['treewidth_branch_and_bound', 'minor_min_width', 'min_width_heuristic', 'is_simplicial',
-           'is_almost_simplicial', 'min_fill_heuristic']
+           'is_almost_simplicial', 'min_fill_heuristic', 'max_cardinality_heuristic']
 
 
-def treewidth_branch_and_bound(G, randomize=False):
+def treewidth_branch_and_bound(G, heuristic_function=min_width_heuristic):
     """Computes the treewidth of a graph G and a corresponding perfect elimination ordering.
 
     Parameters
     ----------
     G : graph
         A NetworkX graph.
-    randomize : bool, optional (default False)
-        Apply randomization when choosing the elimination ordering.
 
     Returns
     -------
@@ -32,14 +30,13 @@ def treewidth_branch_and_bound(G, randomize=False):
     """
     # variable names were chosen to be consistent with the paper
 
-    ub, order = min_width_heuristic(G, randomize)  # an upper bound on the treewidth
+    ub, order = heuristic_function(G)  # an upper bound on the treewidth
     lb = minor_min_width(G)  # a lower bound on the treewidth
 
     if lb == ub:
         return ub, order
 
-    if ub < lb:
-        raise Exception('logic error, upper bound should be greater than h')
+    assert ub > lb, "Logic error"
 
     partial_order = []  # the potential better ordering
     nv = []  # these are the neighbors of v == partial_order[-1], empty for now
@@ -132,7 +129,7 @@ def is_simplicial(G, n):
         True if its neighbors form a clique.
 
     """
-    return is_complete(G.subgraph(G[n]))
+    return all(u in G[v] for u, v in itertools.combinations(G[n], 2))
 
 
 def is_almost_simplicial(G, n):
@@ -150,8 +147,8 @@ def is_almost_simplicial(G, n):
         True if all but one of its neighbors induce a clique
 
     """
-    for u in G[n]:
-        if is_complete(G.subgraph([w for w in G[n] if w != u])):
+    for w in G[n]:
+        if all(u in G[v] for u, v in itertools.combinations(G[n], 2) if u != w and v != w):
             return True
     return False
 
@@ -193,25 +190,29 @@ def minor_min_width(G):
        https://arxiv.org/abs/1207.4109
 
     """
-    lb = 0
-    while len(G.nodes()) > 1:
+    G = G.copy()
+
+    lb = 0  # lower bound on treewidth
+    while len(G) > 1:
+
         # get the node with the smallest degree
-        degreeG = G.degree(G.nodes())
-        v = min(degreeG, key=degreeG.get)
+        v = min(G, key=lambda v: len(G[v]))
 
-        # find the vertex u such that the degree of u is minimal in the neighborhood of v
-        Nv = G.subgraph(G[v].keys())
+        neighbors = G[v]
 
-        if not Nv.nodes():  # in this case there is no edge to contract, unconnected graph
-            G = G.copy()  # otherwise function would act on G in place
+        # we can remove all of the singleton nodes without changing the lower bound
+        if not neighbors:
             G.remove_node(v)
             continue
 
-        degreeNv = Nv.degree(Nv.nodes())
-        u = min(degreeNv, key=degreeNv.get)
+        # find the vertex u such that the degree of u is minimal in the neighborhood of v
+        def neighborhood_degree(u):
+            Gu = G[u]
+            return sum(w in Gu for w in neighbors)
+        u = min(neighbors, key=neighborhood_degree)
 
         # update the lower bound
-        lb = max(lb, degreeG[v])
+        lb = max(lb, len(G[v]))
 
         # contract the edge between u, v
         G = nx.contracted_edge(G, (u, v), self_loops=False)
@@ -220,13 +221,16 @@ def minor_min_width(G):
 
 
 def _elim(G, v):
-    """eliminated vertex v from G by making it simplicial then removing it.
-    NB: acts on G in place"""
+    """Eliminates vertex v from graph G by making it simplicial then removing it.
+
+    Notes:
+        Acts on G in place.
+    """
     G.add_edges_from(itertools.combinations(G[v], 2))
     G.remove_node(v)
 
 
-def min_fill_heuristic(G, randomize=False):
+def min_fill_heuristic(G, inplace=False):
     """Computes an upper bound on the treewidth of a graph based on the min-fill heuristic
     for the elimination ordering.
 
@@ -234,88 +238,169 @@ def min_fill_heuristic(G, randomize=False):
     ----------
     G : graph
         A NetworkX graph.
-    randomize : bool, optional (default False)
-        Apply randomization when choosing the elimination ordering.
+
+    inplace : bool
+        If True, G will be made an empty graph in the process of
+        running the function, otherwise the function uses a copy
+        of G.
 
     Returns
     -------
     treewidth_upper_bound : int
         An upper bound on the treewidth of the graph G.
+
     order : list
         An elimination order that induces the treewidth.
 
     """
+    if not inplace:
+        G = G.copy()  # we will be destroying G
 
-    # finds the number of edges that would need to be added in order to make the node's
-    # neighborhood a clique
-    needed_edges = lambda v: len(list(nx.non_edges(G.subgraph(G[v]))))
+    num_nodes = len(G)
 
-    G = G.copy()  # we will be manipulating G
-
-    order = []  # variable elimination order
+    order = [0] * num_nodes
     upper_bound = 0
 
-    while G.nodes():
+    def _needed_edges(v):
+        """The number of edges that would needed to be added to G to make v
+        simplicial."""
+        neighbors = G[v]
+        n = len(neighbors)
+        n_edges = n * (n - 1) // 2
+        for u, w in itertools.combinations(neighbors, 2):
+            if w in G[u]:
+                n_edges -= 1
+        return n_edges
+
+    for i in range(num_nodes):
         # get the node that adds the fewest number of edges when eliminated from the graph
         # nodes are eliminated by making them simplicial, that is making their neighborhood
         # a clique
-        if randomize:
-            # by default min takes the lowest index, this randomizes the order the values
-            # are searched. The selected value will still have minimum degree
-            v = min(random.sample(G.nodes(), len(G)), key=needed_edges)
-        else:
-            v = min(G.nodes(), key=needed_edges)
+        v = min(G, key=_needed_edges)
 
-        # update the upper bound
-        upper_bound = max(upper_bound, G.degree(v))
+        # if the number of neighbours of v is higher than upper_bound, update
+        dv = len(G[v])
+        if dv > upper_bound:
+            upper_bound = dv
 
-        # eliminate v by making it simplicial then removing it. Update the order
-        order.append(v)
+        # make v simplicial by making its neighborhood a clique then remove the node
+        # add v to order
         _elim(G, v)
+        order[i] = v
 
     return upper_bound, order
 
 
-def min_width_heuristic(G, randomize=False):
-    """Computes an upper bound on the treewidth of a graph based on the min-width heuristic
-    for the elimination ordering.
+def min_width_heuristic(G, inplace=False):
+    """Computes an upper bound on the treewidth of a graph based on
+    the min-width heuristic for the elimination ordering.
 
     Parameters
     ----------
     G : graph
         A NetworkX graph.
-    randomize : bool, optional (default False)
-        Apply randomization when choosing the elimination ordering.
+
+    inplace : bool
+        If True, G will be made an empty graph in the process of
+        running the function, otherwise the function uses a copy
+        of G.
 
     Returns
     -------
     treewidth_upper_bound : int
         An upper bound on the treewidth of the graph G.
+
     order : list
         An elimination order that induces the treewidth.
 
     """
-    G = G.copy()  # we will be manipulating G in place
+    if not inplace:
+        G = G.copy()  # we will be destroying G
 
-    order = []
+    num_nodes = len(G)
+
+    order = [0] * num_nodes
     upper_bound = 0
 
-    while G.nodes():
+    for i in range(num_nodes):
         # get the node with the smallest degree
-        degreeG = G.degree(G.nodes())
-        if randomize:
-            # by default min takes the lowest index, this randomizes the order the values
-            # are searched. The selected value will still have minimum degree
-            v = min(random.sample(degreeG.keys(), len(degreeG)), key=degreeG.get)
-        else:
-            v = min(degreeG, key=degreeG.get)
+        v = min(G, key=lambda u: len(G[u]))
 
-        # if the number of neighbours of v is higher then upper_bound, update
-        upper_bound = max(upper_bound, G.degree(v))
+        # if the number of neighbours of v is higher than upper_bound, update
+        dv = len(G[v])
+        if dv > upper_bound:
+            upper_bound = dv
 
         # make v simplicial by making its neighborhood a clique then remove the node
         # add v to order
         _elim(G, v)
-        order.append(v)
+        order[i] = v
+
+    return upper_bound, order
+
+
+def max_cardinality_heuristic(G, inplace=False):
+    """Computes an upper bound on the treewidth of a graph based on
+    the max-cardinality heuristic for the elimination ordering.
+
+    Parameters
+    ----------
+    G : graph
+        A NetworkX graph.
+
+    inplace : bool
+        If True, G will be made an empty graph in the process of
+        running the function, otherwise the function uses a copy
+        of G.
+
+    Returns
+    -------
+    treewidth_upper_bound : int
+        An upper bound on the treewidth of the graph G.
+
+    order : list
+        An elimination order that induces the treewidth.
+
+    """
+    if not inplace:
+        G = G.copy()  # we will be destroying G
+
+    num_nodes = len(G)
+
+    if not num_nodes:
+        return 0, []
+
+    order = [0] * num_nodes
+    upper_bound = 0
+
+    v = random.choice(G.nodes())
+    order[-1] = v
+    labelled = {v}
+
+    def n_labelled(v):
+        # number of labelled neighbors
+        if v in labelled:
+            return -1
+        n = 0
+        for u in G[v]:
+            if u in labelled:
+                n += 1
+        return n
+
+    for i in range(num_nodes - 2, -1, -1):
+        v = max(G, key=n_labelled)
+
+        order[i] = v
+        labelled.add(v)
+
+    for v in order:
+        # if the number of neighbours of v is higher than upper_bound, update
+        dv = len(G[v])
+        if dv > upper_bound:
+            upper_bound = dv
+
+        # make v simplicial by making its neighborhood a clique then remove the node
+        # add v to order
+        _elim(G, v)
 
     return upper_bound, order
