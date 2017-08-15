@@ -4,82 +4,60 @@ import networkx as nx
 import dwave_networkx as dnx
 
 
-class TestMinWidth(unittest.TestCase):
-    def test_empty(self):
-        G = nx.empty_graph()
+class TestHeuristic:
+    def test_basic(self):
+        G = nx.Graph()
 
-        tw, order = dnx.min_width_heuristic(G)
-        self.assertEqual(tw, 0)
-        self.assertEqual(order, [])
-        self.assertEqual(len(order), len(set(order)))
+        tw, order = self.heuristic(G)
 
-    def test_complete(self):
-        G = nx.complete_graph(10)
-
-        tw, order = dnx.min_width_heuristic(G)
-        self.assertEqual(tw, 9)
-        self.assertEqual(len(order), len(G))
-        for v in order:
-            self.assertIn(v, G)
-        self.assertEqual(len(order), len(set(order)))
-
-    def test_inplace(self):
-        G = nx.complete_graph(10)
-        tw, order = dnx.min_width_heuristic(G, inplace=True)
-        self.assertEqual(len(G), 0)
-        self.assertEqual(len(order), len(set(order)))
-
-
-class TestMinFill(unittest.TestCase):
-    def test_empty(self):
-        G = nx.empty_graph()
-
-        tw, order = dnx.min_fill_heuristic(G)
-        self.assertEqual(tw, 0)
-        self.assertEqual(order, [])
-        self.assertEqual(len(order), len(set(order)))
+        self.assertGreaterEqual(tw, 0)
+        self.check_order(G, order)
 
     def test_complete(self):
         G = nx.complete_graph(10)
 
-        tw, order = dnx.min_fill_heuristic(G)
-        self.assertEqual(tw, 9)
-        self.assertEqual(len(order), len(G))
-        for v in order:
-            self.assertIn(v, G)
-        self.assertEqual(len(order), len(set(order)))
+        tw, order = self.heuristic(G)
+        self.assertGreaterEqual(tw, 9)
+        self.check_order(G, order)
 
-    def test_inplace(self):
-        G = nx.complete_graph(10)
-        tw, order = dnx.min_fill_heuristic(G, inplace=True)
-        self.assertEqual(len(G), 0)
-        self.assertEqual(len(order), len(set(order)))
+    def test_chimera(self):
+        G = dnx.chimera_graph(2, 2, 4)
+
+        tw, order = self.heuristic(G)
+        self.assertGreaterEqual(tw, 8)
+        self.check_order(G, order)
+
+    def test_cycle(self):
+        G = nx.cycle_graph(43)
+
+        tw, order = self.heuristic(G)
+        self.assertGreaterEqual(tw, 2)
+        self.check_order(G, order)
+
+    def test_grid(self):
+        G = nx.grid_2d_graph(6, 7)
+
+        tw, order = self.heuristic(G)
+        self.assertGreaterEqual(tw, 6)
+        self.check_order(G, order)
+
+    def check_order(self, G, order):
+        self.assertEqual(set(G), set(order))
 
 
-class TestMaxCardinality(unittest.TestCase):
-    def test_empty(self):
-        G = nx.empty_graph()
+class TestMinWidth(unittest.TestCase, TestHeuristic):
+    def setUp(self):
+        self.heuristic = dnx.min_width_heuristic
 
-        tw, order = dnx.max_cardinality_heuristic(G)
-        self.assertEqual(tw, 0)
-        self.assertEqual(order, [])
-        self.assertEqual(len(order), len(set(order)))
 
-    def test_complete(self):
-        G = nx.complete_graph(10)
+class TestMinFill(unittest.TestCase, TestHeuristic):
+    def setUp(self):
+        self.heuristic = dnx.min_fill_heuristic
 
-        tw, order = dnx.max_cardinality_heuristic(G)
-        self.assertEqual(tw, 9)
-        self.assertEqual(len(order), len(G))
-        for v in order:
-            self.assertIn(v, G)
-        self.assertEqual(len(order), len(set(order)))
 
-    def test_inplace(self):
-        G = nx.complete_graph(10)
-        tw, order = dnx.max_cardinality_heuristic(G, inplace=True)
-        self.assertEqual(len(G), 0)
-        self.assertEqual(len(order), len(set(order)))
+class TestMaxCardinality(unittest.TestCase, TestHeuristic):
+    def setUp(self):
+        self.heuristic = dnx.max_cardinality_heuristic
 
 
 class TestMinorMinWidth(unittest.TestCase):
@@ -109,3 +87,10 @@ class TestSimplicialTests(unittest.TestCase):
                 self.assertTrue(dnx.is_almost_simplicial(G, v))
             else:
                 self.assertTrue(dnx.is_simplicial(G, v))
+
+
+
+
+# cyles 2
+# remove trees from complete - don't change width
+# grid: smaller of 2 dims
