@@ -1,115 +1,10 @@
 import itertools
-import random
-from random import random
+from random import random, sample
 
 import networkx as nx
 
-__all__ = ['treewidth_branch_and_bound2', 'minor_min_width', 'min_width_heuristic', 'is_simplicial',
-           'is_almost_simplicial', 'min_fill_heuristic', 'max_cardinality_heuristic',
-           'treewidth_branch_and_bound']
-
-
-def treewidth_branch_and_bound(G):
-    """Computes the treewidth of a graph G and a corresponding perfect elimination ordering.
-
-    Parameters
-    ----------
-    G : graph
-        A NetworkX graph.
-
-    Returns
-    -------
-    treewidth : int
-        The treewidth of the graph G.
-    order : list
-        An elimination order that induces the treewidth.
-
-    References
-    ----------
-    .. [1] Gogate & Dechter, "A Complete Anytime Algorithm for Treewidth",
-       https://arxiv.org/abs/1207.4109
-
-    """
-    # variable names were chosen to be consistent with the paper
-
-    ub, order = min_width_heuristic(G)  # an upper bound on the treewidth
-    lb = minor_min_width(G)  # a lower bound on the treewidth
-
-    if lb == ub:
-        return ub, order
-
-    assert ub > lb, "Logic error"
-
-    partial_order = []  # the potential better ordering
-    nv = []  # these are the neighbors of v == partial_order[-1], empty for now
-
-    upper_bound = (ub, order)
-    state = (G.copy(), partial_order, nv)
-    info = (lb, 0)  # lb, g is a variable in the paper
-    return _BB(state, upper_bound, info)
-
-
-def _BB(state, upper_bound, info):
-    """helper function for treewidth_branch_and_bound
-    NB: acts on G in place
-    lb == f from paper
-    """
-
-    G, partial_order, nv = state  # extract the base graph and associated partial order
-    ub, order = upper_bound
-    lb, g = info
-
-    # first up, we can add edges to G according to the following rule:
-    # if |N(v1) and N(v2)| > ub then the final elimination order will require an edge
-    # so let's be proactive and add them now
-    for v1, v2 in itertools.combinations(G, 2):
-        if len(tuple(nx.common_neighbors(G, v1, v2))) > ub:
-            G.add_edge(v1, v2)
-
-    # next we are going to remove some nodes from G and add them to the partial_order
-    # specifically, we can remove simplicial or almost simplicial nodes from G and update
-    # our lower bound
-    sflag = True
-    while sflag:
-        sflag = False
-
-        node_set = G.nodes()
-
-        for v in sorted(node_set, key=G.degree):
-            if is_simplicial(G, v) or (is_almost_simplicial(G, v) and G.degree(v) <= lb):
-                sflag = True
-                partial_order.append(v)
-                g = max(g, G.degree(v))
-                lb = max(g, lb)
-                _elim(G, v)
-                break
-
-    # now the terminal rule
-    if len(G.nodes()) < 2:
-        return min(ub, lb), partial_order + G.nodes()  # ub, order
-
-    # finally we try removing each of the variables from G and see which is the best
-    for v in G:
-        if v in nv:  # we can skip direct neighbors
-            continue
-
-        # create a new state with v eliminated
-        po_s = partial_order + [v]  # add v to the new partial order
-        nv_s = G[v]  # the neighbors of v
-        G_s = G.copy()  # so we can manipulate Gs
-        _elim(G_s, v)
-
-        new_state = (G_s, po_s, nv_s)
-
-        g_s = max(g, G.degree(v))  # not changed by _elim
-        lb_s = max(g_s, minor_min_width(G_s))
-        new_info = (lb_s, g_s)
-
-        if lb_s < ub:  # we need to keep going
-            upper_bound = _BB(new_state, upper_bound, new_info)
-            ub, order = upper_bound
-
-    return upper_bound
+__all__ = ['min_fill_heuristic', 'min_width_heuristic', 'max_cardinality_heuristic',
+           'is_simplicial', 'is_almost_simplicial', 'treewidth_branch_and_bound']
 
 
 def is_simplicial(G, n):
@@ -170,32 +65,36 @@ def minor_min_width(G):
        https://arxiv.org/abs/1207.4109
 
     """
-    G = G.copy()
+    # we need only deal with the adjacency structure of G. We will also
+    # be manipulating it directly so let's go ahead and make a new one
+    adj = {v: set(G[v]) for v in G}
 
     lb = 0  # lower bound on treewidth
-    while len(G) > 1:
+    while len(adj) > 1:
 
         # get the node with the smallest degree
-        v = min(G, key=lambda v: len(G[v]))
-
-        neighbors = G[v]
-
-        # we can remove all of the singleton nodes without changing the lower bound
-        if not neighbors:
-            G.remove_node(v)
-            continue
+        v = min(adj, key=lambda v: len(adj[v]))
 
         # find the vertex u such that the degree of u is minimal in the neighborhood of v
+        neighbors = adj[v]
+
         def neighborhood_degree(u):
-            Gu = G[u]
+            Gu = adj[u]
             return sum(w in Gu for w in neighbors)
         u = min(neighbors, key=neighborhood_degree)
 
         # update the lower bound
-        lb = max(lb, len(G[v]))
+        new_lb = len(adj[v])
+        if new_lb > lb:
+            lb = new_lb
 
         # contract the edge between u, v
-        G = nx.contracted_edge(G, (u, v), self_loops=False)
+        adj[v] = adj[v].union(n for n in adj[u] if n != v)
+        for n in adj[v]:
+            adj[n].add(v)
+        for n in adj[u]:
+            adj[n].discard(u)
+        del adj[u]
 
     return lb
 
@@ -368,16 +267,6 @@ def max_cardinality_heuristic(G):
     return upper_bound, order
 
 
-def _elim(G, v):
-    """Eliminates vertex v from graph G by making it simplicial then removing it.
-
-    Notes:
-        Acts on G in place.
-    """
-    G.add_edges_from(itertools.combinations(G[v], 2))
-    G.remove_node(v)
-
-
 def _elim_adj(adj, n):
     """eliminates a variable, acting on the adj matrix of G.
 
@@ -396,84 +285,179 @@ def _elim_adj(adj, n):
     del adj[n]
 
 
-def treewidth_branch_and_bound2(G, heuristic_function=min_fill_heuristic):
-    # TODO
+def treewidth_branch_and_bound(G, heuristic_function=min_fill_heuristic):
+    """Computes the treewidth of a graph G and a corresponding perfect elimination ordering.
 
-    G = G.copy()
-    partial_order = []
+    Parameters
+    ----------
+    G : graph
+        A NetworkX graph.
 
-    lb = minor_min_width(G)
+    Returns
+    -------
+    treewidth : int
+        The treewidth of the graph G.
+    order : list
+        An elimination order that induces the treewidth.
+
+    References
+    ----------
+    .. [1] Gogate & Dechter, "A Complete Anytime Algorithm for Treewidth",
+       https://arxiv.org/abs/1207.4109
+    """
+    # variable names are chosen to match the paper
+
+    # our order will be stored in vector x, named to be consistent with
+    # the paper
+    x = []  # the partial order
+
+    f = minor_min_width(G)  # our current lower bound guess, f(s) in the paper
     g = 0  # g(s) in the paper
 
-    ub, order = heuristic_function(G)
-
-    if ub == lb:
-        return ub, order
-
-    assert lb < ub, "Logic Error"
-
-    best_found = (ub, order)
-
-    return _branch_and_bound(G, partial_order, best_found, g, lb)
-
-
-def _branch_and_bound(G, x, best_found, g, f,
-                      last_vertex_neighbors=[]):
-
-    # ok, take care of the base case first
+    # we need the best current update we can find. best_found encodes the current
+    # upper bound and the inducing order
+    best_found = heuristic_function(G)
     ub, __ = best_found
-    if len(G) < 2:
 
-        # check if our current branch is better than the best we've already
-        # found and if so update our best solution accordingly.
-        if f < ub:
-            x = x + G.nodes()  # create a new object
-            best_found = (f, x)
+    # if our upper bound is the same as f, then we are done! Otherwise begin the
+    # algorithm
+    assert f <= ub, "Logic error"
+    if f < ub:
+        # we need only deal with the adjacency structure of G. We will also
+        # be manipulating it directly so let's go ahead and make a new one
+        adj = {v: set(G[v]) for v in G}
 
-        # return in either case
-        return best_found
-
-    for v in G:
-
-        # we don't need to consider the neighbors of the last vertex eliminated
-        if v in last_vertex_neighbors:
-            continue
-
-        gs = max(g, len(G[v]))
-
-        Gs = G.copy()
-        vertex_neighbors = Gs[v]
-        _elim(Gs, v)
-        xs = x + [v]
-
-        # at this point, if any two nodes u,w in Gs have more than ub
-        # common neighbors, then we can connect them with an edge
-        edges = [(u, w) for u, w in itertools.combinations(Gs, 2)
-                 if u not in Gs[w] and len(set(Gs[u]).intersection(Gs[w])) > ub]
-        while edges:
-            for u, w in edges:
-                Gs.add_edge(u, w)
-            edges = [(u, w) for u, w in itertools.combinations(Gs, 2)
-                     if u not in Gs[w] and len(set(Gs[u]).intersection(Gs[w])) > ub]
-
-        # ok, let's update our values
-        fs = max(gs, minor_min_width(Gs))
-
-        # we can go ahead and remove any simplicial or almost-simplicial vertices from Gs
-        almost_simplicial = [u for u in Gs if len(Gs[u]) < fs and is_almost_simplicial(Gs, u)]
-        while almost_simplicial:
-            for u in almost_simplicial:
-                gs = max(gs, len(Gs[u]))
-                fs = max(gs, fs)
-                # we don't need to copy Gs again here
-                _elim(Gs, u)
-                x.append(u)
-
-            almost_simplicial = [u for u in Gs if len(Gs[u]) <= fs and is_almost_simplicial(Gs, u)]
-
-        ub, __ = best_found
-        if fs < ub:
-            # print fs, ub
-            best_found = _branch_and_bound(Gs, xs, best_found, g, fs, vertex_neighbors)
+        best_found = _branch_and_bound(adj, x, g, f, best_found)
 
     return best_found
+
+
+def _branch_and_bound(adj, x, g, f, best_found, skipable=set(), theorem6p1=None):
+
+    if theorem6p1 is None:
+        theorem6p1 = _theorem6p1()
+    prune6p1, explored6p1 = theorem6p1
+
+    # we'll need to know our current upper bound in several places
+    ub, __ = best_found
+
+    # ok, take care of the base case first
+    if len(adj) < 2:
+        # check if our current branch is better than the best we've already
+        # found and if so update our best solution accordingly.
+        # print('Bottom reached!')
+        if f < ub:
+            return (f, x + list(adj))
+        else:
+            return best_found
+
+    # so we have not yet reached the base case
+    for n in adj:
+
+        # we don't need to consider the neighbors of the last vertex eliminated
+        if n in skipable:
+            continue
+
+        g_s = max(g, len(adj[n]))
+
+        # according to Lemma 5.3, we can skip all of the neighbors of the last
+        # variable eliniated when choosing the next variable
+        next_skipable = adj[n]  # this does not get altered so we don't need a copy
+
+        # update the state by eliminating n and adding it to the partial ordering
+        adj_s = {v: adj[v].copy() for v in adj}  # create a new object
+        _elim_adj(adj_s, n)
+        x_s = x + [n]  # new partial ordering
+
+        if prune6p1(x_s):
+            print('pruning...')
+            continue
+
+        # By Theorem 5.4, if any two vertices have ub + 1 common neighbors then
+        # we can add an edge between them
+        _theorem5p4(adj_s, ub)
+
+        # ok, let's update our values
+        f_s = max(g_s, minor_min_width(adj_s))
+
+        g_s, f_s = _graph_reduction(adj_s, x_s, g_s, f_s)
+
+        if f_s < ub:
+            # print(f_s, ub, len(adj_s))
+            best_found = _branch_and_bound(adj_s, x_s, g_s, f_s, best_found,
+                                           next_skipable, theorem6p1)
+            ub, __ = best_found
+
+    # let's store some information for pruning
+    explored6p1(x)
+
+    return best_found
+
+
+def _graph_reduction(adj, x, g, f):
+    """we can go ahead and remove any simplicial or almost-simplicial vertices from adj.
+    """
+    as_nodes = {v for v in adj if len(adj[v]) <= f and is_almost_simplicial(adj, v)}
+    while as_nodes:
+        for n in as_nodes:
+
+            # update g and f
+            dv = len(adj[n])
+            if dv > g:
+                g = dv
+            if g > f:
+                f = g
+
+            # eliminate v
+            x.append(n)
+            _elim_adj(adj, n)
+
+        # see if we have any more simplicial nodes
+        as_nodes = {v for v in adj if len(adj[v]) <= f and is_almost_simplicial(adj, v)}
+
+    return g, f
+
+
+def _theorem5p4(adj, ub):
+    """By Theorem 5.4, if any two vertices have ub + 1 common neighbors
+    then we can add an edge between them.
+    """
+    new_edges = set()
+    for u, v in itertools.combinations(adj, 2):
+        if u in adj[v]:
+            # already an edge
+            continue
+
+        if len(adj[u].intersection(adj[v])) > ub:
+            new_edges.add((u, v))
+
+    while new_edges:
+        for u, v in new_edges:
+            adj[u].add(v)
+            adj[v].add(u)
+
+        new_edges = set()
+        for u, v in itertools.combinations(adj, 2):
+            if u in adj[v]:
+                continue
+
+            if len(adj[u].intersection(adj[v])) > ub:
+                new_edges.add((u, v))
+
+
+def _theorem6p1():
+    """See Theorem 6.1 in paper."""
+    pruning_set = set()
+
+    def _prune(x):
+        if len(x) <= 2:
+            return False
+        key = (tuple(x[:-2]), x[-2], x[-1])  # this is faster than tuple(x[-3:])
+        return key in pruning_set
+
+    def _explored(x):
+        if len(x) >= 3:
+            prunable = (tuple(x[:-2]), x[-1], x[-2])
+            pruning_set.add(prunable)
+
+    return _prune, _explored
