@@ -71,6 +71,8 @@ def chimera_layout(G, scale=1., center=None, dim=2):
     else:
         chimera_indices = find_chimera_indices(G)
 
+    # we could read these off of the name attribute for G, but we would want the values in
+    # the nodes to override the name in case of conflict.
     m = max(idx[0] for idx in itervalues(chimera_indices)) + 1
     n = max(idx[1] for idx in itervalues(chimera_indices)) + 1
     t = max(idx[3] for idx in itervalues(chimera_indices)) + 1
