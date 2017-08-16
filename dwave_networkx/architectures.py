@@ -2,8 +2,6 @@
 Generators for some graphs derived from the D-Wave System.
 
 """
-import itertools
-
 import networkx as nx
 from networkx.algorithms.bipartite import color
 from networkx import diameter
@@ -134,7 +132,7 @@ def find_chimera_indices(G):
     See chimera_graph for a definition of a Chimera graph and Chimera
     indices.
 
-    Currently only works for single tile Chimera graphs.
+    Only works for single tile Chimera graphs.
 
     Parameters
     ----------
@@ -204,4 +202,4 @@ def find_chimera_indices(G):
 
     # NB: max degree == shore size <==> one tile
 
-    raise NotImplementedError('not yet implemented for Chimera graphs with more than one tile')
+    raise Exception('not yet implemented for Chimera graphs with more than one tile')
