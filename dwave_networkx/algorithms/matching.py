@@ -19,7 +19,7 @@ else:
 
 @binary_quadratic_model_sampler(1)
 def maximal_matching(G, sampler=None, **sampler_args):
-    """Uses a discrete model sampler to find a maximal cardinalty
+    """Uses a discrete model sampler to find a maximal cardinality
     matching in a graph.
 
     A matching is a subset of edges in which no node occurs more than
@@ -32,7 +32,7 @@ def maximal_matching(G, sampler=None, **sampler_args):
     sampler
         A binary quadratic model sampler. A sampler is a process that
         samples from low energy states in models defined by an Ising
-        equation or a Quadratic Unconstrainted Binary Optimization
+        equation or a Quadratic Unconstrained Binary Optimization
         Problem (QUBO). A sampler is expected to have a 'sample_qubo'
         and 'sample_ising' method. A sampler is expected to return an
         iterable of samples, in order of increasing energy. If no
@@ -49,7 +49,7 @@ def maximal_matching(G, sampler=None, **sampler_args):
 
     Notes
     -----
-    Discrete model samplers by their nature may not return the lowest
+    Samplers by their nature may not return the lowest
     energy solution. This function does not attempt to confirm the
     quality of the returned sample.
 
@@ -59,8 +59,7 @@ def maximal_matching(G, sampler=None, **sampler_args):
 
     References
     ----------
-    .. [1] Lucas, A. (2014). Ising formulations of many NP problems.
-       Frontiers in Physics, Volume 2, Article 5.
+    Based on the formulation presented in [AL]_
 
     """
 
@@ -98,7 +97,7 @@ def maximal_matching(G, sampler=None, **sampler_args):
 
 @binary_quadratic_model_sampler(1)
 def minimal_maximal_matching(G, sampler=None, **sampler_args):
-    """Uses a discrete model sampler to find a maximal cardinalty
+    """Uses a binary quadratic model sampler to find a maximal cardinality
     matching in a graph with the minimum number of edges.
 
     A matching is a subset of edges in which no node occurs more than
@@ -109,11 +108,11 @@ def minimal_maximal_matching(G, sampler=None, **sampler_args):
     G : NetworkX graph
 
     sampler
-        A discrete model sampler. A sampler is a process that samples
-        from low energy states in models defined by an Ising equation
-        or a Quadratic Unconstrainted Binary Optimization Problem
-        (QUBO). A sampler is expected to have a 'sample_qubo' and
-        'sample_ising' method. A sampler is expected to return an
+        A binary quadratic model sampler. A sampler is a process that
+        samples from low energy states in models defined by an Ising
+        equation or a Quadratic Unconstrained Binary Optimization
+        Problem (QUBO). A sampler is expected to have a 'sample_qubo'
+        and 'sample_ising' method. A sampler is expected to return an
         iterable of samples, in order of increasing energy. If no
         sampler is provided, one must be provided using the
         `set_default_sampler` function.
@@ -138,7 +137,7 @@ def minimal_maximal_matching(G, sampler=None, **sampler_args):
 
     References
     ----------
-    .. [1] Lucas, A. (2014). Ising formulations of many NP problems.
+    .. [AL] Lucas, A. (2014). Ising formulations of many NP problems.
        Frontiers in Physics, Volume 2, Article 5.
 
     """
@@ -310,7 +309,7 @@ def _matching_qubo(G, edge_mapping, magnitude=1.):
     """
     Q = {}
 
-    # We wish to enforce the behaviour that no node has two colored edges
+    # We wish to enforce the behavior that no node has two colored edges
     for node in G:
 
         # for each pair of edges that contain node

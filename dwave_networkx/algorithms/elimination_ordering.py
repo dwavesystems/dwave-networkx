@@ -62,8 +62,7 @@ def minor_min_width(G):
 
     References
     ----------
-    .. [1] Gogate & Dechter, "A Complete Anytime Algorithm for Treewidth",
-       https://arxiv.org/abs/1207.4109
+    Based on the algorithm presented in [GD]_
 
     """
     # we need only deal with the adjacency structure of G. We will also
@@ -303,7 +302,7 @@ def treewidth_branch_and_bound(G):
 
     References
     ----------
-    .. [1] Gogate & Dechter, "A Complete Anytime Algorithm for Treewidth",
+    .. [GD] Gogate & Dechter, "A Complete Anytime Algorithm for Treewidth",
        https://arxiv.org/abs/1207.4109
     """
     # variable names are chosen to match the paper

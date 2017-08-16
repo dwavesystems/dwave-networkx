@@ -1,5 +1,5 @@
-Discrete Model Samplers
-=======================
+Binary Quadratic Programs
+=========================
 
 The D-Wave System
 -----------------
@@ -13,7 +13,7 @@ Software Simulators
 
 TODO
 
-Using discrete model samplers with D-Wave NetworkX
---------------------------------------------------
+Using binary quadratic samplers with D-Wave NetworkX
+----------------------------------------------------
 
 TODO

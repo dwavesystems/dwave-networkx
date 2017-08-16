@@ -1,15 +1,18 @@
-"""Allows the user to specify a discrete model sampler in a single place.
+"""Allows the user to specify a binary quadratic model sampler in a single place.
+
+API Definition
+--------------
 
 A sampler is a process that samples
 from low energy states in models defined by an Ising equation
-or a Quadratic Unconstrainted Binary Optimization Problem
+or a Quadratic Unconstrained Binary Optimization Problem
 (QUBO). A sampler is expected to have a 'sample_qubo' and
 'sample_ising' method. A sampler is expected to return an
 iterable of samples, in order of increasing energy.
 
 Example sampler
 ---------------
-First we can create a stand in for a discrete model sampler that can be
+First we can create a stand in for a binary quadratic model sampler that can be
 used in the following examples.
 
 >>> class ExampleSampler:
@@ -30,7 +33,7 @@ used in the following examples.
 
 No default sampler set
 ----------------------
-If the user wishes to specify which sampler each discrete model
+If the user wishes to specify which sampler each binary quadratic model sampler
 algorithm uses, the user can provide the sampler directly to
 the functions.
 
@@ -81,14 +84,14 @@ _SAMPLER = None
 
 @binary_quadratic_model_sampler(0)
 def set_default_sampler(sampler):
-    """Sets a default discrete model sampler.
+    """Sets a default binary quadratic model sampler.
 
     Parameters
     ----------
     sampler
         A binary quadratic model sampler. A sampler is a process that
         samples from low energy states in models defined by an Ising
-        equation or a Quadratic Unconstrainted Binary Optimization
+        equation or a Quadratic Unconstrained Binary Optimization
         Problem (QUBO). A sampler is expected to have a 'sample_qubo'
         and 'sample_ising' method. A sampler is expected to return an
         iterable of samples, in order of increasing energy.

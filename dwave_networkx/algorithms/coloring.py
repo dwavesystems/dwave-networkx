@@ -28,7 +28,7 @@ def min_vertex_coloring(G, sampler=None, **sampler_args):
     sampler
         A binary quadratic model sampler. A sampler is a process that
         samples from low energy states in models defined by an Ising
-        equation or a Quadratic Unconstrainted Binary Optimization
+        equation or a Quadratic Unconstrained Binary Optimization
         Problem (QUBO). A sampler is expected to have a 'sample_qubo'
         and 'sample_ising' method. A sampler is expected to return an
         iterable of samples, in order of increasing energy. If no
@@ -46,7 +46,7 @@ def min_vertex_coloring(G, sampler=None, **sampler_args):
 
     Notes
     -----
-    Discrete model samplers by their nature may not return the lowest
+    Samplers by their nature may not return the lowest
     energy solution. This function does not attempt to confirm the
     quality of the returned sample.
 
@@ -266,7 +266,7 @@ def _partial_precolor(G, chi_ub):
 
 
 def _quadratic_chi_bound(n_edges):
-    """For an arbitary graph, one can bound the chromatic number chi by
+    """For an arbitrary graph, one can bound the chromatic number chi by
     chi * (chi - 1) <= 2 * |E|.
 
     For a given number of edges this function provides an int bound on chi.
@@ -275,7 +275,7 @@ def _quadratic_chi_bound(n_edges):
 
 
 def is_cycle(G):
-    """Determines whether the given graph is a cycle or circule graph.
+    """Determines whether the given graph is a cycle or circle graph.
 
     A cycle graph or circular graph is a graph that consists of a single cycle.
 
@@ -295,7 +295,7 @@ def is_cycle(G):
     start_node = trailing
 
     # travel around the graph, checking that each node has degree exactly two
-    # also track how many nodes were visted
+    # also track how many nodes were visited
     n_visited = 1
     while leading != start_node:
         neighbors = G[leading]
@@ -312,7 +312,7 @@ def is_cycle(G):
 
         n_visited += 1
 
-    # if we havent visited all of the nodes, then it is not a connected cycle
+    # if we haven't visited all of the nodes, then it is not a connected cycle
     return n_visited == len(G)
 
 

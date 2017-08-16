@@ -1,7 +1,7 @@
 .. _default_sampler:
 
-Setting a default discrete model sampler
-****************************************
+Setting a default sampler
+*************************
 
 .. currentmodule:: dwave_networkx.default_sampler
 

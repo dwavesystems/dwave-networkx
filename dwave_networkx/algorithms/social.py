@@ -14,7 +14,7 @@ else:
 
 @binary_quadratic_model_sampler(1)
 def network_imbalance(S, sampler=None, **sampler_args):
-    """Uses a discrete model sampler to determine the imbalance of
+    """Uses a binary quadratic model sampler to determine the imbalance of
     the given social network.
 
     A signed social network graph is a graph whose signed edges
@@ -80,7 +80,7 @@ def network_imbalance(S, sampler=None, **sampler_args):
 
     Notes
     -----
-    Discrete model samplers by their nature may not return the lowest
+    Samplers by their nature may not return the lowest
     energy solution. This function does not attempt to confirm the
     quality of the returned sample.
 
@@ -88,7 +88,7 @@ def network_imbalance(S, sampler=None, **sampler_args):
 
     References
     ----------
-    .. [1] Facchetti, G., Iacono G., and Altafini C. (2011). Computing
+    .. [FIA] Facchetti, G., Iacono G., and Altafini C. (2011). Computing
        global structural balance in large-scale signed social networks.
        PNAS, 108, no. 52, 20953-20958
 
