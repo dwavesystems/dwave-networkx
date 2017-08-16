@@ -69,7 +69,7 @@ class TestMinorMinWidth(unittest.TestCase):
 
 
 class TestSimplicialTests(unittest.TestCase):
-    def test_is_simplicial(self):
+    def test_typical(self):
 
         # every node in a complete graph is simplicial
         G = nx.complete_graph(100)
@@ -89,8 +89,76 @@ class TestSimplicialTests(unittest.TestCase):
                 self.assertTrue(dnx.is_simplicial(G, v))
 
 
+class TestBranchAndBound(unittest.TestCase):
+    def test_empty(self):
+        G = nx.Graph()
+        true_tw = 0
 
+        tw, order = dnx.treewidth_branch_and_bound(G)
+        self.check_order(G, order)
+        self.assertEqual(tw, true_tw)
 
-# cyles 2
-# remove trees from complete - don't change width
-# grid: smaller of 2 dims
+    def test_chimera(self):
+        G = dnx.chimera_graph(1, 1, 4)
+        true_tw = 4
+
+        tw, order = dnx.treewidth_branch_and_bound(G)
+        self.check_order(G, order)
+        self.assertEqual(tw, true_tw)
+
+        G = dnx.chimera_graph(2, 2, 3)
+        true_tw = 6
+
+        tw, order = dnx.treewidth_branch_and_bound(G)
+        self.check_order(G, order)
+        self.assertEqual(tw, true_tw)
+
+        G = dnx.chimera_graph(1, 2, 4)
+        true_tw = 4
+
+        tw, order = dnx.treewidth_branch_and_bound(G)
+        self.check_order(G, order)
+        self.assertEqual(tw, true_tw)
+
+        G = dnx.chimera_graph(2, 2, 4)
+        true_tw = 8
+
+        tw, order = dnx.treewidth_branch_and_bound(G)
+        self.check_order(G, order)
+        self.assertEqual(tw, true_tw)
+
+    def test_complete(self):
+        G = nx.complete_graph(100)
+        true_tw = 99
+
+        tw, order = dnx.treewidth_branch_and_bound(G)
+        self.check_order(G, order)
+        self.assertEqual(tw, true_tw)
+
+    def test_complete_minus_1(self):
+        G = nx.complete_graph(50)
+        G.remove_edge(7, 6)
+        true_tw = 48
+
+        tw, order = dnx.treewidth_branch_and_bound(G)
+        self.check_order(G, order)
+        self.assertEqual(tw, true_tw)
+
+    def test_cycle(self):
+        G = nx.cycle_graph(167)
+        true_tw = 2
+
+        tw, order = dnx.treewidth_branch_and_bound(G)
+        self.check_order(G, order)
+        self.assertEqual(tw, true_tw)
+
+    def test_grid(self):
+        G = nx.grid_2d_graph(4, 6)
+        true_tw = 4
+
+        tw, order = dnx.treewidth_branch_and_bound(G)
+        self.check_order(G, order)
+        self.assertEqual(tw, true_tw)
+
+    def check_order(self, G, order):
+        self.assertEqual(set(G), set(order))

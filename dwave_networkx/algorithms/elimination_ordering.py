@@ -4,7 +4,8 @@ from random import random, sample
 import networkx as nx
 
 __all__ = ['min_fill_heuristic', 'min_width_heuristic', 'max_cardinality_heuristic',
-           'is_simplicial', 'is_almost_simplicial', 'treewidth_branch_and_bound']
+           'is_simplicial', 'is_almost_simplicial',
+           'treewidth_branch_and_bound', 'minor_min_width']
 
 
 def is_simplicial(G, n):
@@ -285,7 +286,7 @@ def _elim_adj(adj, n):
     del adj[n]
 
 
-def treewidth_branch_and_bound(G, heuristic_function=min_fill_heuristic):
+def treewidth_branch_and_bound(G):
     """Computes the treewidth of a graph G and a corresponding perfect elimination ordering.
 
     Parameters
@@ -316,7 +317,7 @@ def treewidth_branch_and_bound(G, heuristic_function=min_fill_heuristic):
 
     # we need the best current update we can find. best_found encodes the current
     # upper bound and the inducing order
-    best_found = heuristic_function(G)
+    best_found = min_fill_heuristic(G)
     ub, __ = best_found
 
     # if our upper bound is the same as f, then we are done! Otherwise begin the
@@ -345,7 +346,6 @@ def _branch_and_bound(adj, x, g, f, best_found, skipable=set(), theorem6p1=None)
     if len(adj) < 2:
         # check if our current branch is better than the best we've already
         # found and if so update our best solution accordingly.
-        # print('Bottom reached!')
         if f < ub:
             return (f, x + list(adj))
         else:
@@ -370,7 +370,6 @@ def _branch_and_bound(adj, x, g, f, best_found, skipable=set(), theorem6p1=None)
         x_s = x + [n]  # new partial ordering
 
         if prune6p1(x_s):
-            print('pruning...')
             continue
 
         # By Theorem 5.4, if any two vertices have ub + 1 common neighbors then
@@ -383,7 +382,6 @@ def _branch_and_bound(adj, x, g, f, best_found, skipable=set(), theorem6p1=None)
         g_s, f_s = _graph_reduction(adj_s, x_s, g_s, f_s)
 
         if f_s < ub:
-            # print(f_s, ub, len(adj_s))
             best_found = _branch_and_bound(adj_s, x_s, g_s, f_s, best_found,
                                            next_skipable, theorem6p1)
             ub, __ = best_found
