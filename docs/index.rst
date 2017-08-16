@@ -12,17 +12,15 @@ NetworkX is a Python language package for exploration and analysis of networks a
 
 NetworkX can be found at http://networkx.github.io.
 
-TODO: Some more description, credits to authors
 
-About D-Wave
-------------
+D-Wave NetworkX
+---------------
 
-TODO: Boilerplate about D-Wave.
+The D-Wave NetworkX extension has three primary goals:
 
-Project Goals
--------------
-
-TODO: ref implementation, etc
+* One
+* Two
+* Three
 
 Documentation
 -------------
@@ -35,9 +33,8 @@ Documentation
 .. toctree::
    :maxdepth: 1
 
-   discrete_model_samplers
-   drawing/index
    reference/index
+   about_dwave
    license
    bibliography
 
