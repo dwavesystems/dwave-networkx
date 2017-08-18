@@ -16,7 +16,7 @@ if _PY2:
     range = xrange
 
 
-def chimera_graph(m, n=None, t=None, create_using=None, data=True):
+def chimera_graph(m, n=None, t=None, create_using=None, node_list=None, edge_list=None, data=True):
     """Creates a Chimera lattice of size (m, n, t).
 
     A Chimera lattice is an m by n grid of Chimera Tiles. Each Chimera
@@ -40,9 +40,9 @@ def chimera_graph(m, n=None, t=None, create_using=None, data=True):
     The second and third give the vertical and horizontal connections
     between blocks respectively.
 
-    Node (i, j, u, k) is labelled by:
+    Node (i, j, u, k) is labeled by:
 
-        label = i * m + j * n + u * t + k
+        label = i * n * 2 * t + j * 2 * t + u * t + k
 
     Parameters
     ----------
@@ -55,15 +55,22 @@ def chimera_graph(m, n=None, t=None, create_using=None, data=True):
     create_using : Graph, optional (default None)
         If provided this graph is cleared of nodes and edges and filled
         with the new graph. Usually used to set the type of the graph.
+    node_list : iterable, optional (default None)
+        Iterable of nodes in the graph. If None, calculated from (m, n, t).
+        Note that this list is used to remove nodes, so any nodes specified
+        not in range(m * n * 2 * t) will not be added.
+    edge_list : iterable, optional (default None)
+        Iterable of edges in the graph. If None, edges are generated as
+        described above. The nodes in each edge must be integer-labeled in
+        range(m * n * t * 2).
     data : bool, optional (default True)
-        If True, each node has a chimera_index attribute. The attribute's
-        value is 4-tuple Chimera index as defined above.
-
+        If True, each node has a chimera_index attribute. The attribute
+        is a 4-tuple Chimera index as defined above.
 
     Returns
     -------
     G : a NetworkX Graph
-        An (m, n, t) Chimera lattice. Nodes are labelled by integers.
+        An (m, n, t) Chimera lattice. Nodes are labeled by integers.
 
     Examples
     ========
@@ -87,41 +94,49 @@ def chimera_graph(m, n=None, t=None, create_using=None, data=True):
     if t is None:
         t = 4
 
+    G = nx.empty_graph(0, create_using)
+
+    G.name = "chimera_graph(%s, %s, %s)" % (m, n, t)
+
+    max_size = m * n * 2 * t  # max number of nodes G can have
+
+    if edge_list is None:
+        hoff = 2 * t
+        voff = n * hoff
+        mi = m * voff
+        ni = n * hoff
+
+        # tile edges
+        G.add_edges_from((k0, k1)
+                         for i in range(0, ni, hoff)
+                         for j in range(i, mi, voff)
+                         for k0 in range(j, j + t)
+                         for k1 in range(j + t, j + 2 * t))
+        # horizontal edges
+        G.add_edges_from((k, k + hoff)
+                         for i in range(t, 2 * t)
+                         for j in range(i, ni - hoff, hoff)
+                         for k in range(j, mi, voff))
+        # vertical edges
+        G.add_edges_from((k, k + voff)
+                         for i in range(t)
+                         for j in range(i, ni, hoff)
+                         for k in range(j, mi - voff, voff))
+    else:
+        G.add_edges_from(edge_list)
+
+    if node_list is not None:
+        G.remove_nodes_from(set(G) - set(node_list))
+
     if data:
-        G = nx.empty_graph(0, create_using)
-        label = 0
+        v = 0
         for i in range(m):
             for j in range(n):
                 for u in range(2):
                     for k in range(t):
-                        G.add_node(label, chimera_index=(i, j, u, k))
-                        label += 1
-    else:
-        G = nx.empty_graph(m * n * 2 * t, create_using)
-
-    G.name = "chimera_graph(%s, %s, %s)" % (m, n, t)
-
-    hoff = 2 * t
-    voff = n * hoff
-    mi = m * voff
-    ni = n * hoff
-
-    # tile edges
-    G.add_edges_from((k0, k1)
-                     for i in range(0, ni, hoff)
-                     for j in range(i, mi, voff)
-                     for k0 in range(j, j + t)
-                     for k1 in range(j + t, j + 2 * t))
-    # horizontal edges
-    G.add_edges_from((k, k + hoff)
-                     for i in range(t, 2 * t)
-                     for j in range(i, ni - hoff, hoff)
-                     for k in range(j, mi, voff))
-    # vertical edges
-    G.add_edges_from((k, k + voff)
-                     for i in range(t)
-                     for j in range(i, ni, hoff)
-                     for k in range(j, mi - voff, voff))
+                            if v in G:
+                                G.node[v]['chimera_index'] = (i, j, u, k)
+                            v += 1
 
     return G
 
