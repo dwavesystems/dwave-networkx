@@ -116,6 +116,10 @@ def min_fill_heuristic(G):
     order : list
         An elimination order that induces the treewidth.
 
+    References
+    ----------
+    Based on the algorithm presented in [GD]_
+
     """
     # we need only deal with the adjacency structure of G. We will also
     # be manipulating it directly so let's go ahead and make a new one
@@ -173,6 +177,10 @@ def min_width_heuristic(G):
     order : list
         An elimination order that induces the treewidth.
 
+    References
+    ----------
+    Based on the algorithm presented in [GD]_
+
     """
     # we need only deal with the adjacency structure of G. We will also
     # be manipulating it directly so let's go ahead and make a new one
@@ -225,6 +233,10 @@ def max_cardinality_heuristic(G):
 
     order : list
         An elimination order that induces the treewidth.
+
+    References
+    ----------
+    Based on the algorithm presented in [GD]_
 
     """
     # we need only deal with the adjacency structure of G. We will also

@@ -44,13 +44,16 @@ def min_vertex_coloring(G, sampler=None, **sampler_args):
         A coloring for each vertex in G such that no adjacent nodes
         share the same color. A dict of the form {node: color, ...}
 
+    References
+    ----------
+    .. [DWMP] Dahl, E., "Programming the D-Wave: Map Coloring Problem",
+       https://www.dwavesys.com/sites/default/files/Map%20Coloring%20WP2.pdf
+
     Notes
     -----
     Samplers by their nature may not return the lowest
     energy solution. This function does not attempt to confirm the
     quality of the returned sample.
-
-    https://en.wikipedia.org/wiki/Brooks%27_theorem
     """
 
     # if the given graph is not connected, apply the function to each connected component
