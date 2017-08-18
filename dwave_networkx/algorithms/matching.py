@@ -4,8 +4,7 @@ import itertools
 from dwave_networkx.utils import binary_quadratic_model_sampler
 from dwave_networkx import _PY2
 
-__all__ = ['maximal_matching', 'minimal_maximal_matching',
-           'is_matching', 'is_maximal_matching']
+__all__ = ['minimal_maximal_matching', 'is_matching', 'is_maximal_matching']
 
 # compatibility for python 2/3
 if _PY2:
@@ -19,8 +18,10 @@ else:
 
 @binary_quadratic_model_sampler(1)
 def maximal_matching(G, sampler=None, **sampler_args):
-    """Uses a discrete model sampler to find a maximal cardinality
-    matching in a graph.
+    """Finds an approximate maximal matching.
+
+    Defines a QUBO with ground states corresponding to a maximal
+    matching and uses the sampler to sample from it.
 
     A matching is a subset of edges in which no node occurs more than
     once. The cardinality of a matching is the number of matched edges.
@@ -49,9 +50,9 @@ def maximal_matching(G, sampler=None, **sampler_args):
 
     Notes
     -----
-    Samplers by their nature may not return the lowest
-    energy solution. This function does not attempt to confirm the
-    quality of the returned sample.
+    Samplers by their nature may not return the optimal solution. This
+    function does not attempt to confirm the quality of the returned
+    sample.
 
     https://en.wikipedia.org/wiki/Matching_(graph_theory)
 
@@ -97,8 +98,10 @@ def maximal_matching(G, sampler=None, **sampler_args):
 
 @binary_quadratic_model_sampler(1)
 def minimal_maximal_matching(G, sampler=None, **sampler_args):
-    """Uses a binary quadratic model sampler to find a maximal cardinality
-    matching in a graph with the minimum number of edges.
+    """Returns an approximate minimal maximal matching.
+
+    Defines a QUBO with ground states corresponding to a minimal
+    maximal matching and uses the sampler to sample from it.
 
     A matching is a subset of edges in which no node occurs more than
     once. The cardinality of a matching is the number of matched edges.
@@ -127,9 +130,9 @@ def minimal_maximal_matching(G, sampler=None, **sampler_args):
 
     Notes
     -----
-    Discrete model samplers by their nature may not return the lowest
-    energy solution. This function does not attempt to confirm the
-    quality of the returned sample.
+    Samplers by their nature may not return the optimal solution. This
+    function does not attempt to confirm the quality of the returned
+    sample.
 
     https://en.wikipedia.org/wiki/Matching_(graph_theory)
 

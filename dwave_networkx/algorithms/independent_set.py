@@ -5,8 +5,11 @@ __all__ = ["maximum_independent_set"]
 
 @binary_quadratic_model_sampler(1)
 def maximum_independent_set(G, sampler=None, **sampler_args):
-    """Uses a binary quadratic model sampler to determine the maximum
-    independent set of the given graph.
+    """Returns an approximate maximum independent set.
+
+    Defines a QUBO with ground states corresponding to a
+    maximum independent set and uses the sampler to sample from
+    it.
 
     An independent set is a set of nodes such that the subgraph
     of G induced by these nodes contains no edges. A maximum
@@ -43,9 +46,9 @@ def maximum_independent_set(G, sampler=None, **sampler_args):
 
     Notes
     -----
-    Samplers by their nature may not return the lowest
-    energy solution. This function does not attempt to confirm the
-    quality of the returned sample.
+    Samplers by their nature may not return the optimal solution. This
+    function does not attempt to confirm the quality of the returned
+    sample.
 
     https://en.wikipedia.org/wiki/Independent_set_(graph_theory)
 

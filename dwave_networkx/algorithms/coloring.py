@@ -19,7 +19,10 @@ else:
 
 @binary_quadratic_model_sampler(1)
 def min_vertex_coloring(G, sampler=None, **sampler_args):
-    """Find a minimum vertex cover of the given graph.
+    """Returns an approximate minimum vertex coloring.
+
+    Defines a QUBO with ground states corresponding to minimum
+    vertex colorings and uses the sampler to sample from it.
 
     Parameters
     ----------
@@ -51,9 +54,10 @@ def min_vertex_coloring(G, sampler=None, **sampler_args):
 
     Notes
     -----
-    Samplers by their nature may not return the lowest
-    energy solution. This function does not attempt to confirm the
-    quality of the returned sample.
+    Samplers by their nature may not return the optimal solution. This
+    function does not attempt to confirm the quality of the returned
+    sample.
+
     """
 
     # if the given graph is not connected, apply the function to each connected component

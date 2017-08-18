@@ -5,7 +5,10 @@ __all__ = ['min_vertex_cover']
 
 @binary_quadratic_model_sampler(1)
 def min_vertex_cover(G, sampler=None, **sampler_args):
-    """Uses a binary quadratic model to determine a minimum vertex cover.
+    """Returns an approximate minimum vertex cover.
+
+    Defines a QUBO with ground states corresponding to a minimum
+    vertex cover and uses the sampler to sample from it.
 
     A vertex cover is a set of vertices such that each edge of the graph
     is incident with at least one vertex in the set. A minimum vertex cover
@@ -42,9 +45,9 @@ def min_vertex_cover(G, sampler=None, **sampler_args):
 
     Notes
     -----
-    Samplers by their nature may not return the lowest
-    energy solution. This function does not attempt to confirm the
-    quality of the returned sample.
+    Samplers by their nature may not return the optimal solution. This
+    function does not attempt to confirm the quality of the returned
+    sample.
 
     https://en.wikipedia.org/wiki/Vertex_cover
 

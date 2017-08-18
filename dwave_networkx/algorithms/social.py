@@ -14,8 +14,7 @@ else:
 
 @binary_quadratic_model_sampler(1)
 def network_imbalance(S, sampler=None, **sampler_args):
-    """Uses a binary quadratic model sampler to determine the imbalance of
-    the given social network.
+    """Returns an approximate set of frustrated edges and a bicoloring.
 
     A signed social network graph is a graph whose signed edges
     represent friendly/hostile interactions between nodes. A
@@ -80,9 +79,9 @@ def network_imbalance(S, sampler=None, **sampler_args):
 
     Notes
     -----
-    Samplers by their nature may not return the lowest
-    energy solution. This function does not attempt to confirm the
-    quality of the returned sample.
+    Samplers by their nature may not return the optimal solution. This
+    function does not attempt to confirm the quality of the returned
+    sample.
 
     https://en.wikipedia.org/wiki/Ising_model
 
