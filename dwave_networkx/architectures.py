@@ -126,7 +126,9 @@ def chimera_graph(m, n=None, t=None, create_using=None, node_list=None, edge_lis
         G.add_edges_from(edge_list)
 
     if node_list is not None:
-        G.remove_nodes_from(set(G) - set(node_list))
+        nodes = set(node_list)
+        G.remove_nodes_from(set(G) - nodes)
+        G.add_nodes_from(nodes)  # for singleton nodes
 
     if data:
         v = 0
