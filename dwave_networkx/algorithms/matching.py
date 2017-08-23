@@ -207,7 +207,7 @@ def is_matching(edges):
 
 
 def is_maximal_matching(G, matching):
-    """Determines whether the given set of edges is a matching.
+    """Determines whether the given set of edges is a maximal matching.
 
     A matching is a subset of edges in which no node occurs more than
     once. The cardinality of a matching is the number of matched edges.
