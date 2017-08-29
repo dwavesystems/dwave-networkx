@@ -24,7 +24,8 @@ def maximal_matching(G, sampler=None, **sampler_args):
     matching and uses the sampler to sample from it.
 
     A matching is a subset of edges in which no node occurs more than
-    once. The cardinality of a matching is the number of matched edges.
+    once. A maximal matching is one in which no edges from G can be
+    added without violating the matching rule.
 
     Parameters
     ----------
@@ -104,7 +105,9 @@ def minimal_maximal_matching(G, sampler=None, **sampler_args):
     maximal matching and uses the sampler to sample from it.
 
     A matching is a subset of edges in which no node occurs more than
-    once. The cardinality of a matching is the number of matched edges.
+    once. A maximal matching is one in which no edges from G can be
+    added without violating the matching rule. A minimal maximal
+    matching is the smallest maximal matching for G.
 
     Parameters
     ----------
@@ -126,7 +129,7 @@ def minimal_maximal_matching(G, sampler=None, **sampler_args):
     Returns
     -------
     matching : set
-        A maximal matching of the graph.
+        A minimal maximal matching of the graph.
 
     Notes
     -----
