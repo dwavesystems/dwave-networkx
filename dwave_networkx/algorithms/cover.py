@@ -1,7 +1,7 @@
 import dwave_networkx as dnx
 from dwave_networkx.utils import binary_quadratic_model_sampler
 
-__all__ = ['min_vertex_cover']
+__all__ = ['min_vertex_cover', 'is_vertex_cover']
 
 
 @binary_quadratic_model_sampler(1)
@@ -62,3 +62,27 @@ def min_vertex_cover(G, sampler=None, **sampler_args):
     """
     indep_nodes = set(dnx.maximum_independent_set(G, sampler, **sampler_args))
     return [v for v in G if v not in indep_nodes]
+
+
+def is_vertex_cover(G, vertex_cover):
+    """Determines whether a given set of vertices is a cover.
+
+    A vertex cover is a set of vertices such that each edge of the graph
+    is incident with at least one vertex in the set.
+
+    Parameters
+    ----------
+    G : NetworkX graph
+
+    vertex_cover :
+       Iterable of nodes that the form a the minimum vertex cover, as
+       determined by the given sampler.
+
+    Returns
+    -------
+    is_cover : bool
+        True if the given iterable forms a vertex cover.
+
+    """
+    cover = set(vertex_cover)
+    return all(u in cover or v in cover for u, v in G.edges_iter())

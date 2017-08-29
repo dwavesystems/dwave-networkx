@@ -7,3 +7,4 @@ Cover
    :toctree: generated/
 
    min_vertex_cover
+   is_vertex_cover
