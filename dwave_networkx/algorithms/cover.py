@@ -1,3 +1,4 @@
+import dwave_networkx as dnx
 from dwave_networkx.utils import binary_quadratic_model_sampler
 
 __all__ = ['min_vertex_cover']
@@ -59,28 +60,5 @@ def min_vertex_cover(G, sampler=None, **sampler_args):
        Frontiers in Physics, Volume 2, Article 5.
 
     """
-
-    # our weights for the two components. We need B < A
-    A = 1  # term for ensuring that each edge has at least one node
-    B = .5  # term for minimizing the number of nodes colored
-
-    # ok, let's build the qubo. For each node n in the graph we assign a boolean variable
-    # v_n where v_n = 1 when n is part of the vertex cover and v_n = 0 when n is not.
-
-    # For each edge, we want at least one node to be colored. That is, for each edge
-    # (n1, n2) we want a term in the Hamiltonian A*(1 - v_n1)*(1 - v_n2). This can
-    # be rewritten A*(1 - v_n1 - v_n2 + v_n1*v_n2). Since each edge contributes one
-    # of these, our final Hamiltonian is
-    # H_a = A*(|E| + sum_(n) -(deg(n)*v_n) + sum_(n1,n2) v_n1*v_n2)
-    # additionally, we want to have the minimum cover, so we add H_b = B*sum_(n) v_n
-    Q = {(node, node): B - A * G.degree(node) for node in G}
-    Q.update({edge: A for edge in G.edges_iter()})
-
-    # use the sampler to find low energy states
-    response = sampler.sample_qubo(Q, **sampler_args)
-
-    # we want the lowest energy sample
-    sample = next(iter(response))
-
-    # nodes that are true are in the cover
-    return [node for node in G if sample[node] > 0]
+    indep_nodes = set(dnx.maximum_independent_set(G, sampler, **sampler_args))
+    return [v for v in G if v not in indep_nodes]
