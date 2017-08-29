@@ -1,6 +1,6 @@
 from dwave_networkx.utils import binary_quadratic_model_sampler
 
-__all__ = ["maximum_independent_set"]
+__all__ = ["maximum_independent_set", "is_independent_set"]
 
 
 @binary_quadratic_model_sampler(1)
@@ -81,3 +81,26 @@ def maximum_independent_set(G, sampler=None, **sampler_args):
 
     # nodes that are spin up or true are exactly the ones in S.
     return [node for node in sample if sample[node] > 0]
+
+
+def is_independent_set(G, indep_nodes):
+    """Determines whether the given nodes form an independent set.
+
+    An independent set is a set of nodes such that the subgraph
+    of G induced by these nodes contains no edges.
+
+    Parameters
+    ----------
+    G : NetworkX graph
+
+    indep_nodes : list
+       List of nodes that the form a maximum independent set, as
+       determined by the given sampler.
+
+    Returns
+    -------
+    is_independent : bool
+        True if indep_nodes form an independent set.
+
+    """
+    return not bool(G.subgraph(indep_nodes).edges())

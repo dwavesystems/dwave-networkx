@@ -10,7 +10,7 @@ from dwave_networkx.algorithms.tests.samplers import ExactSolver, FastSampler
 # Unit Tests
 #######################################################################################
 
-class TestPacking(unittest.TestCase):
+class TestIndepSet(unittest.TestCase):
 
     def test_maximum_independent_set_basic(self):
         """Runs the function on some small and simple graphs, just to make
@@ -53,5 +53,4 @@ class TestPacking(unittest.TestCase):
     def set_independence_check(self, G, indep_set):
         """Check that the given set of nodes are in fact nodes in the graph and
         independent of eachother (that is there are no edges between them"""
-        subG = G.subgraph(indep_set)
-        self.assertTrue(len(subG.edges()) == 0)
+        self.assertTrue(dnx.is_independent_set(G, indep_set))

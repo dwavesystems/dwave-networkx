@@ -7,3 +7,4 @@ Packing
    :toctree: generated/
 
     maximum_independent_set
+    is_independent_set
