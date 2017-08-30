@@ -13,5 +13,6 @@ Algorithms
    cover
    elimination_ordering
    matching
+   max_cut
    packing
    social
