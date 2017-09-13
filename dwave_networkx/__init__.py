@@ -25,4 +25,4 @@ from dwave_networkx.default_sampler import *
 import dwave_networkx.drawing
 from dwave_networkx.drawing import *
 
-__version__ = '0.4.0'
+__version__ = '0.4.1'
