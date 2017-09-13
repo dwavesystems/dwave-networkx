@@ -16,6 +16,12 @@ if _PY2:
 else:
     iteritems = lambda d: d.items()
 
+try:
+    import numpy
+    eigenvalues = numpy.linalg.eigvals
+except ImportError:
+    eigenvalues = False
+
 
 @binary_quadratic_model_sampler(1)
 def min_vertex_coloring(G, sampler=None, **sampler_args):
@@ -79,24 +85,13 @@ def min_vertex_coloring(G, sampler=None, **sampler_args):
         return {node: 0 for node in G}
 
     # Complete graphs have chromatic number N
-    if n_edges == n_nodes * (n_nodes - 1) / 2:
+    if n_edges == n_nodes * (n_nodes - 1) // 2:
         return {node: color for color, node in enumerate(G)}
 
     # The number of variables in the QUBO is approximately the number of nodes in the graph
     # times the number of potential colors, so we want as tight an upper bound on the
     # chromatic number (chi) as possible
-
-    # we know that chi <= max degree, unless it is complete or a cycle graph of odd length,
-    # in which case chi <= max degree + 1 (Brook's Theorem)
-    # we have already taken care of complete graphs.
-    if n_nodes % 2 == 1 and is_cycle(G):
-        # odd cycle graphs need three colors
-        chi_ub = 3
-    else:
-        chi_ub = max(G.degree(node) for node in G)
-
-    # we also know that chi*(chi-1) <= 2*|E|, so using the quadratic formula
-    chi_ub = min(chi_ub, _quadratic_chi_bound(n_edges))
+    chi_ub = _chromatic_number_upper_bound(G, n_nodes, n_edges)
 
     # now we can start coloring. Without loss of generality, we can determine some of
     # the node colors before trying to solve.
@@ -151,6 +146,30 @@ def min_vertex_coloring(G, sampler=None, **sampler_args):
                 partial_coloring[v] = c
 
     return partial_coloring
+
+
+def _chromatic_number_upper_bound(G, n_nodes, n_edges):
+    # tries to determine an upper bound on the chromatic number of G
+    # Assumes G is not complete
+
+    # chi * (chi - 1) <= 2 * |E|
+    quad_bound = int(math.ceil((1 + math.sqrt(1 + 8 * n_edges)) / 2))
+
+    if n_nodes % 2 == 1 and is_cycle(G):
+        # odd cycle graphs need three colors
+        bound = 3
+    else:
+        if not eigenvalues:
+            # chi <= max degree, unless it is complete or a cycle graph of odd length,
+            # in which case chi <= max degree + 1
+            bound = max(eigenvalues(nx.to_numpy_matrix(G)))
+        else:
+            # Let A be the adj matrix of G (symmetric, 0 on diag). Let theta_1
+            # be the largest eigenvalue of A. Then chi <= theta_1 + 1 with
+            # equality iff G is complete or an odd cycle.
+            bound = max(G.degree(node) for node in G)
+
+    return min(quad_bound, bound)
 
 
 def _minimum_coloring_qubo(x_vars, chi_lb, chi_ub, magnitude=1.):
@@ -270,15 +289,6 @@ def _partial_precolor(G, chi_ub):
     # remaining to color
 
     return partial_coloring, possible_colors, chi_lb
-
-
-def _quadratic_chi_bound(n_edges):
-    """For an arbitrary graph, one can bound the chromatic number chi by
-    chi * (chi - 1) <= 2 * |E|.
-
-    For a given number of edges this function provides an int bound on chi.
-    """
-    return int(math.ceil((1 + math.sqrt(1 + 8 * n_edges)) / 2))
 
 
 def is_cycle(G):

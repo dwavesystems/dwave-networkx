@@ -5,21 +5,12 @@ import networkx as nx
 import dwave_networkx as dnx
 from dwave_networkx.algorithms.tests.samplers import ExactSolver, FastSampler, qubo_energy
 
-from dwave_networkx.algorithms.coloring import _quadratic_chi_bound
 from dwave_networkx.algorithms.coloring import _vertex_different_colors_qubo
 from dwave_networkx.algorithms.coloring import _vertex_one_color_qubo
 from dwave_networkx.algorithms.coloring import _minimum_coloring_qubo
 
 
 class TestColor(unittest.TestCase):
-    def test__quadratic_chi_bound(self):
-        """Make sure that the quadratic formula is run correctly.
-        we want chi*(chi - 1) <= n_edges * 2
-        so chi_ub * (chi_ub - 1) >= n_edges * 2
-        """
-        for n_edges in range(100):
-            chi_ub = _quadratic_chi_bound(n_edges)
-            self.assertGreaterEqual(chi_ub * (chi_ub - 1), n_edges * 2)
 
     def test__vertex_different_colors_qubo(self):
         # Chimera tile (can be 2-colored)
