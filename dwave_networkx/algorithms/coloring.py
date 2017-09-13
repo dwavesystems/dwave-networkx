@@ -161,12 +161,13 @@ def _chromatic_number_upper_bound(G, n_nodes, n_edges):
     else:
         if not eigenvalues:
             # chi <= max degree, unless it is complete or a cycle graph of odd length,
-            # in which case chi <= max degree + 1
+            # in which case chi <= max degree + 1 (Brook's Theorem)
             bound = max(eigenvalues(nx.to_numpy_matrix(G)))
         else:
             # Let A be the adj matrix of G (symmetric, 0 on diag). Let theta_1
             # be the largest eigenvalue of A. Then chi <= theta_1 + 1 with
             # equality iff G is complete or an odd cycle.
+            # this is strictly better than brooks theorem
             bound = max(G.degree(node) for node in G)
 
     return min(quad_bound, bound)
