@@ -13,8 +13,10 @@ __all__ = ["min_vertex_coloring", "is_vertex_coloring", "is_cycle"]
 if _PY2:
     range = xrange
     iteritems = lambda d: d.iteritems()
+    ceil = lambda n: int(math.ceil(n))
 else:
     iteritems = lambda d: d.items()
+    ceil = math.ceil
 
 try:
     import numpy
@@ -76,7 +78,7 @@ def min_vertex_coloring(G, sampler=None, **sampler_args):
         return coloring
 
     n_nodes = len(G)  # number of nodes
-    n_edges = len(G.edges())  # number of edges
+    n_edges = len(G.edges)  # number of edges
 
     # ok, first up, we can eliminate a few graph types trivially
 
@@ -153,7 +155,7 @@ def _chromatic_number_upper_bound(G, n_nodes, n_edges):
     # Assumes G is not complete
 
     # chi * (chi - 1) <= 2 * |E|
-    quad_bound = int(math.ceil((1 + math.sqrt(1 + 8 * n_edges)) / 2))
+    quad_bound = ceil((1 + math.sqrt(1 + 8 * n_edges)) / 2)
 
     if n_nodes % 2 == 1 and is_cycle(G):
         # odd cycle graphs need three colors
@@ -162,13 +164,13 @@ def _chromatic_number_upper_bound(G, n_nodes, n_edges):
         if not eigenvalues:
             # chi <= max degree, unless it is complete or a cycle graph of odd length,
             # in which case chi <= max degree + 1 (Brook's Theorem)
-            bound = max(eigenvalues(nx.to_numpy_matrix(G)))
+            bound = max(G.degree(node) for node in G)
         else:
             # Let A be the adj matrix of G (symmetric, 0 on diag). Let theta_1
             # be the largest eigenvalue of A. Then chi <= theta_1 + 1 with
             # equality iff G is complete or an odd cycle.
             # this is strictly better than brooks theorem
-            bound = max(G.degree(node) for node in G)
+            bound = ceil(max(eigenvalues(nx.to_numpy_matrix(G))))
 
     return min(quad_bound, bound)
 
@@ -207,7 +209,7 @@ def _vertex_different_colors_qubo(G, x_vars):
     Ground energy is 0, infeasible gap is 1.
     """
     Q = {}
-    for u, v in G.edges_iter():
+    for u, v in G.edges:
         if u not in x_vars or v not in x_vars:
             continue
         for color in x_vars[u]:
@@ -309,7 +311,7 @@ def is_cycle(G):
         True if the graph consists of a single cycle.
 
     """
-    trailing, leading = next(iter(G.edges()))
+    trailing, leading = next(iter(G.edges))
     start_node = trailing
 
     # travel around the graph, checking that each node has degree exactly two
@@ -352,4 +354,4 @@ def is_vertex_coloring(G, coloring):
         two adjacent vertices share a color.
 
     """
-    return all(coloring[u] != coloring[v] for u, v in G.edges_iter())
+    return all(coloring[u] != coloring[v] for u, v in G.edges)

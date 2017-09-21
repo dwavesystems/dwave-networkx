@@ -28,7 +28,7 @@ class TestSocial(unittest.TestCase):
         self.check_bicolor(colors)
 
         greenteam = ['Ted']
-        for p0 in S.nodes():
+        for p0 in set(S.nodes):
             for p1 in greenteam:
                 S.add_edge(p0, p1, sign=1)
 

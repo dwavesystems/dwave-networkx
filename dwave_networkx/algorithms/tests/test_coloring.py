@@ -9,6 +9,12 @@ from dwave_networkx.algorithms.coloring import _vertex_different_colors_qubo
 from dwave_networkx.algorithms.coloring import _vertex_one_color_qubo
 from dwave_networkx.algorithms.coloring import _minimum_coloring_qubo
 
+try:
+    import numpy
+    _numpy = True
+except ImportError:
+    _numpy = False
+
 
 class TestColor(unittest.TestCase):
 
@@ -122,7 +128,7 @@ class TestColor(unittest.TestCase):
         G = nx.complete_graph(10)
         mapping = dict(zip(G.nodes(), "abcdefghijklmnopqrstuvwxyz"))
         G = nx.relabel_nodes(G, mapping)
-        n0, n1 = next(G.edges_iter())
+        n0, n1 = next(iter(G.edges()))
         G.remove_edge(n0, n1)
         coloring = dnx.min_vertex_coloring(G, ExactSolver())
         self.assertTrue(dnx.is_vertex_coloring(G, coloring))

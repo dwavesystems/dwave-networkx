@@ -6,5 +6,5 @@ setup(
     name='dwave_networkx',
     version=__version__,
     packages=find_packages(),
-    install_requires=['networkx>=1.11']
+    install_requires=['networkx>=2.0', 'decorator>=4.1.0']
 )

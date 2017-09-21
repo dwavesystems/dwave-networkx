@@ -21,7 +21,7 @@ class TestMatching(unittest.TestCase):
         G = nx.complete_graph(5)
         MAG = .75  # magnitude arg for _matching_qubo
 
-        edge_mapping = {edge: idx for idx, edge in enumerate(G.edges_iter())}
+        edge_mapping = {edge: idx for idx, edge in enumerate(G.edges())}
         edge_mapping.update({(e1, e0): idx for (e0, e1), idx in edge_mapping.items()})
         inv_edge_mapping = {idx: edge for edge, idx in edge_mapping.items()}
 
@@ -58,7 +58,7 @@ class TestMatching(unittest.TestCase):
         G = dnx.chimera_graph(1, 1, 4)
         MAG = .67
 
-        edge_mapping = {edge: idx for idx, edge in enumerate(G.edges_iter())}
+        edge_mapping = {edge: idx for idx, edge in enumerate(G.edges())}
         edge_mapping.update({(e1, e0): idx for (e0, e1), idx in edge_mapping.items()})
         inv_edge_mapping = {idx: edge for edge, idx in edge_mapping.items()}
 
@@ -93,7 +93,7 @@ class TestMatching(unittest.TestCase):
         G = nx.complete_graph(5)
         B = 1  # magnitude arg for _maximal_matching_qubo
 
-        edge_mapping = {edge: idx for idx, edge in enumerate(G.edges_iter())}
+        edge_mapping = {edge: idx for idx, edge in enumerate(G.edges())}
         edge_mapping.update({(e1, e0): idx for (e0, e1), idx in edge_mapping.items()})
         inv_edge_mapping = {idx: edge for edge, idx in edge_mapping.items()}
 
@@ -135,7 +135,7 @@ class TestMatching(unittest.TestCase):
         G = dnx.chimera_graph(1, 2, 2)
         B = 1  # magnitude arg for _maximal_matching_qubo
 
-        edge_mapping = {edge: idx for idx, edge in enumerate(G.edges_iter())}
+        edge_mapping = {edge: idx for idx, edge in enumerate(G.edges())}
         edge_mapping.update({(e1, e0): idx for (e0, e1), idx in edge_mapping.items()})
         inv_edge_mapping = {idx: edge for edge, idx in edge_mapping.items()}
 
@@ -180,7 +180,7 @@ class TestMatching(unittest.TestCase):
         A = 1  # magnitude arg for _matching_qubo
         B = .75 * A / (delta - 2.)  # magnitude arg for _maximal_matching_qubo
 
-        edge_mapping = {edge: idx for idx, edge in enumerate(G.edges_iter())}
+        edge_mapping = {edge: idx for idx, edge in enumerate(G.edges())}
         edge_mapping.update({(e1, e0): idx for (e0, e1), idx in edge_mapping.items()})
         inv_edge_mapping = {idx: edge for edge, idx in edge_mapping.items()}
 
@@ -230,7 +230,7 @@ class TestMatching(unittest.TestCase):
         A = 1  # magnitude arg for _matching_qubo
         B = .95 * A / (delta - 2.)  # magnitude arg for _maximal_matching_qubo
 
-        edge_mapping = {edge: idx for idx, edge in enumerate(G.edges_iter())}
+        edge_mapping = {edge: idx for idx, edge in enumerate(G.edges())}
         edge_mapping.update({(e1, e0): idx for (e0, e1), idx in edge_mapping.items()})
         inv_edge_mapping = {idx: edge for edge, idx in edge_mapping.items()}
 

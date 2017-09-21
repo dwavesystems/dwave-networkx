@@ -96,7 +96,7 @@ def network_imbalance(S, sampler=None, **sampler_args):
     # format as an Ising problem
     h = {v: 0 for v in S}  # linear biases
     J = {}  # quadratic biases
-    for u, v, data in S.edges_iter(data=True):
+    for u, v, data in S.edges(data=True):
         try:
             J[(u, v)] = -1. * data['sign']
         except KeyError:
@@ -114,7 +114,7 @@ def network_imbalance(S, sampler=None, **sampler_args):
 
     # frustrated edges are the ones that are violated
     frustrated_edges = {}
-    for u, v, data in S.edges_iter(data=True):
+    for u, v, data in S.edges(data=True):
         sign = data['sign']
 
         if sign > 0 and colors[u] != colors[v]:

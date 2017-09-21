@@ -60,7 +60,7 @@ class TestChimeraGraph(unittest.TestCase):
         G = dnx.chimera_graph(1, 1, 2, edge_list=edges)
         for e in edges:
             self.assertIn(e, G.edges())
-        for (u, v) in G.edges_iter():
+        for (u, v) in G.edges:
             self.assertTrue((u, v) in edges or (v, u) in edges)
 
         nodes = [0, 1, 2]
@@ -94,5 +94,5 @@ class TestChimeraGraph(unittest.TestCase):
     #     self._check_matching_chimera_indices(G, chimera_indices)
 
     def _check_matching_chimera_indices(self, G, chimera_indices):
-        for v, dat in G.nodes_iter(data=True):
+        for v, dat in G.nodes(data=True):
             self.assertEqual(dat['chimera_index'], chimera_indices[v])

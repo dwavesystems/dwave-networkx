@@ -94,7 +94,7 @@ def maximal_matching(G, sampler=None, **sampler_args):
     sample = next(iter(response))
 
     # the matching are the edges that are 1 in the sample
-    return set(edge for edge in G.edges_iter() if sample[edge_mapping[edge]] > 0)
+    return set(edge for edge in G.edges if sample[edge_mapping[edge]] > 0)
 
 
 @binary_quadratic_model_sampler(1)
@@ -186,7 +186,7 @@ def minimal_maximal_matching(G, sampler=None, **sampler_args):
     sample = next(iter(response))
 
     # the matching are the edges that are 1 in the sample
-    return set(edge for edge in G.edges_iter() if sample[edge_mapping[edge]] > 0)
+    return set(edge for edge in G.edges if sample[edge_mapping[edge]] > 0)
 
 
 def is_matching(edges):
@@ -238,7 +238,7 @@ def is_maximal_matching(G, matching):
 
     # now for each edge, check that at least one of its variables is
     # already in the matching
-    for (u, v) in G.edges_iter():
+    for (u, v) in G.edges:
         if u not in touched_nodes and v not in touched_nodes:
             return False
 
@@ -249,7 +249,7 @@ def _edge_mapping(G):
     """Assigns a variable for each edge in G.
     (u, v) and (v, u) map to the same variable.
     """
-    edge_mapping = {edge: idx for idx, edge in enumerate(G.edges_iter())}
+    edge_mapping = {edge: idx for idx, edge in enumerate(G.edges)}
     edge_mapping.update({(e1, e0): idx for (e0, e1), idx in edge_mapping.items()})
     return edge_mapping
 
@@ -268,11 +268,11 @@ def _maximal_matching_qubo(G, edge_mapping, magnitude=1.):
     # and 0 otherwise.
     # for each edge (u, v) in the graph we want to enforce y_u OR y_v. This is because
     # if both y_u == 0 and y_v == 0, then we could add (u, v) to the matching.
-    for (u, v) in G.edges_iter():
+    for (u, v) in G.edges:
         # 1 - y_v - y_u + y_v*y_u
 
         # for each edge connected to u
-        for edge in G.edges_iter(u):
+        for edge in G.edges(u):
             x = edge_mapping[edge]
             if (x, x) not in Q:
                 Q[(x, x)] = -1 * magnitude
@@ -280,16 +280,16 @@ def _maximal_matching_qubo(G, edge_mapping, magnitude=1.):
                 Q[(x, x)] -= magnitude
 
         # for each edge connected to v
-        for edge in G.edges_iter(v):
+        for edge in G.edges(v):
             x = edge_mapping[edge]
             if (x, x) not in Q:
                 Q[(x, x)] = -1 * magnitude
             else:
                 Q[(x, x)] -= magnitude
 
-        for e0 in G.edges_iter(v):
+        for e0 in G.edges(v):
             x0 = edge_mapping[e0]
-            for e1 in G.edges_iter(u):
+            for e1 in G.edges(u):
                 x1 = edge_mapping[e1]
 
                 if x0 < x1:
@@ -319,7 +319,7 @@ def _matching_qubo(G, edge_mapping, magnitude=1.):
     for node in G:
 
         # for each pair of edges that contain node
-        for edge0, edge1 in itertools.combinations(G.edges_iter(node), 2):
+        for edge0, edge1 in itertools.combinations(G.edges(node), 2):
 
             v0 = edge_mapping[edge0]
             v1 = edge_mapping[edge1]

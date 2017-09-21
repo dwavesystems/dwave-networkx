@@ -14,7 +14,7 @@ class TestMaxCut(unittest.TestCase):
         S = dnx.maximum_cut(G, ExactSolver())
         self.assertTrue(len(S) == 0)
 
-        S = dnx.weighted_maximum_cut(G, ExactSolver())  # empty has weights
+        S = dnx.weighted_maximum_cut(G, ExactSolver())
         self.assertTrue(len(S) == 0)
 
     def test_typical_cases(self):
@@ -25,10 +25,10 @@ class TestMaxCut(unittest.TestCase):
         self.assertTrue(len(S) == 5)  # half of the nodes
 
         with self.assertRaises(dnx.DWaveNetworkXException):
-            S = dnx.weighted_maximum_cut(G, ExactSolver())  # empty has weights
+            S = dnx.weighted_maximum_cut(G, ExactSolver())
 
-        nx.set_edge_attributes(G, 'weight', 1)
-        S = dnx.weighted_maximum_cut(G, ExactSolver())  # empty has weights
+        nx.set_edge_attributes(G, 1, 'weight')
+        S = dnx.weighted_maximum_cut(G, ExactSolver())
         self.assertTrue(len(S) == 5)  # half of the nodes
 
         G = nx.Graph()

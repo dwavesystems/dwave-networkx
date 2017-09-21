@@ -71,7 +71,7 @@ def maximum_independent_set(G, sampler=None, **sampler_args):
     # On the off diagnonal, we assign the off-diagonal terms of Q to be 2. Thus, if both
     # nodes are in S, the overall energy is increased by 2.
     Q = {(node, node): -1 for node in G}
-    Q.update({edge: 2 for edge in G.edges_iter()})
+    Q.update({edge: 2 for edge in G.edges})
 
     # use the sampler to find low energy states
     response = sampler.sample_qubo(Q, **sampler_args)
@@ -103,4 +103,4 @@ def is_independent_set(G, indep_nodes):
         True if indep_nodes form an independent set.
 
     """
-    return not bool(G.subgraph(indep_nodes).edges())
+    return not bool(G.subgraph(indep_nodes).edges)

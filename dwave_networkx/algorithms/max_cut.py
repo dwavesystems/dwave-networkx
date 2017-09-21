@@ -48,7 +48,7 @@ def maximum_cut(G, sampler=None, **sampler_args):
     # energy by 1 for each edge between two nodes of the same color.
     # The linear biases can all be 0.
     h = {v: 0. for v in G}
-    J = {(u, v): 1 for u, v in G.edges_iter()}
+    J = {(u, v): 1 for u, v in G.edges}
 
     # draw the lowest energy sample from the sampler
     response = sampler.sample_ising(h, J, **sampler_args)
@@ -102,7 +102,7 @@ def weighted_maximum_cut(G, sampler=None, **sampler_args):
     # The linear biases can all be 0.
     h = {v: 0. for v in G}
     try:
-        J = {(u, v): G[u][v]['weight'] for u, v in G.edges_iter()}
+        J = {(u, v): G[u][v]['weight'] for u, v in G.edges}
     except KeyError:
         raise DWaveNetworkXException("edges must have 'weight' attribute")
 

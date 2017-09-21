@@ -175,7 +175,7 @@ def find_chimera_indices(G):
 
     # if the nodes are orderable, we want the lowest order one.
     try:
-        nlist = sorted(G.nodes_iter())
+        nlist = sorted(G.nodes)
     except TypeError:
         nlist = G.nodes()
 

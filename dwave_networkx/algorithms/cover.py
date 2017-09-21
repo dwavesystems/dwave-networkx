@@ -85,4 +85,4 @@ def is_vertex_cover(G, vertex_cover):
 
     """
     cover = set(vertex_cover)
-    return all(u in cover or v in cover for u, v in G.edges_iter())
+    return all(u in cover or v in cover for u, v in G.edges)

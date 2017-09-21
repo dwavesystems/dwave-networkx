@@ -2,20 +2,34 @@ from __future__ import division
 
 import unittest
 
-import matplotlib.pyplot as plt
 import networkx as nx
 import dwave_networkx as dnx
 
+try:
+    import matplotlib.pyplot as plt
+    _plt = True
+except ImportError:
+    _plt = False
+
+try:
+    import numpy as np
+    _numpy = True
+except ImportError:
+    _numpy = False
+
 
 class TestDrawing(unittest.TestCase):
+    @unittest.skipIf(not _numpy, "No numpy")
     def test_chimera_layout_basic(self):
         G = dnx.chimera_graph(1, 1, 4)
         pos = dnx.chimera_layout(G)
 
+    @unittest.skipIf(not _numpy, "No numpy")
     def test_chimera_layout_typical(self):
         G = dnx.chimera_graph(2, 2, 4)
         pos = dnx.chimera_layout(G)
 
+    @unittest.skipIf(not _numpy, "No numpy")
     def test_chimera_layout_no_chimera_indices(self):
         G = nx.Graph()
         G.add_edges_from([(0, 2), (1, 2), (1, 3), (0, 3)])
