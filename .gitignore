@@ -1,0 +1,10 @@
+build
+dist
+dwave_networkx.egg-info
+*.pyc
+
+venv/
+
+docs/reference/generated/
+docs/reference/algorithms/generated/
+docs/reference/drawing/generated/
