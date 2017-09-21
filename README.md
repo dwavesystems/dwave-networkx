@@ -1,5 +1,7 @@
 # D-Wave NetworkX
 
+![alt text](https://travis-ci.org/dwavesystems/dwave_networkx.svg?branch=master)
+
 D-Wave NetworkX is an extension of the [NetworkX](http://networkx.github.io/).
 
 The D-Wave NetworkX extension has three primary goals:
