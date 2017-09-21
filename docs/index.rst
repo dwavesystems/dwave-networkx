@@ -18,7 +18,7 @@ D-Wave NetworkX
 
 The D-Wave NetworkX extension has three primary goals:
 
-* Include graphs and algorithms relevent to working with the D-Wave System.
+* Include graphs and algorithms relevant to working with the D-Wave System.
 * Allow for easy visualization of Chimera-structured graphs.
 * Provide an implementation of some graph theory algorithms that uses the D-Wave System or another binary quadratic model sampler.
 
