@@ -1,8 +1,8 @@
-*******
-Packing
-*******
+***************
+Independent Set
+***************
 
-.. automodule:: dwave_networkx.algorithms.packing
+.. automodule:: dwave_networkx.algorithms.independent_set
 .. autosummary::
    :toctree: generated/
 

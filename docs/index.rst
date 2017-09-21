@@ -24,6 +24,19 @@ The D-Wave NetworkX extension has three primary goals:
 
 Information about the D-Wave system can be found at https://www.dwavesys.com/.
 
+Relationship to dimod
+---------------------
+
+D-Wave NetworkX's algorithms rely on binary quadratic model samplers. Binary quadratic models are the superclass that contains Quadratic Unconstrained Binary Optimization Problems (QUBOs_) and Ising_ models. A sampler is a process that samples from low energy states in models defined by an Ising equation or a QUBO's quadratic polynomial.
+
+To work with D-Wave NetworkX, a sampler object is expected to have a ‘sample_qubo’ and ‘sample_ising’ method. A sampler is expected to return an iterable of samples, in order of increasing energy.
+
+dimod_ provides a shared API for samplers that fulfills the above as well as a few simple samplers that can be used to get started quickly
+
+.. _dimod: https://github.com/dwavesystems/dimod
+.. _Ising: https://en.wikipedia.org/wiki/Ising_model
+.. _QUBOs: https://en.wikipedia.org/wiki/Quadratic_unconstrained_binary_optimization
+
 Documentation
 -------------
 
