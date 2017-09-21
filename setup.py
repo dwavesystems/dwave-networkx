@@ -14,7 +14,7 @@ setup(
     author_email=__authoremail__,
     description=__description__,
     url='https://github.com/dwavesystems/dwave_networkx',
-    download_url='https://github.com/dwavesystems/dwave_networkx/releases/tag/0.5.0',
+    download_url='https://github.com/dwavesystems/dwave_networkx/archive/0.5.0.tar.gz',
     packages=packages,
     install_requires=['networkx>=2.0',
                       'decorator>=4.1.0']
