@@ -3,7 +3,7 @@ import itertools
 
 import networkx as nx
 import dwave_networkx as dnx
-from dwave_networkx.algorithms.tests.samplers import ExactSolver, FastSampler, qubo_energy
+from dwave_networkx.utils.test_samplers import ExactSolver, FastSampler, qubo_energy
 
 from dwave_networkx.algorithms.coloring import _vertex_different_colors_qubo
 from dwave_networkx.algorithms.coloring import _vertex_one_color_qubo

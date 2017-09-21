@@ -3,7 +3,7 @@ import itertools
 
 import networkx as nx
 import dwave_networkx as dnx
-from dwave_networkx.algorithms.tests.samplers import ExactSolver, FastSampler
+from dwave_networkx.utils.test_samplers import ExactSolver, FastSampler
 
 
 class TestSocial(unittest.TestCase):

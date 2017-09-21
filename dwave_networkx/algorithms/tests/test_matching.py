@@ -6,7 +6,7 @@ from itertools import chain, combinations
 import networkx as nx
 import dwave_networkx as dnx
 
-from dwave_networkx.algorithms.tests.samplers import ExactSolver, FastSampler, qubo_energy
+from dwave_networkx.utils.test_samplers import ExactSolver, FastSampler, qubo_energy
 
 from dwave_networkx.algorithms.matching import _matching_qubo, _maximal_matching_qubo
 from dwave_networkx.algorithms.matching import _edge_mapping
