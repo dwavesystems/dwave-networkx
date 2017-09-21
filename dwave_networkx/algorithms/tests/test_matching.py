@@ -422,15 +422,15 @@ class TestMatching(unittest.TestCase):
             matching = dnx.algorithms.matching.maximal_matching(G, ExactSolver())
             self.assertTrue(dnx.is_maximal_matching(G, matching))
 
-    def test_minimal_maximal_matching_typical(self):
+    def test_min_maximal_matching_typical(self):
 
         G = nx.complete_graph(5)
-        matching = dnx.minimal_maximal_matching(G, ExactSolver())
+        matching = dnx.min_maximal_matching(G, ExactSolver())
         self.assertTrue(dnx.is_maximal_matching(G, matching))
 
         for __ in range(10):
             G = nx.gnp_random_graph(7, .5)
-            matching = dnx.minimal_maximal_matching(G, ExactSolver())
+            matching = dnx.min_maximal_matching(G, ExactSolver())
             self.assertTrue(dnx.is_maximal_matching(G, matching),
                             "nodes: {}\nedges:{}".format(G.nodes(), G.edges()))
 
@@ -439,7 +439,7 @@ class TestMatching(unittest.TestCase):
         matching = dnx.algorithms.matching.maximal_matching(G, ExactSolver())
         self.assertTrue(dnx.is_maximal_matching(G, matching))
 
-        matching = dnx.minimal_maximal_matching(G, ExactSolver())
+        matching = dnx.min_maximal_matching(G, ExactSolver())
         self.assertTrue(dnx.is_maximal_matching(G, matching))
 
         G.add_edge(0, 9)
@@ -447,7 +447,7 @@ class TestMatching(unittest.TestCase):
         matching = dnx.algorithms.matching.maximal_matching(G, ExactSolver())
         self.assertTrue(dnx.is_maximal_matching(G, matching))
 
-        matching = dnx.minimal_maximal_matching(G, ExactSolver())
+        matching = dnx.min_maximal_matching(G, ExactSolver())
         self.assertTrue(dnx.is_maximal_matching(G, matching))
 
     def test_default_sampler(self):
@@ -456,7 +456,7 @@ class TestMatching(unittest.TestCase):
         dnx.set_default_sampler(ExactSolver())
         self.assertIsNot(dnx.get_default_sampler(), None)
         matching = dnx.algorithms.matching.maximal_matching(G)
-        matching = dnx.minimal_maximal_matching(G)
+        matching = dnx.min_maximal_matching(G)
         dnx.unset_default_sampler()
         self.assertEqual(dnx.get_default_sampler(), None, "sampler did not unset correctly")
 
@@ -464,12 +464,12 @@ class TestMatching(unittest.TestCase):
     def test_dimod_vs_list(self):
         G = nx.path_graph(5)
 
-        matching = dnx.minimal_maximal_matching(G, ExactSolver())
+        matching = dnx.min_maximal_matching(G, ExactSolver())
         matching = dnx.algorithms.matching.maximal_matching(G, ExactSolver())
-        matching = dnx.minimal_maximal_matching(G, FastSampler())
+        matching = dnx.min_maximal_matching(G, FastSampler())
         matching = dnx.algorithms.matching.maximal_matching(G, FastSampler())
 
-    def test_minimal_maximal_matching_bug1(self):
+    def test_min_maximal_matching_bug1(self):
         G = nx.Graph()
         G.add_nodes_from(range(7))
         G.add_edges_from([(0, 2), (0, 3), (0, 5), (0, 6), (1, 5), (2, 3), (2, 4), (2, 5), (3, 4),
@@ -544,7 +544,7 @@ class TestMatching(unittest.TestCase):
         self.assertGreater(infeasible_gap, 0)
 
         # finally let's test it using the function
-        matching = dnx.minimal_maximal_matching(G, ExactSolver())
+        matching = dnx.min_maximal_matching(G, ExactSolver())
         self.assertTrue(dnx.is_maximal_matching(G, matching))
 
 

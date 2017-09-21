@@ -4,7 +4,7 @@ import itertools
 from dwave_networkx.utils import binary_quadratic_model_sampler
 from dwave_networkx import _PY2
 
-__all__ = ['minimal_maximal_matching', 'is_matching', 'is_maximal_matching']
+__all__ = ['min_maximal_matching', 'is_matching', 'is_maximal_matching']
 
 # compatibility for python 2/3
 if _PY2:
@@ -98,7 +98,7 @@ def maximal_matching(G, sampler=None, **sampler_args):
 
 
 @binary_quadratic_model_sampler(1)
-def minimal_maximal_matching(G, sampler=None, **sampler_args):
+def min_maximal_matching(G, sampler=None, **sampler_args):
     """Returns an approximate minimal maximal matching.
 
     Defines a QUBO with ground states corresponding to a minimal

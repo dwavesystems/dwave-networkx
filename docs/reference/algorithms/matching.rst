@@ -6,6 +6,6 @@ Matching
 .. autosummary::
    :toctree: generated/
 
-    minimal_maximal_matching
+    min_maximal_matching
     is_matching
     is_maximal_matching
