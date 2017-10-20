@@ -1,10 +1,54 @@
 language: python
-python:
-  - 3.6
-  - 2.7
-  - nightly
+
+matrix:
+    include:
+        - os: linux
+          sudo: required
+          python: "2.7"
+          env: TOXENV=py27
+        - os: linux
+          sudo: required
+          python: "3.6"
+          env: TOXENV=py36
+        - os: linux
+          sudo: required
+          python: "nightly"
+          env: TOXENV=pynightly
+        - os: osx
+          language: generic
+          env: TOXENV=py27
+          before_install:
+            - brew update
+            - virtualenv env -p python2
+            - source env/bin/activate
+        - os: osx
+          language: generic
+          env: TOXENV=py36
+          before_install:
+            - brew update
+            - brew install python3
+            - virtualenv env -p python3
+            - source env/bin/activate
+        - os: osx
+          language: generic
+          env: TOXENV=pynightly
+
 install:
-  - pip install -r requirements.txt
-  - pip install .
+    - pip install -r requirements.txt
+    - pip install .
+    - pip install coveralls
+    
 script:
-  - python -m unittest discover
+- coverage run --source=dwave_networkx -m unittest discover
+
+after_success:
+  - coveralls
+
+deploy:
+  provider: pypi
+  user: "dwtools"
+  password:
+    secure: "Istpxxa7f5ysSk9gRWOCB7CzfL8JLDOUxJf6ruqk8od55pD+TfE+Ru/eCNZluFp2XD/xGlk7t8IyRtYFu0Hi3ju6LsI/KiVazW27dzKHezWJMhxDTGjNr35l/5YVW7cEHFRY9DxVkBH9g/Ec4dpKy72+kB0ximNpbnZZT1svwn3dIXkiIUc7n3YoDM4tARQtazib+lCmiNeQkqlFoECTSG049lJa/StoH00HsVa+7HtYymOCeSu1tiIKtcdMJMZHdtwuiROwpGLecY9TahPKxqw2m/FWlHqtvRCvyYAXhBTnib4bp5PjbRqPOHFXBPLGMoH4o6Uw1fbTsGrLBf4Z9tIFIwW+HfABdpgAiXgjzD3ETuuJEjXiVgfesZPqxqjKslpEtUIywSwohEHZ8vz+DOGq2ESi08YAmvxJq1z8XeDi7DEXzWyyZnd3DoY/MHXLPvKaVfJlVHR133bbhr0Kz83dXb7EvK7xELLXJflIxidh7kRFuQFvj2tVkmfPwidBTXy24Kpt/46mGf8ouefIJbdYqmXDu3Wo10lHKBxI6l0Bbt95MiNX96Xds+D+dHKfoYigg1TO6L9SIXguIxL1moftAqwtGZdLhlHkHSexCGNojKgcn7D/h1JSsZ0qhxe9v63xl1rP7hNfEDNNordyWb7cj3MYVtPPu35jHByMius="
+  distributions: "sdist bdist_wheel"
+  on:
+    tags: true
