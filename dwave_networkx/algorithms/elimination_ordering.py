@@ -69,6 +69,10 @@ def minor_min_width(G):
     # be manipulating it directly so let's go ahead and make a new one
     adj = {v: set(G[v]) for v in G}
 
+    # if there are no edges, then the treewidth is 0
+    if not any(adj[v] for v in G):
+        return 0
+
     lb = 0  # lower bound on treewidth
     while len(adj) > 1:
 
@@ -317,6 +321,11 @@ def treewidth_branch_and_bound(G):
     .. [GD] Gogate & Dechter, "A Complete Anytime Algorithm for Treewidth",
        https://arxiv.org/abs/1207.4109
     """
+    # empty graphs have treewidth 0 and the nodes can be eliminated in
+    # any order
+    if not any(G[v] for v in G):
+        return 0, list(G)
+
     # variable names are chosen to match the paper
 
     # our order will be stored in vector x, named to be consistent with
