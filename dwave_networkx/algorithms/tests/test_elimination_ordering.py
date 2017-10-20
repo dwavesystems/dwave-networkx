@@ -185,3 +185,10 @@ class TestBranchAndBound(unittest.TestCase):
         tw, order = dnx.treewidth_branch_and_bound(graph)
         self.check_order(graph, order)
         self.assertEqual(tw, 0)
+
+        graph = nx.complete_graph(4)
+        graph.add_node(4)
+
+        tw, order = dnx.treewidth_branch_and_bound(graph)
+        self.check_order(graph, order)
+        self.assertEqual(tw, 3)
