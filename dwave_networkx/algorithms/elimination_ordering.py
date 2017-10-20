@@ -69,10 +69,6 @@ def minor_min_width(G):
     # be manipulating it directly so let's go ahead and make a new one
     adj = {v: set(G[v]) for v in G}
 
-    # if there are no edges, then the treewidth is 0
-    if not any(adj[v] for v in G):
-        return 0
-
     lb = 0  # lower bound on treewidth
     while len(adj) > 1:
 
@@ -81,6 +77,11 @@ def minor_min_width(G):
 
         # find the vertex u such that the degree of u is minimal in the neighborhood of v
         neighbors = adj[v]
+
+        if not neighbors:
+            # if v is a singleton, then we can just delete it
+            del adj[v]
+            continue
 
         def neighborhood_degree(u):
             Gu = adj[u]
