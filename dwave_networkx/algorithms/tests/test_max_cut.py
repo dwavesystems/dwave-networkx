@@ -3,7 +3,7 @@ import unittest
 import networkx as nx
 import dwave_networkx as dnx
 
-from dwave_networkx.utils.test_samplers import ExactSolver, FastSampler, qubo_energy
+from dimod import ExactSolver, SimulatedAnnealingSampler, qubo_energy
 
 
 class TestMaxCut(unittest.TestCase):

@@ -7,7 +7,7 @@ Graph generators
 
 Architectures
 -------------
-.. automodule:: dwave_networkx.architectures
+.. automodule:: dwave_networkx.generators
 .. autosummary::
    :toctree: generated/
 

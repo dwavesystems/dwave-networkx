@@ -3,7 +3,7 @@ import unittest
 import networkx as nx
 import dwave_networkx as dnx
 
-from dwave_networkx.utils.test_samplers import ExactSolver, FastSampler
+from dimod import ExactSolver, SimulatedAnnealingSampler
 
 
 #######################################################################################
@@ -39,12 +39,11 @@ class TestIndepSet(unittest.TestCase):
         dnx.unset_default_sampler()
         self.assertEqual(dnx.get_default_sampler(), None, "sampler did not unset correctly")
 
-    @unittest.skipIf(FastSampler is None, "no dimod sampler provided")
     def test_dimod_vs_list(self):
         G = nx.path_graph(5)
 
         indep_set = dnx.maximum_independent_set(G, ExactSolver())
-        indep_set = dnx.maximum_independent_set(G, FastSampler())
+        indep_set = dnx.maximum_independent_set(G, SimulatedAnnealingSampler())
 
 #######################################################################################
 # Helper functions
