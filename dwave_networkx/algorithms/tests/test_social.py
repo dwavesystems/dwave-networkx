@@ -3,7 +3,7 @@ import itertools
 
 import networkx as nx
 import dwave_networkx as dnx
-from dwave_networkx.utils.test_samplers import ExactSolver, FastSampler
+from dimod import ExactSolver, SimulatedAnnealingSampler
 
 
 class TestSocial(unittest.TestCase):
@@ -71,7 +71,6 @@ class TestSocial(unittest.TestCase):
         dnx.unset_default_sampler()
         self.assertEqual(dnx.get_default_sampler(), None, "sampler did not unset correctly")
 
-    @unittest.skipIf(FastSampler is None, "no dimod sampler provided")
     def test_dimod_vs_list(self):
         S = nx.Graph()
         S.add_edge('Alice', 'Bob', sign=1)  # Alice and Bob are friendly
@@ -79,4 +78,4 @@ class TestSocial(unittest.TestCase):
         S.add_edge('Bob', 'Eve', sign=-1)  # Bob and Eve are hostile
 
         frustrated_edges, colors = dnx.network_imbalance(S, ExactSolver())
-        frustrated_edges, colors = dnx.network_imbalance(S, FastSampler())
+        frustrated_edges, colors = dnx.network_imbalance(S, SimulatedAnnealingSampler())

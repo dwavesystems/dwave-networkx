@@ -8,7 +8,7 @@ import networkx as nx
 from networkx import draw
 
 from dwave_networkx import _PY2
-from dwave_networkx.architectures import find_chimera_indices
+from dwave_networkx.generators.chimera import find_chimera_indices
 
 
 # compatibility for python 2/3

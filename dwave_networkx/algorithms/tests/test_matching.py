@@ -6,7 +6,7 @@ from itertools import chain, combinations
 import networkx as nx
 import dwave_networkx as dnx
 
-from dwave_networkx.utils.test_samplers import ExactSolver, FastSampler, qubo_energy
+from dimod import ExactSolver, SimulatedAnnealingSampler, qubo_energy
 
 from dwave_networkx.algorithms.matching import _matching_qubo, _maximal_matching_qubo
 from dwave_networkx.algorithms.matching import _edge_mapping
@@ -460,14 +460,13 @@ class TestMatching(unittest.TestCase):
         dnx.unset_default_sampler()
         self.assertEqual(dnx.get_default_sampler(), None, "sampler did not unset correctly")
 
-    @unittest.skipIf(FastSampler is None, "no dimod sampler provided")
     def test_dimod_vs_list(self):
         G = nx.path_graph(5)
 
         matching = dnx.min_maximal_matching(G, ExactSolver())
         matching = dnx.algorithms.matching.maximal_matching(G, ExactSolver())
-        matching = dnx.min_maximal_matching(G, FastSampler())
-        matching = dnx.algorithms.matching.maximal_matching(G, FastSampler())
+        matching = dnx.min_maximal_matching(G, SimulatedAnnealingSampler())
+        matching = dnx.algorithms.matching.maximal_matching(G, SimulatedAnnealingSampler())
 
     def test_min_maximal_matching_bug1(self):
         G = nx.Graph()

@@ -3,7 +3,7 @@ import unittest
 import networkx as nx
 import dwave_networkx as dnx
 
-from dwave_networkx.utils.test_samplers import ExactSolver, FastSampler
+from dimod import ExactSolver, SimulatedAnnealingSampler
 
 
 class TestCover(unittest.TestCase):
@@ -32,12 +32,11 @@ class TestCover(unittest.TestCase):
         dnx.unset_default_sampler()
         self.assertEqual(dnx.get_default_sampler(), None, "sampler did not unset correctly")
 
-    @unittest.skipIf(FastSampler is None, "no dimod sampler provided")
     def test_dimod_vs_list(self):
         G = nx.path_graph(5)
 
         cover = dnx.min_vertex_cover(G, ExactSolver())
-        cover = dnx.min_vertex_cover(G, FastSampler())
+        cover = dnx.min_vertex_cover(G, SimulatedAnnealingSampler())
 
 #######################################################################################
 # Helper functions
