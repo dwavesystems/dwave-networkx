@@ -225,3 +225,47 @@ class TestBranchAndBound(unittest.TestCase):
         tw, order = dnx.treewidth_branch_and_bound(graph)
         self.check_order(graph, order)
         self.assertEqual(tw, 3)
+
+
+class TestEliminationOrderWidth(unittest.TestCase):
+    def test_trivial(self):
+        G = nx.Graph()
+        tw = dnx.elimination_order_width(G, [])
+        self.assertEqual(tw, 0)
+
+    def test_graphs(self):
+
+        H = nx.complete_graph(2)
+        H.add_edge(2, 3)
+
+        graphs = [nx.complete_graph(7),
+                  dnx.chimera_graph(2, 1, 3),
+                  nx.balanced_tree(5, 3),
+                  nx.barbell_graph(8, 11),
+                  nx.cycle_graph(5),
+                  H]
+
+        for G in graphs:
+            tw, order = dnx.treewidth_branch_and_bound(G)
+            self.assertEqual(dnx.elimination_order_width(G, order), tw)
+
+            tw, order = dnx.min_width_heuristic(G)
+            self.assertEqual(dnx.elimination_order_width(G, order), tw)
+
+            tw, order = dnx.min_fill_heuristic(G)
+            self.assertEqual(dnx.elimination_order_width(G, order), tw)
+
+            tw, order = dnx.max_cardinality_heuristic(G)
+            self.assertEqual(dnx.elimination_order_width(G, order), tw)
+
+    def test_exceptions(self):
+
+        G = nx.complete_graph(6)
+        order = range(4)
+
+        with self.assertRaises(ValueError):
+            dnx.elimination_order_width(G, order)
+
+        order = range(7)
+        with self.assertRaises(ValueError):
+            dnx.elimination_order_width(G, order)
