@@ -302,13 +302,16 @@ def _elim_adj(adj, n):
     del adj[n]
 
 
-def treewidth_branch_and_bound(G):
+def treewidth_branch_and_bound(G,ub=None):
     """Computes the treewidth of a graph G and a corresponding perfect elimination ordering.
 
     Parameters
     ----------
     G : graph
         A NetworkX graph.
+    ub : int (optional)
+        A known upper bound on the treewidth of G. Default is None.
+        if ub is provided it may speed up computation.
 
     Returns
     -------
@@ -338,8 +341,11 @@ def treewidth_branch_and_bound(G):
 
     # we need the best current update we can find. best_found encodes the current
     # upper bound and the inducing order
-    best_found = min_fill_heuristic(G)
-    ub, __ = best_found
+    if ub is None:
+        best_found = min_fill_heuristic(G)
+        ub, __ = best_found
+    else:
+        best_found = ub,[]
 
     # if our upper bound is the same as f, then we are done! Otherwise begin the
     # algorithm
