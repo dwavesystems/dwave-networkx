@@ -5,7 +5,8 @@ import networkx as nx
 
 __all__ = ['min_fill_heuristic', 'min_width_heuristic', 'max_cardinality_heuristic',
            'is_simplicial', 'is_almost_simplicial',
-           'treewidth_branch_and_bound', 'minor_min_width']
+           'treewidth_branch_and_bound', 'minor_min_width',
+           'elimination_order_width']
 
 
 def is_simplicial(G, n):
@@ -18,7 +19,8 @@ def is_simplicial(G, n):
     n : node
         A node in G.
 
-    Returns:
+    Returns
+    -------
     is_simplicial : bool
         True if its neighbors form a clique.
 
@@ -36,7 +38,8 @@ def is_almost_simplicial(G, n):
     n : node
         A node in G.
 
-    Returns:
+    Returns
+    -------
     is_almost_simplicial : bool
         True if all but one of its neighbors induce a clique
 
@@ -289,9 +292,10 @@ def _elim_adj(adj, n):
 
     Parameters
     ----------
-        adj: dict
-            A dict of the form {v: neighbors, ...} where v are
-            vertices in a graph and neighbors is a set.
+    adj: dict
+        A dict of the form {v: neighbors, ...} where v are
+        vertices in a graph and neighbors is a set.
+
     """
     neighbors = adj[n]
     for u, v in itertools.combinations(neighbors, 2):
@@ -300,6 +304,53 @@ def _elim_adj(adj, n):
     for v in neighbors:
         adj[v].discard(n)
     del adj[n]
+
+
+def elimination_order_width(G, order):
+    """Calculates the width of the tree decomposition induced by a
+    variable elimination order.
+
+    Parameters
+    ----------
+    G : graph
+        A NetworkX graph.
+
+    order : list
+        The elimination order. Must be a list of all of the variables
+        in G.
+
+    Returns
+    -------
+    treewidth : int
+        The width of the tree decomposition induced by  order.
+
+    """
+    # we need only deal with the adjacency structure of G. We will also
+    # be manipulating it directly so let's go ahead and make a new one
+    adj = {v: set(G[v]) for v in G}
+
+    treewidth = 0
+
+    for v in order:
+
+        # get the degree of the eliminated variable
+        try:
+            dv = len(adj[v])
+        except KeyError:
+            raise ValueError('{} is in order but not in G'.format(v))
+
+        # the treewidth is the max of the current treewidth and the degree
+        if dv > treewidth:
+            treewidth = dv
+
+        # eliminate v by making it simplicial (acts on adj in place)
+        _elim_adj(adj, v)
+
+    # if adj is not empty, then order did not include all of the nodes in G.
+    if adj:
+        raise ValueError('not all nodes in G were in order')
+
+    return treewidth
 
 
 def treewidth_branch_and_bound(G):
