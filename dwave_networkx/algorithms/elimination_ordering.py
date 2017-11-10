@@ -89,6 +89,7 @@ def minor_min_width(G):
         def neighborhood_degree(u):
             Gu = adj[u]
             return sum(w in Gu for w in neighbors)
+
         u = min(neighbors, key=neighborhood_degree)
 
         # update the lower bound
@@ -139,21 +140,9 @@ def min_fill_heuristic(G):
     order = [0] * num_nodes
     upper_bound = 0
 
-    def _needed_edges(n):
-        # determines how many edges would needed to be added to G in order
-        # to make node n simplicial.
-        e = 0  # number of edges needed
-        for u, v in itertools.combinations(adj[n], 2):
-            if u not in adj[v]:
-                e += 1
-        # We add random() which picks a value in the range [0., 1.). This is ok because the
-        # e are all integers. By adding a small random value, we randomize which node is
-        # chosen without affecting correctness.
-        return e + random()
-
     for i in range(num_nodes):
         # get the node that adds the fewest number of edges when eliminated from the graph
-        v = min(adj, key=_needed_edges)
+        v = min(adj, key=lambda x: _min_fill_needed_edges(adj,x))
 
         # if the number of neighbours of v is higher than upper_bound, update
         dv = len(adj[v])
@@ -166,6 +155,19 @@ def min_fill_heuristic(G):
         order[i] = v
 
     return upper_bound, order
+
+
+def _min_fill_needed_edges(adj,n):
+    # determines how many edges would needed to be added to G in order
+    # to make node n simplicial.
+    e = 0  # number of edges needed
+    for u, v in itertools.combinations(adj[n], 2):
+        if u not in adj[v]:
+            e += 1
+    # We add random() which picks a value in the range [0., 1.). This is ok because the
+    # e are all integers. By adding a small random value, we randomize which node is
+    # chosen without affecting correctness.
+    return e + random()
 
 
 def min_width_heuristic(G):
@@ -288,7 +290,8 @@ def max_cardinality_heuristic(G):
 
 
 def _elim_adj(adj, n):
-    """eliminates a variable, acting on the adj matrix of G.
+    """eliminates a variable, acting on the adj matrix of G,
+    returning set of edges that were added.
 
     Parameters
     ----------
@@ -296,14 +299,23 @@ def _elim_adj(adj, n):
         A dict of the form {v: neighbors, ...} where v are
         vertices in a graph and neighbors is a set.
 
+    Returns
+    ----------
+    new_edges: set of edges that were added by eliminating v.
+
     """
     neighbors = adj[n]
+    new_edges = set()
     for u, v in itertools.combinations(neighbors, 2):
-        adj[u].add(v)
-        adj[v].add(u)
+        if v not in adj[u]:
+            adj[u].add(v)
+            adj[v].add(u)
+            new_edges.add((u, v))
+            new_edges.add((v, u))
     for v in neighbors:
         adj[v].discard(n)
     del adj[n]
+    return new_edges
 
 
 def elimination_order_width(G, order):
@@ -353,13 +365,16 @@ def elimination_order_width(G, order):
     return treewidth
 
 
-def treewidth_branch_and_bound(G):
+def treewidth_branch_and_bound(G, ub=None):
     """Computes the treewidth of a graph G and a corresponding perfect elimination ordering.
 
     Parameters
     ----------
     G : graph
         A NetworkX graph.
+    ub : int (optional)
+        A known upper bound on the treewidth of G. Default is None.
+        if ub is provided it may speed up computation.
 
     Returns
     -------
@@ -389,8 +404,11 @@ def treewidth_branch_and_bound(G):
 
     # we need the best current update we can find. best_found encodes the current
     # upper bound and the inducing order
-    best_found = min_fill_heuristic(G)
-    ub, __ = best_found
+    if ub is None:
+        best_found = min_fill_heuristic(G)
+        ub, __ = best_found
+    else:
+        best_found = ub, []
 
     # if our upper bound is the same as f, then we are done! Otherwise begin the
     # algorithm
@@ -405,11 +423,46 @@ def treewidth_branch_and_bound(G):
     return best_found
 
 
-def _branch_and_bound(adj, x, g, f, best_found, skipable=set(), theorem6p1=None):
+def _branch_and_bound(adj, x, g, f, best_found, skipable=set(), theorem6p2=None):
+    """ Recursive branch and bound for computing treewidth of a subgraph.
+    adj: adjacency list
+    x: partial elimination order
+    g: width of x so far
+    f: lower bound on width of any elimination order starting with x
+    best_found = ub,order: best upper bound on the treewidth found so far, and its elimination order
+    skipable: vertices that can be skipped according to Lemma 5.3
+    theorem6p2: terms that have been explored/can be pruned according to Theorem 6.2
+    """
 
-    if theorem6p1 is None:
-        theorem6p1 = _theorem6p1()
-    prune6p1, explored6p1 = theorem6p1
+    # theorem6p2 checks for branches that can be pruned using Theorem 6.2
+    if theorem6p2 is None:
+        theorem6p2 = _theorem6p2()
+    prune6p2, explored6p2, finished6p2 = theorem6p2
+    # current6p2 is the list of prunable terms created during this instantiation of _branch_and_bound.
+    # These terms will only be use during this call and its successors,
+    # so they are removed before the function terminates.
+    current6p2 = list()
+
+    # theorem6p4 checks for branches that can be pruned using Theorem 6.4.
+    # These terms do not need to be passed to successive calls to _branch_and_bound,
+    # so they are simply created and deleted during this call.
+    prune6p4, explored6p4 = _theorem6p4()
+
+    # Note: theorem6p1 and theorem6p3 are a pruning strategies that are currently disabled
+    # # as they does not appear to be invoked regularly,
+    # and invoking it can require large memory allocations.
+    # This can be fixed in the future if there is evidence that it's useful.
+    # To add them in, define _branch_and_bound as follows:
+    # def _branch_and_bound(adj, x, g, f, best_found, skipable=set(), theorem6p1=None,
+    #                       theorem6p2=None, theorem6p3=None):
+
+    # if theorem6p1 is None:
+    #     theorem6p1 = _theorem6p1()
+    # prune6p1, explored6p1 = theorem6p1
+
+    # if theorem6p3 is None:
+    #     theorem6p3 = _theorem6p3()
+    # prune6p3, explored6p3 = theorem6p3
 
     # we'll need to know our current upper bound in several places
     ub, __ = best_found
@@ -419,12 +472,16 @@ def _branch_and_bound(adj, x, g, f, best_found, skipable=set(), theorem6p1=None)
         # check if our current branch is better than the best we've already
         # found and if so update our best solution accordingly.
         if f < ub:
+            print('best ub = {}'.format(f))
             return (f, x + list(adj))
         else:
             return best_found
 
     # so we have not yet reached the base case
-    for n in adj:
+    # Note: theorem 6.4 gives a heuristic for choosing order of n in adj.
+    # Quick_bb suggests using a min-fill or random order.
+    sorted_adj = sorted(adj, key=lambda x: _min_fill_needed_edges(adj, x))
+    for n in sorted_adj:
 
         # we don't need to consider the neighbors of the last vertex eliminated
         if n in skipable:
@@ -436,12 +493,19 @@ def _branch_and_bound(adj, x, g, f, best_found, skipable=set(), theorem6p1=None)
         # variable eliniated when choosing the next variable
         next_skipable = adj[n]  # this does not get altered so we don't need a copy
 
+        if prune6p2(x, n, next_skipable):
+            continue
+
         # update the state by eliminating n and adding it to the partial ordering
         adj_s = {v: adj[v].copy() for v in adj}  # create a new object
-        _elim_adj(adj_s, n)
+        edges_n = _elim_adj(adj_s, n)
         x_s = x + [n]  # new partial ordering
 
-        if prune6p1(x_s):
+        # pruning (disabled):
+        # if prune6p1(x_s):
+        #     continue
+
+        if prune6p4(edges_n):
             continue
 
         # By Theorem 5.4, if any two vertices have ub + 1 common neighbors then
@@ -451,15 +515,34 @@ def _branch_and_bound(adj, x, g, f, best_found, skipable=set(), theorem6p1=None)
         # ok, let's update our values
         f_s = max(g_s, minor_min_width(adj_s))
 
-        g_s, f_s = _graph_reduction(adj_s, x_s, g_s, f_s)
+        g_s, f_s, as_list = _graph_reduction(adj_s, x_s, g_s, f_s)
+
+        # pruning (disabled):
+        # if prune6p3(x, as_list, n):
+        #     continue
 
         if f_s < ub:
             best_found = _branch_and_bound(adj_s, x_s, g_s, f_s, best_found,
-                                           next_skipable, theorem6p1)
+                                           next_skipable, theorem6p2=theorem6p2)
+            # if theorem6p1, theorem6p3 are enabled, this should be called as:
+            # best_found = _branch_and_bound(adj_s, x_s, g_s, f_s, best_found,
+            #                                next_skipable, theorem6p1=theorem6p1,
+            #                                theorem6p2=theorem6p2,theorem6p3=theorem6p3)
             ub, __ = best_found
 
-    # let's store some information for pruning
-    explored6p1(x)
+        # store some information for pruning (disabled):
+        # explored6p3(x, n, as_list)
+
+        prunable = explored6p2(x, n, next_skipable)
+        current6p2.append(prunable)
+
+        explored6p4(edges_n)
+
+    # store some information for pruning (disabled):
+    # explored6p1(x)
+
+    for prunable in current6p2:
+        finished6p2(prunable)
 
     return best_found
 
@@ -467,8 +550,10 @@ def _branch_and_bound(adj, x, g, f, best_found, skipable=set(), theorem6p1=None)
 def _graph_reduction(adj, x, g, f):
     """we can go ahead and remove any simplicial or almost-simplicial vertices from adj.
     """
+    as_list = set()
     as_nodes = {v for v in adj if len(adj[v]) <= f and is_almost_simplicial(adj, v)}
     while as_nodes:
+        as_list.union(as_nodes)
         for n in as_nodes:
 
             # update g and f
@@ -485,7 +570,7 @@ def _graph_reduction(adj, x, g, f):
         # see if we have any more simplicial nodes
         as_nodes = {v for v in adj if len(adj[v]) <= f and is_almost_simplicial(adj, v)}
 
-    return g, f
+    return g, f, as_list
 
 
 def _theorem5p4(adj, ub):
@@ -517,6 +602,7 @@ def _theorem5p4(adj, ub):
 
 def _theorem6p1():
     """See Theorem 6.1 in paper."""
+
     pruning_set = set()
 
     def _prune(x):
@@ -531,3 +617,71 @@ def _theorem6p1():
             pruning_set.add(prunable)
 
     return _prune, _explored
+
+
+def _theorem6p2():
+    """See Theorem 6.2 in paper.
+    Prunes (x,...,a) when (x,a) is explored and a has the same neighbour set in both graphs.
+    """
+    pruning_set2 = set()
+
+    def _prune2(x, a, nbrs_a):
+        frozen_nbrs_a = frozenset(nbrs_a)
+        for i in range(len(x)):
+            key = (tuple(x[0:i]), a, frozen_nbrs_a)
+            if key in pruning_set2:
+                return True
+        return False
+
+    def _explored2(x, a, nbrs_a):
+        prunable = (tuple(x), a, frozenset(nbrs_a))  # (s,a,N(a))
+        pruning_set2.add(prunable)
+        return prunable
+
+    def _finished2(prunable):
+        pruning_set2.remove(prunable)
+
+    return _prune2, _explored2, _finished2
+
+
+def _theorem6p3():
+    """See Theorem 6.3 in paper.
+    Prunes (s,b) when (s,a) is explored, b (almost) simplicial in (s,a), and a (almost) simplicial in (s,b)
+    """
+    pruning_set3 = set()
+
+    def _prune3(x, as_list, b):
+        for a in as_list:
+            key = (tuple(x), a, b)  # (s,a,b) with (s,a) explored
+            if key in pruning_set3:
+                return True
+        return False
+
+    def _explored3(x, a, as_list):
+        for b in as_list:
+            prunable = (tuple(x), a, b)  # (s,a,b) with (s,a) explored
+            pruning_set3.add(prunable)
+
+    return _prune3, _explored3
+
+
+def _theorem6p4():
+    """See Theorem 6.4 in paper.
+    Let E(x) denote the edges added when eliminating x. (edges_x below).
+    Prunes (s,b) when (s,a) is explored and E(a) is a subset of E(b).
+    For this theorem we only record E(a) rather than (s,E(a))
+    because we only need to check for pruning in the same s context
+    (i.e the same level of recursion).
+    """
+    pruning_set4 = list()
+
+    def _prune4(edges_b):
+        for edges_a in pruning_set4:
+            if edges_a.issubset(edges_b):
+                return True
+        return False
+
+    def _explored4(edges_a):
+        pruning_set4.append(edges_a)  # (s,E_a) with (s,a) explored
+
+    return _prune4, _explored4

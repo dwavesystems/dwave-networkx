@@ -220,3 +220,59 @@ def find_chimera_indices(G):
     # NB: max degree == shore size <==> one tile
 
     raise Exception('not yet implemented for Chimera graphs with more than one tile')
+
+
+def chimera_elimination_order(m, n=None, t=None):
+    """Provides a variable elimination order for a Chimera graph.
+
+    A graph defined by chimera_graph(m,n,t) has treewidth max(m,n)*t.
+    This function outputs a variable elimination order inducing a tree
+    decomposition of that width.
+
+    Parameters
+    ----------
+    m : int
+        The number of rows in the Chimera lattice.
+    n : int, optional (default m)
+        The number of columns in the Chimera lattice.
+    t : int, optional (default 4)
+        The size of the shore within each Chimera tile.
+
+
+    Returns
+    -------
+    order : list
+        An elimination order that induces the treewidth of chimera_graph(m,n,t).
+    """
+    if n is None:
+        n = m
+
+    if t is None:
+        t = 4
+
+    index_flip = m > n
+    if index_flip:
+        m,n = n,m
+
+    def chimeraI(m0, n0, k0, l0):
+        if index_flip:
+            return m*2*t*n0 + 2*t*m0 + t*(1-k0) + l0
+        else:
+            return n*2*t*m0 + 2*t*n0 + t*k0 + l0
+
+    order = []
+
+    for n_i in range(n):
+        for t_i in range(t):
+            for m_i in range(m):
+                order.append(chimeraI(m_i, n_i, 0, t_i))
+
+    for n_i in range(n):
+        for m_i in range(m):
+            for t_i in range(t):
+                order.append(chimeraI(m_i, n_i, 1, t_i))
+
+    return order
+
+
+
