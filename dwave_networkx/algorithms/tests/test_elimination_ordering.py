@@ -4,7 +4,8 @@ import networkx as nx
 import dwave_networkx as dnx
 
 
-class TestHeuristic:
+class HeuristicCases:
+    """Change the name for compatibility with nose."""
     def test_basic(self):
         G = nx.Graph()
 
@@ -67,17 +68,17 @@ class TestHeuristic:
         self.check_order(graph, order)
 
 
-class TestMinWidth(unittest.TestCase, TestHeuristic):
+class TestMinWidth(unittest.TestCase, HeuristicCases):
     def setUp(self):
         self.heuristic = dnx.min_width_heuristic
 
 
-class TestMinFill(unittest.TestCase, TestHeuristic):
+class TestMinFill(unittest.TestCase, HeuristicCases):
     def setUp(self):
         self.heuristic = dnx.min_fill_heuristic
 
 
-class TestMaxCardinality(unittest.TestCase, TestHeuristic):
+class TestMaxCardinality(unittest.TestCase, HeuristicCases):
     def setUp(self):
         self.heuristic = dnx.max_cardinality_heuristic
 
