@@ -1,6 +1,5 @@
 import itertools
 from random import random, sample
-import sys
 
 import networkx as nx
 
