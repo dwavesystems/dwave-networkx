@@ -1,19 +1,17 @@
-import sys
-
 from dwave_networkx.utils import binary_quadratic_model_sampler
+from dwave_networkx import _PY2
 
-__all__ = ["network_imbalance"]
+__all__ = ["structural_imbalance"]
 
 # compatibility for python 2/3
-PY2 = sys.version_info[0] == 2
-if PY2:
+if _PY2:
     iteritems = lambda d: d.iteritems()
 else:
     iteritems = lambda d: d.items()
 
 
 @binary_quadratic_model_sampler(1)
-def network_imbalance(S, sampler=None, **sampler_args):
+def structural_imbalance(S, sampler=None, **sampler_args):
     """Returns an approximate set of frustrated edges and a bicoloring.
 
     A signed social network graph is a graph whose signed edges
@@ -63,7 +61,7 @@ def network_imbalance(S, sampler=None, **sampler_args):
     >>> S.add_edge('Alice', 'Bob', sign=1)  # Alice and Bob are friendly
     >>> S.add_edge('Alice', 'Eve', sign=-1)  # Alice and Eve are hostile
     >>> S.add_edge('Bob', 'Eve', sign=-1)  # Bob and Eve are hostile
-    >>> frustrated_edges, colors = dnx.network_imbalance(S, sampler)
+    >>> frustrated_edges, colors = dnx.structural_imbalance(S, sampler)
     >>> print(frustrated_edges)
     {}
     >>> print(colors)  # doctest: +SKIP
@@ -71,7 +69,7 @@ def network_imbalance(S, sampler=None, **sampler_args):
     >>> S.add_edge('Ted', 'Bob', sign=1)  # Ted is friendly with all
     >>> S.add_edge('Ted', 'Alice', sign=1)
     >>> S.add_edge('Ted', 'Eve', sign=1)
-    >>> frustrated_edges, colors = dnx.network_imbalance(S, sampler)
+    >>> frustrated_edges, colors = dnx.structural_imbalance(S, sampler)
     >>> print(frustrated_edges)
     {('Ted', 'Eve'): {'sign': 1}}
     >>> print(colors)  # doctest: +SKIP
@@ -121,8 +119,6 @@ def network_imbalance(S, sampler=None, **sampler_args):
             frustrated_edges[(u, v)] = data
         elif sign < 0 and colors[u] == colors[v]:
             frustrated_edges[(u, v)] = data
-        else:
-            # sign == 0, no relation to violate
-            pass
+        # else: not frustrated or sign == 0, no relation to violate
 
     return frustrated_edges, colors
