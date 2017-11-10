@@ -142,7 +142,7 @@ def min_fill_heuristic(G):
 
     for i in range(num_nodes):
         # get the node that adds the fewest number of edges when eliminated from the graph
-        v = min(adj, key=lambda x: _min_fill_needed_edges(adj,x))
+        v = min(adj, key=lambda x: _min_fill_needed_edges(adj, x))
 
         # if the number of neighbours of v is higher than upper_bound, update
         dv = len(adj[v])
@@ -157,7 +157,7 @@ def min_fill_heuristic(G):
     return upper_bound, order
 
 
-def _min_fill_needed_edges(adj,n):
+def _min_fill_needed_edges(adj, n):
     # determines how many edges would needed to be added to G in order
     # to make node n simplicial.
     e = 0  # number of edges needed
@@ -365,16 +365,24 @@ def elimination_order_width(G, order):
     return treewidth
 
 
-def treewidth_branch_and_bound(G, ub=None):
+def treewidth_branch_and_bound(G, elimination_order=None, treewidth_upperbound=None):
     """Computes the treewidth of a graph G and a corresponding perfect elimination ordering.
 
     Parameters
     ----------
     G : graph
         A NetworkX graph.
-    ub : int (optional)
-        A known upper bound on the treewidth of G. Default is None.
-        if ub is provided it may speed up computation.
+
+    elimination_order: list (optional)
+        An elimination order. Uses the given elimination order as an
+        initial best know order. If a good seed is provided, it may
+        speed up computation. Default None, if not provided the initial
+        order will be generated using the min fill heuristic.
+
+    treewidth_upperbound : int (optional)
+        Default None. The treewidth of the given elimination_order.
+        `elimination_order` must be provided. If not provided,
+        is calculated from the `elimination_order`.
 
     Returns
     -------
@@ -404,11 +412,17 @@ def treewidth_branch_and_bound(G, ub=None):
 
     # we need the best current update we can find. best_found encodes the current
     # upper bound and the inducing order
-    if ub is None:
-        best_found = min_fill_heuristic(G)
-        ub, __ = best_found
+    if treewidth_upperbound is None and elimination_order is None:
+        ub, order = min_fill_heuristic(G)
+    elif elimination_order is None:
+        raise ValueError("must provide `order` that induces `treewidth_upperbound`")
+    elif treewidth_upperbound is None:
+        ub, order = elimination_order_width(G, elimination_order), elimination_order
     else:
-        best_found = ub, []
+        # both are provided
+        ub, order = treewidth_upperbound, elimination_order
+
+    best_found = ub, order
 
     # if our upper bound is the same as f, then we are done! Otherwise begin the
     # algorithm
@@ -472,7 +486,6 @@ def _branch_and_bound(adj, x, g, f, best_found, skipable=set(), theorem6p2=None)
         # check if our current branch is better than the best we've already
         # found and if so update our best solution accordingly.
         if f < ub:
-            print('best ub = {}'.format(f))
             return (f, x + list(adj))
         else:
             return best_found
