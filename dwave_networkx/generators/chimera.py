@@ -19,18 +19,18 @@ if _PY2:
 def chimera_graph(m, n=None, t=None, create_using=None, node_list=None, edge_list=None, data=True):
     """Creates a Chimera lattice of size (m, n, t).
 
-    A Chimera lattice is an m by n grid of Chimera Tiles. Each Chimera
+    A Chimera lattice is an m-by-n grid of Chimera tiles. Each Chimera
     tile is itself a bipartite graph with shores of size t. The
-    connection in a Chimera lattice can expressed using a node indexing
+    connection in a Chimera lattice can be expressed using a node-indexing
     notation (i,j,u,k) for each node. (i,j) indexes the (row, column)
-    of the Chimera Tile. i must be between 0 and m-1 inclusive, and j
-    must be between 0 and n-1 inclusive. u=0 indicates the left hand
-    nodes in the tile, and u=1 indicates the right hand nodes.
+    of the Chimera tile. i must be between 0 and m-1, inclusive, and j
+    must be between 0 and n-1, inclusive. u=0 indicates the left-hand
+    nodes in the tile, and u=1 indicates the right-hand nodes.
     k=0,1,...,t-1 indexes nodes within either the left- or right-hand
     shores of a tile.
 
     In this notation, two nodes (i, j, u, k) and (i', j', u', k') are
-    neighbors if and only if::
+    neighbors if and only if:
 
         (i = i' AND j = j' AND u != u') OR
         (i = i' +/- 1 AND j = j' AND u = 0 AND u' = 0 AND k = k') OR
@@ -53,7 +53,7 @@ def chimera_graph(m, n=None, t=None, create_using=None, node_list=None, edge_lis
     t : int, optional (default 4)
         The size of the shore within each Chimera tile.
     create_using : Graph, optional (default None)
-        If provided this graph is cleared of nodes and edges and filled
+        If provided, this graph is cleared of nodes and edges and filled
         with the new graph. Usually used to set the type of the graph.
     node_list : iterable, optional (default None)
         Iterable of nodes in the graph. If None, calculated from (m, n, t).
@@ -149,7 +149,7 @@ def find_chimera_indices(G):
     See chimera_graph for a definition of a Chimera graph and Chimera
     indices.
 
-    Only works for single tile Chimera graphs.
+    Only works for single-tile Chimera graphs.
 
     Parameters
     ----------
@@ -173,7 +173,7 @@ def find_chimera_indices(G):
 
     """
 
-    # if the nodes are orderable, we want the lowest order one.
+    # if the nodes are orderable, we want the lowest-order one.
     try:
         nlist = sorted(G.nodes)
     except TypeError:
@@ -192,7 +192,7 @@ def find_chimera_indices(G):
     elif n_nodes == 2:
         return {nlist[0]: (0, 0, 0, 0), nlist[1]: (0, 0, 1, 0)}
 
-    # next, let's get the bicoloring of the graph, this raises an exception of the graph is
+    # next, let's get the bicoloring of the graph; this raises an exception if the graph is
     # not bipartite
     coloring = color(G)
 
@@ -220,3 +220,59 @@ def find_chimera_indices(G):
     # NB: max degree == shore size <==> one tile
 
     raise Exception('not yet implemented for Chimera graphs with more than one tile')
+
+
+def chimera_elimination_order(m, n=None, t=None):
+    """Provides a variable elimination order for a Chimera graph.
+
+    A graph defined by chimera_graph(m,n,t) has treewidth max(m,n)*t.
+    This function outputs a variable elimination order inducing a tree
+    decomposition of that width.
+
+    Parameters
+    ----------
+    m : int
+        The number of rows in the Chimera lattice.
+    n : int, optional (default m)
+        The number of columns in the Chimera lattice.
+    t : int, optional (default 4)
+        The size of the shore within each Chimera tile.
+
+
+    Returns
+    -------
+    order : list
+        An elimination order that induces the treewidth of chimera_graph(m,n,t).
+    """
+    if n is None:
+        n = m
+
+    if t is None:
+        t = 4
+
+    index_flip = m > n
+    if index_flip:
+        m,n = n,m
+
+    def chimeraI(m0, n0, k0, l0):
+        if index_flip:
+            return m*2*t*n0 + 2*t*m0 + t*(1-k0) + l0
+        else:
+            return n*2*t*m0 + 2*t*n0 + t*k0 + l0
+
+    order = []
+
+    for n_i in range(n):
+        for t_i in range(t):
+            for m_i in range(m):
+                order.append(chimeraI(m_i, n_i, 0, t_i))
+
+    for n_i in range(n):
+        for m_i in range(m):
+            for t_i in range(t):
+                order.append(chimeraI(m_i, n_i, 1, t_i))
+
+    return order
+
+
+

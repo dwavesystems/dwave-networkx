@@ -11,3 +11,7 @@ docs/reference/drawing/generated/
 
 htmlcov/
 .coverage
+
+# sublime stuff
+*.sublime-project
+*.sublime-workspace

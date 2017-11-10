@@ -2,9 +2,10 @@ import unittest
 import itertools
 
 import networkx as nx
-import dwave_networkx as dnx
-from dwave_networkx.utils.test_samplers import ExactSolver, FastSampler, qubo_energy
 
+from dimod import ExactSolver, SimulatedAnnealingSampler, qubo_energy
+
+import dwave_networkx as dnx
 from dwave_networkx.algorithms.coloring import _vertex_different_colors_qubo
 from dwave_networkx.algorithms.coloring import _vertex_one_color_qubo
 from dwave_networkx.algorithms.coloring import _minimum_coloring_qubo
@@ -133,9 +134,8 @@ class TestColor(unittest.TestCase):
         coloring = dnx.min_vertex_coloring(G, ExactSolver())
         self.assertTrue(dnx.is_vertex_coloring(G, coloring))
 
-    @unittest.skipIf(FastSampler is None, "no FastSampler to test with")
     def test_dimod_response_vs_list(self):
         # should be able to handle either a dimod response or a list of dicts
         G = dnx.chimera_graph(1, 1, 3)
         coloring = dnx.min_vertex_coloring(G, ExactSolver())
-        coloring = dnx.min_vertex_coloring(G, FastSampler())
+        coloring = dnx.min_vertex_coloring(G, SimulatedAnnealingSampler())

@@ -4,7 +4,8 @@ import networkx as nx
 import dwave_networkx as dnx
 
 
-class TestHeuristic:
+class HeuristicCases:
+    """Change the name for compatibility with nose."""
     def test_basic(self):
         G = nx.Graph()
 
@@ -67,17 +68,17 @@ class TestHeuristic:
         self.check_order(graph, order)
 
 
-class TestMinWidth(unittest.TestCase, TestHeuristic):
+class TestMinWidth(unittest.TestCase, HeuristicCases):
     def setUp(self):
         self.heuristic = dnx.min_width_heuristic
 
 
-class TestMinFill(unittest.TestCase, TestHeuristic):
+class TestMinFill(unittest.TestCase, HeuristicCases):
     def setUp(self):
         self.heuristic = dnx.min_fill_heuristic
 
 
-class TestMaxCardinality(unittest.TestCase, TestHeuristic):
+class TestMaxCardinality(unittest.TestCase, HeuristicCases):
     def setUp(self):
         self.heuristic = dnx.max_cardinality_heuristic
 
@@ -225,3 +226,63 @@ class TestBranchAndBound(unittest.TestCase):
         tw, order = dnx.treewidth_branch_and_bound(graph)
         self.check_order(graph, order)
         self.assertEqual(tw, 3)
+
+    def test_upperbound_parameter(self):
+        """We want to be able to give an upper bound to make execution faster."""
+        graph = nx.complete_graph(3)
+
+        # providing a treewidth without an order should still work, although
+        # the order might not be found
+        tw, order = dnx.treewidth_branch_and_bound(graph, treewidth_upperbound=2)
+        self.assertEqual(len(order), 3)  # all nodes should be in the order
+
+        tw, order = dnx.treewidth_branch_and_bound(graph, [0, 1, 2])
+        self.assertEqual(len(order), 3)  # all nodes should be in the order
+
+        # try with both
+        tw, order = dnx.treewidth_branch_and_bound(graph, [0, 1, 2], 2)
+        self.assertEqual(len(order), 3)  # all nodes should be in the order
+
+
+class TestEliminationOrderWidth(unittest.TestCase):
+    def test_trivial(self):
+        G = nx.Graph()
+        tw = dnx.elimination_order_width(G, [])
+        self.assertEqual(tw, 0)
+
+    def test_graphs(self):
+
+        H = nx.complete_graph(2)
+        H.add_edge(2, 3)
+
+        graphs = [nx.complete_graph(7),
+                  dnx.chimera_graph(2, 1, 3),
+                  nx.balanced_tree(5, 3),
+                  nx.barbell_graph(8, 11),
+                  nx.cycle_graph(5),
+                  H]
+
+        for G in graphs:
+            tw, order = dnx.treewidth_branch_and_bound(G)
+            self.assertEqual(dnx.elimination_order_width(G, order), tw)
+
+            tw, order = dnx.min_width_heuristic(G)
+            self.assertEqual(dnx.elimination_order_width(G, order), tw)
+
+            tw, order = dnx.min_fill_heuristic(G)
+            self.assertEqual(dnx.elimination_order_width(G, order), tw)
+
+            tw, order = dnx.max_cardinality_heuristic(G)
+            self.assertEqual(dnx.elimination_order_width(G, order), tw)
+
+    def test_exceptions(self):
+
+        G = nx.complete_graph(6)
+        order = range(4)
+
+        with self.assertRaises(ValueError):
+            dnx.elimination_order_width(G, order)
+
+        order = range(7)
+        with self.assertRaises(ValueError):
+            dnx.elimination_order_width(G, order)

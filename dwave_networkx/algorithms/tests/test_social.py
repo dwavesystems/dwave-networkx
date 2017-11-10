@@ -3,11 +3,17 @@ import itertools
 
 import networkx as nx
 import dwave_networkx as dnx
-from dwave_networkx.utils.test_samplers import ExactSolver, FastSampler
+from dimod import ExactSolver, SimulatedAnnealingSampler
 
 
 class TestSocial(unittest.TestCase):
-    def test_network_imbalance_basic(self):
+    def check_bicolor(self, colors):
+        # colors should be ints and either 0 or 1
+        for c in colors.values():
+            self.assertIsInstance(c, int)
+            self.assertTrue(c in (0, 1))
+
+    def test_structural_imbalance_basic(self):
         sampler = ExactSolver()
 
         blueteam = ['Alice', 'Bob', 'Carol']
@@ -24,7 +30,7 @@ class TestSocial(unittest.TestCase):
             for p1 in redteam1:
                 S.add_edge(p0, p1, sign=-1)
 
-        frustrated_edges, colors = dnx.network_imbalance(S, sampler)
+        frustrated_edges, colors = dnx.structural_imbalance(S, sampler)
         self.check_bicolor(colors)
 
         greenteam = ['Ted']
@@ -32,32 +38,26 @@ class TestSocial(unittest.TestCase):
             for p1 in greenteam:
                 S.add_edge(p0, p1, sign=1)
 
-        frustrated_edges, colors = dnx.network_imbalance(S, sampler)
+        frustrated_edges, colors = dnx.structural_imbalance(S, sampler)
         self.check_bicolor(colors)
 
-    def test_network_imbalance_docstring_example(self):
+    def test_structural_imbalance_docstring_example(self):
         sampler = ExactSolver()
 
         S = nx.Graph()
         S.add_edge('Alice', 'Bob', sign=1)  # Alice and Bob are friendly
         S.add_edge('Alice', 'Eve', sign=-1)  # Alice and Eve are hostile
         S.add_edge('Bob', 'Eve', sign=-1)  # Bob and Eve are hostile
-        frustrated_edges, colors = dnx.network_imbalance(S, sampler)
+        frustrated_edges, colors = dnx.structural_imbalance(S, sampler)
         self.check_bicolor(colors)
         self.assertEqual(frustrated_edges, {})
         S.add_edge('Ted', 'Bob', sign=1)  # Ted is friendly with all
         S.add_edge('Ted', 'Alice', sign=1)
         S.add_edge('Ted', 'Eve', sign=1)
-        frustrated_edges, colors = dnx.network_imbalance(S, sampler)
+        frustrated_edges, colors = dnx.structural_imbalance(S, sampler)
         self.check_bicolor(colors)
         self.assertTrue(frustrated_edges == {('Ted', 'Eve'): {'sign': 1}} or
                         frustrated_edges == {('Eve', 'Ted'): {'sign': 1}})
-
-    def check_bicolor(self, colors):
-        # colors should be ints and either 0 or 1
-        for c in colors.values():
-            self.assertIsInstance(c, int)
-            self.assertTrue(c in (0, 1))
 
     def test_default_sampler(self):
         S = nx.Graph()
@@ -67,16 +67,43 @@ class TestSocial(unittest.TestCase):
 
         dnx.set_default_sampler(ExactSolver())
         self.assertIsNot(dnx.get_default_sampler(), None)
-        frustrated_edges, colors = dnx.network_imbalance(S)
+        frustrated_edges, colors = dnx.structural_imbalance(S)
         dnx.unset_default_sampler()
         self.assertEqual(dnx.get_default_sampler(), None, "sampler did not unset correctly")
 
-    @unittest.skipIf(FastSampler is None, "no dimod sampler provided")
-    def test_dimod_vs_list(self):
+    def test_invalid_graph(self):
+        """should throw an error with a graph without sign attribute"""
+        S = nx.Graph()
+        S.add_edge('Alice', 'Bob', sign=1)
+        S.add_edge('Alice', 'Eve', sign=-1)
+        S.add_edge('Bob', 'Eve')  # invalid edge
+
+        with self.assertRaises(ValueError):
+            frustrated_edges, colors = dnx.structural_imbalance(S, ExactSolver())
+
+    def test_sign_zero(self):
+        """though not documentented, agents with no relation can have sign 0.
+        This is less performant than just not having an edge in most cases."""
+        sampler = ExactSolver()
+
         S = nx.Graph()
         S.add_edge('Alice', 'Bob', sign=1)  # Alice and Bob are friendly
         S.add_edge('Alice', 'Eve', sign=-1)  # Alice and Eve are hostile
-        S.add_edge('Bob', 'Eve', sign=-1)  # Bob and Eve are hostile
+        S.add_edge('Bob', 'Eve', sign=0)  # Bob and Eve have no relation
 
-        frustrated_edges, colors = dnx.network_imbalance(S, ExactSolver())
-        frustrated_edges, colors = dnx.network_imbalance(S, FastSampler())
+        frustrated_edges, colors = dnx.structural_imbalance(S, sampler)
+
+        self.assertEqual(frustrated_edges, {})  # should be no frustration
+
+    def test_frustrated_hostile_edge(self):
+        """Set up a graph where the frustrated edge should be hostile"""
+        sampler = ExactSolver()
+
+        S = nx.florentine_families_graph()
+
+        # set all hostile
+        nx.set_edge_attributes(S, -1, 'sign')
+
+        # smoke test
+        frustrated_edges, colors = dnx.structural_imbalance(S, sampler)
+        self.check_bicolor(colors)
