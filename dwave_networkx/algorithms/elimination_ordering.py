@@ -380,9 +380,8 @@ def treewidth_branch_and_bound(G, elimination_order=None, treewidth_upperbound=N
         order will be generated using the min fill heuristic.
 
     treewidth_upperbound : int (optional)
-        Default None. The treewidth of the given elimination_order.
-        `elimination_order` must be provided. If not provided,
-        is calculated from the `elimination_order`.
+        Default None. An upper bound on the treewidth. Note that using
+        this parameter can result in no returned order.
 
     Returns
     -------
@@ -410,18 +409,21 @@ def treewidth_branch_and_bound(G, elimination_order=None, treewidth_upperbound=N
     f = minor_min_width(G)  # our current lower bound guess, f(s) in the paper
     g = 0  # g(s) in the paper
 
-    # we need the best current update we can find. best_found encodes the current
-    # upper bound and the inducing order
-    if treewidth_upperbound is None and elimination_order is None:
-        ub, order = min_fill_heuristic(G)
-    elif elimination_order is None:
-        raise ValueError("must provide `order` that induces `treewidth_upperbound`")
-    elif treewidth_upperbound is None:
-        ub, order = elimination_order_width(G, elimination_order), elimination_order
-    else:
-        # both are provided
-        ub, order = treewidth_upperbound, elimination_order
+    # we need the best current update we can find.
+    ub, order = min_fill_heuristic(G)
 
+    # if the user has provided an upperbound or an elimination order, check those against
+    # our current best guess
+    if elimination_order is not None:
+        upperbound = elimination_order_width(G, elimination_order)
+        if upperbound <= ub:
+            ub, order = upperbound, elimination_order
+
+    if treewidth_upperbound is not None and treewidth_upperbound < ub:
+        # in this case the order might never be found
+        ub, order = treewidth_upperbound, []
+
+    # best found encodes the ub and the order
     best_found = ub, order
 
     # if our upper bound is the same as f, then we are done! Otherwise begin the
@@ -479,7 +481,7 @@ def _branch_and_bound(adj, x, g, f, best_found, skipable=set(), theorem6p2=None)
     # prune6p3, explored6p3 = theorem6p3
 
     # we'll need to know our current upper bound in several places
-    ub, __ = best_found
+    ub, order = best_found
 
     # ok, take care of the base case first
     if len(adj) < 2:
@@ -487,18 +489,17 @@ def _branch_and_bound(adj, x, g, f, best_found, skipable=set(), theorem6p2=None)
         # found and if so update our best solution accordingly.
         if f < ub:
             return (f, x + list(adj))
+        elif f == ub and not order:
+            return (f, x + list(adj))
         else:
             return best_found
 
     # so we have not yet reached the base case
     # Note: theorem 6.4 gives a heuristic for choosing order of n in adj.
     # Quick_bb suggests using a min-fill or random order.
-    sorted_adj = sorted(adj, key=lambda x: _min_fill_needed_edges(adj, x))
+    # We don't need to consider the neighbors of the last vertex eliminated
+    sorted_adj = sorted((n for n in adj if n not in skipable), key=lambda x: _min_fill_needed_edges(adj, x))
     for n in sorted_adj:
-
-        # we don't need to consider the neighbors of the last vertex eliminated
-        if n in skipable:
-            continue
 
         g_s = max(g, len(adj[n]))
 

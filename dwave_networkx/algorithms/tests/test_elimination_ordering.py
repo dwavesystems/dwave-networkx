@@ -231,9 +231,10 @@ class TestBranchAndBound(unittest.TestCase):
         """We want to be able to give an upper bound to make execution faster."""
         graph = nx.complete_graph(3)
 
-        # providing a treewidth without an order should raise an error
-        with self.assertRaises(ValueError):
-            tw, order = dnx.treewidth_branch_and_bound(graph, treewidth_upperbound=2)
+        # providing a treewidth without an order should still work, although
+        # the order might not be found
+        tw, order = dnx.treewidth_branch_and_bound(graph, treewidth_upperbound=2)
+        self.assertEqual(len(order), 3)  # all nodes should be in the order
 
         tw, order = dnx.treewidth_branch_and_bound(graph, [0, 1, 2])
         self.assertEqual(len(order), 3)  # all nodes should be in the order
