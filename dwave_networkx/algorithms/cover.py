@@ -1,4 +1,4 @@
-import dwave_networkx as dnx
+from dwave_networkx.algorithms.independent_set import maximum_independent_set
 from dwave_networkx.utils import binary_quadratic_model_sampler
 
 __all__ = ['min_vertex_cover', 'is_vertex_cover']
@@ -60,7 +60,7 @@ def min_vertex_cover(G, sampler=None, **sampler_args):
        Frontiers in Physics, Volume 2, Article 5.
 
     """
-    indep_nodes = set(dnx.maximum_independent_set(G, sampler, **sampler_args))
+    indep_nodes = set(maximum_independent_set(G, sampler, **sampler_args))
     return [v for v in G if v not in indep_nodes]
 
 

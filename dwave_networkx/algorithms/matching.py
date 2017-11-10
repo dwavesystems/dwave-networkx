@@ -1,4 +1,3 @@
-import sys
 import itertools
 
 from dwave_networkx.utils import binary_quadratic_model_sampler
