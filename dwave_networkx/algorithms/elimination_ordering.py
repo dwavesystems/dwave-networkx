@@ -291,25 +291,6 @@ def max_cardinality_heuristic(G):
 
 
 def _elim_adj(adj, n):
-    """eliminates a variable, acting on the adj matrix of G.
-
-    Parameters
-    ----------
-    adj: dict
-        A dict of the form {v: neighbors, ...} where v are
-        vertices in a graph and neighbors is a set.
-
-    """
-    neighbors = adj[n]
-    for u, v in itertools.combinations(neighbors, 2):
-        adj[u].add(v)
-        adj[v].add(u)
-    for v in neighbors:
-        adj[v].discard(n)
-    del adj[n]
-
-
-def _elim_adj_with_new(adj, n):
     """eliminates a variable, acting on the adj matrix of G,
     returning set of edges that were added.
 
@@ -518,7 +499,7 @@ def _branch_and_bound(adj, x, g, f, best_found, skipable=set(), theorem6p2=None)
 
         # update the state by eliminating n and adding it to the partial ordering
         adj_s = {v: adj[v].copy() for v in adj}  # create a new object
-        edges_n = _elim_adj_with_new(adj_s, n)
+        edges_n = _elim_adj(adj_s, n)
         x_s = x + [n]  # new partial ordering
 
         # pruning (disabled):
@@ -585,7 +566,7 @@ def _graph_reduction(adj, x, g, f):
 
             # eliminate v
             x.append(n)
-            _elim_adj_with_new(adj, n)
+            _elim_adj(adj, n)
 
         # see if we have any more simplicial nodes
         as_nodes = {v for v in adj if len(adj[v]) <= f and is_almost_simplicial(adj, v)}
