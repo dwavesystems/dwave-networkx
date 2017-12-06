@@ -1,3 +1,5 @@
+from __future__ import division
+
 from dwave_networkx.utils import binary_quadratic_model_sampler
 
 __all__ = ["maximum_weighted_independent_set", "maximum_independent_set", "is_independent_set"]
