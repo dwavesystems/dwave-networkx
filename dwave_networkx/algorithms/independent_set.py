@@ -62,23 +62,7 @@ def maximum_weighted_independent_set(G, weight=None, sampler=None, **sampler_arg
 
     """
 
-    # We assume that the sampler can handle an unstructured QUBO problem, so let's set one up.
-    # Let us define the largest independent set to be S.
-    # For each node n in the graph, we assign a boolean variable v_n, where v_n = 1 when n
-    # is in S and v_n = 0 otherwise.
-    # We call the matrix defining our QUBO problem Q.
-    # On the diagnonal, we assign the linear bias for each node to be the negative of its weight.
-    # This means that each node is biased towards being in S. Weights are scaled to a maximum of 1.
-    # Negative weights are considered 0.
-    # On the off diagnonal, we assign the off-diagonal terms of Q to be 2. Thus, if both
-    # nodes are in S, the overall energy is increased by 2.
-    cost = dict(G.nodes(data=weight, default=1))
-    scale = max(cost.values())
-    Q = {(node, node): min(-cost[node] / scale, 0) for node in G}
-    Q.update({edge: 2 for edge in G.edges})
-
-    # use the sampler to find low energy states
-    response = sampler.sample_qubo(Q, **sampler_args)
+    response = _weighted_independent_sets(G, weight, sampler, **sampler_args)
 
     # we want the lowest energy sample
     sample = next(iter(response))
@@ -193,3 +177,65 @@ def is_independent_set(G, indep_nodes):
 
     """
     return not bool(G.subgraph(indep_nodes).edges)
+
+
+@binary_quadratic_model_sampler(2)
+def _weighted_independent_sets(G, weight=None, sampler=None, **sampler_args):
+    """Returns candidate weighted independent sets.
+
+    Defines a QUBO with ground states corresponding to a
+    maximum weighted independent set and uses the sampler to sample
+    from it.
+
+    An independent set is a set of nodes such that the subgraph
+    of G induced by these nodes contains no edges.
+
+    Parameters
+    ----------
+    G : NetworkX graph
+
+    weight : string, optional (default None)
+        If None, every node has equal weight. If a string, use this node
+        attribute as the node weight. A node without this attribute is
+        assumed to have max weight.
+
+    sampler
+        A binary quadratic model sampler. A sampler is a process that
+        samples from low energy states in models defined by an Ising
+        equation or a Quadratic Unconstrained Binary Optimization
+        Problem (QUBO). A sampler is expected to have a 'sample_qubo'
+        and 'sample_ising' method. A sampler is expected to return an
+        iterable of samples, in order of increasing energy. If no
+        sampler is provided, one must be provided using the
+        `set_default_sampler` function.
+
+    sampler_args
+        Additional keyword parameters are passed to the sampler.
+
+    Returns
+    -------
+    response : object
+       Dimod response object from sampler containing possible answers to
+       the QUBO problem and their correspoding energies.
+
+    """
+
+    # We assume that the sampler can handle an unstructured QUBO problem, so let's set one up.
+    # Let us define the largest independent set to be S.
+    # For each node n in the graph, we assign a boolean variable v_n, where v_n = 1 when n
+    # is in S and v_n = 0 otherwise.
+    # We call the matrix defining our QUBO problem Q.
+    # On the diagnonal, we assign the linear bias for each node to be the negative of its weight.
+    # This means that each node is biased towards being in S. Weights are scaled to a maximum of 1.
+    # Negative weights are considered 0.
+    # On the off diagnonal, we assign the off-diagonal terms of Q to be 2. Thus, if both
+    # nodes are in S, the overall energy is increased by 2.
+    cost = dict(G.nodes(data=weight, default=1))
+    scale = max(cost.values())
+    Q = {(node, node): min(-cost[node] / scale, 0) for node in G}
+    Q.update({edge: 2 for edge in G.edges})
+
+    # use the sampler to find low energy states
+    response = sampler.sample_qubo(Q, **sampler_args)
+
+    return response
