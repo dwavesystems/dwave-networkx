@@ -8,12 +8,12 @@ __all__ = ['min_weighted_vertex_cover', 'min_vertex_cover', 'is_vertex_cover']
 def min_weighted_vertex_cover(G, weight=None, sampler=None, **sampler_args):
     """Returns an approximate minimum weighted vertex cover.
 
-    Defines a QUBO with ground states corresponding to a minimum
+    Defines a QUBO with ground states corresponding to a minimum weighted
     vertex cover and uses the sampler to sample from it.
 
     A vertex cover is a set of vertices such that each edge of the graph
-    is incident with at least one vertex in the set. A minimum vertex cover
-    is the vertex cover of minimum total node weight.
+    is incident with at least one vertex in the set. A minimum weighted
+    vertex cover is the vertex cover of minimum total node weight.
 
     Parameters
     ----------
@@ -40,7 +40,7 @@ def min_weighted_vertex_cover(G, weight=None, sampler=None, **sampler_args):
     Returns
     -------
     vertex_cover : list
-       List of nodes that the form a the minimum vertex cover, as
+       List of nodes that the form a the minimum weighted vertex cover, as
        determined by the given sampler.
 
     Notes
@@ -55,8 +55,7 @@ def min_weighted_vertex_cover(G, weight=None, sampler=None, **sampler_args):
 
     References
     ----------
-    .. [AL] Lucas, A. (2014). Ising formulations of many NP problems.
-       Frontiers in Physics, Volume 2, Article 5.
+    Based on the formulation presented in [AL]_
 
     """
     indep_nodes = set(maximum_weighted_independent_set(G, weight, sampler, **sampler_args))
