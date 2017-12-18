@@ -64,7 +64,7 @@ def maximum_weighted_independent_set(G, weight=None, sampler=None, **sampler_arg
 
     """
 
-    response = _weighted_independent_sets(G, weight, sampler, **sampler_args)
+    response = maximum_weighted_independent_set_response(G, weight, sampler, **sampler_args)
 
     # we want the lowest energy sample
     sample = next(iter(response))
@@ -180,7 +180,7 @@ def is_independent_set(G, indep_nodes):
 
 
 @binary_quadratic_model_sampler(2)
-def _weighted_independent_sets(G, weight=None, sampler=None, **sampler_args):
+def maximum_weighted_independent_set_response(G, weight=None, sampler=None, **sampler_args):
     """Returns candidate weighted independent sets.
 
     Defines a QUBO with ground states corresponding to a

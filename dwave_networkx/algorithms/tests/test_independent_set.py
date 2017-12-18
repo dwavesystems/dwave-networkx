@@ -6,7 +6,7 @@ import random
 
 import networkx as nx
 import dwave_networkx as dnx
-from dwave_networkx.algorithms.independent_set import _weighted_independent_sets
+from dwave_networkx.algorithms.independent_set import maximum_weighted_independent_set_response
 
 from dimod import ExactSolver, SimulatedAnnealingSampler
 
@@ -80,7 +80,7 @@ class TestIndepSet(unittest.TestCase):
         for i in range(10):
             G = nx.gnp_random_graph(5, .5)
             nx.set_node_attributes(G, {node: random.random() for node in G}, weight)
-            response = _weighted_independent_sets(G, weight, ExactSolver())
+            response = maximum_weighted_independent_set_response(G, weight, ExactSolver())
 
             # Independent sets should be ordered from highest to lowest total weight
             prevSum = float('Inf')
