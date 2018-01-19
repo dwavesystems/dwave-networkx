@@ -6,4 +6,4 @@ Social
 .. autosummary::
    :toctree: generated/
 
-    network_imbalance
+    structural_imbalance
