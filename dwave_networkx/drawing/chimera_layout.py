@@ -24,28 +24,28 @@ __all__ = ['chimera_layout', 'draw_chimera']
 
 
 def chimera_layout(G, scale=1., center=None, dim=2):
-    """Positions the nodes in a Chimera lattice.
+    """Positions the nodes of graph G in a Chimera lattice.
 
     NumPy (http://scipy.org) is required for this function.
 
     Parameters
     ----------
-    G : graph
-        A networkx graph. Should be a Chimera graph or a subgraph of a
-        Chimera graph. If every node in G has a 'chimera_index'
-        attribute, then those are used to place the nodes. Otherwise will
-        attempt to find positions, but is not guarunteed to succeed.
+    G : NetworkX graph
+        Should be a Chimera graph or a subgraph of a
+        Chimera graph. If every node in G has a `chimera_index`
+        attribute, those are used to place the nodes. Otherwise makes
+        a best-effort attempt to find positions.
 
-    scale : float (default 1.)
-        Scale factor. When scale = 1 the all positions will fit within [0, 1]
-        on the x-axis and [-1, 0] on the y-axis.
+    scale : float
+        Scale factor. When scale = 1,  all positions fit within [0, 1]
+        on the x-axis and [-1, 0] on the y-axis. Default is 1.
 
-    center : None or array (default None)
-        Coordinates of the top left corner.
+    center : None or array
+        Coordinates of the top left corner. Default is None.
 
-    dim : int (default 2)
+    dim : int
         Number of dimensions. When dim > 2, all extra dimensions are
-        set to 0.
+        set to 0. Default is 2.
 
     Returns
     -------
@@ -85,36 +85,36 @@ def chimera_layout(G, scale=1., center=None, dim=2):
 
 
 def chimera_node_placer_2d(m, n, t, scale=1., center=None, dim=2):
-    """Generates a function that converts chimera-indices to x, y
+    """Generates a function that converts Chimera indices to x, y
     coordinates for a plot.
 
     Parameters
     ----------
     m : int
-        The number of rows in the Chimera lattice.
+        Number of rows in the Chimera lattice.
 
     n : int
-        The number of columns in the Chimera lattice.
+        Number of columns in the Chimera lattice.
 
     t : int
-        The size of the shore within each Chimera tile.
+        Size of the shore within each Chimera tile.
 
-    scale : float (default 1.)
-        Scale factor. When scale = 1 the all positions will fit within [0, 1]
-        on the x-axis and [-1, 0] on the y-axis.
+    scale : float
+        Scale factor. When scale = 1,  all positions fit within [0, 1]
+        on the x-axis and [-1, 0] on the y-axis. Default is 1.
 
-    center : None or array (default None)
-        Coordinates of the top left corner.
+    center : None or array
+        Coordinates of the top left corner. Default is None.
 
-    dim : int (default 2)
+    dim : int
         Number of dimensions. When dim > 2, all extra dimensions are
-        set to 0.
+        set to 0. Default is 2.
 
     Returns
     -------
     xy_coords : function
-        A function that maps a Chimera-index (i, j, u, k) in an
-        (m, n, t) Chimera lattice to x,y coordinates as could be
+        A function that maps a Chimera index (i, j, u, k) in an
+        (m, n, t) Chimera lattice to x,y coordinates such as
         used by a plot.
 
     """
@@ -171,31 +171,41 @@ def draw_chimera(G, linear_biases={}, quadratic_biases={},
                  nodelist=None, edgelist=None, cmap=None, edge_cmap=None, vmin=None, vmax=None,
                  edge_vmin=None, edge_vmax=None,
                  **kwargs):
-    """Draw graph G with a Chimera layout.
+    """Draws graph G in a Chimera topology.
 
-    If linear_biases and/or quadratic_biases are provided then the biases
+    If `linear_biases` and/or `quadratic_biases` are provided, these
     are visualized on the plot.
 
     Parameters
     ----------
-    G : graph
-        A networkx graph. Should be a Chimera graph or a subgraph of a
+    G : NetworkX graph
+        Should be a Chimera graph or a subgraph of a
         Chimera graph.
 
-    linear_biases : dict (optional, default {})
-        A dict of biases associated with each node in G. Should be of the
-        form {node: bias, ...}. Each bias should be numeric.
+    linear_biases : dict
+        An optional dict of biases associated with each node in G. Should be of
+        form {node: bias, ...}. Each bias should be numeric. Default is {}.
 
-    quadratic biases : dict (optional, default {})
-        A dict of biases associated with each edge in G. Should be of the
+    quadratic biases : dict
+        An optional dict of biases associated with each edge in G. Should be of
         form {edge: bias, ...}. Each bias should be numeric. Self-loop
-        edges are treated as linear biases.
+        edges (i.e., :math:`i=j`) are treated as linear biases. Default is {}.
 
     kwargs : optional keywords
        See networkx.draw_networkx() for a description of optional keywords,
-       with the exception of the pos parameter which is not used by this
-       function. If linear_biases or quadratic_biases are provided, then
-       any provided node_color or edge_color arguments are ignored.
+       with the exception of the `pos` parameter which is not used by this
+       function. If `linear_biases` or `quadratic_biases` are provided,
+       any provided `node_color` or `edge_color` arguments are ignored.
+
+    Examples
+    --------
+    >>> #Plot 2x2 Chimera unit cells
+    >>> import networkx as nx
+    >>> import dwave_networkx as dnx
+    >>> import matplotlib.pyplot as plt
+    >>> G=dnx.chimera_graph(2,2,4)
+    >>> dnx.draw_chimera(G)
+    >>> plt.show()
 
     """
 

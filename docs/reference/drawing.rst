@@ -7,6 +7,8 @@ Drawing
 
 .. automodule:: dwave_networkx.drawing.chimera_layout
 
+.. chimera-intro-start-marker
+
 The Chimera architecture comprises sets of connected unit cells, each with four horizontal
 qubits connected to four vertical qubits via couplers (bipartite connectivity).
 Unit cells are tiled vertically and horizontally with adjacent qubits connected,
@@ -21,7 +23,9 @@ either a cross or a column.
 
 	Chimera unit cell.
 
-Chimera graph functions
+.. chimera-intro-end-marker
+
+Chimera Graph Functions
 -----------------------
 
 .. autosummary::
@@ -33,9 +37,9 @@ Chimera graph functions
 Example
 ---------
 
-This example uses `chimera_layout()` to show the positions of nodes of a simple
-5-node NetworkX graph in a Chimera lattice. It then uses `chimera_graph` and
-`draw_chimera` to display those positions on a Chimera unit cell.
+This example uses the `chimera_layout()` function to show the positions of nodes of a simple
+5-node NetworkX graph in a Chimera lattice. It then uses the `chimera_graph()`
+and `draw_chimera()` functions to display those positions on a Chimera unit cell.
 
 .. code-block:: python
 
@@ -54,10 +58,10 @@ This example uses `chimera_layout()` to show the positions of nodes of a simple
   # Show graph H on a Chimera unit cell
   import matplotlib.pyplot as plt
   plt.ion()
-  G=dnx.chimera_graph(1,1,4)
+  G=dnx.chimera_graph(1,1,4)   #Draw a Chimera unit cell
   dnx.draw_chimera(G)
   dnx.draw_chimera(H,node_color='b',node_shape='*',style='dashed',edge_color='b',width=3)
-  # matplotlib commands to add labels to graphic
+  # matplotlib commands to add labels to graphic not shown
 
 .. figure:: ../_static/chimera_layout_0-rightside.png
 	:align: center

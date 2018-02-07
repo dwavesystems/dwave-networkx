@@ -1,5 +1,5 @@
 """
-Generators for some graphs derived from the D-Wave System.
+Generators for graphs derived used by the D-Wave System.
 
 """
 import networkx as nx
@@ -9,7 +9,7 @@ from networkx import diameter
 from dwave_networkx import _PY2
 from dwave_networkx.exceptions import DWaveNetworkXException
 
-__all__ = ['chimera_graph', 'find_chimera_indices']
+__all__ = ['chimera_graph', 'find_chimera_indices', 'chimera_elimination_order']
 
 # compatibility for python 2/3
 if _PY2:
@@ -22,12 +22,15 @@ def chimera_graph(m, n=None, t=None, create_using=None, node_list=None, edge_lis
     A Chimera lattice is an m-by-n grid of Chimera tiles. Each Chimera
     tile is itself a bipartite graph with shores of size t. The
     connection in a Chimera lattice can be expressed using a node-indexing
-    notation (i,j,u,k) for each node. (i,j) indexes the (row, column)
-    of the Chimera tile. i must be between 0 and m-1, inclusive, and j
-    must be between 0 and n-1, inclusive. u=0 indicates the left-hand
-    nodes in the tile, and u=1 indicates the right-hand nodes.
-    k=0,1,...,t-1 indexes nodes within either the left- or right-hand
-    shores of a tile.
+    notation (i,j,u,k) for each node.
+
+    * (i,j) indexes the (row, column) of the Chimera tile. i must be
+      between 0 and m-1, inclusive, and j must be between 0 and
+      n-1, inclusive.
+    * u=0 indicates the left-hand nodes in the tile, and u=1 indicates
+      the right-hand nodes.
+    * k=0,1,...,t-1 indexes nodes within either the left- or
+      right-hand shores of a tile.
 
     In this notation, two nodes (i, j, u, k) and (i', j', u', k') are
     neighbors if and only if:
@@ -36,9 +39,10 @@ def chimera_graph(m, n=None, t=None, create_using=None, node_list=None, edge_lis
         (i = i' +/- 1 AND j = j' AND u = 0 AND u' = 0 AND k = k') OR
         (i = i' AND j = j' +/- 1 AND u = 1 AND u' = 1 AND k = k')
 
-    The first line gives the bipartite connections within the tile.
-    The second and third give the vertical and horizontal connections
-    between blocks respectively.
+    The first of the three terms of the disjunction gives the
+    bipartite connections  within the tile. The second and third terms
+    give the vertical and horizontal connections between blocks
+    respectively.
 
     Node (i, j, u, k) is labeled by:
 
@@ -47,29 +51,34 @@ def chimera_graph(m, n=None, t=None, create_using=None, node_list=None, edge_lis
     Parameters
     ----------
     m : int
-        The number of rows in the Chimera lattice.
-    n : int, optional (default m)
-        The number of columns in the Chimera lattice.
-    t : int, optional (default 4)
-        The size of the shore within each Chimera tile.
-    create_using : Graph, optional (default None)
+        Number of rows in the Chimera lattice.
+    n : int
+        Optional number of columns in the Chimera lattice. Default is m.
+    t : int
+        Optional size of the shore within each Chimera tile. Default is 4.
+    create_using : Graph
         If provided, this graph is cleared of nodes and edges and filled
         with the new graph. Usually used to set the type of the graph.
-    node_list : iterable, optional (default None)
-        Iterable of nodes in the graph. If None, calculated from (m, n, t).
-        Note that this list is used to remove nodes, so any nodes specified
-        not in range(m * n * 2 * t) will not be added.
-    edge_list : iterable, optional (default None)
-        Iterable of edges in the graph. If None, edges are generated as
-        described above. The nodes in each edge must be integer-labeled in
-        range(m * n * t * 2).
-    data : bool, optional (default True)
-        If True, each node has a chimera_index attribute. The attribute
-        is a 4-tuple Chimera index as defined above.
+        Default is None.
+    node_list : iterable
+        Optional iterable of nodes in the graph. If None, calculated
+        from (m, n, t). Note that this list is used to remove nodes,
+        so any nodes specified not in `range(m * n * 2 * t)` are not added.
+        Default is None.
+    edge_list : iterable
+        Optional iterable of edges in the graph. If None, edges are
+        generated as described above. The nodes in each edge must be
+        integer-labeled in `range(m * n * t * 2)`.
+        Default is None.
+    data : bool
+        If this optional Boolean is True, each node has a
+        `chimera_index attribute`. The attribute is a 4-tuple Chimera index
+        as defined above.
+        Default is True.
 
     Returns
     -------
-    G : a NetworkX Graph
+    G : NetworkX Graph
         An (m, n, t) Chimera lattice. Nodes are labeled by integers.
 
     Examples
@@ -144,16 +153,15 @@ def chimera_graph(m, n=None, t=None, create_using=None, node_list=None, edge_lis
 
 
 def find_chimera_indices(G):
-    """Tries to determine the Chimera indices of the nodes in G.
+    """Attempts to determine the Chimera indices of the nodes in graph G.
 
-    See chimera_graph for a definition of a Chimera graph and Chimera
+    See the `chimera_graph()` function for a definition of a Chimera graph and Chimera
     indices.
-
-    Only works for single-tile Chimera graphs.
 
     Parameters
     ----------
-    G : a NetworkX graph.
+    G : NetworkX graph
+        Should be a single-tile Chimera graph.
 
     Returns
     -------
@@ -232,17 +240,22 @@ def chimera_elimination_order(m, n=None, t=None):
     Parameters
     ----------
     m : int
-        The number of rows in the Chimera lattice.
-    n : int, optional (default m)
-        The number of columns in the Chimera lattice.
-    t : int, optional (default 4)
-        The size of the shore within each Chimera tile.
+        Number of rows in the Chimera lattice.
+    n : int
+        Optional number of columns in the Chimera lattice. Default is m.
+    t : int
+        Optional size of the shore within each Chimera tile. Default is 4.
 
 
     Returns
     -------
     order : list
         An elimination order that induces the treewidth of chimera_graph(m,n,t).
+
+    Examples
+    --------
+    >>> G = dnx.chimera_elimination_order(1, 1, 4)  # a single Chimera tile
+
     """
     if n is None:
         n = m
@@ -273,6 +286,3 @@ def chimera_elimination_order(m, n=None, t=None):
                 order.append(chimeraI(m_i, n_i, 1, t_i))
 
     return order
-
-
-
