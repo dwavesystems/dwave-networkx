@@ -35,6 +35,7 @@ def min_vertex_coloring(G, sampler=None, **sampler_args):
     Parameters
     ----------
     G : NetworkX graph
+        The graph on which to find a minimum vertex coloring.
 
     sampler
         A binary quadratic model sampler. A sampler is a process that
@@ -54,6 +55,20 @@ def min_vertex_coloring(G, sampler=None, **sampler_args):
     coloring : dict
         A coloring for each vertex in G such that no adjacent nodes
         share the same color. A dict of the form {node: color, ...}
+
+    Example
+    -------
+    This example colors a single Chimera unit cell. It colors the four
+    horizontal qubits one color (0) and the four vertical qubits another (1).
+
+    >>> # Set up a sampler; this example uses a sampler from dimod https://github.com/dwavesystems/dimod
+    >>> import dimod
+    >>> samplerSA = dimod.SimulatedAnnealingSampler()
+    >>> # create a graph and color it
+    >>> G=dnx.chimera_graph(1,1,4)
+    >>> colors=dnx.min_vertex_coloring(G, sampler=samplerSA)
+    >>> colors
+        {0: 0, 1: 0, 2: 0, 3: 0, 4: 1, 5: 1, 6: 1, 7: 1}
 
     References
     ----------
@@ -342,6 +357,7 @@ def is_vertex_coloring(G, coloring):
     Parameters
     ----------
     G : NetworkX graph
+        The graph on which the vertex coloring is applied.
 
     coloring : dict
         A coloring of the nodes of G. Should be a dict of the form
@@ -353,5 +369,20 @@ def is_vertex_coloring(G, coloring):
         True if the given coloring defines a vertex coloring. That is no
         two adjacent vertices share a color.
 
-    """
+    Example
+    -------
+    This example colors checks two colorings for a graph, G, of a single Chimera
+    unit cell. The first uses one color (0) for the four horizontal qubits
+    and another (1) for the four vertical qubits, in which case there are
+    no adjacencies; the second coloring swaps the coloring of one node.
+
+    >>> G=dnx.chimera_graph(1,1,4)
+    >>> colors={0: 0, 1: 0, 2: 0, 3: 0, 4: 1, 5: 1, 6: 1, 7: 1}
+    >>> dnx.is_vertex_coloring(G,colors)
+        True
+    >>> colors[4]=0
+    >>> dnx.is_vertex_coloring(G,colors)
+        False
+
+   """
     return all(coloring[u] != coloring[v] for u, v in G.edges)
