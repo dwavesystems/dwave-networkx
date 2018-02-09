@@ -1,6 +1,6 @@
 
 .. image:: https://travis-ci.org/dwavesystems/dwave_networkx.svg?branch=master
-    :target: https://travis-ci.org/dwave_networkx
+    :target: https://travis-ci.org/dwavesystems/dwave_networkx
 
 .. inclusion-marker-do-not-remove
 
