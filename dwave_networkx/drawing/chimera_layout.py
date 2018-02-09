@@ -99,16 +99,16 @@ def chimera_node_placer_2d(m, n, t, scale=1., center=None, dim=2):
     t : int
         Size of the shore within each Chimera tile.
 
-    scale : float
+    scale : float (default 1.)
         Scale factor. When scale = 1,  all positions fit within [0, 1]
-        on the x-axis and [-1, 0] on the y-axis. Default is 1.
+        on the x-axis and [-1, 0] on the y-axis.
 
-    center : None or array
-        Coordinates of the top left corner. Default is None.
+    center : None or array (default None)
+        Coordinates of the top left corner.
 
-    dim : int
+    dim : int (default 2)
         Number of dimensions. When dim > 2, all extra dimensions are
-        set to 0. Default is 2.
+        set to 0.
 
     Returns
     -------
@@ -199,11 +199,11 @@ def draw_chimera(G, linear_biases={}, quadratic_biases={},
 
     Examples
     --------
-    >>> #Plot 2x2 Chimera unit cells
+    >>> # Plot 2x2 Chimera unit cells
     >>> import networkx as nx
     >>> import dwave_networkx as dnx
     >>> import matplotlib.pyplot as plt
-    >>> G=dnx.chimera_graph(2,2,4)
+    >>> G = dnx.chimera_graph(2, 2, 4)
     >>> dnx.draw_chimera(G)
     >>> plt.show()
 

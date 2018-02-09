@@ -46,9 +46,9 @@ and `draw_chimera()` functions to display those positions on a Chimera unit cell
    >>> import networkx as nx
    >>> import dwave_networkx as dnx
    >>> import matplotlib.pyplot as plt
-   >>> H=nx.Graph()
-   >>> H.add_nodes_from([0,4,5,6,7])
-   >>> H.add_edges_from([(0,4),(0,5),(0,6),(0,7)])
+   >>> H = nx.Graph()
+   >>> H.add_nodes_from([0, 4, 5, 6, 7])
+   >>> H.add_edges_from([(0, 4), (0, 5), (0, 6), (0, 7)])
    >>> pos=dnx.chimera_layout(H)
    >>> pos
    {0: array([ 0. , -0.5]),
@@ -58,9 +58,9 @@ and `draw_chimera()` functions to display those positions on a Chimera unit cell
     7: array([ 0.5, -1. ])}
    >>> # Show graph H on a Chimera unit cell
    >>> plt.ion()
-   >>> G=dnx.chimera_graph(1,1,4)   #Draw a Chimera unit cell
+   >>> G=dnx.chimera_graph(1, 1, 4)  # Draw a Chimera unit cell
    >>> dnx.draw_chimera(G)
-   >>> dnx.draw_chimera(H,node_color='b',node_shape='*',style='dashed',edge_color='b',width=3)
+   >>> dnx.draw_chimera(H, node_color='b', node_shape='*', style='dashed', edge_color='b', width=3)
    >>> # matplotlib commands to add labels to graphic not shown
 
 

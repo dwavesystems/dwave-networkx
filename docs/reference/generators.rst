@@ -32,7 +32,7 @@ the `find_chimera()` function to determine the Chimera indices.
 
   >>> import networkx as nx
   >>> import dwave_networkx as dnx
-  >>> G=dnx.chimera_graph(1,1,4)
+  >>> G = dnx.chimera_graph(1, 1, 4)
   >>> chimera_indices = dnx.find_chimera_indices(G)
   >>> print chimera_indices
   {0: (0, 0, 0, 0),

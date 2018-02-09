@@ -64,9 +64,9 @@ def min_vertex_coloring(G, sampler=None, **sampler_args):
     >>> # Set up a sampler; this example uses a sampler from dimod https://github.com/dwavesystems/dimod
     >>> import dimod
     >>> samplerSA = dimod.SimulatedAnnealingSampler()
-    >>> # create a graph and color it
-    >>> G=dnx.chimera_graph(1,1,4)
-    >>> colors=dnx.min_vertex_coloring(G, sampler=samplerSA)
+    >>> # Create a graph and color it
+    >>> G = dnx.chimera_graph(1, 1, 4)
+    >>> colors = dnx.min_vertex_coloring(G, sampler=samplerSA)
     >>> colors
     {0: 0, 1: 0, 2: 0, 3: 0, 4: 1, 5: 1, 6: 1, 7: 1}
 
@@ -376,12 +376,12 @@ def is_vertex_coloring(G, coloring):
     and another (1) for the four vertical qubits, in which case there are
     no adjacencies; the second coloring swaps the color of one node.
 
-    >>> G=dnx.chimera_graph(1,1,4)
-    >>> colors={0: 0, 1: 0, 2: 0, 3: 0, 4: 1, 5: 1, 6: 1, 7: 1}
-    >>> dnx.is_vertex_coloring(G,colors)
+    >>> G = dnx.chimera_graph(1,1,4)
+    >>> colors = {0: 0, 1: 0, 2: 0, 3: 0, 4: 1, 5: 1, 6: 1, 7: 1}
+    >>> dnx.is_vertex_coloring(G, colors)
     True
     >>> colors[4]=0
-    >>> dnx.is_vertex_coloring(G,colors)
+    >>> dnx.is_vertex_coloring(G, colors)
     False
 
    """
