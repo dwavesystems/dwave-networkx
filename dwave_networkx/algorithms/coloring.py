@@ -68,7 +68,7 @@ def min_vertex_coloring(G, sampler=None, **sampler_args):
     >>> G=dnx.chimera_graph(1,1,4)
     >>> colors=dnx.min_vertex_coloring(G, sampler=samplerSA)
     >>> colors
-        {0: 0, 1: 0, 2: 0, 3: 0, 4: 1, 5: 1, 6: 1, 7: 1}
+    {0: 0, 1: 0, 2: 0, 3: 0, 4: 1, 5: 1, 6: 1, 7: 1}
 
     References
     ----------
@@ -374,15 +374,15 @@ def is_vertex_coloring(G, coloring):
     This example colors checks two colorings for a graph, G, of a single Chimera
     unit cell. The first uses one color (0) for the four horizontal qubits
     and another (1) for the four vertical qubits, in which case there are
-    no adjacencies; the second coloring swaps the coloring of one node.
+    no adjacencies; the second coloring swaps the color of one node.
 
     >>> G=dnx.chimera_graph(1,1,4)
     >>> colors={0: 0, 1: 0, 2: 0, 3: 0, 4: 1, 5: 1, 6: 1, 7: 1}
     >>> dnx.is_vertex_coloring(G,colors)
-        True
+    True
     >>> colors[4]=0
     >>> dnx.is_vertex_coloring(G,colors)
-        False
+    False
 
    """
     return all(coloring[u] != coloring[v] for u, v in G.edges)

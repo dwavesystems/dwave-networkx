@@ -52,29 +52,25 @@ def chimera_graph(m, n=None, t=None, create_using=None, node_list=None, edge_lis
     ----------
     m : int
         Number of rows in the Chimera lattice.
-    n : int
-        Optional number of columns in the Chimera lattice. Default is m.
-    t : int
-        Optional size of the shore within each Chimera tile. Default is 4.
-    create_using : Graph
+    n : int (optional, default m)
+        Number of columns in the Chimera lattice.
+    t : int (optional, default 4)
+        Size of the shore within each Chimera tile.
+    create_using : Graph (optional, default None)
         If provided, this graph is cleared of nodes and edges and filled
         with the new graph. Usually used to set the type of the graph.
-        Default is None.
-    node_list : iterable
-        Optional iterable of nodes in the graph. If None, calculated
+    node_list : iterable (optional, default None)
+        Iterable of nodes in the graph. If None, calculated
         from (m, n, t). Note that this list is used to remove nodes,
         so any nodes specified not in `range(m * n * 2 * t)` are not added.
-        Default is None.
-    edge_list : iterable
-        Optional iterable of edges in the graph. If None, edges are
+    edge_list : iterable (optional, default None)
+        Iterable of edges in the graph. If None, edges are
         generated as described above. The nodes in each edge must be
         integer-labeled in `range(m * n * t * 2)`.
-        Default is None.
-    data : bool
-        If this optional Boolean is True, each node has a
+    data : bool (optional, default True)
+        If True, each node has a
         `chimera_index attribute`. The attribute is a 4-tuple Chimera index
         as defined above.
-        Default is True.
 
     Returns
     -------
@@ -241,10 +237,10 @@ def chimera_elimination_order(m, n=None, t=None):
     ----------
     m : int
         Number of rows in the Chimera lattice.
-    n : int
-        Optional number of columns in the Chimera lattice. Default is m.
-    t : int
-        Optional size of the shore within each Chimera tile. Default is 4.
+    n : int (optional, default m)
+        Number of columns in the Chimera lattice.
+    t : int (optional, default 4)
+        Size of the shore within each Chimera tile.
 
 
     Returns

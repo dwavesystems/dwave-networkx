@@ -36,16 +36,16 @@ def chimera_layout(G, scale=1., center=None, dim=2):
         attribute, those are used to place the nodes. Otherwise makes
         a best-effort attempt to find positions.
 
-    scale : float
+    scale : float (default 1.)
         Scale factor. When scale = 1,  all positions fit within [0, 1]
-        on the x-axis and [-1, 0] on the y-axis. Default is 1.
+        on the x-axis and [-1, 0] on the y-axis.
 
-    center : None or array
-        Coordinates of the top left corner. Default is None.
+    center : None or array (default None)
+        Coordinates of the top left corner.
 
-    dim : int
+    dim : int (default 2)
         Number of dimensions. When dim > 2, all extra dimensions are
-        set to 0. Default is 2.
+        set to 0.
 
     Returns
     -------
@@ -182,14 +182,14 @@ def draw_chimera(G, linear_biases={}, quadratic_biases={},
         Should be a Chimera graph or a subgraph of a
         Chimera graph.
 
-    linear_biases : dict
-        An optional dict of biases associated with each node in G. Should be of
-        form {node: bias, ...}. Each bias should be numeric. Default is {}.
+    linear_biases : dict (optional, default {})
+        A dict of biases associated with each node in G. Should be of
+        form {node: bias, ...}. Each bias should be numeric.
 
-    quadratic biases : dict
-        An optional dict of biases associated with each edge in G. Should be of
+    quadratic_biases : dict (optional, default {})
+        A dict of biases associated with each edge in G. Should be of
         form {edge: bias, ...}. Each bias should be numeric. Self-loop
-        edges (i.e., :math:`i=j`) are treated as linear biases. Default is {}.
+        edges (i.e., :math:`i=j`) are treated as linear biases.
 
     kwargs : optional keywords
        See networkx.draw_networkx() for a description of optional keywords,
