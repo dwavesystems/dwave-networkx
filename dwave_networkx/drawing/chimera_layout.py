@@ -24,7 +24,7 @@ __all__ = ['chimera_layout', 'draw_chimera']
 
 
 def chimera_layout(G, scale=1., center=None, dim=2):
-    """Positions the nodes of graph G in a Chimera lattice.
+    """Positions the nodes of graph G in a Chimera cross topology.
 
     NumPy (http://scipy.org) is required for this function.
 
@@ -171,7 +171,7 @@ def draw_chimera(G, linear_biases={}, quadratic_biases={},
                  nodelist=None, edgelist=None, cmap=None, edge_cmap=None, vmin=None, vmax=None,
                  edge_vmin=None, edge_vmax=None,
                  **kwargs):
-    """Draws graph G in a Chimera topology.
+    """Draws graph G in a Chimera cross topology.
 
     If `linear_biases` and/or `quadratic_biases` are provided, these
     are visualized on the plot.

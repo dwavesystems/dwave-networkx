@@ -1,5 +1,5 @@
 """Sets a binary quadratic model sampler used by default
-for functions that require a sample rwhen none is specified.
+for functions that require a sample when none is specified.
 
 A sampler is a process that samples
 from low-energy states in models defined by an Ising equation
@@ -11,7 +11,7 @@ Sampler API
 * Required Methods: 'sample_qubo' and 'sample_ising'
 * Return value: iterable of samples, in order of increasing energy
 
-See  `diamod <https://github.com/dwavesystems/dimod>`_ for details.
+See  `dimod <https://github.com/dwavesystems/dimod>`_ for details.
 
 Example
 -------

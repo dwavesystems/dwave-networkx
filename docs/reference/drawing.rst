@@ -9,11 +9,11 @@ Drawing
 
 .. chimera-intro-start-marker
 
-The Chimera architecture comprises sets of connected unit cells, each with four horizontal
-qubits connected to four vertical qubits via couplers (bipartite connectivity).
-Unit cells are tiled vertically and horizontally with adjacent qubits connected,
-creating a lattice of sparsely connected qubits. A unit cell can be rendered as
-either a cross or a column.
+The Chimera architecture comprises sets of connected unit cells, each with four
+horizontal qubits connected to four vertical qubits via couplers (bipartite
+connectivity). Unit cells are tiled vertically and horizontally with adjacent
+qubits connected, creating a lattice of sparsely connected qubits. A unit cell
+is typically rendered as either a cross or a column.
 
 .. figure:: ../_static/ChimeraUnitCell.png
 	:align: center

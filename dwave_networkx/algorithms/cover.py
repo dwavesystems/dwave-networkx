@@ -35,7 +35,7 @@ def min_vertex_cover(G, sampler=None, **sampler_args):
     Returns
     -------
     vertex_cover : list
-       List of nodes that the form a the minimum vertex cover, as
+       List of nodes that form a minimum vertex cover, as
        determined by the given sampler.
 
     Examples
@@ -75,7 +75,7 @@ def is_vertex_cover(G, vertex_cover):
     G : NetworkX graph
 
     vertex_cover :
-       Iterable of nodes that the form a the minimum vertex cover, as
+       Iterable of nodes that form a minimum vertex cover, as
        determined by the given sampler.
 
     Returns
