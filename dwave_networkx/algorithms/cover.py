@@ -18,6 +18,7 @@ def min_vertex_cover(G, sampler=None, **sampler_args):
     Parameters
     ----------
     G : NetworkX graph
+        The graph on which to find a minimum vertex cover.
 
     sampler
         A binary quadratic model sampler. A sampler is a process that
@@ -40,9 +41,22 @@ def min_vertex_cover(G, sampler=None, **sampler_args):
 
     Examples
     --------
-    >>> G = dnx.chimera_graph(1, 2, 3)
+    This example uses a sampler from
+    `dimod <https://github.com/dwavesystems/dimod>`_ to find a minimum vertex
+    cover for a Chimera unit cell. Both the horizontal (vertices 0,1,2,3) and
+    vertical (vertices 4,5,6,7) tiles connect to all 16 edges, so repeated
+    executions can return either set.
+
+    >>> import dwave_networkx as dnx
+    >>> import dimod
+    >>> samplerSA = dimod.SimulatedAnnealingSampler()
+    >>> G = dnx.chimera_graph(1, 1, 4)
     >>> dnx.min_vertex_cover(G, sampler)
-    [0, 1, 2, 9, 10, 11]
+    [0, 1, 2, 3]
+    >>> dnx.min_vertex_cover(G, sampler)
+    [0, 1, 2, 3]
+    >>> dnx.min_vertex_cover(G, sampler)
+    [4, 5, 6, 7]
 
     Notes
     -----
@@ -50,12 +64,12 @@ def min_vertex_cover(G, sampler=None, **sampler_args):
     function does not attempt to confirm the quality of the returned
     sample.
 
+    References
+    ----------
     https://en.wikipedia.org/wiki/Vertex_cover
 
     https://en.wikipedia.org/wiki/Quadratic_unconstrained_binary_optimization
 
-    References
-    ----------
     .. [AL] Lucas, A. (2014). Ising formulations of many NP problems.
        Frontiers in Physics, Volume 2, Article 5.
 
@@ -65,7 +79,7 @@ def min_vertex_cover(G, sampler=None, **sampler_args):
 
 
 def is_vertex_cover(G, vertex_cover):
-    """Determines whether a given set of vertices is a cover.
+    """Determines whether the given set of vertices is a vertex cover of graph G.
 
     A vertex cover is a set of vertices such that each edge of the graph
     is incident with at least one vertex in the set.
@@ -73,15 +87,30 @@ def is_vertex_cover(G, vertex_cover):
     Parameters
     ----------
     G : NetworkX graph
+       The graph on which to check the vertex cover.
 
     vertex_cover :
-       Iterable of nodes that form a minimum vertex cover, as
-       determined by the given sampler.
+       Iterable of nodes.
 
     Returns
     -------
     is_cover : bool
         True if the given iterable forms a vertex cover.
+
+    Examples
+    --------
+    This example checks two covers for a graph, G, of a single Chimera
+    unit cell. The first uses the set of the four horizontal qubits, which
+    do constitute a cover; the second set removes one node.
+
+    >>> import dwave_networkx as dnx
+    >>> G = dnx.chimera_graph(1, 1, 4)
+    >>> cover = [0, 1, 2, 3]
+    >>> dnx.is_vertex_cover(G,cover)
+    True
+    >>> cover = [0, 1, 2]
+    >>> dnx.is_vertex_cover(G,cover)
+    False
 
     """
     cover = set(vertex_cover)

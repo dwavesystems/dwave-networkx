@@ -352,7 +352,7 @@ def is_cycle(G):
 
 
 def is_vertex_coloring(G, coloring):
-    """Determines whether the given coloring is a vertex coloring of G.
+    """Determines whether the given coloring is a vertex coloring of graph G.
 
     Parameters
     ----------
@@ -366,7 +366,7 @@ def is_vertex_coloring(G, coloring):
     Returns
     -------
     is_vertex_coloring : bool
-        True if the given coloring defines a vertex coloring. That is no
+        True if the given coloring defines a vertex coloring; that is, no
         two adjacent vertices share a color.
 
     Example
