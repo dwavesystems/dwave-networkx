@@ -1,20 +1,27 @@
-"""Allows the user to specify a binary quadratic model sampler in a single place.
-
-API Definition
---------------
+"""Sets a binary quadratic model sampler used by default
+for functions that require a sample when none is specified.
 
 A sampler is a process that samples
-from low energy states in models defined by an Ising equation
+from low-energy states in models defined by an Ising equation
 or a Quadratic Unconstrained Binary Optimization Problem
-(QUBO). A sampler is expected to have a 'sample_qubo' and
-'sample_ising' method. A sampler is expected to return an
-iterable of samples, in order of increasing energy.
+(QUBO).
 
-Example sampler
----------------
-First we can create a stand in for a binary quadratic model sampler that can be
-used in the following examples.
+Sampler API
+-----------
+* Required Methods: 'sample_qubo' and 'sample_ising'
+* Return value: iterable of samples, in order of increasing energy
 
+See  `dimod <https://github.com/dwavesystems/dimod>`_ for details.
+
+Example
+-------
+This example creates and uses a placeholder for binary quadratic model
+samplers that returns a correct response only in the case of finding an
+independent set on a complete graph (where one node is always an
+independent set). The placeholder sampler can be used to test the simple
+examples of the functions for configuring a default sampler.
+
+>>> # Create a placeholder sampler
 >>> class ExampleSampler:
 ...     # an example sampler, only works for independent set on complete
 ...     # graphs
@@ -30,47 +37,14 @@ used in the following examples.
 ...         return [sample]
 ...     def __str__(self):
 ...         return self.name
-
-No default sampler set
-----------------------
-If the user wishes to specify which sampler each binary quadratic model sampler
-algorithm uses, the user can provide the sampler directly to
-the functions.
-
->>> sampler = ExampleSampler('sampler')
->>> G = nx.complete_graph(5)
->>> dnx.maximum_independent_set(G, sampler)
-[0]
-
-Setting a default sampler
--------------------------
-Alternatively, the user can specify a sampler that will be used
-by default.
-
+...
+>>> # Identify the new sampler as the default sampler
 >>> sampler0 = ExampleSampler('sampler0')
 >>> dnx.set_default_sampler(sampler0)
-
-This sampler will now be used by any function where no sampler
-is specified
-
+>>> # Find an independent set using the default sampler
+>>> G = nx.complete_graph(5)
 >>> dnx.maximum_independent_set(G)
 [0]
-
-A different sampler can still be provided, in which case the
-provided sampler will be used instead of the default.
-
->>> sampler1 = ExampleSampler('sampler1')
->>> dnx.set_default_sampler(sampler0)
->>> dnx.maximum_independent_set(G, sampler1)
-[0]
-
-Unsetting a default sampler
----------------------------
-The user can also unset the default.
-
->>> dnx.unset_default_sampler()
->>> print(dnx.get_default_sampler())
-None
 
 """
 
@@ -90,7 +64,7 @@ def set_default_sampler(sampler):
     ----------
     sampler
         A binary quadratic model sampler. A sampler is a process that
-        samples from low energy states in models defined by an Ising
+        samples from low-energy states in models defined by an Ising
         equation or a Quadratic Unconstrained Binary Optimization
         Problem (QUBO). A sampler is expected to have a 'sample_qubo'
         and 'sample_ising' method. A sampler is expected to return an
@@ -98,6 +72,10 @@ def set_default_sampler(sampler):
 
     Examples
     --------
+    This example sets sampler0 as the default sampler and finds an independent
+    set for graph G, first using the default sampler and then overriding it by
+    specifying a different sampler.
+
     >>> dnx.set_default_sampler(sampler0)  # doctest: +SKIP
     >>> indep_set = dnx.maximum_independent_set_dm(G)  # doctest: +SKIP
     >>> indep_set = dnx.maximum_independent_set_dm(G, sampler1)  # doctest: +SKIP
@@ -112,6 +90,9 @@ def unset_default_sampler():
 
     Examples
     --------
+    This example sets sampler0 as the default sampler, verifies the setting,
+    then resets the default, and verifies the resetting.
+
     >>> dnx.set_default_sampler(sampler0)  # doctest: +SKIP
     >>> print(dnx.get_default_sampler())  # doctest: +SKIP
     'sampler0'
@@ -124,10 +105,13 @@ def unset_default_sampler():
 
 
 def get_default_sampler():
-    """Gets the current default sampler.
+    """Queries the current default sampler.
 
     Examples
     --------
+    This example queries the default sampler before and after specifying
+    a default sampler.
+
     >>> print(dnx.get_default_sampler())
     None
     >>> dnx.set_default_sampler(sampler)

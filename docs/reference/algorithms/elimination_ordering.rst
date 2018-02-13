@@ -1,5 +1,5 @@
 ********************
-Elimination ordering
+Elimination Ordering
 ********************
 
 .. automodule:: dwave_networkx.algorithms.elimination_ordering

@@ -1,7 +1,7 @@
 .. _reference:
 
-Reference
-*********
+Reference Documentation
+*************************
 
    :Release: |release|
    :Date: |today|

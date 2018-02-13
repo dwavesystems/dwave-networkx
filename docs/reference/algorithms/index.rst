@@ -4,6 +4,9 @@
 Algorithms
 **********
 
+Implementations of graph-theory algorithms on the D-Wave system and other
+binary quadratic model samplers.
+
 .. currentmodule:: dwave_networkx
 
 .. toctree::
