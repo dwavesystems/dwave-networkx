@@ -18,6 +18,7 @@ def maximum_independent_set(G, sampler=None, **sampler_args):
     Parameters
     ----------
     G : NetworkX graph
+        The graph on which to find a maximum cut independent set.
 
     sampler
         A binary quadratic model sampler. A sampler is a process that
@@ -35,14 +36,22 @@ def maximum_independent_set(G, sampler=None, **sampler_args):
     Returns
     -------
     indep_nodes : list
-       List of nodes that the form a maximum independent set, as
+       List of nodes that form a maximum independent set, as
        determined by the given sampler.
 
-    Examples
-    --------
-    >>> G = nx.path_graph(5)
-    >>> dnx.maximum_independent_set(G, sampler)
-    [0, 2, 4]
+    Example
+    -------
+    This example uses a sampler from
+    `dimod <https://github.com/dwavesystems/dimod>`_ to find a maximum
+    independent set for a graph of a Chimera unit cell created using the
+    `chimera_graph()` function.
+
+    >>> import dimod
+    >>> import dwave_networkx as dnx
+    >>> samplerSA = dimod.SimulatedAnnealingSampler()
+    >>> G = dnx.chimera_graph(1, 1, 4)
+    >>> dnx.maximum_independent_set(G, samplerSA)
+    {4, 5, 6, 7}
 
     Notes
     -----
@@ -50,12 +59,13 @@ def maximum_independent_set(G, sampler=None, **sampler_args):
     function does not attempt to confirm the quality of the returned
     sample.
 
-    https://en.wikipedia.org/wiki/Independent_set_(graph_theory)
-
-    https://en.wikipedia.org/wiki/Quadratic_unconstrained_binary_optimization
-
     References
     ----------
+
+    `Independent Set on Wikipedia <https://en.wikipedia.org/wiki/Independent_set_(graph_theory)>`_
+
+    `QUBO on Wikipedia <https://en.wikipedia.org/wiki/Quadratic_unconstrained_binary_optimization>`_
+
     .. [AL] Lucas, A. (2014). Ising formulations of many NP problems.
        Frontiers in Physics, Volume 2, Article 5.
 
@@ -92,15 +102,30 @@ def is_independent_set(G, indep_nodes):
     Parameters
     ----------
     G : NetworkX graph
+       The graph on which to check the independent set.
 
     indep_nodes : list
-       List of nodes that the form a maximum independent set, as
+       List of nodes that form a maximum independent set, as
        determined by the given sampler.
 
     Returns
     -------
     is_independent : bool
         True if indep_nodes form an independent set.
+
+    Example
+    -------
+    This example checks two sets of nodes, both derived from a
+    single Chimera unit cell, for an independent set. The first set is
+    the horizontal tile's nodes; the second has nodes from the horizontal and
+    verical tiles.
+
+    >>> import dwave_networkx as dnx
+    >>> G = dnx.chimera_graph(1, 1, 4)
+    >>> dnx.is_independent_set(G, [0, 1, 2, 3])
+    True
+    >>> dnx.is_independent_set(G, [0, 4])
+    False
 
     """
     return not bool(G.subgraph(indep_nodes).edges)
