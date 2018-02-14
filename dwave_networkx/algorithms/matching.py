@@ -29,6 +29,7 @@ def maximal_matching(G, sampler=None, **sampler_args):
     Parameters
     ----------
     G : NetworkX graph
+        The graph on which to find a maximal matching.
 
     sampler
         A binary quadratic model sampler. A sampler is a process that
@@ -54,12 +55,13 @@ def maximal_matching(G, sampler=None, **sampler_args):
     function does not attempt to confirm the quality of the returned
     sample.
 
-    https://en.wikipedia.org/wiki/Matching_(graph_theory)
-
-    https://en.wikipedia.org/wiki/Quadratic_unconstrained_binary_optimization
-
     References
     ----------
+
+    `Matching on Wikipedia <https://en.wikipedia.org/wiki/Matching_(graph_theory)>`_
+
+    `QUBO on Wikipedia <https://en.wikipedia.org/wiki/Quadratic_unconstrained_binary_optimization>`_
+
     Based on the formulation presented in [AL]_
 
     """
@@ -111,6 +113,7 @@ def min_maximal_matching(G, sampler=None, **sampler_args):
     Parameters
     ----------
     G : NetworkX graph
+        The graph on which to find a minimal maximal matching.
 
     sampler
         A binary quadratic model sampler. A sampler is a process that
@@ -136,12 +139,13 @@ def min_maximal_matching(G, sampler=None, **sampler_args):
     function does not attempt to confirm the quality of the returned
     sample.
 
-    https://en.wikipedia.org/wiki/Matching_(graph_theory)
-
-    https://en.wikipedia.org/wiki/Quadratic_unconstrained_binary_optimization
-
     References
     ----------
+
+    `Matching on Wikipedia <https://en.wikipedia.org/wiki/Matching_(graph_theory)>`_
+
+    `QUBO on Wikipedia <https://en.wikipedia.org/wiki/Quadratic_unconstrained_binary_optimization>`_
+
     .. [AL] Lucas, A. (2014). Ising formulations of many NP problems.
        Frontiers in Physics, Volume 2, Article 5.
 
