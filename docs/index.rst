@@ -18,7 +18,7 @@ Documentation
 
    reference/index
    installation
-   license
+   license    
    bibliography
 
 .. toctree::
