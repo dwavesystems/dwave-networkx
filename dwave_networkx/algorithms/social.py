@@ -25,7 +25,7 @@ def structural_imbalance(S, sampler=None, **sampler_args):
     Parameters
     ----------
     S : NetworkX graph
-        Must be a social graph, that is each edge should have a 'sign'
+        A social graph on which each edge has a 'sign'
         attribute with a numeric value.
 
     sampler
@@ -81,10 +81,11 @@ def structural_imbalance(S, sampler=None, **sampler_args):
     function does not attempt to confirm the quality of the returned
     sample.
 
-    https://en.wikipedia.org/wiki/Ising_model
-
     References
     ----------
+
+    `Ising model on Wikipedia <https://en.wikipedia.org/wiki/Ising_model>`_
+
     .. [FIA] Facchetti, G., Iacono G., and Altafini C. (2011). Computing
        global structural balance in large-scale signed social networks.
        PNAS, 108, no. 52, 20953-20958

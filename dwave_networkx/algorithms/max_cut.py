@@ -18,6 +18,7 @@ def maximum_cut(G, sampler=None, **sampler_args):
     Parameters
     ----------
     G : NetworkX graph
+        The graph on which to find a maximum cut.
 
     sampler
         A binary quadratic model sampler. A sampler is a process that
@@ -36,6 +37,20 @@ def maximum_cut(G, sampler=None, **sampler_args):
     -------
     S : set
         A maximum cut of G.
+
+    Example
+    -------
+    This example uses a sampler from
+    `dimod <https://github.com/dwavesystems/dimod>`_ to find a maximum cut
+    for a graph of a Chimera unit cell created using the `chimera_graph()`
+    function.
+
+    >>> import dimod
+    >>> import dwave_networkx as dnx
+    >>> samplerSA = dimod.SimulatedAnnealingSampler()
+    >>> G = dnx.chimera_graph(1, 1, 4)
+    >>> dnx.maximum_cut(G, samplerSA)
+    {4, 5, 6, 7}
 
     Notes
     -----
@@ -70,7 +85,8 @@ def weighted_maximum_cut(G, sampler=None, **sampler_args):
     Parameters
     ----------
     G : NetworkX graph
-        Each edge in G should have a numeric 'weight' attribute.
+        The graph on which to find a weighted maximum cut. Each edge in G should
+        have a numeric `weight` attribute.
 
     sampler
         A binary quadratic model sampler. A sampler is a process that
@@ -89,6 +105,28 @@ def weighted_maximum_cut(G, sampler=None, **sampler_args):
     -------
     S : set
         A maximum cut of G.
+
+    Example
+    -------
+    This example uses a sampler from
+    `dimod <https://github.com/dwavesystems/dimod>`_ to find a weighted maximum
+    cut for a graph of a Chimera unit cell. The graph is created using the
+    `chimera_graph()` function with weights added to all its edges such that
+    those incident to nodes {6, 7} have weight -1 while the others are +1. A
+    weighted maximum cut should cut as many of the latter and few of the former
+    as possible.
+
+    >>> import dimod
+    >>> import dwave_networkx as dnx
+    >>> samplerSA = dimod.SimulatedAnnealingSampler()
+    >>> G = dnx.chimera_graph(1, 1, 4)
+    >>> for u, v in G.edges:
+    ....:   if (u >= 6) | (v >=6):
+    ....:       G[u][v]['weight']=-1
+    ....:   else: G[u][v]['weight']=1
+    ....:        
+    >>> dnx.weighted_maximum_cut(G, samplerSA)
+    {4, 5}
 
     Notes
     -----
