@@ -479,13 +479,14 @@ def treewidth_branch_and_bound(G, elimination_order=None, treewidth_upperbound=N
 
     Examples
     --------
-    This example computes the treewidth for the :math:`K_5`
-    complete graph using an optionally provided but random elimination order.
+    This example computes the treewidth for the :math:`K_7`
+    complete graph using an optionally provided elimination order (a sequential
+    ordering of the nodes, arbitrally chosen).
 
     >>> import dwave_networkx as dnx
     >>> import networkx as nx
     >>> K_7 = nx.complete_graph(7)
-    >>> dnx.treewidth_branch_and_bound(K_7,[0, 1, 2, 3, 4, 5, 6])
+    >>> dnx.treewidth_branch_and_bound(K_7, [0, 1, 2, 3, 4, 5, 6])
     (6, [0, 1, 2, 3, 4, 5, 6])
 
     References
