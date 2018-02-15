@@ -14,15 +14,30 @@ def is_simplicial(G, n):
 
     Parameters
     ----------
-    G : graph
-        A NetworkX graph.
+    G : NetworkX graph
+        The graph on which to check whether node n is simplicial.
     n : node
-        A node in G.
+        A node in graph G.
 
     Returns
     -------
     is_simplicial : bool
         True if its neighbors form a clique.
+
+    Examples
+    --------
+    This example checks whether node 0 is simplicial for two graphs: G, a
+    single Chimera unit cell, which is bipartite, and K_5, the :math:`K_5`
+    complete graph.
+
+    >>> import dwave_networkx as dnx
+    >>> import networkx as nx
+    >>> G = dnx.chimera_graph(1, 1, 4)
+    >>> K_5 = nx.complete_graph(5)
+    >>> dnx.is_simplicial(G, 0)
+    False
+    >>> dnx.is_simplicial(K_5, 0)
+    True
 
     """
     return all(u in G[v] for u, v in itertools.combinations(G[n], 2))
@@ -33,15 +48,29 @@ def is_almost_simplicial(G, n):
 
     Parameters
     ----------
-    G : graph
-        A NetworkX graph.
+    G : NetworkX graph
+        The graph on which to check whether node n is almost simplicial.
     n : node
-        A node in G.
+        A node in graph G.
 
     Returns
     -------
     is_almost_simplicial : bool
         True if all but one of its neighbors induce a clique
+
+    Examples
+    --------
+    This example checks whether node 0 is simplicial or almost simplicial for
+    a :math:`K_5` complete graph with one edge removed.
+
+    >>> import dwave_networkx as dnx
+    >>> import networkx as nx
+    >>> K_5 = nx.complete_graph(5)
+    >>> K_5.remove_edge(1,3)
+    >>> dnx.is_simplicial(K_5, 0)
+    False
+    >>> dnx.is_almost_simplicial(K_5, 0)
+    True
 
     """
     for w in G[n]:
@@ -51,17 +80,28 @@ def is_almost_simplicial(G, n):
 
 
 def minor_min_width(G):
-    """Computes a lower bound on the treewidth of G.
+    """Computes a lower bound for the treewidth of graph G.
 
     Parameters
     ----------
-    G : graph
-        A NetworkX graph.
+    G : NetworkX graph
+        The graph on which to compute a lower bound on the treewidth.
 
     Returns
     -------
     lb : int
         A lower bound on the treewidth.
+
+    Examples
+    --------
+    This example computes a lower bound for the treewidth of the :math:`K_7`
+    complete graph.
+
+    >>> import dwave_networkx as dnx
+    >>> import networkx as nx
+    >>> K_7 = nx.complete_graph(7)
+    >>> dnx.minor_min_width(K_7)
+    6
 
     References
     ----------
@@ -109,13 +149,13 @@ def minor_min_width(G):
 
 
 def min_fill_heuristic(G):
-    """Computes an upper bound on the treewidth of a graph based on
+    """Computes an upper bound on the treewidth of graph G based on
     the min-fill heuristic for the elimination ordering.
 
     Parameters
     ----------
-    G : graph
-        A NetworkX graph.
+    G : NetworkX graph
+        The graph on which to compute an upper bound for the treewidth.
 
     Returns
     -------
@@ -124,6 +164,17 @@ def min_fill_heuristic(G):
 
     order : list
         An elimination order that induces the treewidth.
+
+    Examples
+    --------
+    This example computes an upper bound for the treewidth of the :math:`K_4`
+    complete graph.
+
+    >>> import dwave_networkx as dnx
+    >>> import networkx as nx
+    >>> K_4 = nx.complete_graph(4)
+    >>> dnx.min_fill_heuristic(K_4)
+    (3, [2, 0, 3, 1])
 
     References
     ----------
@@ -171,13 +222,13 @@ def _min_fill_needed_edges(adj, n):
 
 
 def min_width_heuristic(G):
-    """Computes an upper bound on the treewidth of a graph based on
+    """Computes an upper bound on the treewidth of graph G based on
     the min-width heuristic for the elimination ordering.
 
     Parameters
     ----------
-    G : graph
-        A NetworkX graph.
+    G : NetworkX graph
+        The graph on which to compute an upper bound for the treewidth.
 
     Returns
     -------
@@ -186,6 +237,17 @@ def min_width_heuristic(G):
 
     order : list
         An elimination order that induces the treewidth.
+
+    Examples
+    --------
+    This example computes an upper bound for the treewidth of the :math:`K_4`
+    complete graph.
+
+    >>> import dwave_networkx as dnx
+    >>> import networkx as nx
+    >>> K_4 = nx.complete_graph(4)
+    >>> dnx.min_width_heuristic(K_4)
+    (3, [1, 2, 0, 3])
 
     References
     ----------
@@ -223,13 +285,13 @@ def min_width_heuristic(G):
 
 
 def max_cardinality_heuristic(G):
-    """Computes an upper bound on the treewidth of a graph based on
+    """Computes an upper bound on the treewidth of graph G based on
     the max-cardinality heuristic for the elimination ordering.
 
     Parameters
     ----------
-    G : graph
-        A NetworkX graph.
+    G : NetworkX graph
+        The graph on which to compute an upper bound for the treewidth.
 
     inplace : bool
         If True, G will be made an empty graph in the process of
@@ -243,6 +305,17 @@ def max_cardinality_heuristic(G):
 
     order : list
         An elimination order that induces the treewidth.
+
+    Examples
+    --------
+    This example computes an upper bound for the treewidth of the :math:`K_4`
+    complete graph.
+
+    >>> import dwave_networkx as dnx
+    >>> import networkx as nx
+    >>> K_4 = nx.complete_graph(4)
+    >>> dnx.max_cardinality_heuristic(K_4)
+    (3, [3, 1, 0, 2])
 
     References
     ----------
@@ -324,8 +397,8 @@ def elimination_order_width(G, order):
 
     Parameters
     ----------
-    G : graph
-        A NetworkX graph.
+    G : NetworkX graph
+        The graph on which to compute the width of the tree decomposition.
 
     order : list
         The elimination order. Must be a list of all of the variables
@@ -335,6 +408,21 @@ def elimination_order_width(G, order):
     -------
     treewidth : int
         The width of the tree decomposition induced by  order.
+
+    Examples
+    --------
+    This example computes the width of the tree decomposition for the :math:`K_4`
+    complete graph induced by an elimination order found through the min-width
+    heuristic.
+
+    >>> import dwave_networkx as dnx
+    >>> import networkx as nx
+    >>> K_4 = nx.complete_graph(4)
+    >>> dnx.min_width_heuristic(K_4)
+    (3, [1, 2, 0, 3])
+    >>> dnx.elimination_order_width(K_4, [1, 2, 0, 3])
+    3
+
 
     """
     # we need only deal with the adjacency structure of G. We will also
@@ -366,29 +454,39 @@ def elimination_order_width(G, order):
 
 
 def treewidth_branch_and_bound(G, elimination_order=None, treewidth_upperbound=None):
-    """Computes the treewidth of a graph G and a corresponding perfect elimination ordering.
+    """Computes the treewidth of graph G and a corresponding perfect elimination ordering.
 
     Parameters
     ----------
-    G : graph
-        A NetworkX graph.
+    G : NetworkX graph
+        The graph on which to compute the treewidth and perfect elimination ordering.
 
-    elimination_order: list (optional)
-        An elimination order. Uses the given elimination order as an
-        initial best know order. If a good seed is provided, it may
-        speed up computation. Default None, if not provided the initial
-        order will be generated using the min fill heuristic.
+    elimination_order: list (optional, Default None)
+        An elimination order used as an initial best-known order. If a good
+        order is provided, it may speed up computation. If not provided, the
+        initial order is generated using the min-fill heuristic.
 
-    treewidth_upperbound : int (optional)
-        Default None. An upper bound on the treewidth. Note that using
+    treewidth_upperbound : int (optional, Default None)
+        An upper bound on the treewidth. Note that using
         this parameter can result in no returned order.
 
     Returns
     -------
     treewidth : int
-        The treewidth of the graph G.
+        The treewidth of graph G.
     order : list
         An elimination order that induces the treewidth.
+
+    Examples
+    --------
+    This example computes the treewidth for the :math:`K_5`
+    complete graph using an optionally provided but random elimination order.
+
+    >>> import dwave_networkx as dnx
+    >>> import networkx as nx
+    >>> K_7 = nx.complete_graph(7)
+    >>> dnx.treewidth_branch_and_bound(K_7,[0, 1, 2, 3, 4, 5, 6])
+    (6, [0, 1, 2, 3, 4, 5, 6])
 
     References
     ----------
