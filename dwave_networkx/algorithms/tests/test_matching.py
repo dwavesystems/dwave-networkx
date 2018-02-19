@@ -42,9 +42,9 @@ class TestMatching(unittest.TestCase):
                 sample[v] = 1
 
             if dnx.is_matching(potential_matching):
-                self.assertEqual(qubo_energy(Q, sample), 0.)
+                self.assertEqual(qubo_energy(sample, Q), 0.)
             else:
-                en = qubo_energy(Q, sample)
+                en = qubo_energy(sample, Q)
                 if en < infeasible_gap:
                     infeasible_gap = en
                 self.assertGreaterEqual(en, MAG)
@@ -79,9 +79,9 @@ class TestMatching(unittest.TestCase):
                 sample[v] = 1
 
             if dnx.is_matching(potential_matching):
-                self.assertEqual(qubo_energy(Q, sample), 0.)
+                self.assertEqual(qubo_energy(sample, Q), 0.)
             else:
-                en = qubo_energy(Q, sample)
+                en = qubo_energy(sample, Q)
                 if en < infeasible_gap:
                     infeasible_gap = en
                 self.assertGreaterEqual(en, MAG)
@@ -114,13 +114,13 @@ class TestMatching(unittest.TestCase):
                 sample[v] = 1
 
             if dnx.is_maximal_matching(G, potential_matching):
-                self.assertEqual(qubo_energy(Q, sample), ground_energy)
+                self.assertEqual(qubo_energy(sample, Q), ground_energy)
             elif not dnx.is_matching(potential_matching):
                 # for now we don't care about these, they should be covered by the _matching_qubo
                 # part of the QUBO function
                 pass
             else:
-                en = qubo_energy(Q, sample)
+                en = qubo_energy(sample, Q)
 
                 gap = en - ground_energy
                 if gap < infeasible_gap:
@@ -157,13 +157,13 @@ class TestMatching(unittest.TestCase):
 
             if dnx.is_maximal_matching(G, potential_matching):
                 # print potential_matching, qubo_energy(Q, sample)
-                self.assertLess(abs(qubo_energy(Q, sample) - ground_energy), 10**-8)
+                self.assertLess(abs(qubo_energy(sample, Q) - ground_energy), 10**-8)
             elif not dnx.is_matching(potential_matching):
                 # for now we don't care about these, they should be covered by the _matching_qubo
                 # part of the QUBO function
                 pass
             else:
-                en = qubo_energy(Q, sample)
+                en = qubo_energy(sample, Q)
 
                 gap = en - ground_energy
                 if gap < infeasible_gap:
@@ -211,9 +211,9 @@ class TestMatching(unittest.TestCase):
 
             if dnx.is_maximal_matching(G, potential_matching):
                 # print potential_matching, qubo_energy(Q, sample)
-                self.assertLess(abs(qubo_energy(Q, sample) - ground_energy), 10**-8)
+                self.assertLess(abs(qubo_energy(sample, Q) - ground_energy), 10**-8)
             else:
-                en = qubo_energy(Q, sample)
+                en = qubo_energy(sample, Q)
 
                 gap = en - ground_energy
                 if gap < infeasible_gap:
@@ -261,9 +261,9 @@ class TestMatching(unittest.TestCase):
 
             if dnx.is_maximal_matching(G, potential_matching):
                 # print potential_matching, qubo_energy(Q, sample)
-                self.assertLess(abs(qubo_energy(Q, sample) - ground_energy), 10**-8)
+                self.assertLess(abs(qubo_energy(sample, Q) - ground_energy), 10**-8)
             else:
-                en = qubo_energy(Q, sample)
+                en = qubo_energy(sample, Q)
 
                 gap = en - ground_energy
                 if gap < infeasible_gap:
@@ -308,9 +308,9 @@ class TestMatching(unittest.TestCase):
             for v in edge_vars:
                 sample[v] = 1
 
-            en_matching = qubo_energy(Qm, sample)
-            en_maximal = qubo_energy(Qmm, sample)
-            en = qubo_energy(Q, sample)
+            en_matching = qubo_energy(sample, Qm)
+            en_maximal = qubo_energy(sample, Qmm)
+            en = qubo_energy(sample, Q)
 
             self.assertLess(abs(en_matching + en_maximal - en), 10**-8)
 
@@ -377,9 +377,9 @@ class TestMatching(unittest.TestCase):
             for v in edge_vars:
                 sample[v] = 1
 
-            en_matching = qubo_energy(Qm, sample)
-            en_maximal = qubo_energy(Qmm, sample)
-            en = qubo_energy(Q, sample)
+            en_matching = qubo_energy(sample, Qm)
+            en_maximal = qubo_energy(sample, Qmm)
+            en = qubo_energy(sample, Q)
 
             self.assertLess(abs(en_matching + en_maximal - en), 10**-8)
 
@@ -506,11 +506,11 @@ class TestMatching(unittest.TestCase):
             for v in edge_vars:
                 sample[v] = 1
 
-            en_matching = qubo_energy(Qm, sample)
-            en_maximal = qubo_energy(Qmm, sample)
-            en_minimal = qubo_energy(Qmmm, sample)
+            en_matching = qubo_energy(sample, Qm)
+            en_maximal = qubo_energy(sample, Qmm)
+            en_minimal = qubo_energy(sample, Qmmm)
 
-            en = qubo_energy(Q, sample)
+            en = qubo_energy(sample, Q)
 
             self.assertLess(abs(en_matching + en_maximal + en_minimal - en), 10**-8)
 

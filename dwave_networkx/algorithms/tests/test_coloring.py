@@ -42,7 +42,7 @@ class TestColor(unittest.TestCase):
                 sample[x_vars[v][0]] = 0
                 sample[x_vars[v][1]] = 1
 
-        self.assertEqual(qubo_energy(Q, sample), 0)
+        self.assertEqual(qubo_energy(sample, Q), 0)
 
     def test__vertex_one_color_qubo(self):
         G = dnx.chimera_graph(2, 2, 4)
@@ -58,7 +58,7 @@ class TestColor(unittest.TestCase):
             sample[x_vars[v][0]] = 1
             sample[x_vars[v][1]] = 0
 
-        self.assertEqual(qubo_energy(Q, sample), -1 * len(G))
+        self.assertEqual(qubo_energy(sample, Q), -1 * len(G))
 
     def test__minimum_coloring_qubo(self):
         # Chimera tile (can be 2-colored)
