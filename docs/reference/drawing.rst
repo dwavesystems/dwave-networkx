@@ -7,6 +7,9 @@ Drawing
 
 .. automodule:: dwave_networkx.drawing.chimera_layout
 
+.. note:: Some functionality requires `NumPy <http://scipy.org>`_ and/or
+	 `Matplotlib <https://matplotlib.org>`_\ .
+
 .. chimera-intro-start-marker
 
 The Chimera architecture comprises sets of connected unit cells, each with four
