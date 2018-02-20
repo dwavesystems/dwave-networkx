@@ -1,5 +1,5 @@
 """
-Generators for graphs derived used by the D-Wave System.
+Generators for graphs derived from the D-Wave System.
 
 """
 import networkx as nx
@@ -93,11 +93,15 @@ def chimera_graph(m, n=None, t=None, create_using=None, node_list=None, edge_lis
     [(0, 2), (0, 3), (1, 2), (1, 3)]
 
     """
-
+    m = int(m)
     if n is None:
         n = m
+    else:
+        n = int(n)
     if t is None:
         t = 4
+    else:
+        t = int(t)
 
     G = nx.empty_graph(0, create_using)
 
