@@ -10,7 +10,9 @@ packages = ['dwave_networkx',
 
 install_requires = ['networkx>=2.0,<3.0',
                     'decorator>=4.1.0,<5.0.0']
-extras_require = {'all': ['dimod>=0.3.1,<0.6.0']}
+extras_require = {'all': ['dimod>=0.3.1,<0.6.0',
+                          'matplotlib>=2.0.2,<3.0.0',
+                          'numpy>=1.12.0,<2.0.0']}
 
 setup(
     name='dwave_networkx',
