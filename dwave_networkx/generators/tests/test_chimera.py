@@ -1,3 +1,5 @@
+from __future__ import division
+
 import unittest
 
 import networkx as nx
@@ -73,6 +75,25 @@ class TestChimeraGraph(unittest.TestCase):
         G = dnx.chimera_graph(1, 1, 2, node_list=nodes, edge_list=edges)
         # 3 should be added as a singleton
         self.assertTrue(len(G[3]) == 0)
+
+    def test_float_robustness(self):
+        G = dnx.chimera_graph(8 / 2)
+
+        self.assertEqual(set(G.nodes), set(dnx.chimera_graph(4).nodes))
+        for u, v in dnx.chimera_graph(4).edges:
+            self.assertIn(u, G[v])
+
+        G = dnx.chimera_graph(4, 4.)
+
+        self.assertEqual(set(G.nodes), set(dnx.chimera_graph(4).nodes))
+        for u, v in dnx.chimera_graph(4).edges:
+            self.assertIn(u, G[v])
+
+        G = dnx.chimera_graph(4, 4, 4.)
+
+        self.assertEqual(set(G.nodes), set(dnx.chimera_graph(4).nodes))
+        for u, v in dnx.chimera_graph(4).edges:
+            self.assertIn(u, G[v])
 
     # def test_find_chimera_indices_typical(self):
     #     for t in range(2, 5):
