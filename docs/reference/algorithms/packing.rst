@@ -20,5 +20,6 @@ of its member pairs.
 .. autosummary::
    :toctree: generated/
 
+    maximum_weighted_independent_set
     maximum_independent_set
     is_independent_set
