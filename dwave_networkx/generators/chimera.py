@@ -286,3 +286,103 @@ def chimera_elimination_order(m, n=None, t=None):
                 order.append(chimeraI(m_i, n_i, 1, t_i))
 
     return order
+
+
+class chimera_coordinates:
+    def __init__(self, m, n=None, t=4):
+        """
+        Provides coordinate converters for the chimera indexing scheme.
+
+        Parameters
+        ----------
+        m : int
+            The number of rows in the Chimera lattice.
+        n : int, optional (default m)
+            The number of columns in the Chimera lattice.
+        t : int, optional (default 4)
+            The size of the shore within each Chimera tile.
+        """
+
+        self.args = m, m if n is None else n, t
+
+    def int(self, q):
+        """
+        Converts the chimera_index `q` into an linear_index
+
+        Parameters
+        ----------
+        q : tuple
+            The chimera_index node label    
+
+        Returns
+        -------
+        z : int
+            The linear_index node label corresponding to q            
+        """
+
+        i, j, u, k = q
+        m, n, t = self.args
+        return ((n*i + j)*2 + u)*t + k
+
+    def tuple(self, z):
+        """
+        Converts the linear_index `q` into an chimera_index
+
+        Parameters
+        ----------
+        z : int
+            The linear_index node label    
+
+        Returns
+        -------
+        q : tuple
+            The chimera_index node label corresponding to z
+        """
+
+        m, n, t = self.args
+        z, k = divmod(z, t)
+        z, u = divmod(z, 2)
+        i, j = divmod(z, n)
+        return i, j, u, k
+
+    def ints(self, qlist):
+        """
+        Converts a sequence of chimera_index node labels into
+        linear_index node labels, preserving order
+
+        Parameters
+        ----------
+        qlist : sequence of ints
+            The chimera_index node labels
+
+        Returns
+        -------
+        zlist : iterable of tuples
+            The linear_lindex node lables corresponding to qlist
+        """
+
+        m, n, t = self.args
+        return (((n*i + j)*2 + u)*t + k for (i, j, u, k) in qlist)
+
+    def tuples(self, zlist):
+        """
+        Converts a sequence of linear_index node labels into
+        chimera_index node labels, preserving order
+
+        Parameters
+        ----------
+        zlist : sequence of tuples
+            The linear_index node labels
+
+        Returns
+        -------
+        qlist : iterable of ints
+            The chimera_lindex node lables corresponding to zlist
+        """
+
+        m, n, t = self.args
+        for z in zlist:
+            z, k = divmod(z, t)
+            z, u = divmod(z, 2)
+            i, j = divmod(z, n)
+            yield i, j, u, k
