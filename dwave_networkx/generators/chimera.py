@@ -16,7 +16,7 @@ if _PY2:
     range = xrange
 
 
-def chimera_graph(m, n=None, t=None, create_using=None, node_list=None, edge_list=None, data=True):
+def chimera_graph(m, n=None, t=None, create_using=None, node_list=None, edge_list=None, data=True, coordinates=False):
     """Creates a Chimera lattice of size (m, n, t).
 
     A Chimera lattice is an m-by-n grid of Chimera tiles. Each Chimera
@@ -71,6 +71,10 @@ def chimera_graph(m, n=None, t=None, create_using=None, node_list=None, edge_lis
         If True, each node has a
         `chimera_index attribute`. The attribute is a 4-tuple Chimera index
         as defined above.
+    coordinates : bool (optional, default False)
+        If True, node labels are 4-tuples, equivalent to the chimera_index
+        attribute as above.  In this case, the `data` parameter controls the
+        existence of a `linear_index attribute`, which is an int
 
     Returns
     -------
@@ -110,27 +114,46 @@ def chimera_graph(m, n=None, t=None, create_using=None, node_list=None, edge_lis
     max_size = m * n * 2 * t  # max number of nodes G can have
 
     if edge_list is None:
-        hoff = 2 * t
-        voff = n * hoff
-        mi = m * voff
-        ni = n * hoff
+        if coordinates:
+            # tile edges
+            G.add_edges_from(((i, j, 0, k0), (i, j, 1, k1))
+                             for i in range(n)
+                             for j in range(m)
+                             for k0 in range(t)
+                             for k1 in range(t))
 
-        # tile edges
-        G.add_edges_from((k0, k1)
-                         for i in range(0, ni, hoff)
-                         for j in range(i, mi, voff)
-                         for k0 in range(j, j + t)
-                         for k1 in range(j + t, j + 2 * t))
-        # horizontal edges
-        G.add_edges_from((k, k + hoff)
-                         for i in range(t, 2 * t)
-                         for j in range(i, ni - hoff, hoff)
-                         for k in range(j, mi, voff))
-        # vertical edges
-        G.add_edges_from((k, k + voff)
-                         for i in range(t)
-                         for j in range(i, ni, hoff)
-                         for k in range(j, mi - voff, voff))
+            # horizontal edges
+            G.add_edges_from(((i, j, 1, k), (i, j+1, 1, k))
+                             for i in range(m)
+                             for j in range(n-1)
+                             for k in range(t))
+            # vertical edges
+            G.add_edges_from(((i, j, 0, k), (i+1, j, 0, k))
+                             for i in range(m-1)
+                             for j in range(n)
+                             for k in range(t))
+        else:
+            hoff = 2 * t
+            voff = n * hoff
+            mi = m * voff
+            ni = n * hoff
+
+            # tile edges
+            G.add_edges_from((k0, k1)
+                             for i in range(0, ni, hoff)
+                             for j in range(i, mi, voff)
+                             for k0 in range(j, j + t)
+                             for k1 in range(j + t, j + 2 * t))
+            # horizontal edges
+            G.add_edges_from((k, k + hoff)
+                             for i in range(t, 2 * t)
+                             for j in range(i, ni - hoff, hoff)
+                             for k in range(j, mi, voff))
+            # vertical edges
+            G.add_edges_from((k, k + voff)
+                             for i in range(t)
+                             for j in range(i, ni, hoff)
+                             for k in range(j, mi - voff, voff))
     else:
         G.add_edges_from(edge_list)
 
@@ -140,14 +163,22 @@ def chimera_graph(m, n=None, t=None, create_using=None, node_list=None, edge_lis
         G.add_nodes_from(nodes)  # for singleton nodes
 
     if data:
+        if coordinates:
+            def checkadd(v, q):
+                if q in G:
+                    G.node[q]['linear_index'] = v
+        else:
+            def checkadd(v, q):
+                if v in G:
+                    G.node[v]['chimera_index'] = q
+
         v = 0
         for i in range(m):
             for j in range(n):
                 for u in range(2):
                     for k in range(t):
-                            if v in G:
-                                G.node[v]['chimera_index'] = (i, j, u, k)
-                            v += 1
+                        checkadd(v, (i, j, u, k))
+                        v += 1
 
     return G
 
@@ -386,3 +417,59 @@ class chimera_coordinates:
             z, u = divmod(z, 2)
             i, j = divmod(z, n)
             yield i, j, u, k
+
+    def __pair_repack(self, f, plist):
+        """
+        Flattens a sequence of pairs to pass through `f`, and then
+        re-pairs the result.
+
+        Parameters
+        ----------
+        f : callable
+            A function that accepts a sequence and returns a sequence
+        plist:
+            A sequence of pairs
+
+        Returns
+        -------
+        qlist : sequence
+            Equivalent to (tuple(f(p)) for p in plist)
+        """
+        ulist = f(u for p in plist for u in p)
+        for u in ulist:
+            v = next(ulist)
+            yield u, v
+
+    def int_pairs(self, plist):
+        """
+        Translates a sequence of pairs of chimera_index tuples
+        into a a sequence of pairs of linear_index ints.
+
+        Parameters
+        ----------
+        plist:
+            A sequence of pairs of tuples
+
+        Returns
+        -------
+        qlist : sequence
+            Equivalent to (tuple(self.ints(p)) for p in plist)
+        """
+        return self.__pair_repack(self.ints, plist)
+
+    def tuple_pairs(self, plist):
+        """
+        Translates a sequence of pairs of chimera_index tuples
+        into a a sequence of pairs of linear_index ints.
+
+        Parameters
+        ----------
+        plist:
+            A sequence of pairs of tuples
+
+        Returns
+        -------
+        qlist : sequence
+            Equivalent to (tuple(self.tuples(p)) for p in plist)
+        """
+        return self.__pair_repack(self.tuples, plist)
