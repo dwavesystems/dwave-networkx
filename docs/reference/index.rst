@@ -1,7 +1,7 @@
 .. _reference:
 
-Reference
-*********
+Reference Documentation
+*************************
 
    :Release: |release|
    :Date: |today|
@@ -9,6 +9,7 @@ Reference
 .. toctree::
    :maxdepth: 2
 
+   intro
    algorithms/index
    drawing
    generators

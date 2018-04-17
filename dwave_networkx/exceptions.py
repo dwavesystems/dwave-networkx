@@ -1,7 +1,7 @@
 """
 Base exceptions and errors for D-Wave NetworkX.
 
-All are derived from NetworkXException.
+All exceptions are derived from NetworkXException.
 
 """
 

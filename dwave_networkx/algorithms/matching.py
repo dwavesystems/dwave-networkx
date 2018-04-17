@@ -29,6 +29,7 @@ def maximal_matching(G, sampler=None, **sampler_args):
     Parameters
     ----------
     G : NetworkX graph
+        The graph on which to find a maximal matching.
 
     sampler
         A binary quadratic model sampler. A sampler is a process that
@@ -54,12 +55,13 @@ def maximal_matching(G, sampler=None, **sampler_args):
     function does not attempt to confirm the quality of the returned
     sample.
 
-    https://en.wikipedia.org/wiki/Matching_(graph_theory)
-
-    https://en.wikipedia.org/wiki/Quadratic_unconstrained_binary_optimization
-
     References
     ----------
+
+    `Matching on Wikipedia <https://en.wikipedia.org/wiki/Matching_(graph_theory)>`_
+
+    `QUBO on Wikipedia <https://en.wikipedia.org/wiki/Quadratic_unconstrained_binary_optimization>`_
+
     Based on the formulation presented in [AL]_
 
     """
@@ -111,6 +113,7 @@ def min_maximal_matching(G, sampler=None, **sampler_args):
     Parameters
     ----------
     G : NetworkX graph
+        The graph on which to find a minimal maximal matching.
 
     sampler
         A binary quadratic model sampler. A sampler is a process that
@@ -130,18 +133,32 @@ def min_maximal_matching(G, sampler=None, **sampler_args):
     matching : set
         A minimal maximal matching of the graph.
 
+    Example
+    -------
+    This example uses a sampler from
+    `dimod <https://github.com/dwavesystems/dimod>`_ to find a minimal maximal
+    matching for a Chimera unit cell.
+
+    >>> import dwave_networkx as dnx
+    >>> import dimod
+    >>> samplerSA = dimod.SimulatedAnnealingSampler()
+    >>> G = dnx.chimera_graph(1, 1, 4)
+    >>> dnx.min_maximal_matching(G, samplerSA)
+    {(0, 4), (1, 5), (2, 7), (3, 6)}
+
     Notes
     -----
     Samplers by their nature may not return the optimal solution. This
     function does not attempt to confirm the quality of the returned
     sample.
 
-    https://en.wikipedia.org/wiki/Matching_(graph_theory)
-
-    https://en.wikipedia.org/wiki/Quadratic_unconstrained_binary_optimization
-
     References
     ----------
+
+    `Matching on Wikipedia <https://en.wikipedia.org/wiki/Matching_(graph_theory)>`_
+
+    `QUBO on Wikipedia <https://en.wikipedia.org/wiki/Quadratic_unconstrained_binary_optimization>`_
+
     .. [AL] Lucas, A. (2014). Ising formulations of many NP problems.
        Frontiers in Physics, Volume 2, Article 5.
 
@@ -204,6 +221,21 @@ def is_matching(edges):
     is_matching : bool
         True if the given edges are a matching.
 
+    Example
+    -------
+    This example checks two sets of edges, both derived from a
+    single Chimera unit cell, for a matching. Because every node in a Chimera
+    unit cell connects to four other nodes in the cell, the first set, which
+    contains all the edges, repeats each node 4 times; the second is a subset
+    of those edges found using the `min_maximal_matching()` function.
+
+    >>> import dwave_networkx as dnx
+    >>> G = dnx.chimera_graph(1, 1, 4)
+    >>> dnx.is_matching(list(G.edges())
+    False
+    >>> dnx.is_matching({(0, 4), (1, 5), (2, 7), (3, 6)})
+    True
+
     """
     return len(set().union(*edges)) == len(edges) * 2
 
@@ -219,6 +251,7 @@ def is_maximal_matching(G, matching):
     Parameters
     ----------
     G : NetworkX graph
+        The graph on which to check the maximal matching.
 
     edges : iterable
         A iterable of edges.
@@ -227,6 +260,22 @@ def is_maximal_matching(G, matching):
     -------
     is_matching : bool
         True if the given edges are a maximal matching.
+
+    Example
+    -------
+    This example checks two sets of edges, both derived from a
+    single Chimera unit cell, for a matching. The first set (a matching) is
+    a subset of the second, which was found using the `min_maximal_matching()`
+    function.
+
+    >>> import dwave_networkx as dnx
+    >>> G = dnx.chimera_graph(1, 1, 4)
+    >>> dnx.is_matching({(0, 4), (2, 7)})
+    True
+    >>> dnx.is_maximal_matching(G,{(0, 4), (2, 7)})
+    False
+    >>> dnx.is_maximal_matching(G,{(0, 4), (1, 5), (2, 7), (3, 6)})
+    True
 
     """
     touched_nodes = set().union(*matching)
