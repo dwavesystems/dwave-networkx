@@ -347,7 +347,7 @@ class chimera_coordinates:
 
         Returns
         -------
-        z : int
+        r : int
             The linear_index node label corresponding to q            
         """
 
@@ -355,25 +355,25 @@ class chimera_coordinates:
         m, n, t = self.args
         return ((n*i + j)*2 + u)*t + k
 
-    def tuple(self, z):
+    def tuple(self, r):
         """
         Converts the linear_index `q` into an chimera_index
 
         Parameters
         ----------
-        z : int
+        r : int
             The linear_index node label    
 
         Returns
         -------
         q : tuple
-            The chimera_index node label corresponding to z
+            The chimera_index node label corresponding to r
         """
 
         m, n, t = self.args
-        z, k = divmod(z, t)
-        z, u = divmod(z, 2)
-        i, j = divmod(z, n)
+        r, k = divmod(r, t)
+        r, u = divmod(r, 2)
+        i, j = divmod(r, n)
         return i, j, u, k
 
     def ints(self, qlist):
@@ -388,34 +388,34 @@ class chimera_coordinates:
 
         Returns
         -------
-        zlist : iterable of tuples
+        rlist : iterable of tuples
             The linear_lindex node lables corresponding to qlist
         """
 
         m, n, t = self.args
         return (((n*i + j)*2 + u)*t + k for (i, j, u, k) in qlist)
 
-    def tuples(self, zlist):
+    def tuples(self, rlist):
         """
         Converts a sequence of linear_index node labels into
         chimera_index node labels, preserving order
 
         Parameters
         ----------
-        zlist : sequence of tuples
+        rlist : sequence of tuples
             The linear_index node labels
 
         Returns
         -------
         qlist : iterable of ints
-            The chimera_lindex node lables corresponding to zlist
+            The chimera_lindex node lables corresponding to rlist
         """
 
         m, n, t = self.args
-        for z in zlist:
-            z, k = divmod(z, t)
-            z, u = divmod(z, 2)
-            i, j = divmod(z, n)
+        for r in rlist:
+            r, k = divmod(r, t)
+            r, u = divmod(r, 2)
+            i, j = divmod(r, n)
             yield i, j, u, k
 
     def __pair_repack(self, f, plist):
