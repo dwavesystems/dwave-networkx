@@ -57,7 +57,7 @@ def pegasus_graph(m, create_using=None, node_list=None, edge_list=None, data=Tru
         largest component.  Otherwise, the full disconnected graph will be
         constructed.  Ignored if edge_lists is not None
     """
-    warnings.warn("The Pegasus topology is under active research and development, and details may change before public release.")
+    warnings.warn("The Pegasus topology produced by this generator with default parameters is one member of a large family of topologies under consideration, and may not be reflected in future products")
 
     if offset_lists is None:
         offsets_descriptor = offsets_index = offsets_index or 0
@@ -74,6 +74,10 @@ def pegasus_graph(m, create_using=None, node_list=None, edge_list=None, data=Tru
     else:
         if offsets_index is not None:
             raise DWaveNetworkXException, "provide at most one of offsets_index and offset_lists"
+        for ori in 0,1:
+            for x,y in zip(offsets_list[ori][::2], offsets_list[ori][1::2]):
+                if x!=y:
+                    warnings.warn("The offets list you've provided is possibly non-physical.  Odd-coupled qubits should have the same shift value.")
         offsets_descriptor = offset_lists
 
     G = nx.empty_graph(0, create_using)
