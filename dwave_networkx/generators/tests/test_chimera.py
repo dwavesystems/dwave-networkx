@@ -117,3 +117,69 @@ class TestChimeraGraph(unittest.TestCase):
     def _check_matching_chimera_indices(self, G, chimera_indices):
         for v, dat in G.nodes(data=True):
             self.assertEqual(dat['chimera_index'], chimera_indices[v])
+
+    def test_coordinate_basics(self):
+        from dwave_networkx.generators.chimera import chimera_coordinates
+        G = dnx.chimera_graph(4)
+        H = dnx.chimera_graph(4, coordinates=True)
+        coords = chimera_coordinates(4)
+        Gnodes = G.nodes
+        Hnodes = H.nodes
+        for v in Gnodes:
+            q = Gnodes[v]['chimera_index']
+            self.assertIn(q, Hnodes)
+            self.assertEqual(Hnodes[q]['linear_index'], v)
+            self.assertEqual(v, coords.int(q))
+            self.assertEqual(q, coords.tuple(v))
+        for q in Hnodes:
+            v = Hnodes[q]['linear_index']
+            self.assertIn(v, Gnodes)
+            self.assertEqual(Gnodes[v]['chimera_index'], q)
+            self.assertEqual(v, coords.int(q))
+            self.assertEqual(q, coords.tuple(v))
+
+    def test_coordinate_subgraphs(self):
+        from dwave_networkx.generators.chimera import chimera_coordinates
+        from random import sample
+        G = dnx.chimera_graph(4)
+        H = dnx.chimera_graph(4, coordinates=True)
+        coords = chimera_coordinates(4)
+
+        lmask = sample(list(G.nodes()), G.number_of_nodes()//2)
+        cmask = list(coords.tuples(lmask))
+
+        self.assertEqual(lmask, list(coords.ints(cmask)))
+
+        Gm = dnx.chimera_graph(4, node_list=lmask)
+        Hm = dnx.chimera_graph(4, node_list=cmask, coordinates=True)
+
+        Gs = G.subgraph(lmask)
+        Hs = H.subgraph(cmask)
+
+        EG = sorted(map(sorted, Gs.edges()))
+        EH = sorted(map(sorted, Hs.edges()))
+
+        self.assertEqual(EG, sorted(map(sorted, Gm.edges())))
+        self.assertEqual(EH, sorted(map(sorted, Hm.edges())))
+
+        Gn = dnx.chimera_graph(4, edge_list=EG)
+        Hn = dnx.chimera_graph(4, edge_list=EH, coordinates=True)
+
+        Gnodes = Gn.nodes
+        Hnodes = Hn.nodes
+        for v in Gnodes:
+            q = Gnodes[v]['chimera_index']
+            self.assertIn(q, Hnodes)
+            self.assertEqual(Hnodes[q]['linear_index'], v)
+            self.assertEqual(v, coords.int(q))
+            self.assertEqual(q, coords.tuple(v))
+        for q in Hnodes:
+            v = Hnodes[q]['linear_index']
+            self.assertIn(v, Gnodes)
+            self.assertEqual(Gnodes[v]['chimera_index'], q)
+            self.assertEqual(v, coords.int(q))
+            self.assertEqual(q, coords.tuple(v))
+
+        self.assertEqual(EG, sorted(map(sorted, coords.int_pairs(Hn.edges()))))
+        self.assertEqual(EH, sorted(
+            map(sorted, coords.tuple_pairs(Gn.edges()))))

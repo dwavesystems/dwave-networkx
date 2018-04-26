@@ -8,8 +8,8 @@ import networkx as nx
 from networkx import draw
 
 from dwave_networkx import _PY2
+from dwave_networkx.drawing.qubit_layout import draw_qubit_graph, draw_embedding
 from dwave_networkx.generators.chimera import find_chimera_indices
-
 
 # compatibility for python 2/3
 if _PY2:
@@ -20,7 +20,7 @@ else:
     itervalues = lambda d: d.values()
     iteritems = lambda d: d.items()
 
-__all__ = ['chimera_layout', 'draw_chimera']
+__all__ = ['chimera_layout', 'draw_chimera', 'draw_chimera_embedding']
 
 
 def chimera_layout(G, scale=1., center=None, dim=2):
@@ -64,22 +64,41 @@ def chimera_layout(G, scale=1., center=None, dim=2):
         empty_graph.add_nodes_from(G)
         G = empty_graph
 
-    # best case scenario, each node in G has a chimera_index attribute. Otherwise
-    # we will try to determine it using the find_chimera_indices function.
-    if all('chimera_index' in dat for __, dat in G.nodes(data=True)):
-        chimera_indices = {v: dat['chimera_index'] for v, dat in G.nodes(data=True)}
+
+    # now we get pegasus coordinates for the translation
+    # first, check if we made it
+    if G.graph.get("family") == "chimera":
+        m = G.graph['rows']
+        n = G.graph['columns']
+        t = G.graph['tile']
+        # get a node placement function
+        xy_coords = chimera_node_placer_2d(m, n, t, scale, center, dim)
+
+        if G.graph.get('labels') == 'coordinate':
+            pos = {v: xy_coords(*v) for v in G.nodes()}
+        elif G.graph.get('data'):
+            pos = {v: xy_coords(*dat['chimera_index']) for v, dat in G.nodes(data=True)}
+        else:
+            coord = chimera_coordinates(m, n, t)
+            pos = {v: xy_coords(*coord.tuple(v)) for v in G.nodes()}
     else:
-        chimera_indices = find_chimera_indices(G)
+        # best case scenario, each node in G has a chimera_index attribute. Otherwise
+        # we will try to determine it using the find_chimera_indices function.
 
-    # we could read these off of the name attribute for G, but we would want the values in
-    # the nodes to override the name in case of conflict.
-    m = max(idx[0] for idx in itervalues(chimera_indices)) + 1
-    n = max(idx[1] for idx in itervalues(chimera_indices)) + 1
-    t = max(idx[3] for idx in itervalues(chimera_indices)) + 1
+        if all('chimera_index' in dat for __, dat in G.nodes(data=True)):
+            chimera_indices = {v: dat['chimera_index'] for v, dat in G.nodes(data=True)}
+        else:
+            chimera_indices = find_chimera_indices(G)
 
-    # ok, given the chimera indices, let's determine the coordinates
-    xy_coords = chimera_node_placer_2d(m, n, t, scale, center, dim)
-    pos = {v: xy_coords(i, j, u, k) for v, (i, j, u, k) in iteritems(chimera_indices)}
+        # we could read these off of the name attribute for G, but we would want the values in
+        # the nodes to override the name in case of conflict.
+        m = max(idx[0] for idx in itervalues(chimera_indices)) + 1
+        n = max(idx[1] for idx in itervalues(chimera_indices)) + 1
+        t = max(idx[3] for idx in itervalues(chimera_indices)) + 1
+        xy_coords = chimera_node_placer_2d(m, n, t, scale, center, dim)
+
+        # compute our coordinates
+        pos = {v: xy_coords(i, j, u, k) for v, (i, j, u, k) in iteritems(chimera_indices)}
 
     return pos
 
@@ -167,10 +186,7 @@ def chimera_node_placer_2d(m, n, t, scale=1., center=None, dim=2):
     return _xy_coords
 
 
-def draw_chimera(G, linear_biases={}, quadratic_biases={},
-                 nodelist=None, edgelist=None, cmap=None, edge_cmap=None, vmin=None, vmax=None,
-                 edge_vmin=None, edge_vmax=None,
-                 **kwargs):
+def draw_chimera(G, **kwargs):
     """Draws graph G in a Chimera cross topology.
 
     If `linear_biases` and/or `quadratic_biases` are provided, these
@@ -209,72 +225,7 @@ def draw_chimera(G, linear_biases={}, quadratic_biases={},
 
     """
 
-    if linear_biases or quadratic_biases:
-        # if linear biases and/or quadratic biases are provided, then color accordingly.
+    draw_qubit_graph(G, chimera_layout(G), **kwargs)
 
-        try:
-            import matplotlib.pyplot as plt
-            import matplotlib as mpl
-        except ImportError:
-            raise ImportError("Matplotlib and numpy required for draw_chimera()")
-
-        if nodelist is None:
-            nodelist = G.nodes()
-
-        if edgelist is None:
-            edgelist = G.edges()
-
-        if cmap is None:
-            cmap = plt.get_cmap('coolwarm')
-
-        if edge_cmap is None:
-            edge_cmap = plt.get_cmap('coolwarm')
-
-        # any edges or nodes with an unspecified bias default to 0
-        def edge_color(u, v):
-            c = 0.
-            if (u, v) in quadratic_biases:
-                c += quadratic_biases[(u, v)]
-            if (v, u) in quadratic_biases:
-                c += quadratic_biases[(v, u)]
-            return c
-
-        def node_color(v):
-            c = 0.
-            if v in linear_biases:
-                c += linear_biases[v]
-            if (v, v) in quadratic_biases:
-                c += quadratic_biases[(v, v)]
-            return c
-
-        node_color = [node_color(v) for v in nodelist]
-        edge_color = [edge_color(u, v) for u, v in edgelist]
-
-        kwargs['edge_color'] = edge_color
-        kwargs['node_color'] = node_color
-
-        # the range of the color map is shared for nodes/edges and is symmetric
-        # around 0.
-        vmag = max(max(abs(c) for c in node_color), max(abs(c) for c in edge_color))
-        if vmin is None:
-            vmin = -1 * vmag
-        if vmax is None:
-            vmax = vmag
-        if edge_vmin is None:
-            edge_vmin = -1 * vmag
-        if edge_vmax is None:
-            edge_vmax = vmag
-
-    draw(G, chimera_layout(G), nodelist=nodelist, edgelist=edgelist,
-         cmap=cmap, edge_cmap=edge_cmap, vmin=vmin, vmax=vmax, edge_vmin=edge_vmin,
-         edge_vmax=edge_vmax,
-         **kwargs)
-
-    # if the biases are provided, then add a legend explaining the color map
-    if linear_biases or quadratic_biases:
-        fig = plt.figure(1)
-        # cax = fig.add_axes([])
-        cax = fig.add_axes([.9, 0.2, 0.04, 0.6])  # left, bottom, width, height
-        mpl.colorbar.ColorbarBase(cax, cmap=cmap,
-                                  norm=mpl.colors.Normalize(vmin=-1 * vmag, vmax=vmag, clip=False),
-                                  orientation='vertical')
+def draw_chimera_embedding(G, *args, **kwargs):
+    draw_embedding(G, chimera_layout(G), *args, **kwargs)
