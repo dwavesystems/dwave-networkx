@@ -111,6 +111,12 @@ def chimera_graph(m, n=None, t=None, create_using=None, node_list=None, edge_lis
 
     G.name = "chimera_graph(%s, %s, %s)" % (m, n, t)
 
+    construction = (("family", "chimera"), ("rows", m), ("columns", n),
+                    ("tile", t), ("data", data),
+                    ("labels", "coordinate" if coordinates else "int"))
+
+    G.graph.update(construction)
+
     max_size = m * n * 2 * t  # max number of nodes G can have
 
     if edge_list is None:
