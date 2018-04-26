@@ -17,7 +17,9 @@ if _PY2:
 
 def pegasus_graph(m, create_using=None, node_list=None, edge_list=None, data=True, offset_lists=None, offsets_index=None, coordinates=False, fabric_only=True):
     """
-    Creates a Pegasus graph of size m.
+    Creates a Pegasus graph with size parameter m.  The Pegasus topology produced
+    by this generator with default parameters is one member of a large family of
+    topologies under consideration, and may not be reflected in future products.
 
     TODO : define the topology, explain the coordinate system
 
@@ -71,18 +73,26 @@ def pegasus_graph(m, create_using=None, node_list=None, edge_list=None, data=Tru
             [(6, 6, 2, 2, 2, 2, 10, 10, 10, 10, 6, 6,), (6, 6, 10, 10, 10, 10, 2, 2, 2, 2, 6, 6,)],
             [(6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6,), (6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6,)],
         ][offsets_index]
+    elif offsets_index is not None:
+        raise DWaveNetworkXException, "provide at most one of offsets_index and offset_lists"
     else:
-        if offsets_index is not None:
-            raise DWaveNetworkXException, "provide at most one of offsets_index and offset_lists"
-        for ori in 0,1:
-            for x,y in zip(offsets_list[ori][::2], offsets_list[ori][1::2]):
-                if x!=y:
-                    warnings.warn("The offets list you've provided is possibly non-physical.  Odd-coupled qubits should have the same shift value.")
+        for ori in 0, 1:
+            for x, y in zip(offset_lists[ori][::2], offset_lists[ori][1::2]):
+                if x != y:
+                    warnings.warn(
+                        "The offets list you've provided is possibly non-physical.  Odd-coupled qubits should have the same shift value.")
         offsets_descriptor = offset_lists
 
     G = nx.empty_graph(0, create_using)
 
     G.name = "pegasus_graph(%s, %s)" % (m, offsets_descriptor)
+
+    construction = (("family", "pegasus"), ("rows", m), ("columns", m),
+                    ("tile", 12), ("vertical_offsets", offset_lists[0]),
+                    ("horizontal_offsets", offset_lists[1]), ("data", data),
+                    ("labels", "coordinate" if coordinates else "int"))
+
+    G.graph.update(construction)
 
     max_size = m * (m - 1) * 24  # max number of nodes G can have
 
