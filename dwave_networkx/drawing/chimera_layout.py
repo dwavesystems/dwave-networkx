@@ -8,7 +8,7 @@ import networkx as nx
 from networkx import draw
 
 from dwave_networkx import _PY2
-from dwave_networkx.drawing.qubit_layout import draw_qubit_graph
+from dwave_networkx.drawing.qubit_layout import draw_qubit_graph, draw_embedding
 from dwave_networkx.generators.chimera import find_chimera_indices
 
 # compatibility for python 2/3
@@ -20,7 +20,7 @@ else:
     itervalues = lambda d: d.values()
     iteritems = lambda d: d.items()
 
-__all__ = ['chimera_layout', 'draw_chimera']
+__all__ = ['chimera_layout', 'draw_chimera', 'draw_chimera_embedding']
 
 
 def chimera_layout(G, scale=1., center=None, dim=2):
@@ -70,9 +70,9 @@ def chimera_layout(G, scale=1., center=None, dim=2):
     # best case scenario, each node in G has a chimera_index attribute. Otherwise
     # we will try to determine it using the find_chimera_indices function.
     if G.graph.get("family") == "chimera":
-        m = G.graph['m']
-        n = G.graph['n']
-        t = G.graph['t']
+        m = G.graph['rows']
+        n = G.graph['cols']
+        t = G.graph['tile']
         if G.graph.get('labels') == 'coordinate':
             pos = {v: xy_coords(*v) for v in G.nodes()}
         elif G.graph.get('data'):
@@ -81,9 +81,9 @@ def chimera_layout(G, scale=1., center=None, dim=2):
             coord = chimera_coordinates(m, n, t)
             pos = {v: xy_coords(*coord.tuple(v)) for v in G.nodes()}
     else:
-       if all('chimera_index' in dat for __, dat in G.nodes(data=True)):
+        if all('chimera_index' in dat for __, dat in G.nodes(data=True)):
             chimera_indices = {v: dat['chimera_index'] for v, dat in G.nodes(data=True)}
-        elif :
+        else:
             chimera_indices = find_chimera_indices(G)
 
         # we could read these off of the name attribute for G, but we would want the values in
@@ -219,3 +219,6 @@ def draw_chimera(G, **kwargs):
     """
 
     draw_qubit_graph(G, chimera_layout(G), **kwargs)
+
+def draw_chimera_embedding(G, *args, **kwargs):
+    draw_embedding(G, chimera_layout(G), *args, **kwargs)
