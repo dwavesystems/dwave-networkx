@@ -21,7 +21,44 @@ def pegasus_graph(m, create_using=None, node_list=None, edge_list=None, data=Tru
     by this generator with default parameters is one member of a large family of
     topologies under consideration, and may not be reflected in future products.
 
-    TODO : define the topology, explain the coordinate system
+    A Pegasus lattice is a graph minor of a lattice similar to Chimera,
+    where unit tiles are completely connected.  In the most generality, our
+    prelattice Q(N0,N1) contains nodes of the form
+        (i, j, 0, k) with 0 <= k < 2 [vertical nodes]
+    and
+        (i, j, 1, k) with 0 <= k < 2 [horizontal nodes]
+    for 0 <= i <= N0 and 0 <= j < N1; and edges of the form
+        (i, j, u, k) ~ (i+u, j+1-u, u, k)  [external edges]
+        (i, j, 0, k) ~ (i, j, 1, k) [internal edges]
+        (i, j, u, 0) ~ (i, j, u, 1) [odd edges]
+
+    The minor is specified by two lists of offsets; S0 and S1 of length L0 and L1
+    (where L0 and L1, and the entries of S0 and S1, must be divisible by 2).
+    From these offsets, we construct our minor, a Pegasus lattice, by contracting
+    the complete intervals of external edges,
+        I(0, w, k, z) = [(L1*w + k, L0*z + S0[k] + r, 0, k % 2) for 0 <= r < L0]
+        I(1, w, k, z) = [(L1*z + S1[k] + r, L0*w + k, 1, k % 2) for 0 <= r < L1]
+    and deleting the prelattice nodes of any interval not fully contained in
+    Q(N0, N1).
+
+    This generator is specialized to L0 = L1 = 12; N0 = N1 = 12m.
+
+    The notation (u, w, k, z) is called the pegasus index of a node in a pegasus
+    lattice.  The entries can be interpreted as following,
+        u : qubit orientation (0 = vertical, 1 = horizontal)
+        w : orthogonal major offset
+        k : orthogonal minor offset
+        z : parallel offset
+    and the edges in the minor have the form
+        (u, w, k, z) ~ (u, w, k, z+1) [external edges]
+        (0, w0, k0, z0) ~ (1, w1, k1, z1) [internal edges, see below]
+        (u, w, 2k, z) ~ (u, w, 2k+1, z) [odd edges]
+    where internal edges only exist when
+        w1 = z0 + (1 if k1 < S0[k0] else 0), and
+        z1 = w0 - (1 if k0 < S1[k1] else 0)
+
+    linear indices are computed from pegasus indices by the formula
+        q = ((u * m + w) * 12 + k) * (m - 1) + z
 
     Parameters
     ----------
