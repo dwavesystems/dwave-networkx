@@ -14,13 +14,17 @@ from dwave_networkx.generators.pegasus import pegasus_coordinates
 # compatibility for python 2/3
 if _PY2:
     range = xrange
-    itervalues = lambda d: d.itervalues()
-    iteritems = lambda d: d.iteritems()
+
+    def itervalues(d): return d.itervalues()
+
+    def iteritems(d): return d.iteritems()
 else:
-    itervalues = lambda d: d.values()
-    iteritems = lambda d: d.items()
+    def itervalues(d): return d.values()
+
+    def iteritems(d): return d.items()
 
 __all__ = ['pegasus_layout', 'draw_pegasus', 'draw_pegasus_embedding']
+
 
 def pegasus_layout(G, scale=1., center=None, dim=2):
     """Positions the nodes of graph G in a Pegasus topology.
@@ -111,7 +115,8 @@ def pegasus_node_placer_2d(G, scale=1., center=None, dim=2):
     tile_width = G.graph.get("tile")
     tile_center = tile_width / 2 - .5
 
-    scale /= m * tile_width  # want the enter plot to fill in [0, 1] when scale=1
+    # want the enter plot to fill in [0, 1] when scale=1
+    scale /= m * tile_width
 
     if center is None:
         center = np.zeros(dim)
@@ -128,13 +133,13 @@ def pegasus_node_placer_2d(G, scale=1., center=None, dim=2):
     def _xy_coords(u, w, k, z):
         # orientation, major perpendicular offset, minor perpendicular offset, parallel offset
 
-        if k%2:
+        if k % 2:
             p = -.1
         else:
             p = .1
 
         if u:
-            xy = np.array([z*tile_width+h_offsets[k]+tile_center, -tile_width*w-k-p])
+            xy = np.array([z*tile_width+h_offsets[k] + tile_center, -tile_width*w-k-p])
         else:
             xy = np.array([tile_width*w+k+p, -z*tile_width-v_offsets[k]-tile_center])
 
@@ -221,7 +226,7 @@ def draw_pegasus_embedding(G, *args, **kwargs):
 
     interaction_edges : list (optional, default None)
         A list of edges which will be used as interactions.
-    
+
     kwargs : optional keywords
        See networkx.draw_networkx() for a description of optional keywords,
        with the exception of the `pos` parameter which is not used by this

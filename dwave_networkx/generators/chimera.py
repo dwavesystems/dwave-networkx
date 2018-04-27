@@ -233,7 +233,8 @@ def find_chimera_indices(G):
     if n_nodes == 0:
         return chimera_indices
     elif n_nodes == 1:
-        raise DWaveNetworkXException('Singleton graphs are not Chimera-structured')
+        raise DWaveNetworkXException(
+            'Singleton graphs are not Chimera-structured')
     elif n_nodes == 2:
         return {nlist[0]: (0, 0, 0, 0), nlist[1]: (0, 0, 1, 0)}
 
@@ -302,7 +303,7 @@ def chimera_elimination_order(m, n=None, t=None):
 
     index_flip = m > n
     if index_flip:
-        m,n = n,m
+        m, n = n, m
 
     def chimeraI(m0, n0, k0, l0):
         if index_flip:

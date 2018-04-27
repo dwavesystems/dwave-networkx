@@ -14,11 +14,14 @@ from dwave_networkx.generators.chimera import find_chimera_indices
 # compatibility for python 2/3
 if _PY2:
     range = xrange
-    itervalues = lambda d: d.itervalues()
-    iteritems = lambda d: d.iteritems()
+
+    def itervalues(d): return d.itervalues()
+
+    def iteritems(d): return d.iteritems()
 else:
-    itervalues = lambda d: d.values()
-    iteritems = lambda d: d.items()
+    def itervalues(d): return d.values()
+
+    def iteritems(d): return d.items()
 
 __all__ = ['chimera_layout', 'draw_chimera', 'draw_chimera_embedding']
 
@@ -63,7 +66,6 @@ def chimera_layout(G, scale=1., center=None, dim=2):
         empty_graph = nx.Graph()
         empty_graph.add_nodes_from(G)
         G = empty_graph
-
 
     # now we get chimera coordinates for the translation
     # first, check if we made it
@@ -141,7 +143,8 @@ def chimera_node_placer_2d(m, n, t, scale=1., center=None, dim=2):
 
     tile_center = t // 2
     tile_length = t + 3  # 1 for middle of cross, 2 for spacing between tiles
-    scale /= max(m, n) * tile_length - 3  # want the enter plot to fill in [0, 1] when scale=1
+    # want the enter plot to fill in [0, 1] when scale=1
+    scale /= max(m, n) * tile_length - 3
 
     grid_offsets = {}
 
@@ -226,6 +229,7 @@ def draw_chimera(G, **kwargs):
 
     draw_qubit_graph(G, chimera_layout(G), **kwargs)
 
+
 def draw_chimera_embedding(G, *args, **kwargs):
     """Draws an embedding onto the chimera graph G, according to layout.
 
@@ -260,7 +264,7 @@ def draw_chimera_embedding(G, *args, **kwargs):
 
     interaction_edges : list (optional, default None)
         A list of edges which will be used as interactions.
-    
+
     kwargs : optional keywords
        See networkx.draw_networkx() for a description of optional keywords,
        with the exception of the `pos` parameter which is not used by this

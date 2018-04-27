@@ -604,7 +604,8 @@ def _branch_and_bound(adj, x, g, f, best_found, skipable=set(), theorem6p2=None)
 
         # according to Lemma 5.3, we can skip all of the neighbors of the last
         # variable eliniated when choosing the next variable
-        next_skipable = adj[n]  # this does not get altered so we don't need a copy
+        # this does not get altered so we don't need a copy
+        next_skipable = adj[n]
 
         if prune6p2(x, n, next_skipable):
             continue
@@ -721,7 +722,8 @@ def _theorem6p1():
     def _prune(x):
         if len(x) <= 2:
             return False
-        key = (tuple(x[:-2]), x[-2], x[-1])  # this is faster than tuple(x[-3:])
+        # this is faster than tuple(x[-3:])
+        key = (tuple(x[:-2]), x[-2], x[-1])
         return key in pruning_set
 
     def _explored(x):

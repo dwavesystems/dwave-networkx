@@ -12,10 +12,12 @@ __all__ = ["min_vertex_coloring", "is_vertex_coloring", "is_cycle"]
 # compatibility for python 2/3
 if _PY2:
     range = xrange
-    iteritems = lambda d: d.iteritems()
-    ceil = lambda n: int(math.ceil(n))
+
+    def iteritems(d): return d.iteritems()
+
+    def ceil(n): return int(math.ceil(n))
 else:
-    iteritems = lambda d: d.items()
+    def iteritems(d): return d.items()
     ceil = math.ceil
 
 try:
