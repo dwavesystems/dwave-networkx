@@ -82,14 +82,14 @@ def pegasus_graph(m, create_using=None, node_list=None, edge_list=None, data=Tru
     coordinates : bool, optional (default False)
         If True, node labels are 4-tuple Pegasus indices
     offset_lists : pair of lists, optional (default None)
-        Used to directly control the shift offsets, each list in the pair
-        should have length 12, and contain ints from {2, 6, 10}.  If
-        offset_lists is not None, then offsets_index must be None.
+        Used to directly control the offsets, each list in the pair should
+        have length 12, and contain even ints.  If offset_lists is not None,
+        then offsets_index must be None.
     offsets_index : int, optional (default None)
-        A number between 0 and 7 inclusive, to select one of eight shifts
-        under consideration.  If both offsets_index and offset_lists are
-        None, then we set offsets_index = 0.  At least one of these two
-        parameters must be None.
+        A number between 0 and 7 inclusive, to select a preconfigured
+        set of topological parameters.  If both offsets_index and 
+        offset_lists are None, then we set offsets_index = 0.  At least
+        one of these two parameters must be None.
     fabric_only: bool, optional (default True)
         The Pegasus graph, by definition, will have some disconnected
         components.  If this True, we will only construct nodes from the
@@ -117,7 +117,7 @@ def pegasus_graph(m, create_using=None, node_list=None, edge_list=None, data=Tru
             for x, y in zip(offset_lists[ori][::2], offset_lists[ori][1::2]):
                 if x != y:
                     warnings.warn(
-                        "The offets list you've provided is possibly non-physical.  Odd-coupled qubits should have the same shift value.")
+                        "The offets list you've provided is possibly non-physical.  Odd-coupled qubits should have the same value.")
         offsets_descriptor = offset_lists
 
     G = nx.empty_graph(0, create_using)

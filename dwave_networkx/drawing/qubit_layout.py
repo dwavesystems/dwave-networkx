@@ -12,18 +12,22 @@ from dwave_networkx import _PY2
 # compatibility for python 2/3
 if _PY2:
     range = xrange
-    itervalues = lambda d: d.itervalues()
-    iteritems = lambda d: d.iteritems()
+
+    def itervalues(d): return d.itervalues()
+
+    def iteritems(d): return d.iteritems()
 else:
-    itervalues = lambda d: d.values()
-    iteritems = lambda d: d.items()
+    def itervalues(d): return d.values()
+
+    def iteritems(d): return d.items()
 
 __all__ = ['draw_qubit_graph']
 
+
 def draw_qubit_graph(G, layout, linear_biases={}, quadratic_biases={},
-                 nodelist=None, edgelist=None, cmap=None, edge_cmap=None, vmin=None, vmax=None,
-                 edge_vmin=None, edge_vmax=None,
-                 **kwargs):
+                     nodelist=None, edgelist=None, cmap=None, edge_cmap=None, vmin=None, vmax=None,
+                     edge_vmin=None, edge_vmax=None,
+                     **kwargs):
     """Draws graph G according to layout.
 
     If `linear_biases` and/or `quadratic_biases` are provided, these
@@ -126,9 +130,10 @@ def draw_qubit_graph(G, layout, linear_biases={}, quadratic_biases={},
                                   norm=mpl.colors.Normalize(vmin=-1 * vmag, vmax=vmag, clip=False),
                                   orientation='vertical')
 
-def draw_embedding(G, layout, emb, embedded_graph = None, interaction_edges = None,
-                 chain_color = None, unused_color = None, cmap=None,
-                 **kwargs):
+
+def draw_embedding(G, layout, emb, embedded_graph=None, interaction_edges=None,
+                   chain_color=None, unused_color=None, cmap=None,
+                   **kwargs):
     """Draws an embedding onto the graph G, according to layout.
 
     If interaction_edges is not None, then only display the couplers in that
@@ -167,7 +172,7 @@ def draw_embedding(G, layout, emb, embedded_graph = None, interaction_edges = No
 
     interaction_edges : list (optional, default None)
         A list of edges which will be used as interactions.
-    
+
     kwargs : optional keywords
        See networkx.draw_networkx() for a description of optional keywords,
        with the exception of the `pos` parameter which is not used by this
@@ -183,35 +188,36 @@ def draw_embedding(G, layout, emb, embedded_graph = None, interaction_edges = No
     if chain_color is None:
         import matplotlib.cm
         color = matplotlib.cm.get_cmap(kwargs.get("cmap"))
-        n = max(1.,len(emb)-1.)
-        var_i = {v:i for i,v in enumerate(emb)}
-        chain_color = {v:color(i/n) for i, v in enumerate(emb)}
+        n = max(1., len(emb)-1.)
+        var_i = {v: i for i, v in enumerate(emb)}
+        chain_color = {v: color(i/n) for i, v in enumerate(emb)}
 
     qlabel = {q: v for v, chain in iteritems(emb) for q in chain}
     edgelist = []
     edge_color = []
-      
+
     if interaction_edges is not None:
         interactions = nx.Graph()
         interactions.add_edges_from(interaction_edges)
-        show = lambda p, q, u, v: interactions.has_edge(p, q)
+
+        def show(p, q, u, v): return interactions.has_edge(p, q)
     elif embedded_graph is not None:
-        show = lambda p, q, u, v: G.has_edge(u,v)
+        def show(p, q, u, v): return G.has_edge(u, v)
     else:
-        show = lambda p, q, u, v: True
+        def show(p, q, u, v): return True
 
     for (p, q) in G.edges():
         u = qlabel.get(p)
         v = qlabel.get(q)
-        if u==v:
+        if u == v:
             ec = chain_color.get(u)
         elif show(p, q, u, v):
-            ec = (0,0,0,1)
-        else:   
-            ec = unused_color 
+            ec = (0, 0, 0, 1)
+        else:
+            ec = unused_color
 
         if ec is not None:
-            edgelist.append((p,q))
+            edgelist.append((p, q))
             edge_color.append(ec)
 
     nodelist = []
@@ -227,8 +233,5 @@ def draw_embedding(G, layout, emb, embedded_graph = None, interaction_edges = No
             node_color.append(pc)
 
     draw(G, layout, nodelist=nodelist, edgelist=edgelist,
-         node_color = node_color, edge_color = edge_color,
+         node_color=node_color, edge_color=edge_color,
          **kwargs)
-
-    
-

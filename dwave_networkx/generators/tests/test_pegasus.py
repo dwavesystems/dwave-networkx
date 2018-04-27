@@ -11,7 +11,7 @@ alpha_map = dict(enumerate('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz
 class TestPegasusGraph(unittest.TestCase):
     def test_p2(self):
         G = dnx.pegasus_graph(2, fabric_only=False)
-    
+
         # should have 48 nodes
         self.assertEqual(len(G), 48)
 
