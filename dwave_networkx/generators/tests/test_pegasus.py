@@ -1,6 +1,7 @@
 from __future__ import division
 
 import unittest
+import warnings
 
 import networkx as nx
 import dwave_networkx as dnx
@@ -19,9 +20,18 @@ class TestPegasusGraph(unittest.TestCase):
         for n in range(48):
             self.assertIn(n, G)
 
+    def test_bad_args(self):
+        with self.assertRaises(dnx.DWaveNetworkXException):
+            G = dnx.pegasus_graph(2, offset_lists=[], offsets_index=0)
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            G = dnx.pegasus_graph(2, offset_lists=[[0, 1]*6, [0, 1]*6])
+            self.assertLessEqual(len(w), 13)
+            self.assertGreaterEqual(len(w), 12)
+
     def test_connected_component(self):
         from dwave_networkx.generators.pegasus import pegasus_coordinates
-        test_offsets = [[0] * 12] * 2, [[2] * 12, [6] * 12], [[6] * 12, [2, 6, 10] * 4], [[2, 6, 10] * 4] * 2
+        test_offsets = [[0] * 12] * 2, [[2] * 12, [6] * 12], [[6] * 12, [2, 2, 6, 6, 10, 10] * 2], [[2, 2, 6, 6, 10, 10] * 2] * 2
         for offsets in test_offsets:
             G = dnx.pegasus_graph(4, fabric_only=True, offset_lists=offsets)
             H = dnx.pegasus_graph(4, fabric_only=False, offset_lists=offsets)
@@ -93,3 +103,15 @@ class TestPegasusGraph(unittest.TestCase):
 
         self.assertEqual(EG, sorted(map(sorted, coords.int_pairs(Hn.edges()))))
         self.assertEqual(EH, sorted(map(sorted, coords.tuple_pairs(Gn.edges()))))
+
+    def test_variable_order(self):
+        n = 4
+        p = dnx.pegasus_graph(n, fabric_only=False)
+        o = dnx.generators.pegasus.pegasus_elimination_order(n)
+        tw = dnx.elimination_order_width(p, o)
+        self.assertEqual(tw, 12*n-4)
+
+        p = dnx.pegasus_graph(n, fabric_only=False, coordinates=True)
+        o = dnx.generators.pegasus.pegasus_elimination_order(n, coordinates=True)
+        tw = dnx.elimination_order_width(p, o)
+        self.assertEqual(tw, 12*n-4)

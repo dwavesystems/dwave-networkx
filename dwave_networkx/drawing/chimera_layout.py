@@ -9,7 +9,7 @@ from networkx import draw
 
 from dwave_networkx import _PY2
 from dwave_networkx.drawing.qubit_layout import draw_qubit_graph, draw_embedding
-from dwave_networkx.generators.chimera import find_chimera_indices
+from dwave_networkx.generators.chimera import find_chimera_indices, chimera_coordinates
 
 # compatibility for python 2/3
 if _PY2:
@@ -226,7 +226,6 @@ def draw_chimera(G, **kwargs):
     >>> plt.show()
 
     """
-
     draw_qubit_graph(G, chimera_layout(G), **kwargs)
 
 
