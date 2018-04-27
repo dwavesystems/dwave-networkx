@@ -64,7 +64,7 @@ def chimera_layout(G, scale=1., center=None, dim=2):
 
     if not isinstance(G, nx.Graph):
         empty_graph = nx.Graph()
-        empty_graph.add_nodes_from(G)
+        empty_graph.add_edges_from(G)
         G = empty_graph
 
     # now we get chimera coordinates for the translation

@@ -72,6 +72,12 @@ class TestDrawing(unittest.TestCase):
         pos = dnx.chimera_layout(G)
 
     @unittest.skipIf(not _numpy, "No numpy")
+    def test_chimera_layout_edgelist_singletile(self):
+        G = dnx.chimera_graph(1, 1, 16, data=False)
+        pos = dnx.chimera_layout(G.edges())
+
+
+    @unittest.skipIf(not _numpy, "No numpy")
     def test_draw_pegasus_biases(self):
         G = dnx.chimera_graph(8)
         h = {v: v % 12 for v in G}
