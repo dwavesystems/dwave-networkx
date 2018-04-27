@@ -181,5 +181,17 @@ class TestChimeraGraph(unittest.TestCase):
             self.assertEqual(q, coords.tuple(v))
 
         self.assertEqual(EG, sorted(map(sorted, coords.int_pairs(Hn.edges()))))
-        self.assertEqual(EH, sorted(
-            map(sorted, coords.tuple_pairs(Gn.edges()))))
+        self.assertEqual(EH, sorted(map(sorted, coords.tuple_pairs(Gn.edges()))))
+
+    def test_variable_order(self):
+        n = 8
+        m = 10
+        p = dnx.chimera_graph(n, m)
+        o = dnx.generators.chimera.chimera_elimination_order(n, m)
+        tw = dnx.elimination_order_width(p, o)
+        self.assertEqual(tw, 4*n)
+
+        p = dnx.chimera_graph(m, n)
+        o = dnx.generators.chimera.chimera_elimination_order(m, n)
+        tw = dnx.elimination_order_width(p, o)
+        self.assertEqual(tw, 4*n)

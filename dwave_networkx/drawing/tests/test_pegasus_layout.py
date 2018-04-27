@@ -30,20 +30,36 @@ class TestDrawing(unittest.TestCase):
         pos = dnx.pegasus_layout(G)
 
     @unittest.skipIf(not _numpy, "No numpy")
-    def test_pegasus_layout_ints_nodata(self, data=False):
-        G = dnx.pegasus_graph(2)
+    def test_pegasus_layout_ints_nodata(self):
+        G = dnx.pegasus_graph(2, data=False)
         pos = dnx.pegasus_layout(G)
 
     @unittest.skipIf(not _numpy, "No numpy")
-    def test_draw_pegasus(self, data=False):
+    def test_pegasus_layout_ints_badcenter(self):
+        G = dnx.pegasus_graph(2, data=False)
+        with self.assertRaises(ValueError):
+            pos = dnx.pegasus_layout(G, center=(0, 0, 0, 0))
+
+    @unittest.skipIf(not _numpy, "No numpy")
+    def test_pegasus_layout_ints_noinfo(self):
+        G = dnx.pegasus_graph(2, data=False)
+        badG = nx.Graph()
+        badG.add_edges_from(G.edges())
+        with self.assertRaises(ValueError):
+            pos = dnx.pegasus_layout(badG)
+
+    @unittest.skipIf(not _numpy, "No numpy")
+    def test_draw_pegasus_biases(self):
         G = dnx.pegasus_graph(2)
         h = {v: v % 12 for v in G}
-        J = {(u, v): (u+v) % 24 for u, v in G.edges()}
+        J = {(u, v) if u % 2 else (v, u): (u+v) % 24 for u, v in G.edges()}
+        for v in G:
+            J[v, v] = .1
 
         dnx.draw_pegasus(G, linear_biases=h, quadratic_biases=J)
 
     @unittest.skipIf(not _numpy, "No numpy")
-    def test_draw_pegasus_embedding(self, data=False):
+    def test_draw_pegasus_embedding(self):
         P = dnx.pegasus_graph(2)
         G = nx.grid_graph([3, 3, 2])
         emb = {(0, 0, 0): [35], (0, 0, 1): [12], (0, 0, 2): [31], (0, 1, 0): [16],

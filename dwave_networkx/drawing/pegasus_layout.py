@@ -71,8 +71,6 @@ def pegasus_layout(G, scale=1., center=None, dim=2):
         pos = {v: xy_coords(*dat['pegasus_index']) for v, dat in G.nodes(data=True)}
     else:
         m = G.graph.get('rows')
-        if m is None:
-            raise ValueError, "G is not a product of dwave_networkx.pegasus_graph"
         coord = pegasus_coordinates(m)
         pos = {v: xy_coords(*coord.tuple(v)) for v in G.nodes()}
 
