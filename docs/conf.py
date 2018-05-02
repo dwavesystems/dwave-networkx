@@ -89,7 +89,11 @@ todo_include_todos = True
 
 modindex_common_prefix = ['dwave_networkx.']
 
-doctest_global_setup = "import dwave_networkx as dnx\nimport networkx as nx\nfrom dwave_networkx.algorithms.tests.samplers import ExactSolver\nsampler = ExactSolver()"
+doctest_global_setup = \
+"""
+import dwave_networkx as dnx
+import networkx as nx
+"""
 
 
 # -- Options for HTML output ----------------------------------------------

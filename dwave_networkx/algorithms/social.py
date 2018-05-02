@@ -57,6 +57,8 @@ def structural_imbalance(S, sampler=None, **sampler_args):
 
     Examples
     --------
+    >>> import dimod
+    >>> sampler = dimod.ExactSolver()
     >>> S = nx.Graph()
     >>> S.add_edge('Alice', 'Bob', sign=1)  # Alice and Bob are friendly
     >>> S.add_edge('Alice', 'Eve', sign=-1)  # Alice and Eve are hostile

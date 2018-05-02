@@ -88,7 +88,7 @@ def binary_quadratic_model_sampler(which_args):
     >>> G = nx.complete_graph(5)
     >>> independent_set(G, sampler1)
     [0]
-    >>> independent_set(G, sampler2)
+    >>> independent_set(G, sampler2)  # doctest: +SKIP
     ---------------------------------------------------------------------------
     TypeError                                 Traceback (most recent call last)
     <ipython-input-35-670b71b268c7> in <module>()

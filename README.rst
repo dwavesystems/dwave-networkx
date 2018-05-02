@@ -1,6 +1,14 @@
+.. image:: https://img.shields.io/pypi/v/dwave-networkx.svg
+    :target: https://pypi.python.org/pypi/dwave-networkx
 
-.. image:: https://travis-ci.org/dwavesystems/dwave_networkx.svg?branch=master
-    :target: https://travis-ci.org/dwavesystems/dwave_networkx
+.. image:: https://readthedocs.org/projects/dwave-networkx/badge/?version=latest
+    :target: http://dwave-networkx.readthedocs.io/en/latest/?badge=latest
+
+.. image:: https://coveralls.io/repos/github/dwavesystems/dwave_networkx/badge.svg?branch=master
+    :target: https://coveralls.io/github/dwavesystems/dwave_networkx?branch=master
+
+.. image:: https://circleci.com/gh/dwavesystems/dwave_networkx.svg?style=svg
+    :target: https://circleci.com/gh/dwavesystems/dwave_networkx
 
 .. inclusion-marker-do-not-remove
 
@@ -23,10 +31,6 @@ bipartite architecture).
 
 >>> import dwave_networkx as dnx
 >>> graph = dnx.chimera_graph(1, 1, 4)
->>> list(graph.nodes())
-[0, 1, 2, 3, 4, 5, 6, 7]
->>> list(graph.edges())
-[(0, 4), (0, 5), (0, 6), (0, 7), (1, 4), (1, 5), (1, 6), (1, 7), (2, 4), (2, 5), (2, 6), (2, 7), (3, 4), (3, 5), (3, 6), (3, 7)]
 
 See the documentation for more examples.
 

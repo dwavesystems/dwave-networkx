@@ -97,7 +97,7 @@ def unset_default_sampler():
     >>> print(dnx.get_default_sampler())  # doctest: +SKIP
     'sampler0'
     >>> dnx.unset_default_sampler()  # doctest: +SKIP
-    >>> print(dnx.get_default_sampler())
+    >>> print(dnx.get_default_sampler())  # doctest: +SKIP
     None
     """
     global _SAMPLER
@@ -112,9 +112,9 @@ def get_default_sampler():
     This example queries the default sampler before and after specifying
     a default sampler.
 
-    >>> print(dnx.get_default_sampler())
+    >>> print(dnx.get_default_sampler())  # doctest: +SKIP
     None
-    >>> dnx.set_default_sampler(sampler)
+    >>> dnx.set_default_sampler(sampler)  # doctest: +SKIP
     >>> print(dnx.get_default_sampler())  # doctest: +SKIP
     'sampler'
 
