@@ -7,13 +7,14 @@ jobs:
     working_directory: ~/repo
 
     steps:
+
       - checkout
 
       - restore_cache:
           keys:
           - v1-dependencies-{{ checksum "requirements.txt" }}-{{ .Environment.CIRCLE_JOB }}
 
-      - run:
+      - run: &install-dependencies-template
           name: install dependencies
           command: |
             python -m virtualenv env
@@ -25,7 +26,7 @@ jobs:
             - ./env
           key: v1-dependencies-{{ checksum "requirements.txt" }}-{{ .Environment.CIRCLE_JOB }}
         
-      - run:
+      - run: &run-tests-template
           name: run tests
           command: |
             . env/bin/activate
@@ -59,11 +60,46 @@ jobs:
     docker:
       - image: circleci/python:2.7-jessie
 
+  test-osx-2.7:
+    macos:
+      xcode: "9.0"
+
+    steps:
+      # need to install python
+      - run:
+          name: install osx python2
+          command: |
+            brew install python2
+            python --version
+            python2 --version
+
+
+      - checkout
+
+      - restore_cache:
+          keys:
+          - v1-dependencies-{{ checksum "requirements.txt" }}-{{ .Environment.CIRCLE_JOB }}
+
+      - run: *install-dependencies-template
+
+      - save_cache:
+          paths:
+            - ./env
+          key: v1-dependencies-{{ checksum "requirements.txt" }}-{{ .Environment.CIRCLE_JOB }}
+
+      - run: *run-tests-template
+
 workflows:
   version: 2
   test:
     jobs:
-      - test-3.6
-      - test-2.7
-      - test-3.5
+      # - test-3.6
+      # - test-2.7
+      # - test-3.5
       - test-3.4
+      - test-osx-2.7
+          # requires:
+          #   - test-3.6
+          #   - test-2.7
+          #   - test-3.5
+          #   - test-3.4
