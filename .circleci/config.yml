@@ -139,6 +139,48 @@ jobs:
 
       - run: *run-tests-template
 
+  deploy:
+    docker:
+      - image: circleci/python:3.6-jessie
+
+    working_directory: ~/repo
+
+    steps:
+      - checkout
+
+      - run:
+          name: create virtualenv
+          command: |
+            python -m virtualenv env
+
+      - run: *install-dependencies-template
+
+      - run:
+          name: verify version matches tag
+          command: |
+            . env/bin/activate
+            python ci_utils/verify_version.py
+
+      - run:
+          name: init .pypirc
+          command: |
+            cd penaltymodel_core
+            echo -e "[pypi]" >> ~/.pypirc
+            echo -e "username = dwtools-ci" >> ~/.pypirc
+            echo -e "password = $PYPI_PASSWORD" >> ~/.pypirc
+
+      - run:
+          name: build sdist and bdist
+          command: |
+            . env/bin/activate
+            python setup.py sdist
+            python setup.py bdist_wheel
+
+      - run:
+          name: upload
+          command: |
+            twine upload dist/*
+
 workflows:
   version: 2
   test:
@@ -153,3 +195,11 @@ workflows:
             - test-2.7
             - test-3.5
             - test-3.4
+      - deploy:
+          requires:
+            - test-osx
+          filters:
+            tags:
+              only: /[0-9]+(\.[0-9]+)*/
+            branches:
+              ignore: /.*/
