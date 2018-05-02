@@ -44,31 +44,6 @@ jobs:
             . env/bin/activate
             make -C docs/ doctest
 
-  test-install-3.6: &install-test-template
-    # test installing from setup.py rather than from requirements.txt
-
-    docker:
-      - image: circleci/python:3.6-jessie
-
-    working_directory: ~/repo
-
-    steps:
-      - checkout
-
-      - run:
-          name: install from setup.py
-          command: |
-            python -m virtualenv env
-            . env/bin/activate
-            pip install .
-            pip install mock
-        
-      - run:
-          name: run tests
-          command: |
-            . env/bin/activate
-            python -m unittest discover
-
   test-3.5:
     <<: *full-test-template
     docker:
@@ -84,11 +59,6 @@ jobs:
     docker:
       - image: circleci/python:2.7-jessie
 
-  test-install-2.7:
-    <<: *install-test-template
-    docker:
-      - image: circleci/python:2.7-jessie
-
 workflows:
   version: 2
   test:
@@ -97,15 +67,3 @@ workflows:
       - test-2.7
       - test-3.5
       - test-3.4
-      - test-install-3.6:
-          requires:
-            - test-3.6
-            - test-2.7
-            - test-3.5
-            - test-3.4
-      - test-install-2.7:
-          requires:
-            - test-3.6
-            - test-2.7
-            - test-3.5
-            - test-3.4

@@ -24,6 +24,5 @@ setup(
     download_url='https://github.com/dwavesystems/dwave_networkx/archive/0.5.0.tar.gz',
     packages=packages,
     install_requires=install_requires,
-    extras_require=extras_require,
-    setup_requires=install_requires
+    extras_require=extras_require
 )
