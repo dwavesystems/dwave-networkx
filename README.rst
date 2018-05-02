@@ -23,10 +23,6 @@ bipartite architecture).
 
 >>> import dwave_networkx as dnx
 >>> graph = dnx.chimera_graph(1, 1, 4)
->>> list(graph.nodes())
-[0, 1, 2, 3, 4, 5, 6, 7]
->>> list(graph.edges())
-[(0, 4), (0, 5), (0, 6), (0, 7), (1, 4), (1, 5), (1, 6), (1, 7), (2, 4), (2, 5), (2, 6), (2, 7), (3, 4), (3, 5), (3, 6), (3, 7)]
 
 See the documentation for more examples.
 

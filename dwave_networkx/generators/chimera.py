@@ -177,7 +177,7 @@ def find_chimera_indices(G):
     >>> G = nx.Graph()
     >>> G.add_edges_from([(0, 2), (1, 2), (1, 3), (0, 3)])
     >>> chimera_indices = dnx.find_chimera_indices(G)
-    >>> nx.set_node_attributes(G, 'chimera_index', chimera_indices)
+    >>> nx.set_node_attributes(G, chimera_indices, 'chimera_index')
 
     """
 

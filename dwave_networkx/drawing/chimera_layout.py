@@ -205,7 +205,7 @@ def draw_chimera(G, linear_biases={}, quadratic_biases={},
     >>> import matplotlib.pyplot as plt
     >>> G = dnx.chimera_graph(2, 2, 4)
     >>> dnx.draw_chimera(G)
-    >>> plt.show()
+    >>> plt.show()  # doctest: +SKIP
 
     """
 

@@ -100,20 +100,20 @@ def maximal_matching(G, sampler=None, **sampler_args):
 
 @binary_quadratic_model_sampler(1)
 def min_maximal_matching(G, sampler=None, **sampler_args):
-    """Returns an approximate minimal maximal matching.
+    """Returns an approximate minimum maximal matching.
 
-    Defines a QUBO with ground states corresponding to a minimal
+    Defines a QUBO with ground states corresponding to a minimum
     maximal matching and uses the sampler to sample from it.
 
     A matching is a subset of edges in which no node occurs more than
     once. A maximal matching is one in which no edges from G can be
-    added without violating the matching rule. A minimal maximal
+    added without violating the matching rule. A minimum maximal
     matching is the smallest maximal matching for G.
 
     Parameters
     ----------
     G : NetworkX graph
-        The graph on which to find a minimal maximal matching.
+        The graph on which to find a minimum maximal matching.
 
     sampler
         A binary quadratic model sampler. A sampler is a process that
@@ -131,20 +131,18 @@ def min_maximal_matching(G, sampler=None, **sampler_args):
     Returns
     -------
     matching : set
-        A minimal maximal matching of the graph.
+        A minimum maximal matching of the graph.
 
     Example
     -------
     This example uses a sampler from
-    `dimod <https://github.com/dwavesystems/dimod>`_ to find a minimal maximal
+    `dimod <https://github.com/dwavesystems/dimod>`_ to find a minimum maximal
     matching for a Chimera unit cell.
 
-    >>> import dwave_networkx as dnx
     >>> import dimod
-    >>> samplerSA = dimod.SimulatedAnnealingSampler()
+    >>> sampler = dimod.ExactSolver()
     >>> G = dnx.chimera_graph(1, 1, 4)
-    >>> dnx.min_maximal_matching(G, samplerSA)
-    {(0, 4), (1, 5), (2, 7), (3, 6)}
+    >>> matching = dnx.min_maximal_matching(G, sampler)
 
     Notes
     -----
@@ -231,7 +229,7 @@ def is_matching(edges):
 
     >>> import dwave_networkx as dnx
     >>> G = dnx.chimera_graph(1, 1, 4)
-    >>> dnx.is_matching(list(G.edges())
+    >>> dnx.is_matching(G.edges())
     False
     >>> dnx.is_matching({(0, 4), (1, 5), (2, 7), (3, 6)})
     True

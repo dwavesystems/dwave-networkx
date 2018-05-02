@@ -49,8 +49,7 @@ def maximum_cut(G, sampler=None, **sampler_args):
     >>> import dwave_networkx as dnx
     >>> samplerSA = dimod.SimulatedAnnealingSampler()
     >>> G = dnx.chimera_graph(1, 1, 4)
-    >>> dnx.maximum_cut(G, samplerSA)
-    {4, 5, 6, 7}
+    >>> cut = dnx.maximum_cut(G, samplerSA)
 
     Notes
     -----

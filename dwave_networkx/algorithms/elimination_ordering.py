@@ -173,8 +173,7 @@ def min_fill_heuristic(G):
     >>> import dwave_networkx as dnx
     >>> import networkx as nx
     >>> K_4 = nx.complete_graph(4)
-    >>> dnx.min_fill_heuristic(K_4)
-    (3, [2, 0, 3, 1])
+    >>> tw, order = dnx.min_fill_heuristic(K_4)
 
     References
     ----------
@@ -246,8 +245,7 @@ def min_width_heuristic(G):
     >>> import dwave_networkx as dnx
     >>> import networkx as nx
     >>> K_4 = nx.complete_graph(4)
-    >>> dnx.min_width_heuristic(K_4)
-    (3, [1, 2, 0, 3])
+    >>> tw, order = dnx.min_width_heuristic(K_4)
 
     References
     ----------

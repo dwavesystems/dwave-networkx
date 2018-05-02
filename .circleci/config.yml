@@ -1,0 +1,105 @@
+version: 2
+jobs:
+  test-3.6: &full-test-template
+    docker:
+      - image: circleci/python:3.6-jessie
+
+    working_directory: ~/repo
+
+    steps:
+
+      - checkout
+
+      - restore_cache:
+          keys:
+          - v1-dependencies-{{ checksum "requirements.txt" }}-{{ .Environment.CIRCLE_JOB }}
+
+      - run: &install-dependencies-template
+          name: install dependencies
+          command: |
+            python -m virtualenv env
+            . env/bin/activate
+            pip install -r requirements.txt
+
+      - save_cache:
+          paths:
+            - ./env
+          key: v1-dependencies-{{ checksum "requirements.txt" }}-{{ .Environment.CIRCLE_JOB }}
+        
+      - run: &run-tests-template
+          name: run tests
+          command: |
+            . env/bin/activate
+            coverage run -m unittest discover
+
+      - run:
+          # requires COVERALLS_REPO_TOKEN env variable
+          name: coveralls
+          command: |
+            . env/bin/activate
+            coveralls
+
+      - run:
+          name: doctest
+          command: |
+            . env/bin/activate
+            make -C docs/ doctest
+
+  test-3.5:
+    <<: *full-test-template
+    docker:
+      - image: circleci/python:3.5-jessie
+
+  test-3.4:
+    <<: *full-test-template
+    docker:
+      - image: circleci/python:3.4-jessie
+
+  test-2.7:
+    <<: *full-test-template
+    docker:
+      - image: circleci/python:2.7-jessie
+
+  test-osx-2.7:
+    macos:
+      xcode: "9.0"
+
+    steps:
+      # need to install python
+      - run:
+          name: install osx python2
+          command: |
+            brew install python2
+            python --version
+            python2 --version
+
+
+      - checkout
+
+      - restore_cache:
+          keys:
+          - v1-dependencies-{{ checksum "requirements.txt" }}-{{ .Environment.CIRCLE_JOB }}
+
+      - run: *install-dependencies-template
+
+      - save_cache:
+          paths:
+            - ./env
+          key: v1-dependencies-{{ checksum "requirements.txt" }}-{{ .Environment.CIRCLE_JOB }}
+
+      - run: *run-tests-template
+
+workflows:
+  version: 2
+  test:
+    jobs:
+      # - test-3.6
+      # - test-2.7
+      # - test-3.5
+      - test-3.4
+      - test-osx-2.7
+          # requires:
+          #   - test-3.6
+          #   - test-2.7
+          #   - test-3.5
+          #   - test-3.4
