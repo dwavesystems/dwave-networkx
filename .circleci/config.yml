@@ -7,6 +7,7 @@ jobs:
     working_directory: ~/repo
 
     steps:
+
       - checkout
 
       - restore_cache:
@@ -14,10 +15,15 @@ jobs:
           - v1-dependencies-{{ checksum "requirements.txt" }}-{{ .Environment.CIRCLE_JOB }}
 
       - run:
-          name: install dependencies
+          name: create virtualenv
           command: |
             python -m virtualenv env
+
+      - run: &install-dependencies-template
+          name: install dependencies
+          command: |
             . env/bin/activate
+            python --version
             pip install -r requirements.txt
 
       - save_cache:
@@ -25,10 +31,11 @@ jobs:
             - ./env
           key: v1-dependencies-{{ checksum "requirements.txt" }}-{{ .Environment.CIRCLE_JOB }}
         
-      - run:
-          name: run tests
+      - run: &run-tests-template
+          name: run unittests
           command: |
             . env/bin/activate
+            python --version
             coverage run -m unittest discover
 
       - run:
@@ -59,6 +66,79 @@ jobs:
     docker:
       - image: circleci/python:2.7-jessie
 
+  test-osx:
+    macos:
+      xcode: "9.0"
+
+    working_directory: ~/repo
+
+    steps:
+      - checkout
+
+      - run: 
+          name: install pyenv
+          command: |
+            brew install pyenv
+
+      - restore_cache:
+          keys:
+          - pyenv-versions-{{ .Environment.CIRCLE_JOB }}
+          - dependencies2.7-{{ checksum "requirements.txt" }}-{{ .Environment.CIRCLE_JOB }}
+
+      - run:
+          name: install python 2.7.14 and 3.6.5 with pyenv
+          command: |
+            pyenv install 2.7.14 -s
+            pyenv install 3.6.5 -s
+
+      - save_cache:
+          paths:
+            - ~/.pyenv
+          key: pyenv-versions-{{ .Environment.CIRCLE_JOB }}
+
+      - run:
+          name: create virtualenv for 2.7.14
+          command: |
+            eval "$(pyenv init -)"
+            pyenv local 2.7.14
+            python -m pip install virtualenv
+            python -m virtualenv env
+
+      - run: *install-dependencies-template
+
+      - save_cache:
+          paths:
+            - ./env
+          key: dependencies2.7-{{ checksum "requirements.txt" }}-{{ .Environment.CIRCLE_JOB }}
+
+      - run: *run-tests-template
+
+      - run:
+          name: clear virtual environment
+          command: |
+            rm -rf env
+
+      - restore_cache:
+          keys:
+          - dependencies3.6-{{ checksum "requirements.txt" }}-{{ .Environment.CIRCLE_JOB }}
+
+      - run:
+          name: create virtualenv for 3.6.5
+          command: |
+            eval "$(pyenv init -)"
+            pyenv local 3.6.5
+            python -m pip install virtualenv
+            python -m virtualenv env
+
+      - run: *install-dependencies-template
+
+      - save_cache:
+          paths:
+            - ./env
+          key: dependencies3.6-{{ checksum "requirements.txt" }}-{{ .Environment.CIRCLE_JOB }}
+
+      - run: *run-tests-template
+
 workflows:
   version: 2
   test:
@@ -67,3 +147,9 @@ workflows:
       - test-2.7
       - test-3.5
       - test-3.4
+      - test-osx:
+          requires:
+            - test-3.6
+            - test-2.7
+            - test-3.5
+            - test-3.4
