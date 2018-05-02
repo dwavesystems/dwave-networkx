@@ -47,11 +47,9 @@ def maximum_independent_set(G, sampler=None, **sampler_args):
     `chimera_graph()` function.
 
     >>> import dimod
-    >>> import dwave_networkx as dnx
-    >>> samplerSA = dimod.SimulatedAnnealingSampler()
+    >>> sampler = dimod.SimulatedAnnealingSampler()
     >>> G = dnx.chimera_graph(1, 1, 4)
-    >>> dnx.maximum_independent_set(G, samplerSA)
-    {4, 5, 6, 7}
+    >>> indep_nodes = dnx.maximum_independent_set(G, sampler)
 
     Notes
     -----

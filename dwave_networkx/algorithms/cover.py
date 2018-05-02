@@ -49,14 +49,11 @@ def min_vertex_cover(G, sampler=None, **sampler_args):
 
     >>> import dwave_networkx as dnx
     >>> import dimod
-    >>> samplerSA = dimod.SimulatedAnnealingSampler()
+    >>> sampler = dimod.ExactSolver()  # small testing sampler
     >>> G = dnx.chimera_graph(1, 1, 4)
+    >>> G.remove_node(7)  # to give a unique solution
     >>> dnx.min_vertex_cover(G, sampler)
-    [0, 1, 2, 3]
-    >>> dnx.min_vertex_cover(G, sampler)
-    [0, 1, 2, 3]
-    >>> dnx.min_vertex_cover(G, sampler)
-    [4, 5, 6, 7]
+    [4, 5, 6]
 
     Notes
     -----
