@@ -63,6 +63,7 @@ def min_vertex_coloring(G, sampler=None, **sampler_args):
 
     >>> # Set up a sampler; this example uses a sampler from dimod https://github.com/dwavesystems/dimod
     >>> import dimod
+    >>> import dwave_networkx as dnx
     >>> samplerSA = dimod.SimulatedAnnealingSampler()
     >>> # Create a graph and color it
     >>> G = dnx.chimera_graph(1, 1, 4)
