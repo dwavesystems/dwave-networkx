@@ -1,6 +1,14 @@
+.. image:: https://img.shields.io/pypi/v/dwave-networkx.svg
+    :target: https://pypi.python.org/pypi/dwave-networkx
 
-.. image:: https://travis-ci.org/dwavesystems/dwave_networkx.svg?branch=master
-    :target: https://travis-ci.org/dwavesystems/dwave_networkx
+.. image:: https://readthedocs.org/projects/dwave-networkx/badge/?version=latest
+    :target: http://dwave-networkx.readthedocs.io/en/latest/?badge=latest
+
+.. image:: https://coveralls.io/repos/github/dwavesystems/dwave_networkx/badge.svg?branch=master
+    :target: https://coveralls.io/github/dwavesystems/dwave_networkx?branch=master
+
+.. image:: https://circleci.com/gh/dwavesystems/dwave_networkx.svg?style=svg
+    :target: https://circleci.com/gh/dwavesystems/dwave_networkx
 
 .. inclusion-marker-do-not-remove
 
