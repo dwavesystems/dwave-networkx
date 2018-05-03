@@ -18,6 +18,6 @@ G.add_edges_from([(0, 1), (0, 2), (1, 3), (2, 3), (3, 5), (4, 5), (3, 6), (4, 7)
 # length 5
 candidate = dnx.min_vertex_cover(G, sampler)
 if dnx.is_vertex_cover(G, candidate) and len(candidate) == 5:
-  print (candidate, " is a minimum vertex cover")
-else: 
-  print (candidate, " is not a minimum vertex cover")
+    print (candidate, " is a minimum vertex cover")
+else:
+    print (candidate, " is not a minimum vertex cover")
