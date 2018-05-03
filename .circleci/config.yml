@@ -43,7 +43,7 @@ jobs:
           name: coveralls
           command: |
             . env/bin/activate
-            coveralls
+            if [[ -v COVERALLS_REPO_TOKEN ]]; then coveralls; fi
 
       - run:
           name: doctest
