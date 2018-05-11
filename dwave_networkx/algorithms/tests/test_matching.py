@@ -290,7 +290,8 @@ class TestMatching(unittest.TestCase):
         Q = Qmm.copy()
         for edge, bias in Qm.items():
             Q[edge] += bias
-        Q = dict(Q)  # we are not necessarily sure that the given sampler can handle a defaultdict
+        # we are not necessarily sure that the given sampler can handle a defaultdict
+        Q = dict(Q)
         Qmm = dict(Qmm)
 
         # now for each combination of edges, we check that if the combination
@@ -332,7 +333,8 @@ class TestMatching(unittest.TestCase):
                     infeasible_gap = gap
             else:
                 # ok, these are not even matching
-                self.assertGreater(en_matching, 0)  # so matching energy should be > 0
+                # so matching energy should be > 0
+                self.assertGreater(en_matching, 0)
 
                 self.assertGreater(gap, 0)
 
@@ -401,7 +403,8 @@ class TestMatching(unittest.TestCase):
                     infeasible_gap = gap
             else:
                 # ok, these are not even matching
-                self.assertGreater(en_matching, 0)  # so matching energy should be > 0
+                # so matching energy should be > 0
+                self.assertGreater(en_matching, 0)
 
                 self.assertGreater(gap, 0)
 
@@ -532,7 +535,8 @@ class TestMatching(unittest.TestCase):
                     infeasible_gap = gap
             else:
                 # ok, these are not even matching
-                self.assertGreater(en_matching, 0)  # so matching energy should be > 0
+                # so matching energy should be > 0
+                self.assertGreater(en_matching, 0)
 
                 self.assertGreater(gap, 0)
 

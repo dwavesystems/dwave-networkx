@@ -6,6 +6,7 @@ import dwave_networkx as dnx
 
 class HeuristicCases:
     """Change the name for compatibility with nose."""
+
     def test_basic(self):
         G = nx.Graph()
 
