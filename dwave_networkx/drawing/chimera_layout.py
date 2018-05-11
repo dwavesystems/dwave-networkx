@@ -71,16 +71,11 @@ def chimera_layout(G, scale=1., center=None, dim=2):
     # first, check if we made it
     if G.graph.get("family") == "chimera":
         m = G.graph['rows']
-<<<<<<< 9f91673c30f973e4d6b8ff84d1a2306973fdd03f
-        n = G.graph['cols']
-        t = G.graph['tile']
-=======
         n = G.graph['columns']
         t = G.graph['tile']
         # get a node placement function
         xy_coords = chimera_node_placer_2d(m, n, t, scale, center, dim)
 
->>>>>>> added a visualizer for pegasus
         if G.graph.get('labels') == 'coordinate':
             pos = {v: xy_coords(*v) for v in G.nodes()}
         elif G.graph.get('data'):
@@ -89,12 +84,8 @@ def chimera_layout(G, scale=1., center=None, dim=2):
             coord = chimera_coordinates(m, n, t)
             pos = {v: xy_coords(*coord.tuple(v)) for v in G.nodes()}
     else:
-<<<<<<< 9f91673c30f973e4d6b8ff84d1a2306973fdd03f
-=======
         # best case scenario, each node in G has a chimera_index attribute. Otherwise
         # we will try to determine it using the find_chimera_indices function.
-
->>>>>>> added a visualizer for pegasus
         if all('chimera_index' in dat for __, dat in G.nodes(data=True)):
             chimera_indices = {v: dat['chimera_index'] for v, dat in G.nodes(data=True)}
         else:
@@ -238,8 +229,6 @@ def draw_chimera(G, **kwargs):
 
 
 def draw_chimera_embedding(G, *args, **kwargs):
-<<<<<<< 9f91673c30f973e4d6b8ff84d1a2306973fdd03f
-=======
     """Draws an embedding onto the chimera graph G, according to layout.
 
     If interaction_edges is not None, then only display the couplers in that
@@ -280,5 +269,4 @@ def draw_chimera_embedding(G, *args, **kwargs):
        function. If `linear_biases` or `quadratic_biases` are provided,
        any provided `node_color` or `edge_color` arguments are ignored.
     """
->>>>>>> added a visualizer for pegasus
     draw_embedding(G, chimera_layout(G), *args, **kwargs)
