@@ -10,6 +10,7 @@ from networkx import draw
 from dwave_networkx import _PY2
 from dwave_networkx.generators.chimera import find_chimera_indices
 from itertools import combinations
+from distinguishable_colors import distinguishable_color_map
 
 
 # compatibility for python 2/3
@@ -323,12 +324,12 @@ def draw_chimera_embedding(graph, embedding, show_labels=False, **kwargs):
         raise ImportError("Matplotlib required for draw_chimera_embedding()")
 
     # assign a unique color to each chain.
-    # TODO: find a way to make more distinct colors.
-    cmap = plt.cm.prism
+    n = len(embedding)
+    cmap = distinguishable_color_map(n)
 
     node_color = dict()
     edge_color = dict()
-    n = len(embedding)
+
     for i, v in enumerate(embedding.keys()):
         v_color = float(i) / n
 
