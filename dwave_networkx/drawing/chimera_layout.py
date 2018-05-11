@@ -4,11 +4,14 @@ Tools to visualize Chimera lattices and weighted graph problems on them.
 
 from __future__ import division
 
+from itertools import combinations
+
 import networkx as nx
 from networkx import draw
 
 from dwave_networkx import _PY2
 from dwave_networkx.generators.chimera import find_chimera_indices
+from dwave_networkx.drawing.distinguishable_colors import distinguishable_color_map
 
 
 # compatibility for python 2/3
@@ -20,7 +23,7 @@ else:
     itervalues = lambda d: d.values()
     iteritems = lambda d: d.items()
 
-__all__ = ['chimera_layout', 'draw_chimera']
+__all__ = ['chimera_layout', 'draw_chimera', 'draw_chimera_embedding']
 
 
 def chimera_layout(G, scale=1., center=None, dim=2):
@@ -278,3 +281,96 @@ def draw_chimera(G, linear_biases={}, quadratic_biases={},
         mpl.colorbar.ColorbarBase(cax, cmap=cmap,
                                   norm=mpl.colors.Normalize(vmin=-1 * vmag, vmax=vmag, clip=False),
                                   orientation='vertical')
+
+
+def draw_chimera_embedding(graph, embedding, show_labels=False, **kwargs):
+    """Draw an embedding in a graph with a Chimera layout.
+
+    Each chain in the embedding is shown in a different color.
+
+    Parameters
+    ----------
+    graph : NetworkX graph
+        Should be a Chimera graph or a subgraph of a Chimera graph.
+
+    embedding : dict
+        The mapping from vertices of the source graph to chains in the target
+        (Chimera) graph. Should be of the form {v: c, ...} where v is a
+        variable in the source model and c is a set of nodes (a chain) in the
+        Chimera graph.
+
+    show_labels: boolean (optional, default False)
+        If show_labels is True, then each chain is labelled with the name of
+        its variable.
+
+    kwargs : optional keywords
+        See networkx.draw_networkx() for a description of optional keywords.
+        Color options are ignored by this function.
+
+    Examples
+    --------
+    >>> # Embedding in a 2x2 Chimera
+    >>> import dwave_networkx as dnx
+    >>> import matplotlib.pyplot as plt
+    >>> G = dnx.chimera_graph(2, 2, 4)
+    >>> emb = {'a': {0,4}, 'b': {1,5,9,13}, 'c': {2,6}, 'd': {3}}
+    >>> dnx.draw_chimera_embedding(graph, emb)
+    >>> plt.show()
+
+    """
+
+    try:
+        import matplotlib.pyplot as plt
+    except ImportError:
+        raise ImportError("Matplotlib required for draw_chimera_embedding()")
+
+    # assign a unique color to each chain.
+    n = len(embedding)
+    cmap = distinguishable_color_map(n)
+
+    node_color = dict()
+    edge_color = dict()
+
+    for i, v in enumerate(embedding.keys()):
+        v_color = float(i) / n
+
+        for s in embedding[v]:
+            node_color[s] = v_color
+
+        for s, t in combinations(embedding[v], 2):
+            if s in graph[t]:
+                edge_color[(s, t)] = v_color
+
+    layout = chimera_layout(graph)
+    layout = {v: 2 * layout[v] for v in layout.keys()}
+
+    node_size = 20
+
+    # Draw the background (unused) nodes and edges in grey.
+    background_nodelist = [v for v in graph.nodes() if v not in node_color]
+    background_edgelist = [v for v in graph.edges() if v not in edge_color]
+    nx.draw_networkx_nodes(graph, layout, nodelist=background_nodelist, node_color='k', alpha=0.1,
+                           node_size=node_size, **kwargs)
+    nx.draw_networkx_edges(graph, layout, edgelist=background_edgelist, edge_color='k', alpha=0.1, **kwargs)
+
+    # Color the chains.
+    nodelist = node_color.keys()
+    edgelist = edge_color.keys()
+    kwargs['node_color'] = [node_color[v] for v in nodelist]
+    kwargs['edge_color'] = [edge_color[v] for v in edgelist]
+    nx.draw_networkx_nodes(graph, layout, nodelist=nodelist, cmap=cmap, vmin=0., vmax=1.,
+                           node_size=node_size, **kwargs)
+    nx.draw_networkx_edges(graph, layout, edgelist=edgelist, edge_cmap=cmap, edge_vmin=0., edge_vmax=1., **kwargs)
+
+    # Draw the labels.
+    if show_labels:
+        labels = dict()
+        for v in embedding.keys():
+            c = embedding[v]
+            labels[list(c)[0]] = str(v)
+        offset_layout = {v: p - 0.025 for v, p in iteritems(layout)}
+        nx.draw_networkx_labels(graph, offset_layout, labels, node_size=node_size, **kwargs)
+
+    plt.axis('off')
+    # Note: to keep figure around, call plt.show() after this function.
+    plt.draw_if_interactive()
