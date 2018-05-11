@@ -111,7 +111,7 @@ def pegasus_graph(m, create_using=None, node_list=None, edge_list=None, data=Tru
             [(6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6,), (6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6,)],
         ][offsets_index]
     elif offsets_index is not None:
-        raise DWaveNetworkXException, "provide at most one of offsets_index and offset_lists"
+        raise DWaveNetworkXException("provide at most one of offsets_index and offset_lists")
     else:
         for ori in 0, 1:
             for x, y in zip(offset_lists[ori][::2], offset_lists[ori][1::2]):

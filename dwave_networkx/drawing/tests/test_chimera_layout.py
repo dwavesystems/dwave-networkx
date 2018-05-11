@@ -19,37 +19,37 @@ except ImportError:
 
 
 class TestDrawing(unittest.TestCase):
-    @unittest.skipIf(not _numpy, "No numpy")
+    @unittest.skipUnless(_numpy and _plt, "No numpy or matplotlib")
     def test_chimera_layout_basic(self):
         G = dnx.chimera_graph(1, 1, 4)
         pos = dnx.chimera_layout(G)
 
-    @unittest.skipIf(not _numpy, "No numpy")
+    @unittest.skipUnless(_numpy and _plt, "No numpy or matplotlib")
     def test_chimera_layout_typical(self):
         G = dnx.chimera_graph(2, 2, 4)
         pos = dnx.chimera_layout(G)
 
-    @unittest.skipIf(not _numpy, "No numpy")
+    @unittest.skipUnless(_numpy and _plt, "No numpy or matplotlib")
     def test_chimera_layout_center(self):
         G = dnx.chimera_graph(2, 2, 4)
         pos = dnx.chimera_layout(G, center=(5, 5))
         with self.assertRaises(ValueError):
             pos = dnx.chimera_layout(G, center=(5, 5, 5))
 
-    @unittest.skipIf(not _numpy, "No numpy")
+    @unittest.skipUnless(_numpy and _plt, "No numpy or matplotlib")
     def test_chimera_layout_lowdim(self):
         G = dnx.chimera_graph(2, 2, 4)
         with self.assertRaises(ValueError):
             pos = dnx.chimera_layout(G, dim=1)
 
-    @unittest.skipIf(not _numpy, "No numpy")
+    @unittest.skipUnless(_numpy and _plt, "No numpy or matplotlib")
     def test_chimera_layout_weird_nodata(self):
         G = dnx.chimera_graph(2, 2, 4)
         del G.graph["family"]
         with self.assertRaises(ValueError):
             pos = dnx.chimera_layout(G, dim=1)
 
-    @unittest.skipIf(not _numpy, "No numpy")
+    @unittest.skipUnless(_numpy and _plt, "No numpy or matplotlib")
     def test_chimera_layout_no_chimera_indices(self):
         G = nx.Graph()
         G.add_edges_from([(0, 2), (1, 2), (1, 3), (0, 3)])
@@ -61,23 +61,23 @@ class TestDrawing(unittest.TestCase):
         for v in pos2:
             self.assertIn(v, pos)
 
-    @unittest.skipIf(not _numpy, "No numpy")
+    @unittest.skipUnless(_numpy and _plt, "No numpy or matplotlib")
     def test_chimera_layout_coords(self):
         G = dnx.chimera_graph(2, 2, 4, coordinates=True)
         pos = dnx.chimera_layout(G)
 
-    @unittest.skipIf(not _numpy, "No numpy")
+    @unittest.skipUnless(_numpy and _plt, "No numpy or matplotlib")
     def test_chimera_layout_nodata(self):
         G = dnx.chimera_graph(2, 2, 4, data=False)
         pos = dnx.chimera_layout(G)
 
-    @unittest.skipIf(not _numpy, "No numpy")
+    @unittest.skipUnless(_numpy and _plt, "No numpy or matplotlib")
     def test_chimera_layout_edgelist_singletile(self):
         G = dnx.chimera_graph(1, 1, 16, data=False)
         pos = dnx.chimera_layout(G.edges())
 
 
-    @unittest.skipIf(not _numpy, "No numpy")
+    @unittest.skipUnless(_numpy and _plt, "No numpy or matplotlib")
     def test_draw_pegasus_biases(self):
         G = dnx.chimera_graph(8)
         h = {v: v % 12 for v in G}
@@ -87,7 +87,7 @@ class TestDrawing(unittest.TestCase):
 
         dnx.draw_chimera(G, linear_biases=h, quadratic_biases=J)
 
-    @unittest.skipIf(not _numpy, "No numpy")
+    @unittest.skipUnless(_numpy and _plt, "No numpy or matplotlib")
     def test_draw_pegasus_embedding(self):
         C = dnx.chimera_graph(4)
         G = nx.grid_graph([2, 3, 2])

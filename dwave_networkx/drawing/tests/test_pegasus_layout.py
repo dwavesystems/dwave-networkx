@@ -19,28 +19,28 @@ except ImportError:
 
 
 class TestDrawing(unittest.TestCase):
-    @unittest.skipIf(not _numpy, "No numpy")
+    @unittest.skipUnless(_numpy and _plt, "No numpy or matplotlib")
     def test_pegasus_layout_coords(self):
         G = dnx.pegasus_graph(2, coordinates=True)
         pos = dnx.pegasus_layout(G)
 
-    @unittest.skipIf(not _numpy, "No numpy")
+    @unittest.skipUnless(_numpy and _plt, "No numpy or matplotlib")
     def test_pegasus_layout_ints(self):
         G = dnx.pegasus_graph(2)
         pos = dnx.pegasus_layout(G)
 
-    @unittest.skipIf(not _numpy, "No numpy")
+    @unittest.skipUnless(_numpy and _plt, "No numpy or matplotlib")
     def test_pegasus_layout_ints_nodata(self):
         G = dnx.pegasus_graph(2, data=False)
         pos = dnx.pegasus_layout(G)
 
-    @unittest.skipIf(not _numpy, "No numpy")
+    @unittest.skipUnless(_numpy and _plt, "No numpy or matplotlib")
     def test_pegasus_layout_ints_badcenter(self):
         G = dnx.pegasus_graph(2, data=False)
         with self.assertRaises(ValueError):
             pos = dnx.pegasus_layout(G, center=(0, 0, 0, 0))
 
-    @unittest.skipIf(not _numpy, "No numpy")
+    @unittest.skipUnless(_numpy and _plt, "No numpy or matplotlib")
     def test_pegasus_layout_ints_noinfo(self):
         G = dnx.pegasus_graph(2, data=False)
         badG = nx.Graph()
@@ -48,7 +48,7 @@ class TestDrawing(unittest.TestCase):
         with self.assertRaises(ValueError):
             pos = dnx.pegasus_layout(badG)
 
-    @unittest.skipIf(not _numpy, "No numpy")
+    @unittest.skipUnless(_numpy and _plt, "No numpy or matplotlib")
     def test_draw_pegasus_biases(self):
         G = dnx.pegasus_graph(2)
         h = {v: v % 12 for v in G}
@@ -58,7 +58,7 @@ class TestDrawing(unittest.TestCase):
 
         dnx.draw_pegasus(G, linear_biases=h, quadratic_biases=J)
 
-    @unittest.skipIf(not _numpy, "No numpy")
+    @unittest.skipUnless(_numpy and _plt, "No numpy or matplotlib")
     def test_draw_pegasus_embedding(self):
         P = dnx.pegasus_graph(2)
         G = nx.grid_graph([3, 3, 2])
