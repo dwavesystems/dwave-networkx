@@ -4,13 +4,14 @@ Tools to visualize Chimera lattices and weighted graph problems on them.
 
 from __future__ import division
 
+from itertools import combinations
+
 import networkx as nx
 from networkx import draw
 
 from dwave_networkx import _PY2
 from dwave_networkx.generators.chimera import find_chimera_indices
-from itertools import combinations
-from distinguishable_colors import distinguishable_color_map
+from dwave_networkx.drawing.distinguishable_colors import distinguishable_color_map
 
 
 # compatibility for python 2/3
