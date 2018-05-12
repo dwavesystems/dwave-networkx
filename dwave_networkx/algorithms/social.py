@@ -5,9 +5,9 @@ __all__ = ["structural_imbalance"]
 
 # compatibility for python 2/3
 if _PY2:
-    iteritems = lambda d: d.iteritems()
+    def iteritems(d): return d.iteritems()
 else:
-    iteritems = lambda d: d.items()
+    def iteritems(d): return d.items()
 
 
 @binary_quadratic_model_sampler(1)
