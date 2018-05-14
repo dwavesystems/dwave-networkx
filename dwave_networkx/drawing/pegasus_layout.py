@@ -207,23 +207,28 @@ def draw_pegasus_embedding(G, *args, **kwargs):
         of the form {node: chain, ...}.  Chains should be iterables
         of qubit labels (qubits are nodes in G).
 
-    chain_color : dict (optional, default None)
-        A dict of colors associated with each key in emb.  Should be
-        of the form {node: rgba_color, ...}.  Colors should be length-4
-        tuples of floats between 0 and 1 inclusive.
-
-    chain_color : dict (optional, default None)
-        The color to use for nodes and edges of G which are not involved
-        in chains, and edges which are neither chain edges nor interactions.
-
     embedded_graph : NetworkX graph (optional, default None)
         A graph which contains all keys of emb as nodes.  If specified,
         edges of G will be considered interactions if and only if they
-        exist between two chains of emb if their keys are connected by 
+        exist between two chains of emb if their keys are connected by
         an edge in embedded_graph
 
     interaction_edges : list (optional, default None)
         A list of edges which will be used as interactions.
+
+    show_labels: boolean (optional, default False)
+        If show_labels is True, then each chain in emb is labelled with its key.
+
+    chain_color : dict (optional, default None)
+        A dict of colors associated with each key in emb.  Should be
+        of the form {node: rgba_color, ...}.  Colors should be length-4
+        tuples of floats between 0 and 1 inclusive. If chain_color is None,
+        each chain will be assigned a different color.
+
+    unused_color : tuple (optional, default (0.9,0.9,0.9,1.0))
+        The color to use for nodes and edges of G which are not involved
+        in chains, and edges which are neither chain edges nor interactions.
+        If unused_color is None, these nodes and edges will not be shown at all.
 
     kwargs : optional keywords
        See networkx.draw_networkx() for a description of optional keywords,
