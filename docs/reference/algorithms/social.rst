@@ -21,3 +21,4 @@ friendly/hostile interactions between vertices.
    :toctree: generated/
 
     structural_imbalance
+    structural_imbalance_ising

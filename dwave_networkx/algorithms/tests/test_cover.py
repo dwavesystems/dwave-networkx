@@ -1,4 +1,5 @@
 import unittest
+import random
 
 import networkx as nx
 import dwave_networkx as dnx
@@ -6,10 +7,16 @@ import dwave_networkx as dnx
 from dimod import ExactSolver, SimulatedAnnealingSampler
 
 
+#######################################################################################
+# Unit Tests
+#######################################################################################
+
 class TestCover(unittest.TestCase):
 
     def test_vertex_cover_basic(self):
-
+        """Runs the function on some small and simple graphs, just to make
+        sure it works in basic functionality.
+        """
         G = dnx.chimera_graph(1, 2, 2)
         cover = dnx.min_vertex_cover(G, ExactSolver())
         self.vertex_cover_check(G, cover)
@@ -21,6 +28,31 @@ class TestCover(unittest.TestCase):
         for __ in range(10):
             G = nx.gnp_random_graph(5, .5)
             cover = dnx.min_vertex_cover(G, ExactSolver())
+            self.vertex_cover_check(G, cover)
+
+    def test_vertex_cover_weighted(self):
+        weight = 'weight'
+        G = nx.path_graph(6)
+
+        # favor even nodes
+        nx.set_node_attributes(G, {node: node % 2 + 1 for node in G}, weight)
+        cover = dnx.min_weighted_vertex_cover(G, weight, ExactSolver())
+        self.assertEqual(set(cover), {0, 2, 4})
+
+        # favor odd nodes
+        nx.set_node_attributes(G, {node: (node + 1) % 2 + 1 for node in G}, weight)
+        cover = dnx.min_weighted_vertex_cover(G, weight, ExactSolver())
+        self.assertEqual(set(cover), {1, 3, 5})
+
+        # make nodes 1 and 4 unlikely
+        nx.set_node_attributes(G, {0: 1, 1: 3, 2: 1, 3: 1, 4: 3, 5: 1}, weight)
+        cover = dnx.min_weighted_vertex_cover(G, weight, ExactSolver())
+        self.assertEqual(set(cover), {0, 2, 3, 5})
+
+        for __ in range(10):
+            G = nx.gnp_random_graph(5, .5)
+            nx.set_node_attributes(G, {node: random.random() for node in G}, weight)
+            cover = dnx.min_weighted_vertex_cover(G, weight, ExactSolver())
             self.vertex_cover_check(G, cover)
 
     def test_default_sampler(self):
