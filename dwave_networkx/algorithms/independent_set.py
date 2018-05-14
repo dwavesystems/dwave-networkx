@@ -63,8 +63,11 @@ def maximum_weighted_independent_set(G, weight=None, sampler=None, **sampler_arg
        Frontiers in Physics, Volume 2, Article 5.
 
     """
+    # Get a QUBO representation of the problem
+    Q = maximum_weighted_independent_set_qubo(G, weight)
 
-    response = maximum_weighted_independent_set_response(G, weight, sampler, **sampler_args)
+    # use the sampler to find low energy states
+    response = sampler.sample_qubo(Q, **sampler_args)
 
     # we want the lowest energy sample
     sample = next(iter(response))
@@ -176,19 +179,11 @@ def is_independent_set(G, indep_nodes):
     False
 
     """
-    return not bool(G.subgraph(indep_nodes).edges)
+    return len(G.subgraph(indep_nodes).edges) == 0
 
 
-@binary_quadratic_model_sampler(2)
-def maximum_weighted_independent_set_response(G, weight=None, sampler=None, **sampler_args):
-    """Returns candidate weighted independent sets.
-
-    Defines a QUBO with ground states corresponding to a
-    maximum weighted independent set and uses the sampler to sample
-    from it.
-
-    An independent set is a set of nodes such that the subgraph
-    of G induced by these nodes contains no edges.
+def maximum_weighted_independent_set_qubo(G, weight=None):
+    """Return the QUBO with ground states corresponding to a maximum weighted independent set.
 
     Parameters
     ----------
@@ -199,26 +194,30 @@ def maximum_weighted_independent_set_response(G, weight=None, sampler=None, **sa
         attribute as the node weight. A node without this attribute is
         assumed to have max weight.
 
-    sampler
-        A binary quadratic model sampler. A sampler is a process that
-        samples from low energy states in models defined by an Ising
-        equation or a Quadratic Unconstrained Binary Optimization
-        Problem (QUBO). A sampler is expected to have a 'sample_qubo'
-        and 'sample_ising' method. A sampler is expected to return an
-        iterable of samples, in order of increasing energy. If no
-        sampler is provided, one must be provided using the
-        `set_default_sampler` function.
-
-    sampler_args
-        Additional keyword parameters are passed to the sampler.
-
     Returns
     -------
-    response : object
-       Dimod response object from sampler containing possible answers to
-       the QUBO problem and their correspoding energies.
+    QUBO : dict
+       The QUBO with ground states corresponding to a maximum weighted independent set.
+
+    Examples
+    --------
+
+    >>> from dwave_networkx.algorithms.independent_set import maximum_weighted_independent_set_qubo
+    ...
+    >>> G = nx.path_graph(3)
+    >>> Q = maximum_weighted_independent_set_qubo(G, weight='weight')
+    >>> Q[(0, 0)]
+    -1.0
+    >>> Q[(1, 1)]
+    -1.0
+    >>> Q[(0, 1)]
+    2.0
 
     """
+
+    # empty QUBO for an empty graph
+    if not G:
+        return {}
 
     # We assume that the sampler can handle an unstructured QUBO problem, so let's set one up.
     # Let us define the largest independent set to be S.
@@ -232,10 +231,7 @@ def maximum_weighted_independent_set_response(G, weight=None, sampler=None, **sa
     # nodes are in S, the overall energy is increased by 2.
     cost = dict(G.nodes(data=weight, default=1))
     scale = max(cost.values())
-    Q = {(node, node): min(-cost[node] / scale, 0) for node in G}
-    Q.update({edge: 2 for edge in G.edges})
+    Q = {(node, node): min(-cost[node] / scale, 0.0) for node in G}
+    Q.update({edge: 2.0 for edge in G.edges})
 
-    # use the sampler to find low energy states
-    response = sampler.sample_qubo(Q, **sampler_args)
-
-    return response
+    return Q
