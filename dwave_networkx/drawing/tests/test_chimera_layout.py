@@ -97,4 +97,4 @@ class TestDrawing(unittest.TestCase):
                (1, 1, 1): [86, 94], (1, 2, 0): [87, 95], (1, 2, 1): [91]}
         dnx.draw_chimera_embedding(C, emb)
         dnx.draw_chimera_embedding(C, emb, embedded_graph=G)
-        dnx.draw_chimera_embedding(C, emb, interaction_edges=G.edges())
+        dnx.draw_chimera_embedding(C, emb, interaction_edges=C.edges())
