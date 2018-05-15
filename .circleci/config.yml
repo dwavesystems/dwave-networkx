@@ -156,15 +156,22 @@ jobs:
       - run: *install-dependencies-template
 
       - run:
+          name: install twine
+          command: |
+            . env/bin/activate
+            pip install twine
+
+      - run:
           name: verify version matches tag
           command: |
             . env/bin/activate
-            python ci_utils/verify_version.py
+            pip install .
+            echo $CIRCLE_TAG
+            [[ "$(pip show dwave-networkx 2>/dev/null | grep Version)" == "Version: $CIRCLE_TAG" ]]
 
       - run:
           name: init .pypirc
           command: |
-            cd penaltymodel_core
             echo -e "[pypi]" >> ~/.pypirc
             echo -e "username = dwtools-ci" >> ~/.pypirc
             echo -e "password = $PYPI_PASSWORD" >> ~/.pypirc
@@ -179,6 +186,7 @@ jobs:
       - run:
           name: upload
           command: |
+            . env/bin/activate
             twine upload dist/*
 
 workflows:
@@ -196,10 +204,8 @@ workflows:
             - test-3.5
             - test-3.4
       - deploy:
-          requires:
-            - test-osx
           filters:
             tags:
-              only: /[0-9]+(\.[0-9]+)*/
+              only: /^[0-9]+(\.[0-9]+)*(\.dev([0-9]+)?)?$/
             branches:
               ignore: /.*/
