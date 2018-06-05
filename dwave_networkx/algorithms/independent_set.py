@@ -217,7 +217,7 @@ def maximum_weighted_independent_set_qubo(G, weight=None, lagrange=2.0):
     >>> from dwave_networkx.algorithms.independent_set import maximum_weighted_independent_set_qubo
     ...
     >>> G = nx.path_graph(3)
-    >>> Q = maximum_weighted_independent_set_qubo(G, weight='weight', lagrange='lagrange')
+    >>> Q = maximum_weighted_independent_set_qubo(G, weight='weight', lagrange=2.0)
     >>> Q[(0, 0)]
     -1.0
     >>> Q[(1, 1)]
