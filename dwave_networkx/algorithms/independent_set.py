@@ -6,7 +6,7 @@ __all__ = ["maximum_weighted_independent_set", "maximum_independent_set", "is_in
 
 
 @binary_quadratic_model_sampler(2)
-def maximum_weighted_independent_set(G, weight=None, sampler=None, Lagrange=2.0, **sampler_args):
+def maximum_weighted_independent_set(G, weight=None, sampler=None, lagrange=2.0, **sampler_args):
     """Returns an approximate maximum weighted independent set.
 
     Defines a QUBO with ground states corresponding to a
@@ -37,7 +37,7 @@ def maximum_weighted_independent_set(G, weight=None, sampler=None, Lagrange=2.0,
         sampler is provided, one must be provided using the
         `set_default_sampler` function.
         
-    Lagrange : optional (default 2)
+    lagrange : optional (default 2)
         Lagrange parameter to weight constraints (no edges within set) 
         versus objective (largest set possible).
 
@@ -68,7 +68,7 @@ def maximum_weighted_independent_set(G, weight=None, sampler=None, Lagrange=2.0,
 
     """
     # Get a QUBO representation of the problem
-    Q = maximum_weighted_independent_set_qubo(G, weight, Lagrange)
+    Q = maximum_weighted_independent_set_qubo(G, weight, lagrange)
 
     # use the sampler to find low energy states
     response = sampler.sample_qubo(Q, **sampler_args)
@@ -81,7 +81,7 @@ def maximum_weighted_independent_set(G, weight=None, sampler=None, Lagrange=2.0,
 
 
 @binary_quadratic_model_sampler(1)
-def maximum_independent_set(G, sampler=None, Lagrange=2.0, **sampler_args):
+def maximum_independent_set(G, sampler=None, lagrange=2.0, **sampler_args):
     """Returns an approximate maximum independent set.
 
     Defines a QUBO with ground states corresponding to a
@@ -107,7 +107,7 @@ def maximum_independent_set(G, sampler=None, Lagrange=2.0, **sampler_args):
         sampler is provided, one must be provided using the
         `set_default_sampler` function.
         
-    Lagrange : optional (default 2)
+    lagrange : optional (default 2)
         Lagrange parameter to weight constraints (no edges within set) 
         versus objective (largest set possible).
 
@@ -149,7 +149,7 @@ def maximum_independent_set(G, sampler=None, Lagrange=2.0, **sampler_args):
        Frontiers in Physics, Volume 2, Article 5.
 
     """
-    return maximum_weighted_independent_set(G, None, sampler, Lagrange, **sampler_args)
+    return maximum_weighted_independent_set(G, None, sampler, lagrange, **sampler_args)
 
 
 def is_independent_set(G, indep_nodes):
@@ -190,7 +190,7 @@ def is_independent_set(G, indep_nodes):
     return len(G.subgraph(indep_nodes).edges) == 0
 
 
-def maximum_weighted_independent_set_qubo(G, weight=None, Lagrange=2.0):
+def maximum_weighted_independent_set_qubo(G, weight=None, lagrange=2.0):
     """Return the QUBO with ground states corresponding to a maximum weighted independent set.
 
     Parameters
@@ -202,7 +202,7 @@ def maximum_weighted_independent_set_qubo(G, weight=None, Lagrange=2.0):
         attribute as the node weight. A node without this attribute is
         assumed to have max weight.
         
-    Lagrange : optional (default 2)
+    lagrange : optional (default 2)
         Lagrange parameter to weight constraints (no edges within set) 
         versus objective (largest set possible).
 
@@ -217,7 +217,7 @@ def maximum_weighted_independent_set_qubo(G, weight=None, Lagrange=2.0):
     >>> from dwave_networkx.algorithms.independent_set import maximum_weighted_independent_set_qubo
     ...
     >>> G = nx.path_graph(3)
-    >>> Q = maximum_weighted_independent_set_qubo(G, weight='weight', Lagrange='Lagrange')
+    >>> Q = maximum_weighted_independent_set_qubo(G, weight='weight', lagrange='lagrange')
     >>> Q[(0, 0)]
     -1.0
     >>> Q[(1, 1)]
@@ -244,6 +244,6 @@ def maximum_weighted_independent_set_qubo(G, weight=None, Lagrange=2.0):
     cost = dict(G.nodes(data=weight, default=1))
     scale = max(cost.values())
     Q = {(node, node): min(-cost[node] / scale, 0.0) for node in G}
-    Q.update({edge: Lagrange for edge in G.edges})
+    Q.update({edge: lagrange for edge in G.edges})
 
     return Q
