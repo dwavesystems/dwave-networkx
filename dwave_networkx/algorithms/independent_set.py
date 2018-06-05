@@ -36,6 +36,10 @@ def maximum_weighted_independent_set(G, weight=None, sampler=None, Lagrange=2 **
         iterable of samples, in order of increasing energy. If no
         sampler is provided, one must be provided using the
         `set_default_sampler` function.
+        
+    Lagrange : optional (default 2)
+        Lagrange parameter to weight constraints (no edges within set) 
+        versus objective (largest set possible).
 
     sampler_args
         Additional keyword parameters are passed to the sampler.
@@ -102,6 +106,10 @@ def maximum_independent_set(G, sampler=None, Lagrange=2 **sampler_args):
         iterable of samples, in order of increasing energy. If no
         sampler is provided, one must be provided using the
         `set_default_sampler` function.
+        
+    Lagrange : optional (default 2)
+        Lagrange parameter to weight constraints (no edges within set) 
+        versus objective (largest set possible).
 
     sampler_args
         Additional keyword parameters are passed to the sampler.
@@ -193,6 +201,10 @@ def maximum_weighted_independent_set_qubo(G, weight=None, Lagrange=2):
         If None, every node has equal weight. If a string, use this node
         attribute as the node weight. A node without this attribute is
         assumed to have max weight.
+        
+    Lagrange : optional (default 2)
+        Lagrange parameter to weight constraints (no edges within set) 
+        versus objective (largest set possible).
 
     Returns
     -------
