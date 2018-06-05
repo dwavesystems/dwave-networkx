@@ -6,7 +6,7 @@ __all__ = ["maximum_weighted_independent_set", "maximum_independent_set", "is_in
 
 
 @binary_quadratic_model_sampler(2)
-def maximum_weighted_independent_set(G, weight=None, sampler=None, Lagrange=2, **sampler_args):
+def maximum_weighted_independent_set(G, weight=None, sampler=None, Lagrange=2.0, **sampler_args):
     """Returns an approximate maximum weighted independent set.
 
     Defines a QUBO with ground states corresponding to a
@@ -81,7 +81,7 @@ def maximum_weighted_independent_set(G, weight=None, sampler=None, Lagrange=2, *
 
 
 @binary_quadratic_model_sampler(1)
-def maximum_independent_set(G, sampler=None, Lagrange=2, **sampler_args):
+def maximum_independent_set(G, sampler=None, Lagrange=2.0, **sampler_args):
     """Returns an approximate maximum independent set.
 
     Defines a QUBO with ground states corresponding to a
@@ -190,7 +190,7 @@ def is_independent_set(G, indep_nodes):
     return len(G.subgraph(indep_nodes).edges) == 0
 
 
-def maximum_weighted_independent_set_qubo(G, weight=None, Lagrange=2):
+def maximum_weighted_independent_set_qubo(G, weight=None, Lagrange=2.0):
     """Return the QUBO with ground states corresponding to a maximum weighted independent set.
 
     Parameters
