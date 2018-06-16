@@ -31,6 +31,15 @@ except ImportError:
 def min_vertex_coloring(G, sampler=None, **sampler_args):
     """Returns an approximate minimum vertex coloring.
 
+    Vertex coloring is the problem of assigning a color to the
+    vertices of a graph in a way that no adjacent vertices have the
+    same color. A minimum vertex coloring is the problem of solving
+    the vertex coloring problem using the smallest number of colors.
+
+    Since neighboring vertices must satisfy a constraint of having
+    different colors, the problem can be posed as a binary constraint
+    satisfaction problem.
+
     Defines a QUBO with ground states corresponding to minimum
     vertex colorings and uses the sampler to sample from it.
 
