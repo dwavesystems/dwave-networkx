@@ -6,7 +6,7 @@ __all__ = ["maximum_weighted_independent_set", "maximum_independent_set", "is_in
 
 
 @binary_quadratic_model_sampler(2)
-def maximum_weighted_independent_set(G, weight=None, sampler=None, **sampler_args):
+def maximum_weighted_independent_set(G, weight=None, sampler=None, lagrange=2.0, **sampler_args):
     """Returns an approximate maximum weighted independent set.
 
     Defines a QUBO with ground states corresponding to a
@@ -36,6 +36,10 @@ def maximum_weighted_independent_set(G, weight=None, sampler=None, **sampler_arg
         iterable of samples, in order of increasing energy. If no
         sampler is provided, one must be provided using the
         `set_default_sampler` function.
+        
+    lagrange : optional (default 2)
+        Lagrange parameter to weight constraints (no edges within set) 
+        versus objective (largest set possible).
 
     sampler_args
         Additional keyword parameters are passed to the sampler.
@@ -64,7 +68,7 @@ def maximum_weighted_independent_set(G, weight=None, sampler=None, **sampler_arg
 
     """
     # Get a QUBO representation of the problem
-    Q = maximum_weighted_independent_set_qubo(G, weight)
+    Q = maximum_weighted_independent_set_qubo(G, weight, lagrange)
 
     # use the sampler to find low energy states
     response = sampler.sample_qubo(Q, **sampler_args)
@@ -77,7 +81,7 @@ def maximum_weighted_independent_set(G, weight=None, sampler=None, **sampler_arg
 
 
 @binary_quadratic_model_sampler(1)
-def maximum_independent_set(G, sampler=None, **sampler_args):
+def maximum_independent_set(G, sampler=None, lagrange=2.0, **sampler_args):
     """Returns an approximate maximum independent set.
 
     Defines a QUBO with ground states corresponding to a
@@ -102,6 +106,10 @@ def maximum_independent_set(G, sampler=None, **sampler_args):
         iterable of samples, in order of increasing energy. If no
         sampler is provided, one must be provided using the
         `set_default_sampler` function.
+        
+    lagrange : optional (default 2)
+        Lagrange parameter to weight constraints (no edges within set) 
+        versus objective (largest set possible).
 
     sampler_args
         Additional keyword parameters are passed to the sampler.
@@ -141,7 +149,7 @@ def maximum_independent_set(G, sampler=None, **sampler_args):
        Frontiers in Physics, Volume 2, Article 5.
 
     """
-    return maximum_weighted_independent_set(G, None, sampler, **sampler_args)
+    return maximum_weighted_independent_set(G, None, sampler, lagrange, **sampler_args)
 
 
 def is_independent_set(G, indep_nodes):
@@ -182,7 +190,7 @@ def is_independent_set(G, indep_nodes):
     return len(G.subgraph(indep_nodes).edges) == 0
 
 
-def maximum_weighted_independent_set_qubo(G, weight=None):
+def maximum_weighted_independent_set_qubo(G, weight=None, lagrange=2.0):
     """Return the QUBO with ground states corresponding to a maximum weighted independent set.
 
     Parameters
@@ -193,6 +201,10 @@ def maximum_weighted_independent_set_qubo(G, weight=None):
         If None, every node has equal weight. If a string, use this node
         attribute as the node weight. A node without this attribute is
         assumed to have max weight.
+        
+    lagrange : optional (default 2)
+        Lagrange parameter to weight constraints (no edges within set) 
+        versus objective (largest set possible).
 
     Returns
     -------
@@ -205,7 +217,7 @@ def maximum_weighted_independent_set_qubo(G, weight=None):
     >>> from dwave_networkx.algorithms.independent_set import maximum_weighted_independent_set_qubo
     ...
     >>> G = nx.path_graph(3)
-    >>> Q = maximum_weighted_independent_set_qubo(G, weight='weight')
+    >>> Q = maximum_weighted_independent_set_qubo(G, weight='weight', lagrange=2.0)
     >>> Q[(0, 0)]
     -1.0
     >>> Q[(1, 1)]
@@ -232,6 +244,6 @@ def maximum_weighted_independent_set_qubo(G, weight=None):
     cost = dict(G.nodes(data=weight, default=1))
     scale = max(cost.values())
     Q = {(node, node): min(-cost[node] / scale, 0.0) for node in G}
-    Q.update({edge: 2.0 for edge in G.edges})
+    Q.update({edge: lagrange for edge in G.edges})
 
     return Q
