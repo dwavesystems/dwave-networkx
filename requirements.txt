@@ -1,6 +1,6 @@
 networkx==2.0
 decorator==4.1.0
-dimod==0.6.8
+dimod==0.7.0
 
 coverage
 coveralls
