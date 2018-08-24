@@ -18,7 +18,7 @@ from dwave_networkx.default_sampler import *
 import dwave_networkx.drawing
 from dwave_networkx.drawing import *
 
-__version__ = '0.6.3'
+__version__ = '0.6.4'
 __author__ = 'D-Wave Systems Inc.'
 __authoremail__ = 'acondello@dwavesys.com'
 __description__ = 'A NetworkX extension providing graphs and algorithms relevent to working with the D-Wave System'
