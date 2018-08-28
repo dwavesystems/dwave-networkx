@@ -110,8 +110,8 @@ def traveling_salesman_qubo(G, lagrange=2.0):
 
     # Objective that minimizes distance
     for node_1 in G:
-        for node_2 in range(N):
-            if node_1!=node_2:
+        for node_2 in G:
+            if node_1<node_2:
                 for pos in range(N):
                     Q[((node_1,pos), (node_2,(pos+1)%N))] += G[node_1][node_2]['weight']
 
@@ -120,7 +120,7 @@ def traveling_salesman_qubo(G, lagrange=2.0):
 def is_hamiltonian_path(G, route):
     """Determines whether the given list forms a valid TSP route.
 
-    An TSP route must visit each city exactly once.
+    A TSP route must visit each city exactly once.
 
     Parameters
     ----------
