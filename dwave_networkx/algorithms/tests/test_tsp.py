@@ -51,7 +51,7 @@ class TestTSP(unittest.TestCase):
 
         G = nx.complete_graph(4)
         for u,v in G.edges(): G[u][v]['weight']=u+v 
-        route = tsp.traveling_salesman(G, dimod.ExactSolver(), lagrange=1.0)
+        route = tsp.traveling_salesman(G, dimod.ExactSolver(), lagrange=10.0)
         self.assertTrue(tsp.is_hamiltonian_path(G, route))
 
     def test_dimod_vs_list(self):
