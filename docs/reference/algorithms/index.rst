@@ -19,3 +19,4 @@ binary quadratic model samplers.
    max_cut
    packing
    social
+   tsp
