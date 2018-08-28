@@ -4,7 +4,7 @@ import networkx as nx
 
 __all__ = ["traveling_salesman", "traveling_salesman_qubo", "is_hamiltonian_path"]
 
-@binary_quadratic_model_sampler(2)
+#@binary_quadratic_model_sampler(2)
 def traveling_salesman(G, sampler=None, lagrange=2.0, **sampler_args):
     """Returns an approximate minimum traveling salesman route.
     Defines a QUBO with ground states corresponding to a
