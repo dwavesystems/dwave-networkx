@@ -31,8 +31,8 @@ def traveling_salesman(G, sampler=None, lagrange=2.0, **sampler_args):
         `set_default_sampler` function.
         
     lagrange : optional (default 2)
-        Lagrange parameter to weight constraints (no edges within set) 
-        versus objective (largest set possible).
+        Lagrange parameter to weight constraints (visit every city once) 
+        versus objective (shortest distance route).
 
     sampler_args
         Additional keyword parameters are passed to the sampler.
