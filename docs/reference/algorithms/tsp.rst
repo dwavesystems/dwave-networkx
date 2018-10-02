@@ -1,6 +1,6 @@
-********
+******************
 Traveling Salesman
-********
+******************
 
 A traveling salesman route is an ordering of the vertices in a complete weighted
 graph.
