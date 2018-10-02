@@ -43,11 +43,22 @@ To solve a QUBO or Ising objective function on the D-Wave system, you
 must map it to a *Chimera* graph that represents architecture of the system's
 qubits.
 
-.. include::  ./drawing.rst
-   :start-after: chimera-intro-start-marker
-   :end-before: chimera-intro-end-marker
+The Chimera architecture comprises sets of connected unit cells, each with four
+horizontal qubits connected to four vertical qubits via couplers (bipartite
+connectivity). Unit cells are tiled vertically and horizontally with adjacent
+qubits connected, creating a lattice of sparsely connected qubits. A unit cell
+is typically rendered as either a cross or a column.
 
-.. figure:: ../_static/chimera.png
+.. figure:: _static/ChimeraUnitCell.png
+	:align: center
+	:name: ChimeraUnitCell
+	:scale: 40 %
+	:alt: Chimera unit cell.
+
+	Chimera unit cell.
+
+
+.. figure:: _static/chimera.png
   :name: chimera
   :scale: 70 %
   :alt: Chimera graph.  qubits are arranged in unit cells that form bipartite connections.
