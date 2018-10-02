@@ -5,10 +5,6 @@ Graph Generators
 
 Generators for graphs used by the D-Wave System.
 
-.. include::  ./drawing.rst
-   :start-after: chimera-intro-start-marker
-   :end-before: chimera-intro-end-marker
-
 .. currentmodule:: dwave_networkx
 
 Architectures
