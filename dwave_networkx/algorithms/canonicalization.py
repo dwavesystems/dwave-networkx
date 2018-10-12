@@ -23,8 +23,19 @@ __all__ = ['canonical_chimera_labeling']
 
 
 def canonical_chimera_labeling(G, t=None):
-    """
-    Returns a mapping from the labels of G to chimera-indexed labeling
+    """Returns a mapping from the labels of G to chimera-indexed labeling.
+
+    Parameters
+    ----------
+    G : NetworkX graph
+        A Chimera-structured graph.
+    t : int (optional, default 4)
+        Size of the shore within each Chimera tile.
+
+    Returns
+    -------
+    chimera_indices: dict
+        A mapping from the current labels to a 4-tuple of Chimera indices.
 
     """
     adj = G.adj
