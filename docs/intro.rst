@@ -80,3 +80,17 @@ from low energy states of the problem's objective function) must have
 `sample_qubo` and `sample_ising` methods for solving Ising and QUBO models
 and return an iterable of samples in order of increasing energy. You can set
 a default sampler using the `set_default_sampler()` function.
+
+Below you can see how to create Chimera graphs implemented in the D-Wave 2X nad D-Wave 2000Q machines:
+
+.. code: python
+  
+  import dwave_networkx as dnx
+  
+  # D-Wave 2X
+  C = dnx.chimera_graph(12, 12, 4)
+  
+  # D-Wave 2000Q
+  C = dnx.chimera_graph(16, 16, 4)
+
+
