@@ -81,9 +81,9 @@ from low energy states of the problem's objective function) must have
 and return an iterable of samples in order of increasing energy. You can set
 a default sampler using the `set_default_sampler()` function.
 
-Below you can see how to create Chimera graphs implemented in the D-Wave 2X nad D-Wave 2000Q machines:
+Below you can see how to create Chimera graphs implemented in the D-Wave 2X and D-Wave 2000Q systems:
 
-.. code: python
+.. code:: python
   
   import dwave_networkx as dnx
   
@@ -92,5 +92,3 @@ Below you can see how to create Chimera graphs implemented in the D-Wave 2X nad 
   
   # D-Wave 2000Q
   C = dnx.chimera_graph(16, 16, 4)
-
-
