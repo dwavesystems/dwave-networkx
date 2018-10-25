@@ -22,5 +22,6 @@ setup(
     url='https://github.com/dwavesystems/dwave_networkx',
     download_url='https://github.com/dwavesystems/dwave_networkx/archive/0.5.0.tar.gz',
     packages=packages,
+    license='Apache 2.0',
     install_requires=install_requires
 )
