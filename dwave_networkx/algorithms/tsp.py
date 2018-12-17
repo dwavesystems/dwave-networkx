@@ -6,18 +6,18 @@ __all__ = ["traveling_salesman", "traveling_salesman_qubo", "is_hamiltonian_path
 
 @binary_quadratic_model_sampler(1)
 def traveling_salesman(G, sampler=None, lagrange=2.0, **sampler_args):
-    """Returns an approximate minimum traveling salesman route.
+    """Returns an approximate minimum traveling salesperson route.
     Defines a QUBO with ground states corresponding to a
     minimum route and uses the sampler to sample
     from it.
 
-    A route is a cycle in the graph that reaches each node exactly once. 
+    A route is a cycle in the graph that reaches each node exactly once.
     A minimum route is a route with the smallest total edge weight.
 
     Parameters
     ----------
     G : NetworkX graph
-        The graph on which to find a minimum traveling salesman route.  
+        The graph on which to find a minimum traveling salesperson route.
         This should be a complete graph with non-zero weights on every edge.
 
     sampler
@@ -29,9 +29,9 @@ def traveling_salesman(G, sampler=None, lagrange=2.0, **sampler_args):
         iterable of samples, in order of increasing energy. If no
         sampler is provided, one must be provided using the
         `set_default_sampler` function.
-        
+
     lagrange : optional (default 2)
-        Lagrange parameter to weight constraints (visit every city once) 
+        Lagrange parameter to weight constraints (visit every city once)
         versus objective (shortest distance route).
 
     sampler_args
@@ -41,6 +41,20 @@ def traveling_salesman(G, sampler=None, lagrange=2.0, **sampler_args):
     -------
     route : list
        List of nodes in order to be visited on a route
+
+    Examples
+    --------
+    This example uses a `dimod <https://github.com/dwavesystems/dimod>`_ sampler
+    to find a minimum route in a five-cities problem.
+
+    >>> import dwave_networkx as dnx
+    >>> import networkx as nx
+    >>> import dimod
+    ...
+    >>> G = nx.complete_graph(4)
+    >>> G.add_weighted_edges_from({(0, 1, 1), (0, 2, 2), (0, 3, 3), (1, 2, 3), (1, 3, 4), (2, 3, 5)})
+    >>> dnx.traveling_salesman(G, dimod.ExactSolver())
+    [2, 1, 0, 3]
 
     Notes
     -----
@@ -67,14 +81,14 @@ def traveling_salesman(G, sampler=None, lagrange=2.0, **sampler_args):
 
 def traveling_salesman_qubo(G, lagrange=2.0):
     """Return the QUBO with ground states corresponding to a minimum TSP route.
-    
+
     Parameters
     ----------
     G : NetworkX graph
         Nodes in graph must be labeled 0...N-1
-        
+
     lagrange : optional (default 2)
-        Lagrange parameter to weight constraints (no edges within set) 
+        Lagrange parameter to weight constraints (no edges within set)
         versus objective (largest set possible).
 
     Returns
@@ -129,13 +143,13 @@ def is_hamiltonian_path(G, route):
         The graph on which to check the route.
 
     route : list
-        
+
         List of nodes in the order that they are visited.
 
     Returns
     -------
     is_valid : bool
-        
+
     True if route forms a valid TSP route.
     """
 
