@@ -433,3 +433,38 @@ def get_tuple_fragmentation_fn(pegasus_graph):
         return fragments
 
     return fragment_tuple
+
+
+def get_tuple_defragmentation_fn(pegasus_graph):
+    """Given a list of K2,2 Chimera coordinates, return the corresponding set of pegasus
+    coordinates.
+
+    Args:
+        chimera_coords: List of 4-tuple ints
+
+    Return:
+        A set of pegasus coordinates
+    """
+    horizontal_offsets = pegasus_graph.graph['horizontal_offsets']
+    vertical_offsets = pegasus_graph.graph['vertical_offsets']
+
+    def defragment_tuple(chimera_coords):
+        pegasus_coords = []
+        for y, x, u, r in chimera_coords:
+            # Set up shifts and offsets
+            shifts = [x, y]
+            offsets = horizontal_offsets if u else vertical_offsets
+
+            # Determine number of tiles and track number
+            w, k = divmod(2 * shifts[u] + r, 12)
+
+            # Determine qubit index on track
+            x0 = shifts[1-u] * 2 - offsets[k]
+            z = x0 // 12
+
+            pegasus_coords.append((u, w, k, z))
+
+        # Several chimera coordinates may map to the same pegasus coordinate, hence, apply set(..)
+        return set(pegasus_coords)
+
+    return defragment_tuple
