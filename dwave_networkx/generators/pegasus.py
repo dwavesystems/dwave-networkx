@@ -388,25 +388,33 @@ class pegasus_coordinates:
 
 
 def get_tuple_fragmentation_fn(pegasus_graph):
-    """Takes the Pegasus qubit coordinates and returns their corresponding K2,2 Chimera fragment
-    coordinates.
+    """
+    Returns a fragmentation function that is specific to pegasus_graph. This fragmentation function,
+    fragment_tuple(..), takes in a list of Pegasus qubit coordinates and returns their corresponding
+    K2,2 Chimera fragment coordinates.
 
-    Specifically, each Pegasus qubit is split into six fragments. If edges are drawn between
-    adjacent fragments and drawn between fragments that are connected by an existing Pegasus
-    coupler, we can see that a K2,2 Chimera graph is formed.
+    Details on the returned function, fragment_tuple(list_of_pegasus_coordinates):
+        Each Pegasus qubit is split into six fragments. If edges are drawn between adjacent
+        fragments and drawn between fragments that are connected by an existing Pegasus coupler, we
+        can see that a K2,2 Chimera graph is formed.
 
-    The K2,2 Chimera graph uses a coordinate system with an origin at the upper left corner of the
-    graph.
-        y: number of vertical fragments from the top-most row
-        x: number of horizontal fragments from the left-most column
-        u: 1 if it belongs to a horizontal qubit, 0 otherwise
-        r: fragment index on the K2,2 shore
+        The K2,2 Chimera graph uses a coordinate system with an origin at the upper left corner of
+        the graph.
+            y: number of vertical fragments from the top-most row
+            x: number of horizontal fragments from the left-most column
+            u: 1 if it belongs to a horizontal qubit, 0 otherwise
+            r: fragment index on the K2,2 shore
 
-    Args:
-        pegasus_coords: List of 4-tuple ints
-        vertical_offsets: List of ints. List of offsets for vertical pegasus qubits
-        horizontal_offsets: List of ints. List of offsets for horizontal Pegasus qubits
+    Parameters
+    ----------
+    pegasus_graph: networkx.graph
+        A pegasus graph
 
+    Returns
+    -------
+    fragment_tuple(pegasus_coordinates): a function
+        A function that accepts a list of pegasus coordinates and returns a list of their
+        corresponding K2,2 Chimera coordinates.
     """
     horizontal_offsets = pegasus_graph.graph['horizontal_offsets']
     vertical_offsets = pegasus_graph.graph['vertical_offsets']
@@ -436,13 +444,32 @@ def get_tuple_fragmentation_fn(pegasus_graph):
 
 
 def get_tuple_defragmentation_fn(pegasus_graph):
-    """Given a list of K2,2 Chimera coordinates, return the corresponding set of pegasus
-    coordinates.
+    """
+    Returns a de-fragmentation function that is specific to pegasus_graph. The returned
+    de-fragmentation function, defragment_tuple(..), takes in a list of K2,2 Chimera coordinates and
+    returns the corresponding set of pegasus coordinates.
 
-    Args:
+    Details on the returned function, defragment_tuple(list_of_chimera_fragment_coordinates):
+        Each Pegasus qubit is split into six fragments. If edges are drawn between adjacent
+        fragments and drawn between fragments that are connected by an existing Pegasus coupler, we
+        can see that a K2,2 Chimera graph is formed.
+
+        The K2,2 Chimera graph uses a coordinate system with an origin at the upper left corner of
+        the graph.
+            y: number of vertical fragments from the top-most row
+            x: number of horizontal fragments from the left-most column
+            u: 1 if it belongs to a horizontal qubit, 0 otherwise
+            r: fragment index on the K2,2 shore
+
+        The defragment_tuple(..) takes in the list of Chimera fragments and returns a set of their
+        corresponding Pegasus qubit coordinates.
+
+    Parameters
+    ----------
         chimera_coords: List of 4-tuple ints
 
-    Return:
+    Returns
+    -------
         A set of pegasus coordinates
     """
     horizontal_offsets = pegasus_graph.graph['horizontal_offsets']
