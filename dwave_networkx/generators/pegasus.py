@@ -488,10 +488,10 @@ def get_tuple_defragmentation_fn(pegasus_graph):
     # Note: we are returning a defragmentation function rather than defragmenting the chimera
     # fragments ourselves because:
     #   (1) We don't want the user to have to deal with Pegasus horizontal/vertical offsets directly.
-    #       (i.e. Don't want fragment_tuple(pegasus_coord, vertical_offset, horizontal_offset))
+    #       (i.e. Don't want defragment_tuple(chimera_coord, vertical_offset, horizontal_offset))
     #   (2) We don't want the user to have to pass entire Pegasus graph each time they want to
-    #       fragment some pegasus coordinates.
-    #       (i.e. Don't want fragment_tuple(pegasus_coord, pegasus_graph))
+    #       defragment some chimera coordinates.
+    #       (i.e. Don't want defragment_tuple(chimera_coord, pegasus_graph))
     def defragment_tuple(chimera_coords):
         pegasus_coords = []
         for y, x, u, r in chimera_coords:
