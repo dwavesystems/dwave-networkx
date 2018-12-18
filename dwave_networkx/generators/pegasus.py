@@ -419,6 +419,13 @@ def get_tuple_fragmentation_fn(pegasus_graph):
     horizontal_offsets = pegasus_graph.graph['horizontal_offsets']
     vertical_offsets = pegasus_graph.graph['vertical_offsets']
 
+    # Note: we are returning a fragmentation function rather than fragmenting the pegasus
+    # coordinates ourselves because:
+    #   (1) We don't want the user to have to deal with Pegasus horizontal/vertical offsets directly.
+    #       (i.e. Don't want fragment_tuple(pegasus_coord, vertical_offset, horizontal_offset))
+    #   (2) We don't want the user to have to pass entire Pegasus graph each time they want to
+    #       fragment some pegasus coordinates.
+    #       (i.e. Don't want fragment_tuple(pegasus_coord, pegasus_graph))
     def fragment_tuple(pegasus_coords):
         fragments = []
         for u, w, k, z in pegasus_coords:
@@ -466,15 +473,25 @@ def get_tuple_defragmentation_fn(pegasus_graph):
 
     Parameters
     ----------
-        chimera_coords: List of 4-tuple ints
+    pegasus_graph: networkx.graph
+        A Pegasus graph
 
     Returns
     -------
-        A set of pegasus coordinates
+    defragment_tuple(chimera_coordinates): a function
+        A function that accepts a list of chimera coordinates and returns a set of their
+        corresponding Pegasus coordinates.
     """
     horizontal_offsets = pegasus_graph.graph['horizontal_offsets']
     vertical_offsets = pegasus_graph.graph['vertical_offsets']
 
+    # Note: we are returning a defragmentation function rather than defragmenting the chimera
+    # fragments ourselves because:
+    #   (1) We don't want the user to have to deal with Pegasus horizontal/vertical offsets directly.
+    #       (i.e. Don't want fragment_tuple(pegasus_coord, vertical_offset, horizontal_offset))
+    #   (2) We don't want the user to have to pass entire Pegasus graph each time they want to
+    #       fragment some pegasus coordinates.
+    #       (i.e. Don't want fragment_tuple(pegasus_coord, pegasus_graph))
     def defragment_tuple(chimera_coords):
         pegasus_coords = []
         for y, x, u, r in chimera_coords:
