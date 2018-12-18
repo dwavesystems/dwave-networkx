@@ -454,7 +454,7 @@ def get_tuple_defragmentation_fn(pegasus_graph):
     """
     Returns a de-fragmentation function that is specific to pegasus_graph. The returned
     de-fragmentation function, defragment_tuple(..), takes in a list of K2,2 Chimera coordinates and
-    returns the corresponding set of pegasus coordinates.
+    returns the corresponding list of unique pegasus coordinates.
 
     Details on the returned function, defragment_tuple(list_of_chimera_fragment_coordinates):
         Each Pegasus qubit is split into six fragments. If edges are drawn between adjacent
@@ -468,8 +468,9 @@ def get_tuple_defragmentation_fn(pegasus_graph):
             u: 1 if it belongs to a horizontal qubit, 0 otherwise
             r: fragment index on the K2,2 shore
 
-        The defragment_tuple(..) takes in the list of Chimera fragments and returns a set of their
-        corresponding Pegasus qubit coordinates.
+        The defragment_tuple(..) takes in the list of Chimera fragments and returns a list of their
+        corresponding Pegasus qubit coordinates. Note that the returned list has a unique set of
+        Pegasus coordinates.
 
     Parameters
     ----------
@@ -509,6 +510,6 @@ def get_tuple_defragmentation_fn(pegasus_graph):
             pegasus_coords.append((u, w, k, z))
 
         # Several chimera coordinates may map to the same pegasus coordinate, hence, apply set(..)
-        return set(pegasus_coords)
+        return list(set(pegasus_coords))
 
     return defragment_tuple
