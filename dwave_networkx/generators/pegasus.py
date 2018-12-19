@@ -387,6 +387,7 @@ class pegasus_coordinates:
         return self.__pair_repack(self.tuples, plist)
 
 
+#TODO: should fragmentation functions be within pegasus_coordinates
 def get_tuple_fragmentation_fn(pegasus_graph):
     """
     Returns a fragmentation function that is specific to pegasus_graph. This fragmentation function,
@@ -426,6 +427,8 @@ def get_tuple_fragmentation_fn(pegasus_graph):
     #   (2) We don't want the user to have to pass entire Pegasus graph each time they want to
     #       fragment some pegasus coordinates.
     #       (i.e. Don't want fragment_tuple(pegasus_coord, pegasus_graph))
+    #TODO: Should I worry about the coordinates exceeding the graph's actual bounds? I.e. not existing
+    # in within m-by-m tiles?
     def fragment_tuple(pegasus_coords):
         fragments = []
         for u, w, k, z in pegasus_coords:
