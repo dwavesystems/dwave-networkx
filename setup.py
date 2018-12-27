@@ -1,16 +1,30 @@
-from setuptools import setup, find_packages
+import os
+import sys
 
-from dwave_networkx import __version__, __author__, __description__, __authoremail__
+from setuptools import setup
+
+# run from the base path
+my_loc = os.path.dirname(os.path.abspath(__file__))
+os.chdir(my_loc)
+
+# add __version__, __author__, __authoremail__, __description__ to this namespace
+_PY2 = sys.version_info.major == 2
+if _PY2:
+    execfile(os.path.join(".", "dimod", "package_info.py"))
+else:
+    exec(open(os.path.join(".", "dimod", "package_info.py")).read())
 
 packages = ['dwave_networkx',
             'dwave_networkx.algorithms',
             'dwave_networkx.utils',
             'dwave_networkx.drawing',
-            'dwave_networkx.generators']
+            'dwave_networkx.generators',
+            ]
 
 install_requires = ['networkx>=2.0,<3.0',
                     'decorator>=4.1.0,<5.0.0',
-                    'dimod>=0.6.8,<0.9.0']
+                    'dimod>=0.6.8,<0.9.0',
+                    ]
 
 setup(
     name='dwave_networkx',
@@ -20,8 +34,8 @@ setup(
     description=__description__,
     long_description=open('README.rst').read(),
     url='https://github.com/dwavesystems/dwave_networkx',
-    download_url='https://github.com/dwavesystems/dwave_networkx/archive/0.5.0.tar.gz',
+    download_url='https://github.com/dwavesystems/dwave_networkx/releases',
     packages=packages,
     license='Apache 2.0',
-    install_requires=install_requires
+    install_requires=install_requires,
 )
