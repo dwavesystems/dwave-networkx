@@ -1,6 +1,4 @@
 -r requirements.txt
 
-matplotlib
-
 coverage
 coveralls
