@@ -25,9 +25,9 @@ os.chdir(my_loc)
 # add __version__, __author__, __authoremail__, __description__ to this namespace
 _PY2 = sys.version_info.major == 2
 if _PY2:
-    execfile(os.path.join(".", "dimod", "package_info.py"))
+    execfile(os.path.join(".", "dwave_networkx", "package_info.py"))
 else:
-    exec(open(os.path.join(".", "dimod", "package_info.py")).read())
+    exec(open(os.path.join(".", "dwave_networkx", "package_info.py")).read())
 
 packages = ['dwave_networkx',
             'dwave_networkx.algorithms',
