@@ -10,7 +10,6 @@ class TestSocial(unittest.TestCase):
     def check_bicolor(self, colors):
         # colors should be ints and either 0 or 1
         for c in colors.values():
-            self.assertIsInstance(c, int)
             self.assertTrue(c in (0, 1))
 
     def test_structural_imbalance_basic(self):
