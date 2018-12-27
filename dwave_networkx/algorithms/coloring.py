@@ -99,7 +99,7 @@ def min_vertex_coloring(G, sampler=None, **sampler_args):
     # seperately.
     if not nx.is_connected(G):
         coloring = {}
-        for subG in nx.connected_component_subgraphs(G):
+        for subG in (G.subgraph(c).copy() for c in nx.connected_components(G)):
             sub_coloring = min_vertex_coloring(subG, sampler, **sampler_args)
             coloring.update(sub_coloring)
         return coloring
