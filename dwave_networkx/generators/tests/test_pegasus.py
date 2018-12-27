@@ -38,7 +38,7 @@ class TestPegasusGraph(unittest.TestCase):
             G = dnx.pegasus_graph(4, fabric_only=True, offset_lists=offsets)
             H = dnx.pegasus_graph(4, fabric_only=False, offset_lists=offsets)
             nodes = sorted(G)
-            comp = sorted(max(nx.connected_components(H), key=len))
+            comp = sorted(max((G.subgraph(c).copy() for c in nx.connected_components(G)), key=len))
             self.assertEqual(comp, nodes)
 
     def test_coordinate_basics(self):
