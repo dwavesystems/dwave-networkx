@@ -1,5 +1,6 @@
 from __future__ import division
 
+import os
 import unittest
 
 import networkx as nx
@@ -16,6 +17,11 @@ try:
     _numpy = True
 except ImportError:
     _numpy = False
+
+if os.environ.get('DISPLAY', '') == '':
+    _display = False
+else:
+    _display = True
 
 
 class TestDrawing(unittest.TestCase):
@@ -49,6 +55,7 @@ class TestDrawing(unittest.TestCase):
             pos = dnx.pegasus_layout(badG)
 
     @unittest.skipUnless(_numpy and _plt, "No numpy or matplotlib")
+    @unittest.skipUnless(_display, " No display found")
     def test_draw_pegasus_biases(self):
         G = dnx.pegasus_graph(2)
         h = {v: v % 12 for v in G}
@@ -59,6 +66,7 @@ class TestDrawing(unittest.TestCase):
         dnx.draw_pegasus(G, linear_biases=h, quadratic_biases=J)
 
     @unittest.skipUnless(_numpy and _plt, "No numpy or matplotlib")
+    @unittest.skipUnless(_display, " No display found")
     def test_draw_pegasus_embedding(self):
         P = dnx.pegasus_graph(2)
         G = nx.grid_graph([3, 3, 2])
