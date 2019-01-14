@@ -1,4 +1,4 @@
-# Copyright 2018 D-Wave Systems Inc.
+# Copyright 2019 D-Wave Systems Inc.
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
 #    you may not use this file except in compliance with the License.
@@ -12,7 +12,18 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 #
-# ================================================================================================
-from dwave_networkx.generators.chimera import *
-from dwave_networkx.generators.markov import markov_network
-from dwave_networkx.generators.pegasus import *
+# =============================================================================
+import unittest
+
+import dwave_networkx as dnx
+
+
+class Test_markov_network(unittest.TestCase):
+    def test_empty(self):
+        MN = dnx.markov_network({})
+
+    def test_one_node(self):
+        MN = dnx.markov_network({'a': {(0,): 1.2, (1,): .4}})
+
+    def test_one_edge(self):
+        MN = dnx.markov_network({'ab': {(0, 0): 1.2, (1, 0): .4, (0, 1): 1.3, (1, 1): -4}})
