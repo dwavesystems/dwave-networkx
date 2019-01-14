@@ -47,3 +47,11 @@ the `find_chimera()` function to determine the Chimera indices.
 	:alt: Indices of a Chimera unit cell.
 
 	Indices of a Chimera unit cell found by creating a lattice of size (1, 1, 4).
+
+Markov Networks
+---------------
+
+.. autosummary::
+   :toctree: generated/
+
+   markov_network

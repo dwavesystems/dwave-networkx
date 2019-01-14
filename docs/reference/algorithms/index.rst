@@ -17,6 +17,7 @@ binary quadratic model samplers.
    cover
    elimination_ordering
    matching
+   markov
    max_cut
    packing
    social
