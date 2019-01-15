@@ -98,6 +98,8 @@ def markov_network(potentials):
 
     G.name = 'markov_network({!r})'.format(potentials)
 
+    # we use 'clique' because the keys of potentials can be either nodes or
+    # edges, but in either case they are fully connected.
     for clique, phis in potentials.items():
 
         num_vars = len(clique)

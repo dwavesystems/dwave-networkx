@@ -118,6 +118,21 @@ def sample_markov_network(MN, sampler=None, fixed=None, return_sampleset=False,
     >>> samples.first
     Sample(sample={'a': 0, 'b': 0}, energy=-1.0, num_occurrences=1)
 
+    >>> import dimod
+    ...
+    >>> potentials = {('a', 'b'): {(0, 0): -1,
+                                   (0, 1): .5,
+                                   (1, 0): .5,
+                                   (1, 1): 2},
+                      ('b', 'c'): {(0, 0): -9,
+                                   (0, 1): 1.2,
+                                   (1, 0): 7.2,
+                                   (1, 1): 5}}
+    >>> MN = dnx.markov_network(potentials)
+    >>> sampler = dimod.ExactSolver()
+    >>> dnx.sample_markov_network(MN, sampler, fixed={'b': 0})
+    [{'a': 0, 'c': 0}, {'a': 1, 'c': 0}, {'a': 0, 'c': 1}, {'a': 1, 'c': 1}]
+
     Notes
     -----
     Samplers by their nature may not return the optimal solution. This
