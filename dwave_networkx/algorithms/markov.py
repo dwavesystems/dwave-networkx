@@ -101,6 +101,8 @@ def sample_markov_network(MN, sampler=None, fixed=None, return_sampleset=False,
     >>> MN = dnx.markov_network(potentials)
     >>> sampler = dimod.ExactSolver()
     >>> samples = dnx.sample_markov_network(MN, sampler)
+    >>> samples[0]
+    {'a': 0, 'b': 0}
 
     >>> import dimod
     ...
