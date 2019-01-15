@@ -105,7 +105,7 @@ def markov_network(potentials):
         # because this data potentially wont be used for a while, let's do some
         # input checking now and save some debugging issues later
         if not isinstance(phis, abc.Mapping):
-            raise TypeError("phis shoud be a dict")
+            raise TypeError("phis should be a dict")
         elif not all(config in phis for config in itertools.product((0, 1), repeat=num_vars)):
             raise ValueError("not all potentials provided for {!r}".format(clique))
 
@@ -115,10 +115,10 @@ def markov_network(potentials):
         elif num_vars == 2:
             u, v = clique
             # in python<=3.5 the edge order might not be consistent so we store
-            # the relevent order of the varaibles relative to the potentials
+            # the relevant order of the variables relative to the potentials
             G.add_edge(u, v, potential=phis, order=(u, v))
         else:
-            # developer note: in priciple supporting larger cliques can be done
+            # developer note: in principle supporting larger cliques can be done
             # using higher-order, but it would make the use of networkx graphs
             # far more difficult
             raise ValueError("Only supports cliques up to size 2")
