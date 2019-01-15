@@ -158,9 +158,13 @@ def markov_network_bqm(MN, fixed=None):
     bqm = dimod.BinaryQuadraticModel.empty(dimod.BINARY)
 
     # the variable potentials
-    for v, potential in MN.nodes(data='potential', default=None):
+    for v, ddict in MN.nodes(data=True, default=None):
+        potential = ddict.get('potential', None)
+
         if potential is None:
             continue
+
+        # for single nodes we don't need to worry about order
 
         phi0 = potential[(0,)]
         phi1 = potential[(1,)]
@@ -169,9 +173,16 @@ def markov_network_bqm(MN, fixed=None):
         bqm.add_offset(phi0)
 
     # the interaction potentials
-    for u, v, potential in MN.edges(data='potential', default=None):
+    for u, v, ddict in MN.edges(data=True, default=None):
+        potential = ddict.get('potential', None)
+
         if potential is None:
             continue
+
+        # in python<=3.5 the edge order might not be consistent so we use the
+        # one that was stored
+        order = ddict['order']
+        u, v = order
 
         phi00 = potential[(0, 0)]
         phi01 = potential[(0, 1)]

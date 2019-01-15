@@ -43,6 +43,27 @@ class Test_sample_markov_network_bqm(unittest.TestCase):
                 sample = dict(zip(edge, config))
                 self.assertAlmostEqual(bqm.energy(sample), energy)
 
+    def test_typical(self):
+        potentials = {'a': {(0,): 1.5, (1,): -.5},
+                      'ab': {(0, 0): 1.2, (1, 0): .4,
+                             (0, 1): 1.3, (1, 1): -4},
+                      'bc': {(0, 0): 1.7, (1, 0): .4,
+                             (0, 1): -1, (1, 1): -4},
+                      'd': {(0,): -.5, (1,): 1.6}}
+
+        bqm = markov_network_bqm(dnx.markov_network(potentials))
+
+        samples = dimod.ExactSolver().sample(bqm)
+
+        for sample, energy in samples.data(['sample', 'energy']):
+
+            en = 0
+            for interaction, potential in potentials.items():
+                config = tuple(sample[v] for v in interaction)
+                en += potential[config]
+
+            self.assertAlmostEqual(en, energy)
+
 
 class Test_sample_markov_network(unittest.TestCase):
     def test_typical_return_sampleset(self):

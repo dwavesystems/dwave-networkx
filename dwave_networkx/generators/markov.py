@@ -20,6 +20,8 @@ try:
 except ImportError:
     import collections as abc
 
+from collections import namedtuple
+
 import networkx as nx
 
 
@@ -96,25 +98,25 @@ def markov_network(potentials):
 
     G.name = 'markov_network({!r})'.format(potentials)
 
-    for config, phis in potentials.items():
+    for clique, phis in potentials.items():
 
-        num_vars = len(config)
+        num_vars = len(clique)
 
         # because this data potentially wont be used for a while, let's do some
         # input checking now and save some debugging issues later
         if not isinstance(phis, abc.Mapping):
             raise TypeError("phis shoud be a dict")
         elif not all(config in phis for config in itertools.product((0, 1), repeat=num_vars)):
-            raise ValueError("not all potentials provided for {!r}".format(config))
+            raise ValueError("not all potentials provided for {!r}".format(clique))
 
         if num_vars == 1:
-            if len(phis) != 2 or (0,) not in phis or (1,) not in phis:
-                raise ValueError
-            u, = config
-            G.add_node(config, potential=phis)
+            u, = clique
+            G.add_node(u, potential=phis)
         elif num_vars == 2:
-            u, v = config
-            G.add_edge(u, v, potential=phis)
+            u, v = clique
+            # in python<=3.5 the edge order might not be consistent so we store
+            # the relevent order of the varaibles relative to the potentials
+            G.add_edge(u, v, potential=phis, order=(u, v))
         else:
             # developer note: in priciple supporting larger cliques can be done
             # using higher-order, but it would make the use of networkx graphs
