@@ -80,12 +80,10 @@ def markov_network(potentials):
 
     Examples
     --------
-    >>> potentials = {('a', 'b'): {
-        (0, 0): -1,
-        (0, 1): .5,
-        (1, 0): .5,
-        (1, 1): 2
-        }}
+    >>> potentials = {('a', 'b'): {(0, 0): -1,
+    ...                            (0, 1): .5,
+    ...                            (1, 0): .5,
+    ...                            (1, 1): 2}}
     >>> MN = dnx.markov_network(potentials)
     >>> MN['a']['b']['potential'][(0, 0)]
     -1

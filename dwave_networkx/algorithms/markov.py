@@ -93,12 +93,10 @@ def sample_markov_network(MN, sampler=None, fixed_variables=None,
 
     >>> import dimod
     ...
-    >>> potentials = {('a', 'b'): {
-        (0, 0): -1,
-        (0, 1): .5,
-        (1, 0): .5,
-        (1, 1): 2
-        }}
+    >>> potentials = {('a', 'b'): {(0, 0): -1,
+    ...                            (0, 1): .5,
+    ...                            (1, 0): .5,
+    ...                            (1, 1): 2}}
     >>> MN = dnx.markov_network(potentials)
     >>> sampler = dimod.ExactSolver()
     >>> samples = dnx.sample_markov_network(MN, sampler)
@@ -107,12 +105,10 @@ def sample_markov_network(MN, sampler=None, fixed_variables=None,
 
     >>> import dimod
     ...
-    >>> potentials = {('a', 'b'): {
-        (0, 0): -1,
-        (0, 1): .5,
-        (1, 0): .5,
-        (1, 1): 2
-        }}
+    >>> potentials = {('a', 'b'): {(0, 0): -1,
+    ...                            (0, 1): .5,
+    ...                            (1, 0): .5,
+    ...                            (1, 1): 2}}
     >>> MN = dnx.markov_network(potentials)
     >>> sampler = dimod.ExactSolver()
     >>> samples = dnx.sample_markov_network(MN, sampler, return_sampleset=True)
@@ -122,17 +118,18 @@ def sample_markov_network(MN, sampler=None, fixed_variables=None,
     >>> import dimod
     ...
     >>> potentials = {('a', 'b'): {(0, 0): -1,
-                                   (0, 1): .5,
-                                   (1, 0): .5,
-                                   (1, 1): 2},
-                      ('b', 'c'): {(0, 0): -9,
-                                   (0, 1): 1.2,
-                                   (1, 0): 7.2,
-                                   (1, 1): 5}}
+    ...                            (0, 1): .5,
+    ...                            (1, 0): .5,
+    ...                            (1, 1): 2},
+    ...               ('b', 'c'): {(0, 0): -9,
+    ...                            (0, 1): 1.2,
+    ...                            (1, 0): 7.2,
+    ...                            (1, 1): 5}}
     >>> MN = dnx.markov_network(potentials)
     >>> sampler = dimod.ExactSolver()
-    >>> dnx.sample_markov_network(MN, sampler, fixed_variables={'b': 0})
-    [{'a': 0, 'c': 0}, {'a': 1, 'c': 0}, {'a': 0, 'c': 1}, {'a': 1, 'c': 1}]
+    >>> samples = dnx.sample_markov_network(MN, sampler, fixed_variables={'b': 0})
+    >>> samples[0]
+    {'a': 0, 'c': 0, 'b': 0}
 
     Notes
     -----

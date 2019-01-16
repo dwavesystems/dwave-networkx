@@ -1,6 +1,6 @@
-*****
-Cover
-*****
+***************
+Markov Networks
+***************
 
 .. automodule:: dwave_networkx.algorithms.markov
 .. autosummary::
