@@ -76,12 +76,12 @@ class Test_sample_markov_network(unittest.TestCase):
 
         MN = dnx.markov_network(potentials)
 
-        samples = sample_markov_network(MN, dimod.ExactSolver(), fixed={'c': 0}, return_sampleset=True)
+        samples = sample_markov_network(MN, dimod.ExactSolver(),
+                                        fixed_variables={'c': 0},
+                                        return_sampleset=True)
 
         for sample, energy in samples.data(['sample', 'energy']):
-            # add 'c' back in
-            sample = dict(sample)
-            sample['c'] = 0
+            self.assertEqual(sample['c'], 0)
 
             en = 0
             for interaction, potential in potentials.items():
@@ -102,11 +102,11 @@ class Test_sample_markov_network(unittest.TestCase):
 
         bqm = markov_network_bqm(MN)
 
-        samples = sample_markov_network(MN, dimod.ExactSolver(), fixed={'c': 0})
+        samples = sample_markov_network(MN, dimod.ExactSolver(),
+                                        fixed_variables={'c': 0})
 
         for sample in samples:
-            # add 'c' back in
-            sample['c'] = 0
+            self.assertEqual(sample['c'], 0)
 
             en = 0
             for interaction, potential in potentials.items():

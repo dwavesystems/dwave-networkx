@@ -54,7 +54,8 @@ __all__ = 'sample_markov_network', 'markov_network_bqm'
 
 
 @binary_quadratic_model_sampler(1)
-def sample_markov_network(MN, sampler=None, fixed=None, return_sampleset=False,
+def sample_markov_network(MN, sampler=None, fixed_variables=None,
+                          return_sampleset=False,
                           **sampler_args):
     """Samples from a markov network using the provided sampler.
 
@@ -73,7 +74,7 @@ def sample_markov_network(MN, sampler=None, fixed=None, return_sampleset=False,
         sampler is provided, one must be provided using the
         `set_default_sampler` function.
 
-    fixed : dict
+    fixed_variables : dict
         A dictionary of variable assignments to be fixed in the markov network.
 
     return_sampleset : bool (optional, default=False)
@@ -130,7 +131,7 @@ def sample_markov_network(MN, sampler=None, fixed=None, return_sampleset=False,
                                    (1, 1): 5}}
     >>> MN = dnx.markov_network(potentials)
     >>> sampler = dimod.ExactSolver()
-    >>> dnx.sample_markov_network(MN, sampler, fixed={'b': 0})
+    >>> dnx.sample_markov_network(MN, sampler, fixed_variables={'b': 0})
     [{'a': 0, 'c': 0}, {'a': 1, 'c': 0}, {'a': 0, 'c': 1}, {'a': 1, 'c': 1}]
 
     Notes
@@ -141,11 +142,13 @@ def sample_markov_network(MN, sampler=None, fixed=None, return_sampleset=False,
 
     """
 
-    # we could do the fixing with dimod's FixVariablesComposite but for
-    # for backwards compatibility we'll do it on construction
-    bqm = markov_network_bqm(MN, fixed=fixed)
+    bqm = markov_network_bqm(MN)
 
-    sampleset = sampler.sample(bqm, **sampler_args)
+    # use the FixedVar
+    fv_sampler = dimod.FixedVariableComposite(sampler)
+
+    sampleset = fv_sampler.sample(bqm, fixed_variables=fixed_variables,
+                                  **sampler_args)
 
     if return_sampleset:
         return sampleset
@@ -153,7 +156,7 @@ def sample_markov_network(MN, sampler=None, fixed=None, return_sampleset=False,
         return list(map(dict, sampleset.samples()))
 
 
-def markov_network_bqm(MN, fixed=None):
+def markov_network_bqm(MN):
     """Construct a binary quadratic model for a markov network.
 
 
@@ -161,9 +164,6 @@ def markov_network_bqm(MN, fixed=None):
     ----------
     G : NetworkX graph
         A Markov Network as returned by :func:`.markov_network`
-
-    fixed : dict
-        A dictionary of variable assignments to be fixed in the markov network.
 
     Returns
     -------
@@ -210,11 +210,5 @@ def markov_network_bqm(MN, fixed=None):
         bqm.add_variable(v, phi01 - phi00)
         bqm.add_interaction(u, v, phi11 - phi10 - phi01 + phi00)
         bqm.add_offset(phi00)
-
-    if fixed is not None:
-        # dimod >= 0.8.0 has a bqm.fix_variables method but we'll do them
-        # one-by-one for backwards compatibility
-        for v, val in fixed.items():
-            bqm.fix_variable(v, val)
 
     return bqm
