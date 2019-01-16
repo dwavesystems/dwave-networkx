@@ -38,7 +38,7 @@ packages = ['dwave_networkx',
 
 install_requires = ['networkx>=2.0,<3.0',
                     'decorator>=4.1.0,<5.0.0',
-                    'dimod>=0.6.8,<0.9.0',
+                    'dimod>=0.8.0,<0.9.0',
                     ]
 
 setup(

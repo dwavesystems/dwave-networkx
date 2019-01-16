@@ -22,4 +22,5 @@ from dwave_networkx.algorithms.social import *
 from dwave_networkx.algorithms.elimination_ordering import *
 from dwave_networkx.algorithms.coloring import *
 from dwave_networkx.algorithms.max_cut import *
+from dwave_networkx.algorithms.markov import *
 from dwave_networkx.algorithms.tsp import *
