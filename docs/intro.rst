@@ -90,10 +90,9 @@ Pegasus qubits are also more densely connected and have three types of coupler:
   each qubit is connected via internal coupling to 12 other qubits (versus four in the Chimera topology).
 - *External couplers*.
   External couplers connect vertical qubits to adjacent vertical qubits and horizontal
-  qubits to adjacent horizontal qubits.
+  qubits to adjacent horizontal qubits. Each qubit has one or two external couplers.
 - *Odd couplers*.
-  Odd couplers connect similarly aligned pairs of qubits.
-
+  Odd couplers connect similarly aligned pairs of qubits. Each qubit has one odd coupler.
 
 .. figure:: _static/pegasus_qubits.png
 	:align: center
@@ -101,7 +100,7 @@ Pegasus qubits are also more densely connected and have three types of coupler:
 	:scale: 100 %
 	:alt: Pegasus qubits
 
-	Pegasus qubits. Qubits are drawn as horizontal and vertical loops. The horizontal qubit in the center, shown with its odd coupler in red and numbered 1, is internally coupled to vertical qubit pairs 3 to 8, each pair and its odd coupler shown in a different color, and externally coupled to horizontal qubits 2 and 9, each shown in a different color.
+	Pegasus qubits. Qubits are drawn as horizontal and vertical loops. The horizontal qubit in the center, shown with its odd coupler in red and numbered 1, is internally coupled to vertical qubits, in pairs 3 through 8, each pair and its odd coupler shown in a different color, and externally coupled to horizontal qubits 2 and 9, each shown in a different color.
 
 .. figure:: _static/pegasus_roadway.png
 	:align: center
@@ -109,15 +108,14 @@ Pegasus qubits are also more densely connected and have three types of coupler:
 	:scale: 100 %
 	:alt: Pegasus roadway graphic
 
-	Pegasus qubits. Qubits in this "roadway" graphic are represented as dots and couplers as lines. The top qubit in the center, shown in red and numbered 1, is oddly coupled to the (red) qubit shown directly below it, internally coupled to vertical qubit pairs 3 to 8, each pair and its odd coupler shown in a different color, and externally coupled to horizontal qubits 2 and 9, each shown in a different color.
+	Pegasus qubits. Qubits in this "roadway" graphic are represented as dots and couplers as lines. The top qubit in the center, shown in red and numbered 1, is oddly coupled to the (red) qubit shown directly below it, internally coupled to vertical qubits, in pairs 3 through 8, each pair and its odd coupler shown in a different color, and externally coupled to horizontal qubits 2 and 9, each shown in a different color.
 
 Pegasus qubits are considered to have a nominal length of 12 (each qubit is connected to
 12 orthogonal qubits through internal couplers) and degree of 15 (each qubit is coupled to
 6 different qubits).
 
 As we use the notation CN to refer to a Chimera graph with size parameter N, we refer to instances
-of Pegasus topologies by :math:`P_n`; for example, :math:`P_3` is a graph with
-144 nodes.
+of Pegasus topologies by PN; for example, P3 is a graph with 144 nodes.
 
 D-Wave NetworkX
 ===============
