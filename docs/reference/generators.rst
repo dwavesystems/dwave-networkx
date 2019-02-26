@@ -16,6 +16,7 @@ Architectures
    chimera_graph
    find_chimera_indices
    chimera_elimination_order
+   pegasus_graph
 
 Example
 ---------

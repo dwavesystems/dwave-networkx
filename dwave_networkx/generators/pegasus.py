@@ -37,42 +37,63 @@ def pegasus_graph(m, create_using=None, node_list=None, edge_list=None, data=Tru
     topologies under consideration, and may not be reflected in future products.
 
     A Pegasus lattice is a graph minor of a lattice similar to Chimera,
-    where unit tiles are completely connected.  In the most generality, our
-    prelattice Q(N0,N1) contains nodes of the form
-        (i, j, 0, k) with 0 <= k < 2 [vertical nodes]
-    and
-        (i, j, 1, k) with 0 <= k < 2 [horizontal nodes]
-    for 0 <= i <= N0 and 0 <= j < N1; and edges of the form
-        (i, j, u, k) ~ (i+u, j+1-u, u, k)  [external edges]
-        (i, j, 0, k) ~ (i, j, 1, k) [internal edges]
-        (i, j, u, 0) ~ (i, j, u, 1) [odd edges]
+    where unit tiles are completely connected.  In the most generality,
+    prelattice :math:`Q(N0,N1)` contains nodes of the form
 
-    The minor is specified by two lists of offsets; S0 and S1 of length L0 and L1
-    (where L0 and L1, and the entries of S0 and S1, must be divisible by 2).
+        :math:`(i, j, 0, k)` with :math:`0 <= k < 2` [vertical nodes]
+
+    and
+
+        :math:`(i, j, 1, k)` with :math:`0 <= k < 2` [horizontal nodes]
+
+    for :math:`0 <= i <= N0` and :math:`0 <= j < N1`; and edges of the form
+
+        :math:`(i, j, u, k)` ~ :math:`(i+u, j+1-u, u, k)`  [external edges]
+
+        :math:`(i, j, 0, k)` ~ :math:`(i, j, 1, k)` [internal edges]
+
+        :math:`(i, j, u, 0)` ~ :math:`(i, j, u, 1)` [odd edges]
+
+    The minor is specified by two lists of offsets; :math:`S0` and :math:`S1` of length
+    :math:`L0` and :math:`L1` (where :math:`L0` and :math:`L1`, and the entries of
+    :math:`S0` and :math:`S1`, must be divisible by 2).
     From these offsets, we construct our minor, a Pegasus lattice, by contracting
-    the complete intervals of external edges,
+    the complete intervals of external edges::
+
         I(0, w, k, z) = [(L1*w + k, L0*z + S0[k] + r, 0, k % 2) for 0 <= r < L0]
         I(1, w, k, z) = [(L1*z + S1[k] + r, L0*w + k, 1, k % 2) for 0 <= r < L1]
+
     and deleting the prelattice nodes of any interval not fully contained in
-    Q(N0, N1).
+    :math:`Q(N0, N1)`.
 
-    This generator is specialized to L0 = L1 = 12; N0 = N1 = 12m.
+    This generator is specialized to :math:`L0 = L1 = 12`; :math:`N0 = N1 = 12m`.
 
-    The notation (u, w, k, z) is called the pegasus index of a node in a pegasus
+    The notation :math:`(u, w, k, z)` is called the Pegasus index of a node in a Pegasus
     lattice.  The entries can be interpreted as following,
-        u : qubit orientation (0 = vertical, 1 = horizontal)
-        w : orthogonal major offset
-        k : orthogonal minor offset
-        z : parallel offset
+
+        :math:`u`: qubit orientation (0 = vertical, 1 = horizontal)
+
+        :math:`w`: orthogonal major offset
+
+        :math:`k`: orthogonal minor offset
+
+        :math:`z`: parallel offset
+
     and the edges in the minor have the form
-        (u, w, k, z) ~ (u, w, k, z+1) [external edges]
-        (0, w0, k0, z0) ~ (1, w1, k1, z1) [internal edges, see below]
-        (u, w, 2k, z) ~ (u, w, 2k+1, z) [odd edges]
-    where internal edges only exist when
+
+        :math:`(u, w, k, z)` ~ :math:`(u, w, k, z+1)` [external edges]
+
+        :math:`(0, w0, k0, z0)` ~ :math:`(1, w1, k1, z1)` [internal edges, see below]
+
+        :math:`(u, w, 2k, z)` ~ :math:`(u, w, 2k+1, z)` [odd edges]
+
+    where internal edges only exist when::
+
         w1 = z0 + (1 if k1 < S0[k0] else 0), and
         z1 = w0 - (1 if k0 < S1[k1] else 0)
 
-    linear indices are computed from pegasus indices by the formula
+    linear indices are computed from pegasus indices by the formula::
+
         q = ((u * m + w) * 12 + k) * (m - 1) + z
 
     Parameters
@@ -102,7 +123,7 @@ def pegasus_graph(m, create_using=None, node_list=None, edge_list=None, data=Tru
         then offsets_index must be None.
     offsets_index : int, optional (default None)
         A number between 0 and 7 inclusive, to select a preconfigured
-        set of topological parameters.  If both offsets_index and 
+        set of topological parameters.  If both offsets_index and
         offset_lists are None, then we set offsets_index = 0.  At least
         one of these two parameters must be None.
     fabric_only: bool, optional (default True)
@@ -399,12 +420,12 @@ class pegasus_coordinates:
         Parameters
         ----------
         q : tuple
-            The chimera_index node label    
+            The chimera_index node label
 
         Returns
         -------
         r : int
-            The linear_index node label corresponding to q            
+            The linear_index node label corresponding to q
         """
 
         u, w, k, z = q
@@ -418,7 +439,7 @@ class pegasus_coordinates:
         Parameters
         ----------
         r : int
-            The linear_index node label    
+            The linear_index node label
 
         Returns
         -------
