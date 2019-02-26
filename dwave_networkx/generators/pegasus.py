@@ -32,9 +32,7 @@ if _PY2:
 
 def pegasus_graph(m, create_using=None, node_list=None, edge_list=None, data=True, offset_lists=None, offsets_index=None, coordinates=False, fabric_only=True):
     """
-    Creates a Pegasus graph with size parameter m.  The Pegasus topology produced
-    by this generator with default parameters is one member of a large family of
-    topologies under consideration, and may not be reflected in future products.
+    Creates a Pegasus graph with size parameter m.
 
     A Pegasus lattice is a graph minor of a lattice similar to Chimera,
     where unit tiles are completely connected.  In the most generality,
