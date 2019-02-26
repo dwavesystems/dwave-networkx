@@ -51,6 +51,11 @@ class TestDrawing(unittest.TestCase):
         pos = dnx.pegasus_layout(G)
 
     @unittest.skipUnless(_numpy and _plt, "No numpy or matplotlib")
+    def test_pegasus_layout_chim(self):
+        G = dnx.pegasus_graph(2, nice_coordinates=True)
+        pos = dnx.pegasus_layout(G)
+
+    @unittest.skipUnless(_numpy and _plt, "No numpy or matplotlib")
     def test_pegasus_layout_ints_nodata(self):
         G = dnx.pegasus_graph(2, data=False)
         pos = dnx.pegasus_layout(G)
