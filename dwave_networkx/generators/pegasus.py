@@ -30,9 +30,11 @@ if _PY2:
     range = xrange
 
 
-def pegasus_graph(m, create_using=None, node_list=None, edge_list=None, data=True, offset_lists=None, offsets_index=None, coordinates=False, fabric_only=True):
+def pegasus_graph(m, create_using=None, node_list=None, edge_list=None, data=True,
+                  offset_lists=None, offsets_index=None, coordinates=False, fabric_only=True,
+                  nice_coordinates=False):
     """
-    Creates a Pegasus graph with size parameter m.
+    Creates a Pegasus graph with size parameter m.  
 
     A Pegasus lattice is a graph minor of a lattice similar to Chimera,
     where unit tiles are completely connected.  In the most generality,
@@ -114,7 +116,8 @@ def pegasus_graph(m, create_using=None, node_list=None, edge_list=None, data=Tru
         is a 4-tuple Pegasus index as defined above. (if coordinates = True,
         we set a linear_index, which is an integer)
     coordinates : bool, optional (default False)
-        If True, node labels are 4-tuple Pegasus indices
+        If True, node labels are 4-tuple Pegasus indices.  Ignored if
+        nice_coordinates is True
     offset_lists : pair of lists, optional (default None)
         Used to directly control the offsets, each list in the pair should
         have length 12, and contain even ints.  If offset_lists is not None,
@@ -128,10 +131,17 @@ def pegasus_graph(m, create_using=None, node_list=None, edge_list=None, data=Tru
         The Pegasus graph, by definition, will have some disconnected
         components.  If this True, we will only construct nodes from the
         largest component.  Otherwise, the full disconnected graph will be
-        constructed.  Ignored if edge_lists is not None
+        constructed.  Ignored if edge_lists is not None or nice_coordinates
+        is True
+    nice_coordinates: bool, optional (default False)
+        In the case that offsets_index = 0, generate the graph with a nicer
+        coordinate system which is more compatible with Chimera addressing.
+        These coordinates are 5-tuples taking the form (y, x, u, k, t) where
+        0 <= x < M-1, 0 <= y < M-1, 0 <= u < 2, 0 <= k < 4 and 0 <= t < 3.
+        For any given 0 <= t0 < 3, the subgraph of nodes with t = t0 has the
+        structure of chimera(M-1, M-1, 4) with the addition of odd couplers.
+        Supercedes both the fabric_only and coordinates parameters.
     """
-    warnings.warn("The Pegasus topology produced by this generator with default parameters is one member of a large family of topologies under consideration, and may not be reflected in future products")
-
     if offset_lists is None:
         offsets_descriptor = offsets_index = offsets_index or 0
         offset_lists = [
@@ -157,23 +167,33 @@ def pegasus_graph(m, create_using=None, node_list=None, edge_list=None, data=Tru
 
     G.name = "pegasus_graph(%s, %s)" % (m, offsets_descriptor)
 
+    m1 = m - 1
+    if nice_coordinates:
+        if offsets_index != 0:
+            raise NotImplementedError("nice coordinate system is only implemented for offsets_index 0")
+        labels = 'nice'
+        c2i = get_pegasus_to_nice_fn(m = m)
+    elif coordinates:
+        c2i = lambda *q: q
+        labels = 'coordinate'
+    else:
+        labels = 'int'
+        def c2i(u, w, k, z): return u * 12 * m * m1 + w * 12 * m1 + k * m1 + z
+
     construction = (("family", "pegasus"), ("rows", m), ("columns", m),
                     ("tile", 12), ("vertical_offsets", offset_lists[0]),
                     ("horizontal_offsets", offset_lists[1]), ("data", data),
-                    ("labels", "coordinate" if coordinates else "int"))
+                    ("labels", labels))
 
     G.graph.update(construction)
 
     max_size = m * (m - 1) * 24  # max number of nodes G can have
 
-    m1 = m - 1
-    if coordinates:
-        c2i = lambda *q: q
-    else:
-        def c2i(u, w, k, z): return u * 12 * m * m1 + w * 12 * m1 + k * m1 + z
-
     if edge_list is None:
-        if fabric_only:
+        if nice_coordinates:
+            fabric_start = 4,8
+            fabric_end = 8, 4
+        elif fabric_only:
             fabric_start = min(s for s in offset_lists[1]), min(s for s in offset_lists[0])
             fabric_end = 12 - max(s for s in offset_lists[1]), 12 - max(s for s in offset_lists[0])
         else:
@@ -192,11 +212,18 @@ def pegasus_graph(m, create_using=None, node_list=None, edge_list=None, data=Tru
                          for z in range(m1))
 
         off0, off1 = offset_lists
-        G.add_edges_from((c2i(0, w, k, z), c2i(1, z + (kk < off0[k]), kk, w - (k < off1[kk])))
+        def qfilter(u, w, k, z):
+            if w == 0: return k >= fabric_start[u]
+            if w == m1: return k < 12-fabric_end[u]
+            return True
+        def efilter(e): return qfilter(*e[0]) and qfilter(*e[1])
+
+        internal_couplers = (((0, w, k, z), (1, z + (kk < off0[k]), kk, w - (k < off1[kk])))
                          for w in range(m)
                          for kk in range(12)
                          for k in range(0 if w else off1[kk], 12 if w < m1 else off1[kk])
                          for z in range(m1))
+        G.add_edges_from((c2i(*e[0]), c2i(*e[1])) for e in internal_couplers if efilter(e))
 
     else:
         G.add_edges_from(edge_list)
@@ -213,7 +240,12 @@ def pegasus_graph(m, create_using=None, node_list=None, edge_list=None, data=Tru
                 for k in range(12):
                     for z in range(m1):
                         q = u, w, k, z
-                        if coordinates:
+                        if nice_coordinates:
+                            p = c2i(*q)
+                            if p in G:
+                                G.node[p]['linear_index'] = v
+                                G.node[p]['pegasus_index'] = q
+                        elif coordinates:
                             if q in G:
                                 G.node[q]['linear_index'] = v
                         else:
@@ -548,3 +580,69 @@ class pegasus_coordinates:
             Equivalent to (tuple(self.tuples(p)) for p in plist)
         """
         return self.__pair_repack(self.tuples, plist)
+
+
+def get_pegasus_to_nice_fn(pegasus_graph=None, m=None):
+    """
+    Returns a coordinate translation function from the 4-term pegasus_index
+    coordinates to the 5-term "nice" coordinates.
+
+    Details on the returned function, pegasus_to_nice(u,w,k,z)
+        Inputs are 4-tuples of ints, return is a 5-tuple of ints.  See
+        pegasus_graph for description of the pegasus_index and "nice"
+        coordinate systems.
+
+    Parameters
+    ----------
+    pegasus_graph: networkx.graph (optional, default None)
+        A Pegasus graph
+    m: int (optional, default None)
+        The size parameter for a Pegasus graph
+
+    Returns
+    -------
+    defragment_tuple(chimera_coordinates): a function
+        A function that accepts a list of chimera coordinates and returns a set of their
+        corresponding Pegasus coordinates.
+    """
+    if m is None:
+        if pegasus_graph is None:
+            raise ValueError("need either pegasus_graph or m to not be None")
+        m = pegasus_graph.graph['rows']
+    m1 = m - 1
+    m2 = m - 2
+    def p2n0(u, w, k, z): return (m1 - w if u else m2-z, z if u else w, u, 7-k if u else k-4, 0)
+    def p2n1(u, w, k, z): return (m1 - w if u else m2-z, z if u else w, u, 3-k if u else k-8, 1)
+    def p2n2(u, w, k, z): return (m2 - w if u else m2-z, z if u else w-1, u, 11-k if u else k, 2)
+    def p2n(u, w, k, z): return [p2n0, p2n1, p2n2][(2-u-(2*u-1)*(k//4)) % 3](u, w, k, z)
+    return p2n
+
+
+def get_nice_to_pegasus_fn(pegasus_graph=None, m=None):
+    """
+    Returns a coordinate translation function from the 5-term "nice"
+    coordinates to the 4-term pegasus_index coordinates.
+
+    Details on the returned function, nice_to_pegasus(y, x, u, k, t)
+        Inputs are 5-tuples of ints, return is a 4-tuple of ints.  See
+        pegasus_graph for description of the pegasus_index and "nice"
+        coordinate systems.
+
+    Parameters
+    ----------
+    pegasus_graph: networkx.graph (optional, default None)
+        A Pegasus graph
+    m: int (optional, default None)
+        The size parameter for a Pegasus graph    
+    """
+    if m is None:
+        if pegasus_graph is None:
+            raise ValueError("need either pegasus_graph or m to not be None")
+        m = pegasus_graph.graph['rows']
+    m1 = m - 1
+    m2 = m - 2
+    def c2p0(y, x, u, k): return (u, m1-y if u else x, 7-k if u else 4+k, x if u else m2-y)
+    def c2p1(y, x, u, k): return (u, m1-y if u else x, 3-k if u else 8+k, x if u else m2-y)
+    def c2p2(y, x, u, k): return (u, m2-y if u else x + 1, 11-k if u else k, x if u else m2-y)
+    def n2p(y, x, u, k, t): return [c2p0, c2p1, c2p2][t](y, x, u, k)
+    return n2p
