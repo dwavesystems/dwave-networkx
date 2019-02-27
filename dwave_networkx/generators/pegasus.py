@@ -34,9 +34,7 @@ def pegasus_graph(m, create_using=None, node_list=None, edge_list=None, data=Tru
                   offset_lists=None, offsets_index=None, coordinates=False, fabric_only=True,
                   nice_coordinates=False):
     """
-    Creates a Pegasus graph with size parameter m.  The Pegasus topology produced
-    by this generator with default parameters is one member of a large family of
-    topologies under consideration, and may not be reflected in future products.
+    Creates a Pegasus graph with size parameter m.  
 
     A Pegasus lattice is a graph minor of a lattice similar to Chimera,
     where unit tiles are completely connected.  In the most generality,
@@ -144,8 +142,6 @@ def pegasus_graph(m, create_using=None, node_list=None, edge_list=None, data=Tru
         structure of chimera(M-1, M-1, 4) with the addition of odd couplers.
         Supercedes both the fabric_only and coordinates parameters.
     """
-    warnings.warn("The Pegasus topology produced by this generator with default parameters is one member of a large family of topologies under consideration, and may not be reflected in future products")
-
     if offset_lists is None:
         offsets_descriptor = offsets_index = offsets_index or 0
         offset_lists = [
