@@ -35,6 +35,11 @@ class TestDrawing(unittest.TestCase):
         pos = dnx.pegasus_layout(G)
 
     @unittest.skipUnless(_numpy and _plt, "No numpy or matplotlib")
+    def test_pegasus_layout_crosses(self):
+        G = dnx.pegasus_graph(2)
+        pos = dnx.pegasus_layout(G, crosses=True)
+
+    @unittest.skipUnless(_numpy and _plt, "No numpy or matplotlib")
     def test_pegasus_layout_ints_badcenter(self):
         G = dnx.pegasus_graph(2, data=False)
         with self.assertRaises(ValueError):
