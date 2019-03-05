@@ -75,3 +75,4 @@ class TestDrawing(unittest.TestCase):
         dnx.draw_pegasus_embedding(P, emb)
         dnx.draw_pegasus_embedding(P, emb, embedded_graph=G)
         dnx.draw_pegasus_embedding(P, emb, interaction_edges=P.edges())
+        dnx.draw_pegasus_embedding(P, emb, crosses=True)

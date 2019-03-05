@@ -207,7 +207,7 @@ def draw_pegasus(G, crosses=False, **kwargs):
     draw_qubit_graph(G, pegasus_layout(G, crosses=crosses), **kwargs)
 
 
-def draw_pegasus_embedding(G, crosses=False, *args, **kwargs):
+def draw_pegasus_embedding(G, *args, **kwargs):
     """Draws an embedding onto the pegasus graph G, according to layout.
 
     If interaction_edges is not None, then only display the couplers in that
@@ -258,4 +258,5 @@ def draw_pegasus_embedding(G, crosses=False, *args, **kwargs):
        function. If `linear_biases` or `quadratic_biases` are provided,
        any provided `node_color` or `edge_color` arguments are ignored.
     """
+    crosses = kwargs.pop("crosses", False)
     draw_embedding(G, pegasus_layout(G, crosses=crosses), *args, **kwargs)
