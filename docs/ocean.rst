@@ -1,7 +1,7 @@
 Ocean Overview
 ========================
 
-`D-Wave Ocean <http://dw-docs.readthedocs.io/en/latest/index.html>`_ includes
+:std:doc:`D-Wave Ocean <oceandocs:index>` includes
 various projects/repositories on Github that help solve problems on the D-Wave
 system.
 
