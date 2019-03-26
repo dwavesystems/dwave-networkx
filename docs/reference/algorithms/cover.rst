@@ -20,5 +20,6 @@ set.
 .. autosummary::
    :toctree: generated/
 
+   min_weighted_vertex_cover
    min_vertex_cover
    is_vertex_cover

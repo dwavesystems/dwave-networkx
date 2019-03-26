@@ -1,3 +1,18 @@
+# Copyright 2018 D-Wave Systems Inc.
+#
+#    Licensed under the Apache License, Version 2.0 (the "License");
+#    you may not use this file except in compliance with the License.
+#    You may obtain a copy of the License at
+#
+#        http://www.apache.org/licenses/LICENSE-2.0
+#
+#    Unless required by applicable law or agreed to in writing, software
+#    distributed under the License is distributed on an "AS IS" BASIS,
+#    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#    See the License for the specific language governing permissions and
+#    limitations under the License.
+#
+# ================================================================================================
 from __future__ import division
 
 import math
@@ -30,6 +45,15 @@ except ImportError:
 @binary_quadratic_model_sampler(1)
 def min_vertex_coloring(G, sampler=None, **sampler_args):
     """Returns an approximate minimum vertex coloring.
+
+    Vertex coloring is the problem of assigning a color to the
+    vertices of a graph in a way that no adjacent vertices have the
+    same color. A minimum vertex coloring is the problem of solving
+    the vertex coloring problem using the smallest number of colors.
+
+    Since neighboring vertices must satisfy a constraint of having
+    different colors, the problem can be posed as a binary constraint
+    satisfaction problem.
 
     Defines a QUBO with ground states corresponding to minimum
     vertex colorings and uses the sampler to sample from it.
@@ -90,7 +114,7 @@ def min_vertex_coloring(G, sampler=None, **sampler_args):
     # seperately.
     if not nx.is_connected(G):
         coloring = {}
-        for subG in nx.connected_component_subgraphs(G):
+        for subG in (G.subgraph(c).copy() for c in nx.connected_components(G)):
             sub_coloring = min_vertex_coloring(subG, sampler, **sampler_args)
             coloring.update(sub_coloring)
         return coloring

@@ -5,4 +5,4 @@ Quantum computing and the types of problems it addresses use many domain-specifi
 terms.
 
 Learn the relevant terminology at
-`Ocean Glossary <http://dw-docs.readthedocs.io/en/latest/glossary.html>`_\ .
+:std:doc:`Ocean Glossary <oceandocs:glossary>`.

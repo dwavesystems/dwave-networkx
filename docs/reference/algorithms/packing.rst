@@ -17,8 +17,23 @@ of its member pairs.
    to another blue node and likewise for red nodes.
 
 .. automodule:: dwave_networkx.algorithms.independent_set
+
+.. currentmodule:: dwave_networkx
+
 .. autosummary::
    :toctree: generated/
 
+    maximum_weighted_independent_set
     maximum_independent_set
     is_independent_set
+
+Helper Functions
+----------------
+
+.. currentmodule:: dwave_networkx.algorithms.independent_set
+
+.. autosummary::
+   :toctree: generated/
+
+   maximum_weighted_independent_set_qubo
+

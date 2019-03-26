@@ -12,10 +12,13 @@ binary quadratic model samplers.
 .. toctree::
    :maxdepth: 2
 
+   canonicalization
    coloring
    cover
    elimination_ordering
+   markov
    matching
    max_cut
    packing
    social
+   tsp

@@ -9,7 +9,6 @@ Reference Documentation
 .. toctree::
    :maxdepth: 2
 
-   intro
    algorithms/index
    drawing
    generators
