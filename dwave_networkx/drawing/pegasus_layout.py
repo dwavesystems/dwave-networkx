@@ -66,7 +66,8 @@ def pegasus_layout(G, scale=1., center=None, dim=2, crosses=False):
 
     crosses: boolean (optional, default False)
         If crosses is True, K_4,4 subgraphs are shown in a cross
-        rather than L configuration.
+        rather than L configuration. Ignored if G was defined with
+        nice_coordinates=True.
 
     Returns
     -------
@@ -206,7 +207,8 @@ def draw_pegasus(G, crosses=False, **kwargs):
 
     crosses: boolean (optional, default False)
         If crosses is True, K_4,4 subgraphs are shown in a cross
-        rather than L configuration.
+        rather than L configuration. Ignored if G was defined with
+        nice_coordinates=True.
 
     kwargs : optional keywords
        See networkx.draw_networkx() for a description of optional keywords,
@@ -272,7 +274,8 @@ def draw_pegasus_embedding(G, *args, **kwargs):
 
     crosses: boolean (optional, default False)
         If crosses is True, K_4,4 subgraphs are shown in a cross
-        rather than L configuration.
+        rather than L configuration. Ignored if G was defined with
+        nice_coordinates=True.
 
     kwargs : optional keywords
        See networkx.draw_networkx() for a description of optional keywords,
