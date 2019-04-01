@@ -34,7 +34,21 @@ def pegasus_graph(m, create_using=None, node_list=None, edge_list=None, data=Tru
                   offset_lists=None, offsets_index=None, coordinates=False, fabric_only=True,
                   nice_coordinates=False):
     """
-    Creates a Pegasus graph with size parameter m.  
+    Creates a Pegasus graph with size parameter m.  The number of nodes and edges varies
+    according to multiple parameters, for example,
+
+        pegasus_graph(1) contains zero nodes,
+        pegasus_graph(m, fabric_only=False) contains :math:`24m(m-1)` nodes,
+        pegasus_graph(m, fabric_only=True) contains :math:`24m(m-1)-8m` nodes, and
+        pegasus_graph(m, nice_coordinates=True) contains :math:`24(m-1)^2` nodes.
+
+    The maximum degree of these graph is 15, and counting formulas are more complicated
+    for edges given most parameter settings.  Upper bounds are given below,
+
+        pegasus_graph(1, fabric_only=False) has zero edges,
+        pegasus_graph(m, fabric_only=False) has :math:`12*(15*(m-1)^2 + m - 3)` edges if m > 1
+
+    Note that the above are valid with default offset parameters.
 
     A Pegasus lattice is a graph minor of a lattice similar to Chimera,
     where unit tiles are completely connected.  In the most generality,
