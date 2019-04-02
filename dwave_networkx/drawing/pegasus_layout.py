@@ -42,7 +42,7 @@ else:
 __all__ = ['pegasus_layout', 'draw_pegasus', 'draw_pegasus_embedding']
 
 
-def pegasus_layout(G, scale=1., center=None, dim=2):
+def pegasus_layout(G, scale=1., center=None, dim=2, crosses=False):
     """Positions the nodes of graph G in a Pegasus topology.
 
     NumPy (http://scipy.org) is required for this function.
@@ -63,6 +63,11 @@ def pegasus_layout(G, scale=1., center=None, dim=2):
     dim : int (default 2)
         Number of dimensions. When dim > 2, all extra dimensions are
         set to 0.
+
+    crosses: boolean (optional, default False)
+        If crosses is True, K_4,4 subgraphs are shown in a cross
+        rather than L configuration. Ignored if G was defined with
+        nice_coordinates=True.
 
     Returns
     -------
@@ -85,7 +90,7 @@ def pegasus_layout(G, scale=1., center=None, dim=2):
         def xy_coords(y, x, u, k, t): return c_coords(3*y+t, 3*x+t, u, k)
         pos = {v: xy_coords(*v) for v in G.nodes()}
     else:
-        xy_coords = pegasus_node_placer_2d(G, scale, center, dim)
+        xy_coords = pegasus_node_placer_2d(G, scale, center, dim, crosses=crosses)
 
         if G.graph.get('labels') == 'coordinate':
             pos = {v: xy_coords(*v) for v in G.nodes()}
@@ -99,7 +104,7 @@ def pegasus_layout(G, scale=1., center=None, dim=2):
     return pos
 
 
-def pegasus_node_placer_2d(G, scale=1., center=None, dim=2):
+def pegasus_node_placer_2d(G, scale=1., center=None, dim=2, crosses=False):
     """Generates a function that converts Pegasus indices to x, y
     coordinates for a plot.
 
@@ -119,6 +124,10 @@ def pegasus_node_placer_2d(G, scale=1., center=None, dim=2):
     dim : int (default 2)
         Number of dimensions. When dim > 2, all extra dimensions are
         set to 0.
+
+    crosses: boolean (optional, default False)
+        If crosses is True, K_4,4 subgraphs are shown in a cross
+        rather than L configuration.
 
     Returns
     -------
@@ -150,6 +159,12 @@ def pegasus_node_placer_2d(G, scale=1., center=None, dim=2):
     if len(center) != dim:
         raise ValueError("length of center coordinates must match dimension of layout")
 
+    if crosses:
+        # adjustment for crosses
+        cross_shift = 2.
+    else:
+        cross_shift = 0.
+
     def _xy_coords(u, w, k, z):
         # orientation, major perpendicular offset, minor perpendicular offset, parallel offset
 
@@ -159,9 +174,9 @@ def pegasus_node_placer_2d(G, scale=1., center=None, dim=2):
             p = .1
 
         if u:
-            xy = np.array([z*tile_width+h_offsets[k] + tile_center, -tile_width*w-k-p])
+            xy = np.array([z*tile_width+h_offsets[k] + tile_center, -tile_width*w-k-p+cross_shift])
         else:
-            xy = np.array([tile_width*w+k+p, -z*tile_width-v_offsets[k]-tile_center])
+            xy = np.array([tile_width*w+k+p+cross_shift, -z*tile_width-v_offsets[k]-tile_center])
 
         # convention for Pegasus-lattice pictures is to invert the y-axis
         return np.hstack((xy * scale, np.zeros(paddims))) + center
@@ -169,7 +184,7 @@ def pegasus_node_placer_2d(G, scale=1., center=None, dim=2):
     return _xy_coords
 
 
-def draw_pegasus(G, **kwargs):
+def draw_pegasus(G, crosses=False, **kwargs):
     """Draws graph G in a Pegasus topology.
 
     If `linear_biases` and/or `quadratic_biases` are provided, these
@@ -190,6 +205,11 @@ def draw_pegasus(G, **kwargs):
         form {edge: bias, ...}. Each bias should be numeric. Self-loop
         edges (i.e., :math:`i=j`) are treated as linear biases.
 
+    crosses: boolean (optional, default False)
+        If crosses is True, K_4,4 subgraphs are shown in a cross
+        rather than L configuration. Ignored if G was defined with
+        nice_coordinates=True.
+
     kwargs : optional keywords
        See networkx.draw_networkx() for a description of optional keywords,
        with the exception of the `pos` parameter which is not used by this
@@ -208,7 +228,7 @@ def draw_pegasus(G, **kwargs):
 
     """
 
-    draw_qubit_graph(G, pegasus_layout(G), **kwargs)
+    draw_qubit_graph(G, pegasus_layout(G, crosses=crosses), **kwargs)
 
 
 def draw_pegasus_embedding(G, *args, **kwargs):
@@ -252,10 +272,16 @@ def draw_pegasus_embedding(G, *args, **kwargs):
         in chains, and edges which are neither chain edges nor interactions.
         If unused_color is None, these nodes and edges will not be shown at all.
 
+    crosses: boolean (optional, default False)
+        If crosses is True, K_4,4 subgraphs are shown in a cross
+        rather than L configuration. Ignored if G was defined with
+        nice_coordinates=True.
+
     kwargs : optional keywords
        See networkx.draw_networkx() for a description of optional keywords,
        with the exception of the `pos` parameter which is not used by this
        function. If `linear_biases` or `quadratic_biases` are provided,
        any provided `node_color` or `edge_color` arguments are ignored.
     """
-    draw_embedding(G, pegasus_layout(G), *args, **kwargs)
+    crosses = kwargs.pop("crosses", False)
+    draw_embedding(G, pegasus_layout(G, crosses=crosses), *args, **kwargs)
