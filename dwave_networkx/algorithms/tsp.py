@@ -12,16 +12,22 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 #
-# ================================================================================================
+# =============================================================================
 from __future__ import division
-from dwave_networkx.utils import binary_quadratic_model_sampler
+
 import networkx as nx
 
-__all__ = ["traveling_salesman", "traveling_salesman_qubo", "is_hamiltonian_path"]
+from dwave_networkx.utils import binary_quadratic_model_sampler
+
+__all__ = ["traveling_salesman",
+           "traveling_salesman_qubo",
+           "is_hamiltonian_path"]
+
 
 @binary_quadratic_model_sampler(1)
 def traveling_salesman(G, sampler=None, lagrange=2.0, **sampler_args):
     """Returns an approximate minimum traveling salesperson route.
+
     Defines a QUBO with ground states corresponding to a
     minimum route and uses the sampler to sample
     from it.
@@ -35,7 +41,7 @@ def traveling_salesman(G, sampler=None, lagrange=2.0, **sampler_args):
         The graph on which to find a minimum traveling salesperson route.
         This should be a complete graph with non-zero weights on every edge.
 
-    sampler
+    sampler :
         A binary quadratic model sampler. A sampler is a process that
         samples from low energy states in models defined by an Ising
         equation or a Quadratic Unconstrained Binary Optimization
@@ -49,7 +55,7 @@ def traveling_salesman(G, sampler=None, lagrange=2.0, **sampler_args):
         Lagrange parameter to weight constraints (visit every city once)
         versus objective (shortest distance route).
 
-    sampler_args
+    sampler_args :
         Additional keyword parameters are passed to the sampler.
 
     Returns
@@ -67,7 +73,8 @@ def traveling_salesman(G, sampler=None, lagrange=2.0, **sampler_args):
     >>> import dimod
     ...
     >>> G = nx.complete_graph(4)
-    >>> G.add_weighted_edges_from({(0, 1, 1), (0, 2, 2), (0, 3, 3), (1, 2, 3), (1, 3, 4), (2, 3, 5)})
+    >>> G.add_weighted_edges_from({(0, 1, 1), (0, 2, 2), (0, 3, 3), (1, 2, 3),
+    ...                            (1, 3, 4), (2, 3, 5)})
     >>> dnx.traveling_salesman(G, dimod.ExactSolver())
     [2, 1, 0, 3]
 
@@ -91,8 +98,9 @@ def traveling_salesman(G, sampler=None, lagrange=2.0, **sampler_args):
         if sample[entry] > 0:
             route.append(entry)
     route.sort(key=lambda x: x[1])
-    route = ( x[0] for x in route)
+    route = (x[0] for x in route)
     return list(route)
+
 
 def traveling_salesman_qubo(G, lagrange=2.0):
     """Return the QUBO with ground states corresponding to a minimum TSP route.
@@ -102,14 +110,16 @@ def traveling_salesman_qubo(G, lagrange=2.0):
     G : NetworkX graph
         Nodes in graph must be labeled 0...N-1
 
-    lagrange : optional (default 2)
+    lagrange : number, optional (default 2)
         Lagrange parameter to weight constraints (no edges within set)
         versus objective (largest set possible).
 
     Returns
     -------
     QUBO : dict
-       The QUBO with ground states corresponding to a maximum weighted independent set.
+       The QUBO with ground states corresponding to a maximum weighted
+       independent set.
+
     """
 
     # empty QUBO for an empty graph
@@ -118,10 +128,14 @@ def traveling_salesman_qubo(G, lagrange=2.0):
 
     N = G.number_of_nodes()
 
-    ## Creating the QUBO
+    # Creating the QUBO
     # Start with an empty QUBO
     Q = {}
-    Q = {((node_1,pos_1),(node_2,pos_2)): 0.0 for node_1 in G for node_2 in G for pos_1 in range(N) for pos_2 in range(N)}
+    Q = {((node_1, pos_1), (node_2, pos_2)): 0.0
+         for node_1 in G
+         for node_2 in G
+         for pos_1 in range(N)
+         for pos_2 in range(N)}
 
     # Constraint that each row has exactly one 1
     for node in G:
@@ -133,18 +147,19 @@ def traveling_salesman_qubo(G, lagrange=2.0):
     # Constraint that each col has exactly one 1
     for pos in range(N):
         for node_1 in G:
-            Q[((node_1, pos), (node_1,pos))] -= lagrange
+            Q[((node_1, pos), (node_1, pos))] -= lagrange
             for node_2 in set(G)-{node_1}:
-                Q[((node_1, pos), (node_2,pos))] += 2.0*lagrange
+                Q[((node_1, pos), (node_2, pos))] += 2.0*lagrange
 
     # Objective that minimizes distance
     for node_1 in G:
         for node_2 in G:
-            if node_1<node_2:
+            if node_1 < node_2:
                 for pos in range(N):
-                    Q[((node_1,pos), (node_2,(pos+1)%N))] += G[node_1][node_2]['weight']
+                    Q[((node_1, pos), (node_2, (pos+1) % N))] += G[node_1][node_2]['weight']
 
     return Q
+
 
 def is_hamiltonian_path(G, route):
     """Determines whether the given list forms a valid TSP route.
