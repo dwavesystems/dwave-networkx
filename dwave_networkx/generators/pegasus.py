@@ -150,7 +150,7 @@ def pegasus_graph(m, create_using=None, node_list=None, edge_list=None, data=Tru
     nice_coordinates: bool, optional (default False)
         In the case that offsets_index = 0, generate the graph with a nicer
         coordinate system which is more compatible with Chimera addressing.
-        These coordinates are 5-tuples taking the form (y, x, u, k, t) where
+        These coordinates are 5-tuples taking the form (t, y, x, u, k) where
         0 <= x < M-1, 0 <= y < M-1, 0 <= u < 2, 0 <= k < 4 and 0 <= t < 3.
         For any given 0 <= t0 < 3, the subgraph of nodes with t = t0 has the
         structure of chimera(M-1, M-1, 4) with the addition of odd couplers.
@@ -186,7 +186,7 @@ def pegasus_graph(m, create_using=None, node_list=None, edge_list=None, data=Tru
         if offsets_index != 0:
             raise NotImplementedError("nice coordinate system is only implemented for offsets_index 0")
         labels = 'nice'
-        c2i = get_pegasus_to_nice_fn(m = m)
+        c2i = get_pegasus_to_nice_fn()
     elif coordinates:
         c2i = lambda *q: q
         labels = 'coordinate'
@@ -596,7 +596,7 @@ class pegasus_coordinates:
         return self.__pair_repack(self.tuples, plist)
 
 
-def get_pegasus_to_nice_fn(pegasus_graph=None, m=None):
+def get_pegasus_to_nice_fn(*args, **kwargs):
     """
     Returns a coordinate translation function from the 4-term pegasus_index
     coordinates to the 5-term "nice" coordinates.
@@ -606,57 +606,41 @@ def get_pegasus_to_nice_fn(pegasus_graph=None, m=None):
         pegasus_graph for description of the pegasus_index and "nice"
         coordinate systems.
 
-    Parameters
-    ----------
-    pegasus_graph: networkx.graph (optional, default None)
-        A Pegasus graph
-    m: int (optional, default None)
-        The size parameter for a Pegasus graph
-
     Returns
     -------
-    defragment_tuple(chimera_coordinates): a function
-        A function that accepts a list of chimera coordinates and returns a set of their
-        corresponding Pegasus coordinates.
+    pegasus_to_nice_fn(chimera_coordinates): a function
+        A function that accepts augmented chimera coordinates and returns corresponding 
+        Pegasus coordinates.
     """
-    if m is None:
-        if pegasus_graph is None:
-            raise ValueError("need either pegasus_graph or m to not be None")
-        m = pegasus_graph.graph['rows']
-    m1 = m - 1
-    m2 = m - 2
-    def p2n0(u, w, k, z): return (m1 - w if u else m2-z, z if u else w, u, 7-k if u else k-4, 0)
-    def p2n1(u, w, k, z): return (m1 - w if u else m2-z, z if u else w, u, 3-k if u else k-8, 1)
-    def p2n2(u, w, k, z): return (m2 - w if u else m2-z, z if u else w-1, u, 11-k if u else k, 2)
+    if args or kwargs:
+        warnings.warn("Deprecation warning: get_pegasus_to_nice_fn does not need / use parameters anymore")
+    def p2n0(u, w, k, z): return (0, w-1 if u else z, z if u else w, u, k-4 if u else k-4)
+    def p2n1(u, w, k, z): return (1, w-1 if u else z, z if u else w, u, k if u else k-8)
+    def p2n2(u, w, k, z): return (2, w if u else z, z if u else w-1, u, k-8 if u else k)
     def p2n(u, w, k, z): return [p2n0, p2n1, p2n2][(2-u-(2*u-1)*(k//4)) % 3](u, w, k, z)
     return p2n
 
 
-def get_nice_to_pegasus_fn(pegasus_graph=None, m=None):
+def get_nice_to_pegasus_fn(*args, **kwargs):
     """
     Returns a coordinate translation function from the 5-term "nice"
     coordinates to the 4-term pegasus_index coordinates.
 
-    Details on the returned function, nice_to_pegasus(y, x, u, k, t)
+    Details on the returned function, nice_to_pegasus(t, y, x, u, k)
         Inputs are 5-tuples of ints, return is a 4-tuple of ints.  See
         pegasus_graph for description of the pegasus_index and "nice"
         coordinate systems.
 
-    Parameters
-    ----------
-    pegasus_graph: networkx.graph (optional, default None)
-        A Pegasus graph
-    m: int (optional, default None)
-        The size parameter for a Pegasus graph    
+    Returns
+    -------
+    nice_to_pegasus_fn(pegasus_coordinates): a function
+        A function that accepts Pegasus coordinates and returns the corresponding 
+        augmented chimera coordinates
     """
-    if m is None:
-        if pegasus_graph is None:
-            raise ValueError("need either pegasus_graph or m to not be None")
-        m = pegasus_graph.graph['rows']
-    m1 = m - 1
-    m2 = m - 2
-    def c2p0(y, x, u, k): return (u, m1-y if u else x, 7-k if u else 4+k, x if u else m2-y)
-    def c2p1(y, x, u, k): return (u, m1-y if u else x, 3-k if u else 8+k, x if u else m2-y)
-    def c2p2(y, x, u, k): return (u, m2-y if u else x + 1, 11-k if u else k, x if u else m2-y)
-    def n2p(y, x, u, k, t): return [c2p0, c2p1, c2p2][t](y, x, u, k)
+    if args or kwargs:
+        warnings.warn("Deprecation warning: get_pegasus_to_nice_fn does not need / use parameters anymore")
+    def c2p0(y, x, u, k): return (u, y+1 if u else x, 4+k if u else 4+k, x if u else y)
+    def c2p1(y, x, u, k): return (u, y+1 if u else x, k if u else 8+k, x if u else y)
+    def c2p2(y, x, u, k): return (u, y if u else x + 1, 8+k if u else k, x if u else y)
+    def n2p(t, y, x, u, k): return [c2p0, c2p1, c2p2][t](y, x, u, k)
     return n2p
