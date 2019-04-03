@@ -82,14 +82,14 @@ class TestPegasusGraph(unittest.TestCase):
         H = dnx.chimera_graph(3, coordinates=True)
         for p, q in H.edges():
             for t in range(3):
-                pg = p + (t,)
-                qg = q + (t,)
+                pg = (t,) + p
+                qg = (t,) + q
                 self.assertTrue(G.has_edge(pg, qg))
-        n2p = get_nice_to_pegasus_fn(G)
-        p2n = get_pegasus_to_nice_fn(G)
+        n2p = get_nice_to_pegasus_fn()
+        p2n = get_pegasus_to_nice_fn()
         for p in G.nodes():
             self.assertEqual(p2n(*n2p(*p)), p)
-            self.assertTrue(H.has_node(p[:-1]))
+            self.assertTrue(H.has_node(p[1:]))
 
     def test_coordinate_subgraphs(self):
         from dwave_networkx.generators.pegasus import pegasus_coordinates

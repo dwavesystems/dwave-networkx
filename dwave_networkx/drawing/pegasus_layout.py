@@ -87,7 +87,7 @@ def pegasus_layout(G, scale=1., center=None, dim=2, crosses=False):
     if G.graph.get('labels') == 'nice':
         m = 3*(G.graph['rows']-1)
         c_coords = chimera_node_placer_2d(m, m, 4, scale=scale, center=center, dim=dim)
-        def xy_coords(y, x, u, k, t): return c_coords(3*y+t, 3*x+t, u, k)
+        def xy_coords(t, y, x, u, k): return c_coords(3*y+2-t, 3*x+t, u, k)
         pos = {v: xy_coords(*v) for v in G.nodes()}
     else:
         xy_coords = pegasus_node_placer_2d(G, scale, center, dim, crosses=crosses)
