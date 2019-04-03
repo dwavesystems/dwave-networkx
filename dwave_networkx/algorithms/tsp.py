@@ -12,18 +12,27 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 #
-# ================================================================================================
+# =============================================================================
 from __future__ import division
-from dwave_networkx.utils import binary_quadratic_model_sampler
-import networkx as nx
 
-__all__ = ["traveling_salesman", "traveling_salesman_qubo", "is_hamiltonian_path"]
+import itertools
+
+from collections import defaultdict
+
+from dwave_networkx.utils import binary_quadratic_model_sampler
+
+__all__ = ["traveling_salesman",
+           "traveling_salesman_qubo",
+           "is_hamiltonian_path"]
+
 
 @binary_quadratic_model_sampler(1)
-def traveling_salesman(G, sampler=None, lagrange=2.0, **sampler_args):
+def traveling_salesman(G, sampler=None, lagrange=2, weight='weight',
+                       **sampler_args):
     """Returns an approximate minimum traveling salesperson route.
-    Defines a QUBO with ground states corresponding to a
-    minimum route and uses the sampler to sample
+
+    Defines a QUBO with ground states corresponding to the
+    minimum routes and uses the sampler to sample
     from it.
 
     A route is a cycle in the graph that reaches each node exactly once.
@@ -35,7 +44,7 @@ def traveling_salesman(G, sampler=None, lagrange=2.0, **sampler_args):
         The graph on which to find a minimum traveling salesperson route.
         This should be a complete graph with non-zero weights on every edge.
 
-    sampler
+    sampler :
         A binary quadratic model sampler. A sampler is a process that
         samples from low energy states in models defined by an Ising
         equation or a Quadratic Unconstrained Binary Optimization
@@ -49,7 +58,10 @@ def traveling_salesman(G, sampler=None, lagrange=2.0, **sampler_args):
         Lagrange parameter to weight constraints (visit every city once)
         versus objective (shortest distance route).
 
-    sampler_args
+    weight : optional (default 'weight')
+        The name of the edge attribute containing the weight.
+
+    sampler_args :
         Additional keyword parameters are passed to the sampler.
 
     Returns
@@ -67,7 +79,8 @@ def traveling_salesman(G, sampler=None, lagrange=2.0, **sampler_args):
     >>> import dimod
     ...
     >>> G = nx.complete_graph(4)
-    >>> G.add_weighted_edges_from({(0, 1, 1), (0, 2, 2), (0, 3, 3), (1, 2, 3), (1, 3, 4), (2, 3, 5)})
+    >>> G.add_weighted_edges_from({(0, 1, 1), (0, 2, 2), (0, 3, 3), (1, 2, 3),
+    ...                            (1, 3, 4), (2, 3, 5)})
     >>> dnx.traveling_salesman(G, dimod.ExactSolver())
     [2, 1, 0, 3]
 
@@ -79,7 +92,7 @@ def traveling_salesman(G, sampler=None, lagrange=2.0, **sampler_args):
 
     """
     # Get a QUBO representation of the problem
-    Q = traveling_salesman_qubo(G, lagrange)
+    Q = traveling_salesman_qubo(G, lagrange, weight)
 
     # use the sampler to find low energy states
     response = sampler.sample_qubo(Q, **sampler_args)
@@ -91,37 +104,45 @@ def traveling_salesman(G, sampler=None, lagrange=2.0, **sampler_args):
         if sample[entry] > 0:
             route.append(entry)
     route.sort(key=lambda x: x[1])
-    route = ( x[0] for x in route)
-    return list(route)
+    return list((x[0] for x in route))
 
-def traveling_salesman_qubo(G, lagrange=2.0):
+
+def traveling_salesman_qubo(G, lagrange=2, weight='weight'):
     """Return the QUBO with ground states corresponding to a minimum TSP route.
+
+    If :math:`|G|` is the number of nodes in the graph, the resulting qubo will have:
+
+    * :math:`|G|^2` variables/nodes
+    * :math:`2 |G|^2 (|G| - 1)` interactions/edges
 
     Parameters
     ----------
     G : NetworkX graph
-        Nodes in graph must be labeled 0...N-1
+        A complete graph in which each edge has a attribute giving its weight.
 
-    lagrange : optional (default 2)
+    lagrange : number, optional (default 2)
         Lagrange parameter to weight constraints (no edges within set)
         versus objective (largest set possible).
+
+    weight : optional (default 'weight')
+        The name of the edge attribute containing the weight.
 
     Returns
     -------
     QUBO : dict
-       The QUBO with ground states corresponding to a maximum weighted independent set.
+       The QUBO with ground states corresponding to a minimum travelling
+       salesperson route.
+
     """
-
-    # empty QUBO for an empty graph
-    if not G:
-        return {}
-
     N = G.number_of_nodes()
 
-    ## Creating the QUBO
-    # Start with an empty QUBO
-    Q = {}
-    Q = {((node_1,pos_1),(node_2,pos_2)): 0.0 for node_1 in G for node_2 in G for pos_1 in range(N) for pos_2 in range(N)}
+    # some input checking
+    if N in (1, 2) or len(G.edges) != N*(N-1)//2:
+        msg = "graph must be a complete graph with at least 3 nodes or empty"
+        raise ValueError(msg)
+
+    # Creating the QUBO
+    Q = defaultdict(float)
 
     # Constraint that each row has exactly one 1
     for node in G:
@@ -133,23 +154,28 @@ def traveling_salesman_qubo(G, lagrange=2.0):
     # Constraint that each col has exactly one 1
     for pos in range(N):
         for node_1 in G:
-            Q[((node_1, pos), (node_1,pos))] -= lagrange
+            Q[((node_1, pos), (node_1, pos))] -= lagrange
             for node_2 in set(G)-{node_1}:
-                Q[((node_1, pos), (node_2,pos))] += 2.0*lagrange
+                Q[((node_1, pos), (node_2, pos))] += 2.0*lagrange
 
     # Objective that minimizes distance
-    for node_1 in G:
-        for node_2 in G:
-            if node_1<node_2:
-                for pos in range(N):
-                    Q[((node_1,pos), (node_2,(pos+1)%N))] += G[node_1][node_2]['weight']
+    for u, v in itertools.combinations(G.nodes, 2):
+        for pos in range(N):
+            nextpos = (pos + 1) % N
+
+            # going from u -> v
+            Q[((u, pos), (v, nextpos))] += G[u][v][weight]
+
+            # going from v -> u
+            Q[((v, pos), (u, nextpos))] += G[u][v][weight]
 
     return Q
+
 
 def is_hamiltonian_path(G, route):
     """Determines whether the given list forms a valid TSP route.
 
-    A TSP route must visit each city exactly once.
+    A travelling salesperson route must visit each city exactly once.
 
     Parameters
     ----------
@@ -164,8 +190,8 @@ def is_hamiltonian_path(G, route):
     Returns
     -------
     is_valid : bool
+        True if route forms a valid travelling salesperson route.
 
-    True if route forms a valid TSP route.
     """
 
     return (len(route) == len(set(G)))

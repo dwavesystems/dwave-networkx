@@ -18,3 +18,4 @@ graph.
    :toctree: generated/
 
     traveling_salesman
+    traveling_salesman_qubo
