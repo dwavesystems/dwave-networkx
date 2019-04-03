@@ -200,3 +200,17 @@ class TestTSPQUBO(unittest.TestCase):
         G = nx.Graph([(0, 1)])
         with self.assertRaises(ValueError):
             tsp.traveling_salesman_qubo(G)
+
+    def test_docstring_size(self):
+        # in the docstring we state the size of the resulting BQM, this checks
+        # that
+        for n in range(3, 20):
+            G = nx.Graph()
+            G.add_weighted_edges_from((u, v, .5)
+                                      for u, v
+                                      in itertools.combinations(range(n), 2))
+            Q = tsp.traveling_salesman_qubo(G)
+            bqm = dimod.BinaryQuadraticModel.from_qubo(Q)
+
+            self.assertEqual(len(bqm), n**2)
+            self.assertEqual(len(bqm.quadratic), 2*n*n*(n - 1))

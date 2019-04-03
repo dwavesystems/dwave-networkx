@@ -111,6 +111,11 @@ def traveling_salesman(G, sampler=None, lagrange=2, weight='weight',
 def traveling_salesman_qubo(G, lagrange=2, weight='weight'):
     """Return the QUBO with ground states corresponding to a minimum TSP route.
 
+    If :math:`|G|` is the number of nodes in the graph, the resulting qubo will have:
+
+    * :math:`|G|^2` variables/nodes
+    * :math:`2 |G|^2 (|G| - 1)` interactions/edges
+
     Parameters
     ----------
     G : NetworkX graph
