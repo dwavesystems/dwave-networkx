@@ -27,11 +27,12 @@ __all__ = ["traveling_salesman",
 
 
 @binary_quadratic_model_sampler(1)
-def traveling_salesman(G, sampler=None, lagrange=2.0, **sampler_args):
+def traveling_salesman(G, sampler=None, lagrange=2, weight='weight',
+                       **sampler_args):
     """Returns an approximate minimum traveling salesperson route.
 
-    Defines a QUBO with ground states corresponding to a
-    minimum route and uses the sampler to sample
+    Defines a QUBO with ground states corresponding to the
+    minimum routes and uses the sampler to sample
     from it.
 
     A route is a cycle in the graph that reaches each node exactly once.
@@ -56,6 +57,9 @@ def traveling_salesman(G, sampler=None, lagrange=2.0, **sampler_args):
     lagrange : optional (default 2)
         Lagrange parameter to weight constraints (visit every city once)
         versus objective (shortest distance route).
+
+    weight : optional (default 'weight')
+        The name of the edge attribute containing the weight.
 
     sampler_args :
         Additional keyword parameters are passed to the sampler.
@@ -88,7 +92,7 @@ def traveling_salesman(G, sampler=None, lagrange=2.0, **sampler_args):
 
     """
     # Get a QUBO representation of the problem
-    Q = traveling_salesman_qubo(G, lagrange)
+    Q = traveling_salesman_qubo(G, lagrange, weight)
 
     # use the sampler to find low energy states
     response = sampler.sample_qubo(Q, **sampler_args)
@@ -104,17 +108,20 @@ def traveling_salesman(G, sampler=None, lagrange=2.0, **sampler_args):
     return list(route)
 
 
-def traveling_salesman_qubo(G, lagrange=2.0):
+def traveling_salesman_qubo(G, lagrange=2, weight='weight'):
     """Return the QUBO with ground states corresponding to a minimum TSP route.
 
     Parameters
     ----------
     G : NetworkX graph
-        Nodes in graph must be labeled 0...N-1
+        A complete graph in which each edge has a attribute giving its weight.
 
     lagrange : number, optional (default 2)
         Lagrange parameter to weight constraints (no edges within set)
         versus objective (largest set possible).
+
+    weight : optional (default 'weight')
+        The name of the edge attribute containing the weight.
 
     Returns
     -------
@@ -124,6 +131,11 @@ def traveling_salesman_qubo(G, lagrange=2.0):
 
     """
     N = G.number_of_nodes()
+
+    # some input checking
+    if N in (1, 2) or len(G.edges) != N*(N-1)//2:
+        msg = "graph must be a complete graph with at least 3 nodes or empty"
+        raise ValueError(msg)
 
     # Creating the QUBO
     Q = defaultdict(float)
@@ -148,10 +160,10 @@ def traveling_salesman_qubo(G, lagrange=2.0):
             nextpos = (pos + 1) % N
 
             # going from u -> v
-            Q[((u, pos), (v, nextpos))] += G[u][v]['weight']
+            Q[((u, pos), (v, nextpos))] += G[u][v][weight]
 
             # going from v -> u
-            Q[((v, pos), (u, nextpos))] += G[u][v]['weight']
+            Q[((v, pos), (u, nextpos))] += G[u][v][weight]
 
     return Q
 

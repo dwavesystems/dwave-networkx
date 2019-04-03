@@ -195,3 +195,8 @@ class TestTSPQUBO(unittest.TestCase):
             ground_count += 1
 
         self.assertEqual(ground_count, len(min_routes))
+
+    def test_exceptions(self):
+        G = nx.Graph([(0, 1)])
+        with self.assertRaises(ValueError):
+            tsp.traveling_salesman_qubo(G)
