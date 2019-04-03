@@ -15,7 +15,9 @@
 # =============================================================================
 from __future__ import division
 
-import networkx as nx
+import itertools
+
+from collections import defaultdict
 
 from dwave_networkx.utils import binary_quadratic_model_sampler
 
@@ -121,21 +123,10 @@ def traveling_salesman_qubo(G, lagrange=2.0):
        independent set.
 
     """
-
-    # empty QUBO for an empty graph
-    if not G:
-        return {}
-
     N = G.number_of_nodes()
 
     # Creating the QUBO
-    # Start with an empty QUBO
-    Q = {}
-    Q = {((node_1, pos_1), (node_2, pos_2)): 0.0
-         for node_1 in G
-         for node_2 in G
-         for pos_1 in range(N)
-         for pos_2 in range(N)}
+    Q = defaultdict(float)
 
     # Constraint that each row has exactly one 1
     for node in G:
@@ -152,11 +143,15 @@ def traveling_salesman_qubo(G, lagrange=2.0):
                 Q[((node_1, pos), (node_2, pos))] += 2.0*lagrange
 
     # Objective that minimizes distance
-    for node_1 in G:
-        for node_2 in G:
-            if node_1 < node_2:
-                for pos in range(N):
-                    Q[((node_1, pos), (node_2, (pos+1) % N))] += G[node_1][node_2]['weight']
+    for u, v in itertools.combinations(G.nodes, 2):
+        for pos in range(N):
+            nextpos = (pos + 1) % N
+
+            # going from u -> v
+            Q[((u, pos), (v, nextpos))] += G[u][v]['weight']
+
+            # going from v -> u
+            Q[((v, pos), (u, nextpos))] += G[u][v]['weight']
 
     return Q
 
