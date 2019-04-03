@@ -104,8 +104,7 @@ def traveling_salesman(G, sampler=None, lagrange=2, weight='weight',
         if sample[entry] > 0:
             route.append(entry)
     route.sort(key=lambda x: x[1])
-    route = (x[0] for x in route)
-    return list(route)
+    return list((x[0] for x in route))
 
 
 def traveling_salesman_qubo(G, lagrange=2, weight='weight'):
@@ -131,8 +130,8 @@ def traveling_salesman_qubo(G, lagrange=2, weight='weight'):
     Returns
     -------
     QUBO : dict
-       The QUBO with ground states corresponding to a maximum weighted
-       independent set.
+       The QUBO with ground states corresponding to a minimum travelling
+       salesperson route.
 
     """
     N = G.number_of_nodes()
@@ -176,7 +175,7 @@ def traveling_salesman_qubo(G, lagrange=2, weight='weight'):
 def is_hamiltonian_path(G, route):
     """Determines whether the given list forms a valid TSP route.
 
-    A TSP route must visit each city exactly once.
+    A travelling salesperson route must visit each city exactly once.
 
     Parameters
     ----------
@@ -191,8 +190,8 @@ def is_hamiltonian_path(G, route):
     Returns
     -------
     is_valid : bool
+        True if route forms a valid travelling salesperson route.
 
-    True if route forms a valid TSP route.
     """
 
     return (len(route) == len(set(G)))
