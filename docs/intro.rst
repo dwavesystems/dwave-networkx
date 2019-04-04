@@ -112,7 +112,7 @@ Pegasus qubits are also more densely connected and have three types of coupler:
 
 Pegasus qubits are considered to have a nominal length of 12 (each qubit is connected to
 12 orthogonal qubits through internal couplers) and degree of 15 (each qubit is coupled to
-6 different qubits).
+15 different qubits).
 
 As we use the notation CN to refer to a Chimera graph with size parameter N, we refer to instances
 of Pegasus topologies by PN; for example, P3 is a graph with 144 nodes.
