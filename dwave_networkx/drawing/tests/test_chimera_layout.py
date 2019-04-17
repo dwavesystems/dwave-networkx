@@ -107,7 +107,7 @@ class TestDrawing(unittest.TestCase):
 
     @unittest.skipUnless(_numpy and _plt, "No numpy or matplotlib")
     @unittest.skipUnless(_display, " No display found")
-    def test_draw_pegasus_biases(self):
+    def test_draw_chimera_biases(self):
         G = dnx.chimera_graph(8)
         h = {v: v % 12 for v in G}
         J = {(u, v) if u % 2 else (v, u): (u+v) % 24 for u, v in G.edges()}
@@ -118,7 +118,7 @@ class TestDrawing(unittest.TestCase):
 
     @unittest.skipUnless(_numpy and _plt, "No numpy or matplotlib")
     @unittest.skipUnless(_display, " No display found")
-    def test_draw_pegasus_embedding(self):
+    def test_draw_chimera_embedding(self):
         C = dnx.chimera_graph(4)
         G = nx.grid_graph([2, 3, 2])
         emb = {(0, 0, 0): [80, 48], (0, 0, 1): [50, 52], (0, 1, 0): [85, 93],
