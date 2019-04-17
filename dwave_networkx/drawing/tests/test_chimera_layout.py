@@ -97,6 +97,13 @@ class TestDrawing(unittest.TestCase):
         G = dnx.chimera_graph(1, 1, 16, data=False)
         pos = dnx.chimera_layout(G.edges())
 
+    @unittest.skipUnless(_numpy and _plt, "No numpy or matplotlib")
+    @unittest.skipUnless(_display, " No display found")
+    def test_draw_chimera_yield(self):
+        G = dnx.chimera_graph(2, 2, 4, data=False)
+        G.remove_edges_from([(0,6),(10,13),(26,31)])
+        G.remove_nodes_from([18,23])
+        dnx.draw_chimera_yield(G)
 
     @unittest.skipUnless(_numpy and _plt, "No numpy or matplotlib")
     @unittest.skipUnless(_display, " No display found")

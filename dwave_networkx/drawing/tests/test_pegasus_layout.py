@@ -81,6 +81,14 @@ class TestDrawing(unittest.TestCase):
 
     @unittest.skipUnless(_numpy and _plt, "No numpy or matplotlib")
     @unittest.skipUnless(_display, " No display found")
+    def test_draw_pegasus_yield(self):
+        G = dnx.pegasus_graph(3, data=False)
+        G.remove_edges_from([(5,104),(12,96),(23,112)])
+        G.remove_nodes_from([109,139])
+        dnx.draw_pegasus_yield(G)
+
+    @unittest.skipUnless(_numpy and _plt, "No numpy or matplotlib")
+    @unittest.skipUnless(_display, " No display found")
     def test_draw_pegasus_biases(self):
         G = dnx.pegasus_graph(2)
         h = {v: v % 12 for v in G}
