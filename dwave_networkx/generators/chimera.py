@@ -17,6 +17,8 @@
 Generators for graphs derived from the D-Wave System.
 
 """
+import warnings
+
 import networkx as nx
 from networkx.algorithms.bipartite import color
 from networkx import diameter
@@ -315,7 +317,26 @@ class chimera_coordinates:
         r : int
             The linear_index node label corresponding to q            
         """
+        msg = ('chimera_coordinates.int is deprecated and will be removed in '
+               'dwave-networkx 0.9.0, please use '
+               'chimera_coordinates.chimera_to_linear instead')
+        warnings.warn(msg, DeprecationWarning)
+        return self.chimera_to_linear(q)
 
+    def chimera_to_linear(self, q):
+        """Converts the chimera index `(i, j, u, k)` into a linear index.
+
+        Parameters
+        ----------
+        (i, j, u, k) : tuple
+            The chimera_index node label
+
+        Returns
+        -------
+        r : int
+            The linear_index node label corresponding to q
+
+        """
         i, j, u, k = q
         m, n, t = self.args
         return ((n*i + j)*2 + u)*t + k
@@ -334,7 +355,26 @@ class chimera_coordinates:
         q : tuple
             The chimera_index node label corresponding to r
         """
+        msg = ('chimera_coordinates.tuple is deprecated and will be removed in '
+               'dwave-networkx 0.9.0, please use '
+               'chimera_coordinates.linear_to_chimera instead')
+        warnings.warn(msg, DeprecationWarning)
+        return self.linear_to_chimera(r)
 
+    def linear_to_chimera(self, r):
+        """Convert the linear index `q` into a chimera index
+
+        Parameters
+        ----------
+        r : int
+            The linear index node label
+
+        Returns
+        -------
+        q : tuple
+            The chimera index node label corresponding to r.
+
+        """
         m, n, t = self.args
         r, k = divmod(r, t)
         r, u = divmod(r, 2)
@@ -351,14 +391,36 @@ class chimera_coordinates:
         qlist : sequence of ints
             The chimera_index node labels
 
-        Returns
-        -------
-        rlist : iterable of tuples
-            The linear_lindex node lables corresponding to qlist
-        """
+        Yields
+        ------
+        r : int
+            The linear_lindex node labels corresponding to qlist
 
+        """
+        msg = ('chimera_coordinates.ints is deprecated and will be removed in '
+               'dwave-networkx 0.9.0, please use '
+               'chimera_coordinates.iter_chimera_to_linear instead')
+        warnings.warn(msg, DeprecationWarning)
+        return self.iter_chimera_to_linear(qlist)
+
+    def iter_chimera_to_linear(self, qlist):
+        """Iterate over a sequence of chimera indices, yielding their
+        corresponding linear indices.
+
+        Parameters
+        ----------
+        qlist : sequence of ints
+            The chimera_index node labels
+
+        Yields
+        ------
+        r : int
+            The linear_lindex node labels corresponding to qlist
+
+        """
         m, n, t = self.args
-        return (((n*i + j)*2 + u)*t + k for (i, j, u, k) in qlist)
+        for (i, j, u, k) in qlist:
+            yield ((n*i + j)*2 + u)*t + k
 
     def tuples(self, rlist):
         """
@@ -370,12 +432,33 @@ class chimera_coordinates:
         rlist : sequence of tuples
             The linear_index node labels
 
-        Returns
+        Yields
         -------
-        qlist : iterable of ints
-            The chimera_lindex node lables corresponding to rlist
-        """
+        q : int
+            The chimera index node labels corresponding to rlist
 
+        """
+        msg = ('chimera_coordinates.tuples is deprecated and will be removed in '
+               'dwave-networkx 0.9.0, please use '
+               'chimera_coordinates.iter_linear_to_chimera instead')
+        warnings.warn(msg, DeprecationWarning)
+        return self.iter_linear_to_chimera(rlist)
+
+    def iter_linear_to_chimera(self, rlist):
+        """Iterate over a sequence of linear indices, yielding their
+        corresponding chimera indices.
+
+        Parameters
+        ----------
+        rlist : sequence of tuples
+            The linear index node labels
+
+        Yields
+        -------
+        q : int
+            The chimera index node labels corresponding to rlist
+
+        """
         m, n, t = self.args
         for r in rlist:
             r, k = divmod(r, t)
@@ -407,8 +490,8 @@ class chimera_coordinates:
 
     def int_pairs(self, plist):
         """
-        Translates a sequence of pairs of chimera_index tuples
-        into a a sequence of pairs of linear_index ints.
+        Translates a sequence of pairs of chimera index tuples
+        into a a sequence of pairs of linear index ints.
 
         Parameters
         ----------
@@ -420,9 +503,13 @@ class chimera_coordinates:
         qlist : sequence
             Equivalent to (tuple(self.ints(p)) for p in plist)
         """
-        return self.__pair_repack(self.ints, plist)
+        msg = ('chimera_coordinates.int_pairs is deprecated and will be removed in '
+               'dwave-networkx 0.9.0, please use '
+               'chimera_coordinates.iter_chimera_to_linear_pairs instead')
+        warnings.warn(msg, DeprecationWarning)
+        return self.iter_chimera_to_linear_pairs(plist)
 
-    def tuple_pairs(self, plist):
+    def iter_chimera_to_linear_pairs(self, plist):
         """
         Translates a sequence of pairs of chimera_index tuples
         into a a sequence of pairs of linear_index ints.
@@ -432,10 +519,49 @@ class chimera_coordinates:
         plist:
             A sequence of pairs of tuples
 
+        Yields
+        -------
+        q : Tuple
+            Equivalent to (tuple(self.ints(p)) for p in plist)
+
+        """
+        return self.__pair_repack(self.ints, plist)
+
+    def tuple_pairs(self, plist):
+        """
+        Translates a sequence of pairs of linear index ints
+        into a a sequence of pairs of chimera index tuples.
+
+        Parameters
+        ----------
+        qlist:
+            A sequence of pairs of ints
+
         Returns
         -------
         qlist : sequence
-            Equivalent to (tuple(self.tuples(p)) for p in plist)
+            Equivalent to (int(self.tuples(p)) for p in plist)
+
+        """
+        msg = ('chimera_coordinates.tuple_pairs is deprecated and will be removed in '
+               'dwave-networkx 0.9.0, please use '
+               'chimera_coordinates.iter_linear_to_chimera_pairs instead')
+        warnings.warn(msg, DeprecationWarning)
+        return self.iter_linear_to_chimera_pairs(plist)
+
+    def iter_linear_to_chimera_pairs(self, plist):
+        """Iterate over a sequence of pairs of linear indices, yielding their
+        corresponding pairs of chimera indices.
+
+        Parameters
+        ----------
+        qlist:
+            A sequence of pairs of ints
+
+        Yields
+        -------
+        ((i0, j0, u0, k0), (i1, j1, u1, k1)) : tuple
+
         """
         return self.__pair_repack(self.tuples, plist)
 
