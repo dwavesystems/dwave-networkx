@@ -310,7 +310,7 @@ def draw_chimera_yield(G, **kwargs):
 
     fault_shape : string, optional (default='x')
         The shape of the fault nodes. Specification is as matplotlib.scatter
-        marker, one of ‘so^>v<dph8’.
+        marker, one of 'so^>v<dph8'.
 
     fault_style : string, optional (default='dashed')
         Edge fault line style (solid|dashed|dotted,dashdot)
