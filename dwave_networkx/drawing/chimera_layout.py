@@ -23,8 +23,8 @@ import networkx as nx
 from networkx import draw
 
 from dwave_networkx import _PY2
-from dwave_networkx.drawing.qubit_layout import draw_qubit_graph, draw_embedding
-from dwave_networkx.generators.chimera import find_chimera_indices, chimera_coordinates
+from dwave_networkx.drawing.qubit_layout import draw_qubit_graph, draw_embedding, draw_yield
+from dwave_networkx.generators.chimera import chimera_graph, find_chimera_indices, chimera_coordinates
 
 # compatibility for python 2/3
 if _PY2:
@@ -38,7 +38,7 @@ else:
 
     def iteritems(d): return d.items()
 
-__all__ = ['chimera_layout', 'draw_chimera', 'draw_chimera_embedding']
+__all__ = ['chimera_layout', 'draw_chimera', 'draw_chimera_embedding', 'draw_chimera_yield']
 
 
 def chimera_layout(G, scale=1., center=None, dim=2):
@@ -290,3 +290,47 @@ def draw_chimera_embedding(G, *args, **kwargs):
        any provided `node_color` or `edge_color` arguments are ignored.
     """
     draw_embedding(G, chimera_layout(G), *args, **kwargs)
+
+
+def draw_chimera_yield(G, **kwargs):
+    """Draws the given graph G with highlighted faults, according to layout.
+
+    Parameters
+    ----------
+    G : NetworkX graph
+        The graph to be parsed for faults
+
+    unused_color : tuple or color string (optional, default (0.9,0.9,0.9,1.0))
+        The color to use for nodes and edges of G which are not faults.
+        If unused_color is None, these nodes and edges will not be shown at all.
+
+    fault_color : tuple or color string (optional, default (1.0,0.0,0.0,1.0))
+        A color to represent nodes absent from the graph G. Colors should be
+        length-4 tuples of floats between 0 and 1 inclusive.
+
+    fault_shape : string, optional (default='x')
+        The shape of the fault nodes. Specification is as matplotlib.scatter
+        marker, one of 'so^>v<dph8'.
+
+    fault_style : string, optional (default='dashed')
+        Edge fault line style (solid|dashed|dotted,dashdot)
+
+    kwargs : optional keywords
+       See networkx.draw_networkx() for a description of optional keywords,
+       with the exception of the `pos` parameter which is not used by this
+       function. If `linear_biases` or `quadratic_biases` are provided,
+       any provided `node_color` or `edge_color` arguments are ignored.
+    """
+    try:
+        assert(G.graph["family"] == "chimera")
+        m = G.graph["columns"]
+        n = G.graph["rows"]
+        t = G.graph["tile"]
+        coordinates = G.graph["labels"] == "coordinate"
+    except:
+        raise ValueError("Target chimera graph needs to have columns, rows, \
+        tile, and label attributes to be able to identify faulty qubits.")
+
+    perfect_graph = chimera_graph(m,n,t, coordinates=coordinates)
+
+    draw_yield(G, chimera_layout(perfect_graph), perfect_graph, **kwargs)
