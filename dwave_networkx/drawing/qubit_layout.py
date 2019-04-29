@@ -139,13 +139,22 @@ def draw_qubit_graph(G, layout, linear_biases={}, quadratic_biases={},
          **kwargs)
 
     # if the biases are provided, then add a legend explaining the color map
-    if linear_biases or quadratic_biases:
+    if linear_biases:
         fig = plt.figure(1)
         # cax = fig.add_axes([])
         cax = fig.add_axes([.9, 0.2, 0.04, 0.6])  # left, bottom, width, height
         mpl.colorbar.ColorbarBase(cax, cmap=cmap,
-                                  norm=mpl.colors.Normalize(vmin=-1 * vmag, vmax=vmag, clip=False),
+                                  norm=mpl.colors.Normalize(vmin=vmin, vmax=vmax, clip=False),
                                   orientation='vertical')
+
+    if quadratic_biases:
+        fig = plt.figure(1)
+        # cax = fig.add_axes([])
+        cax = fig.add_axes([.9, 0.2, 0.04, 0.6])  # left, bottom, width, height
+        mpl.colorbar.ColorbarBase(cax, cmap=cmap,
+                                  norm=mpl.colors.Normalize(vmin=edge_vmin, vmax=edge_vmax, clip=False),
+                                  orientation='vertical')
+
 
 
 def draw_embedding(G, layout, emb, embedded_graph=None, interaction_edges=None,
