@@ -151,7 +151,7 @@ def draw_qubit_graph(G, layout, linear_biases={}, quadratic_biases={},
         fig = plt.figure(1)
         # cax = fig.add_axes([])
         cax = fig.add_axes([.9, 0.2, 0.04, 0.6])  # left, bottom, width, height
-        mpl.colorbar.ColorbarBase(cax, cmap=cmap,
+        mpl.colorbar.ColorbarBase(cax, cmap=edge_cmap,
                                   norm=mpl.colors.Normalize(vmin=edge_vmin, vmax=edge_vmax, clip=False),
                                   orientation='vertical')
 
