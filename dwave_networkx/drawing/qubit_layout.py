@@ -133,13 +133,18 @@ def draw_qubit_graph(G, layout, linear_biases={}, quadratic_biases={},
         if edge_vmax is None:
             edge_vmax = vmag
 
-    fig = plt.figure()
+    fig = plt.figure(1)
+    ax = kwargs.pop('ax',None)
+    cax = kwargs.pop('cax',None)
     if linear_biases or quadratic_biases:
-        ax = fig.add_axes([0.01, 0.01, 0.89, 0.98])
-        cax = fig.add_axes([.9, 0.2, 0.04, 0.6])  # left, bottom, width, height
+        if ax is None:
+            ax = fig.add_axes([0.01, 0.01, 0.86, 0.98])
+        if cax is None:
+            cax = fig.add_axes([.87, 0.2, 0.02, 0.6])  # left, bottom, width, height
 
     else:
-        ax = fig.add_axes([0.01, 0.01, 0.98, 0.98])
+        if ax is None:
+            ax = fig.add_axes([0.01, 0.01, 0.98, 0.98])
 
     draw(G, layout, ax=ax, nodelist=nodelist, edgelist=edgelist,
          cmap=cmap, edge_cmap=edge_cmap, vmin=vmin, vmax=vmax, edge_vmin=edge_vmin,
