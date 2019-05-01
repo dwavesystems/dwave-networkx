@@ -133,19 +133,35 @@ def draw_qubit_graph(G, layout, linear_biases={}, quadratic_biases={},
         if edge_vmax is None:
             edge_vmax = vmag
 
-    draw(G, layout, nodelist=nodelist, edgelist=edgelist,
+    fig = plt.figure(1)
+    ax = kwargs.pop('ax',None)
+    cax = kwargs.pop('cax',None)
+    if linear_biases or quadratic_biases:
+        if ax is None:
+            ax = fig.add_axes([0.01, 0.01, 0.86, 0.98])
+        if cax is None:
+            cax = fig.add_axes([.87, 0.2, 0.02, 0.6])  # left, bottom, width, height
+
+    else:
+        if ax is None:
+            ax = fig.add_axes([0.01, 0.01, 0.98, 0.98])
+
+    draw(G, layout, ax=ax, nodelist=nodelist, edgelist=edgelist,
          cmap=cmap, edge_cmap=edge_cmap, vmin=vmin, vmax=vmax, edge_vmin=edge_vmin,
          edge_vmax=edge_vmax,
          **kwargs)
 
     # if the biases are provided, then add a legend explaining the color map
-    if linear_biases or quadratic_biases:
-        fig = plt.figure(1)
-        # cax = fig.add_axes([])
-        cax = fig.add_axes([.9, 0.2, 0.04, 0.6])  # left, bottom, width, height
+    if linear_biases:
         mpl.colorbar.ColorbarBase(cax, cmap=cmap,
-                                  norm=mpl.colors.Normalize(vmin=-1 * vmag, vmax=vmag, clip=False),
+                                  norm=mpl.colors.Normalize(vmin=vmin, vmax=vmax, clip=False),
                                   orientation='vertical')
+
+    if quadratic_biases:
+        mpl.colorbar.ColorbarBase(cax, cmap=edge_cmap,
+                                  norm=mpl.colors.Normalize(vmin=edge_vmin, vmax=edge_vmax, clip=False),
+                                  orientation='vertical')
+
 
 
 def draw_embedding(G, layout, emb, embedded_graph=None, interaction_edges=None,
