@@ -17,6 +17,7 @@ Architectures
    find_chimera_indices
    chimera_elimination_order
    pegasus_graph
+   shared_working_graph
 
 Example
 ---------

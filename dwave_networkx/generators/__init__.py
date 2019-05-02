@@ -16,3 +16,4 @@
 from dwave_networkx.generators.chimera import *
 from dwave_networkx.generators.markov import markov_network
 from dwave_networkx.generators.pegasus import *
+from dwave_networkx.generators.working_graph import *
