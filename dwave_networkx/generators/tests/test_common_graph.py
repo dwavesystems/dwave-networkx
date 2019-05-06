@@ -1,4 +1,4 @@
-# Copyright 2018 D-Wave Systems Inc.
+# Copyright 2019 D-Wave Systems Inc.
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
 #    you may not use this file except in compliance with the License.
@@ -20,11 +20,11 @@ import unittest
 import networkx as nx
 import dwave_networkx as dnx
 
-class TestWorkingGraph(unittest.TestCase):
+class TestCommonGraph(unittest.TestCase):
     def test_single_tile(self):
 
         G1 = dnx.chimera_graph(1)
-        G = dnx.shared_working_graph(G1, G1)
+        G = dnx.common_graph(G1, G1)
 
         # should have 8 nodes
         self.assertEqual(len(G), 8)
@@ -42,7 +42,7 @@ class TestWorkingGraph(unittest.TestCase):
         G1 = dnx.chimera_graph(1)
         G2 = dnx.chimera_graph(2)
 
-        G = dnx.shared_working_graph(G1, G1)
+        G = dnx.common_graph(G1, G1)
 
         self.assertEqual(len(G), 8)
 
@@ -51,7 +51,7 @@ class TestWorkingGraph(unittest.TestCase):
         G1.remove_node(2)
         G2 = dnx.chimera_graph(2)
 
-        G = dnx.shared_working_graph(G1, G1)
+        G = dnx.common_graph(G1, G1)
 
         self.assertNotIn(2, G)
         self.assertNotIn((2, 4), G.edges())
