@@ -18,6 +18,7 @@ import itertools
 
 import networkx as nx
 
+import dimod
 from dimod import ExactSolver, SimulatedAnnealingSampler, qubo_energy
 
 import dwave_networkx as dnx
@@ -154,3 +155,71 @@ class TestColor(unittest.TestCase):
         G = dnx.chimera_graph(1, 1, 3)
         coloring = dnx.min_vertex_coloring(G, ExactSolver())
         coloring = dnx.min_vertex_coloring(G, SimulatedAnnealingSampler())
+
+
+class TestVertexColorQUBO(unittest.TestCase):
+    def test_single_node(self):
+        G = nx.Graph()
+        G.add_node('a')
+
+        # a single color
+        Q = dnx.vertex_color_qubo(G, ['red'])
+
+        self.assertEqual(Q, {(('a', 'red'), ('a', 'red')): -1})
+
+    def test_cycle(self):
+        G = nx.cycle_graph('abcd')
+
+        Q = dnx.vertex_color_qubo(G, 2)
+
+        sampleset = ExactSolver().sample_qubo(Q)
+
+        # check that the ground state is a valid coloring
+        ground_energy = sampleset.first.energy
+
+        colorings = []
+        for sample, en in sampleset.data(['sample', 'energy']):
+            if en > ground_energy:
+                break
+
+            coloring = {}
+            for (v, c), val in sample.items():
+                if val:
+                    coloring[v] = c
+
+            self.assertTrue(dnx.is_vertex_coloring(G, coloring))
+
+            colorings.append(coloring)
+
+        # there are two valid colorings
+        self.assertEqual(len(colorings), 2)
+
+        self.assertEqual(ground_energy, -len(G))
+
+    def test_num_variables(self):
+        G = nx.Graph()
+        G.add_nodes_from(range(15))
+
+        Q = dnx.vertex_color_qubo(G, 7)
+        bqm = dimod.BinaryQuadraticModel.from_qubo(Q)
+        self.assertEqual(len(bqm.quadratic), len(G)*7*(7-1)/2)
+
+        # add one edge
+        G.add_edge(0, 1)
+        Q = dnx.vertex_color_qubo(G, 7)
+        bqm = dimod.BinaryQuadraticModel.from_qubo(Q)
+        self.assertEqual(len(bqm.quadratic), len(G)*7*(7-1)/2 + 7)
+
+    def test_docstring_stats(self):
+        # get a complex-ish graph
+        G = nx.karate_club_graph()
+
+        colors = range(10)
+
+        Q = dnx.vertex_color_qubo(G, colors)
+
+        bqm = dimod.BinaryQuadraticModel.from_qubo(Q)
+
+        self.assertEqual(len(bqm), len(G)*len(colors))
+        self.assertEqual(len(bqm.quadratic), len(G)*len(colors)*(len(colors)-1)/2
+                         + len(G.edges)*len(colors))

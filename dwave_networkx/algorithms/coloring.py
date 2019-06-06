@@ -12,7 +12,7 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 #
-# ================================================================================================
+# =============================================================================
 from __future__ import division
 
 import math
@@ -22,7 +22,8 @@ import networkx as nx
 from dwave_networkx import _PY2
 from dwave_networkx.utils import binary_quadratic_model_sampler
 
-__all__ = ["min_vertex_coloring", "is_vertex_coloring", "is_cycle"]
+__all__ = ["min_vertex_coloring", "is_vertex_coloring", "is_cycle",
+           "vertex_color_qubo"]
 
 # compatibility for python 2/3
 if _PY2:
@@ -236,6 +237,58 @@ def _minimum_coloring_qubo(x_vars, chi_lb, chi_ub, magnitude=1.):
         for f, color in enumerate(range(chi_lb, chi_ub)):
             idx = x_vars[v][color]
             Q[(idx, idx)] = (f + 1) * scaling
+
+    return Q
+
+
+@nx.utils.decorators.nodes_or_number(1)
+def vertex_color_qubo(G, colors):
+    """Return the QUBO with ground states corresponding to a vertex coloring.
+
+    If `V` is the set of nodes, `E` is the set of edges and `C` is the set of
+    colors the resulting qubo will have:
+
+    * :math:`|V|*|C|` variables/nodes
+    * :math:`|V|*|C|*(|C| - 1) / 2 + |E|*|C|` interactions/edges
+
+    The QUBO will have ground energy :math:`-|V|` and an infeasible gap of
+    1.
+
+    Parameters
+    ----------
+    G : NetworkX graph
+        The graph on which to find a minimum vertex coloring.
+
+    colors : int/sequence
+        The colors. If an int, the colors will be labelled `[0, n)`. The number
+        of colors must be greater or equal to the chromatic number of the graph.
+
+    Returns
+    -------
+    QUBO : dict
+        The QUBO with ground states corresponding to valid colorings of the
+        graph. The QUBO variables are labelled `(v, c)` where `v` is a node
+        in `G` and `c` is a color. In the ground state of the QUBO, a variable
+        `(v, c)` is one if `v` should be colored `c` in a valid coloring.
+
+
+    """
+    _, colors = colors
+
+    Q = {}
+
+    # enforce that each variable in G has at most one color
+    for v in G.nodes:
+        for c in colors:
+            Q[(v, c), (v, c)] = -1
+
+        for c0, c1 in itertools.combinations(colors, 2):
+            Q[(v, c0), (v, c1)] = 2
+
+    # enforce that adjacent nodes do not have the same color
+    for u, v in G.edges:
+        for c in colors:
+            Q[(u, c), (v, c)] = 1
 
     return Q
 
