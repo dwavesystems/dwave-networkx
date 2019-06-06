@@ -22,8 +22,11 @@ import networkx as nx
 from dwave_networkx import _PY2
 from dwave_networkx.utils import binary_quadratic_model_sampler
 
-__all__ = ["min_vertex_coloring", "is_vertex_coloring", "is_cycle",
-           "vertex_color_qubo"]
+__all__ = ["min_vertex_coloring",
+           "is_vertex_coloring",
+           "is_cycle",
+           "vertex_color_qubo",
+           ]
 
 # compatibility for python 2/3
 if _PY2:
@@ -251,8 +254,7 @@ def vertex_color_qubo(G, colors):
     * :math:`|V|*|C|` variables/nodes
     * :math:`|V|*|C|*(|C| - 1) / 2 + |E|*|C|` interactions/edges
 
-    The QUBO will have ground energy :math:`-|V|` and an infeasible gap of
-    1.
+    The QUBO has ground energy :math:`-|V|` and an infeasible gap of 1.
 
     Parameters
     ----------
@@ -260,8 +262,8 @@ def vertex_color_qubo(G, colors):
         The graph on which to find a minimum vertex coloring.
 
     colors : int/sequence
-        The colors. If an int, the colors will be labelled `[0, n)`. The number
-        of colors must be greater or equal to the chromatic number of the graph.
+        The colors. If an int, the colors are labelled `[0, n)`. The number of
+        colors must be greater or equal to the chromatic number of the graph.
 
     Returns
     -------
@@ -269,7 +271,7 @@ def vertex_color_qubo(G, colors):
         The QUBO with ground states corresponding to valid colorings of the
         graph. The QUBO variables are labelled `(v, c)` where `v` is a node
         in `G` and `c` is a color. In the ground state of the QUBO, a variable
-        `(v, c)` is one if `v` should be colored `c` in a valid coloring.
+        `(v, c)` has value 1 if `v` should be colored `c` in a valid coloring.
 
 
     """
@@ -279,6 +281,7 @@ def vertex_color_qubo(G, colors):
 
     # enforce that each variable in G has at most one color
     for v in G.nodes:
+        # 1 in k constraint
         for c in colors:
             Q[(v, c), (v, c)] = -1
 
@@ -287,6 +290,7 @@ def vertex_color_qubo(G, colors):
 
     # enforce that adjacent nodes do not have the same color
     for u, v in G.edges:
+        # NAND constraint
         for c in colors:
             Q[(u, c), (v, c)] = 1
 
