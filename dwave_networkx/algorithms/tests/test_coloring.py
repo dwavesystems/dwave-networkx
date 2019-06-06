@@ -157,6 +157,24 @@ class TestColor(unittest.TestCase):
         coloring = dnx.min_vertex_coloring(G, SimulatedAnnealingSampler())
 
 
+class TestVertexColor(unittest.TestCase):
+    def test_cycle(self):
+        G = nx.cycle_graph('abcd')
+
+        coloring = dnx.vertex_color(G, 2, ExactSolver())
+
+        self.assertTrue(dnx.is_vertex_coloring(G, coloring))
+
+    def test_other_graph(self):
+        G = nx.cycle_graph(4)
+        G.add_edge(0, 2)
+
+        # need 3 colors in this case
+        coloring = dnx.vertex_color(G, 3, ExactSolver())
+
+        self.assertTrue(dnx.is_vertex_coloring(G, coloring))
+
+
 class TestVertexColorQUBO(unittest.TestCase):
     def test_single_node(self):
         G = nx.Graph()

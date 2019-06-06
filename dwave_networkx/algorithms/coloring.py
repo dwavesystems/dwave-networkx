@@ -26,6 +26,7 @@ __all__ = ["min_vertex_coloring",
            "is_vertex_coloring",
            "is_cycle",
            "vertex_color_qubo",
+           "vertex_color",
            ]
 
 # compatibility for python 2/3
@@ -295,6 +296,66 @@ def vertex_color_qubo(G, colors):
             Q[(u, c), (v, c)] = 1
 
     return Q
+
+
+@binary_quadratic_model_sampler(2)
+def vertex_color(G, colors, sampler=None, **sampler_args):
+    """Returns an approximate vertex coloring.
+
+    Vertex coloring is the problem of assigning a color to the
+    vertices of a graph in a way that no adjacent vertices have the
+    same color.
+
+    Defines a QUBO [DWMP]_ with ground states corresponding to valid
+    vertex colorings and uses the sampler to sample from it.
+
+    Parameters
+    ----------
+    G : NetworkX graph
+        The graph on which to find a minimum vertex coloring.
+
+    colors : int/sequence
+        The colors. If an int, the colors are labelled `[0, n)`. The number of
+        colors must be greater or equal to the chromatic number of the graph.
+
+    sampler
+        A binary quadratic model sampler. A sampler is a process that
+        samples from low energy states in models defined by an Ising
+        equation or a Quadratic Unconstrained Binary Optimization
+        Problem (QUBO). A sampler is expected to have a 'sample_qubo'
+        and 'sample_ising' method. A sampler is expected to return an
+        iterable of samples, in order of increasing energy. If no
+        sampler is provided, one must be provided using the
+        `set_default_sampler` function.
+
+    sampler_args
+        Additional keyword parameters are passed to the sampler.
+
+    Returns
+    -------
+    coloring : dict
+        A coloring for each vertex in G such that no adjacent nodes
+        share the same color. A dict of the form {node: color, ...}
+
+
+    References
+    ----------
+    .. [DWMP] Dahl, E., "Programming the D-Wave: Map Coloring Problem",
+       https://www.dwavesys.com/sites/default/files/Map%20Coloring%20WP2.pdf
+
+    Notes
+    -----
+    Samplers by their nature may not return the optimal solution. This
+    function does not attempt to confirm the quality of the returned
+    sample.
+
+    """
+    Q = vertex_color_qubo(G, colors)
+
+    # get the lowest energy sample
+    sample = sampler.sample_qubo(Q, **sampler_args).first.sample
+
+    return {v: c for (v, c), val in sample.items() if val}
 
 
 def _vertex_different_colors_qubo(G, x_vars):
