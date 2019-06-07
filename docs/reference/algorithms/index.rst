@@ -13,6 +13,7 @@ binary quadratic model samplers.
    :maxdepth: 2
 
    canonicalization
+   clique
    coloring
    cover
    elimination_ordering

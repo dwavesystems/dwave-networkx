@@ -17,5 +17,5 @@ graph.
 .. autosummary::
    :toctree: generated/
 
-    traveling_salesman
-    traveling_salesman_qubo
+    traveling_salesperson
+    traveling_salesperson_qubo
