@@ -24,5 +24,8 @@ border (represented by an edge of the graph) have different colors.
 .. autosummary::
    :toctree: generated/
 
-   min_vertex_coloring
    is_vertex_coloring
+   min_vertex_color
+   min_vertex_color_qubo
+   vertex_color
+   vertex_color_qubo
