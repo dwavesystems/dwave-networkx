@@ -25,13 +25,6 @@ import dwave_networkx as dnx
 
 class TestMinVertexColor(unittest.TestCase):
 
-    def test_chimera_cell(self):
-        # all small enough for an exact solver to handle them reasonably
-        G = dnx.chimera_graph(1, 1, 3)
-        coloring = dnx.min_vertex_coloring(G, dimod.ExactSolver())
-        self.assertTrue(dnx.is_vertex_coloring(G, coloring))
-        self.assertEqual(len(set(coloring.values())), 2)  # bipartite
-
     def test_5path(self):
         G = nx.path_graph(5)
         coloring = dnx.min_vertex_coloring(G, dimod.ExactSolver())
