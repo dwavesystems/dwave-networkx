@@ -82,6 +82,23 @@ class TestTSP(unittest.TestCase):
         route = tsp.traveling_salesman(G, dimod.ExactSolver())
         route = tsp.traveling_salesman(G, dimod.SimulatedAnnealingSampler())
 
+    def test_weighted_complete_graph(self):
+        G = nx.Graph()
+        G.add_weighted_edges_from({(0, 1, 1), (0, 2, 2), (0, 3, 3), (1, 2, 3),
+                                   (1, 3, 4), (2, 3, 5)})
+        route = dnx.traveling_salesman(G, dimod.ExactSolver(), lagrange=10)
+
+        self.assertEqual(len(route), len(G))
+
+    def test_start(self):
+        G = nx.Graph()
+        G.add_weighted_edges_from((u, v, .5)
+                                  for u, v in itertools.combinations(range(3), 2))
+
+        route = dnx.traveling_salesman(G, dimod.ExactSolver(), start=2)
+
+        self.assertEqual(route[0], 2)
+
 
 class TestTSPQUBO(unittest.TestCase):
     def test_empty(self):
