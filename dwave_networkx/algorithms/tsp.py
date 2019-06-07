@@ -21,14 +21,19 @@ from collections import defaultdict
 
 from dwave_networkx.utils import binary_quadratic_model_sampler
 
-__all__ = ["traveling_salesman",
+__all__ = ["traveling_salesperson",
+           "traveling_salesperson_qubo",
+           "traveling_salesman",
            "traveling_salesman_qubo",
-           "is_hamiltonian_path"]
+           "traveling_saleswoman",
+           "traveling_saleswoman_qubo",
+           "is_hamiltonian_path",
+           ]
 
 
 @binary_quadratic_model_sampler(1)
-def traveling_salesman(G, sampler=None, lagrange=2, weight='weight',
-                       **sampler_args):
+def traveling_salesperson(G, sampler=None, lagrange=2, weight='weight',
+                          start=None, **sampler_args):
     """Returns an approximate minimum traveling salesperson route.
 
     Defines a QUBO with ground states corresponding to the
@@ -54,12 +59,15 @@ def traveling_salesman(G, sampler=None, lagrange=2, weight='weight',
         sampler is provided, one must be provided using the
         `set_default_sampler` function.
 
-    lagrange : optional (default 2)
+    lagrange : number, optional (default 2)
         Lagrange parameter to weight constraints (visit every city once)
         versus objective (shortest distance route).
 
     weight : optional (default 'weight')
         The name of the edge attribute containing the weight.
+
+    start : node, optional
+        If provided, the route will begin at `start`.
 
     sampler_args :
         Additional keyword parameters are passed to the sampler.
@@ -71,18 +79,14 @@ def traveling_salesman(G, sampler=None, lagrange=2, weight='weight',
 
     Examples
     --------
-    This example uses a `dimod <https://github.com/dwavesystems/dimod>`_ sampler
-    to find a minimum route in a five-cities problem.
 
-    >>> import dwave_networkx as dnx
-    >>> import networkx as nx
     >>> import dimod
     ...
-    >>> G = nx.complete_graph(4)
-    >>> G.add_weighted_edges_from({(0, 1, 1), (0, 2, 2), (0, 3, 3), (1, 2, 3),
-    ...                            (1, 3, 4), (2, 3, 5)})
-    >>> dnx.traveling_salesman(G, dimod.ExactSolver())
-    [2, 1, 0, 3]
+    >>> G = nx.Graph()
+    >>> G.add_weighted_edges_from({(0, 1, .1), (0, 2, .5), (0, 3, .1), (1, 2, .1),
+    ...                            (1, 3, .5), (2, 3, .1)})
+    >>> dnx.traveling_salesperson(G, dimod.ExactSolver(), start=0) # doctest: +SKIP
+    [0, 1, 2, 3]
 
     Notes
     -----
@@ -92,22 +96,30 @@ def traveling_salesman(G, sampler=None, lagrange=2, weight='weight',
 
     """
     # Get a QUBO representation of the problem
-    Q = traveling_salesman_qubo(G, lagrange, weight)
+    Q = traveling_salesperson_qubo(G, lagrange, weight)
 
     # use the sampler to find low energy states
     response = sampler.sample_qubo(Q, **sampler_args)
 
-    # we want the lowest energy sample, in order by stop number
-    sample = next(iter(response))
-    route = []
-    for entry in sample:
-        if sample[entry] > 0:
-            route.append(entry)
-    route.sort(key=lambda x: x[1])
-    return list((x[0] for x in route))
+    sample = response.first.sample
+
+    route = [None]*len(G)
+    for (city, time), val in sample.items():
+        if val:
+            route[time] = city
+
+    if start is not None and route[0] != start:
+        # rotate to put the start in front
+        idx = route.index(start)
+        route = route[-idx:] + route[:-idx]
+
+    return route
 
 
-def traveling_salesman_qubo(G, lagrange=2, weight='weight'):
+traveling_salesman = traveling_saleswoman = traveling_salesperson
+
+
+def traveling_salesperson_qubo(G, lagrange=2, weight='weight'):
     """Return the QUBO with ground states corresponding to a minimum TSP route.
 
     If :math:`|G|` is the number of nodes in the graph, the resulting qubo will have:
@@ -131,7 +143,9 @@ def traveling_salesman_qubo(G, lagrange=2, weight='weight'):
     -------
     QUBO : dict
        The QUBO with ground states corresponding to a minimum travelling
-       salesperson route.
+       salesperson route. The QUBO variables are labelled `(c, t)` where `c`
+       is a node in `G` and `t` is the time index. For instance, if `('a', 0)`
+       is 1 in the ground state, that means the node 'a' is visted first.
 
     """
     N = G.number_of_nodes()
@@ -170,6 +184,9 @@ def traveling_salesman_qubo(G, lagrange=2, weight='weight'):
             Q[((v, pos), (u, nextpos))] += G[u][v][weight]
 
     return Q
+
+
+traveling_salesman_qubo = traveling_saleswoman_qubo = traveling_salesperson_qubo
 
 
 def is_hamiltonian_path(G, route):
