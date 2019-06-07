@@ -76,15 +76,14 @@ def draw_qubit_graph(G, layout, linear_biases={}, quadratic_biases={},
        any provided `node_color` or `edge_color` arguments are ignored.
 
     """
+    try:
+        import matplotlib.pyplot as plt
+        import matplotlib as mpl
+    except ImportError:
+        raise ImportError("Matplotlib and numpy required for draw_qubit_graph()")
 
     if linear_biases or quadratic_biases:
         # if linear biases and/or quadratic biases are provided, then color accordingly.
-
-        try:
-            import matplotlib.pyplot as plt
-            import matplotlib as mpl
-        except ImportError:
-            raise ImportError("Matplotlib and numpy required for draw_qubit_graph()")
 
         if nodelist is None:
             nodelist = G.nodes()

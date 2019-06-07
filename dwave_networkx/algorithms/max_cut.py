@@ -46,10 +46,10 @@ def maximum_cut(G, sampler=None, **sampler_args):
     function.
 
     >>> import dimod
-    >>> import dwave_networkx as dnx
-    >>> samplerSA = dimod.SimulatedAnnealingSampler()
+    ...
+    >>> sampler = dimod.SimulatedAnnealingSampler()
     >>> G = dnx.chimera_graph(1, 1, 4)
-    >>> cut = dnx.maximum_cut(G, samplerSA)
+    >>> cut = dnx.maximum_cut(G, sampler)
 
     Notes
     -----
@@ -104,28 +104,6 @@ def weighted_maximum_cut(G, sampler=None, **sampler_args):
     -------
     S : set
         A maximum cut of G.
-
-    Example
-    -------
-    This example uses a sampler from
-    `dimod <https://github.com/dwavesystems/dimod>`_ to find a weighted maximum
-    cut for a graph of a Chimera unit cell. The graph is created using the
-    `chimera_graph()` function with weights added to all its edges such that
-    those incident to nodes {6, 7} have weight -1 while the others are +1. A
-    weighted maximum cut should cut as many of the latter and few of the former
-    as possible.
-
-    >>> import dimod
-    >>> import dwave_networkx as dnx
-    >>> samplerSA = dimod.SimulatedAnnealingSampler()
-    >>> G = dnx.chimera_graph(1, 1, 4)
-    >>> for u, v in G.edges:
-    ....:   if (u >= 6) | (v >=6):
-    ....:       G[u][v]['weight']=-1
-    ....:   else: G[u][v]['weight']=1
-    ....:        
-    >>> dnx.weighted_maximum_cut(G, samplerSA)
-    {4, 5}
 
     Notes
     -----

@@ -87,7 +87,7 @@ def structural_imbalance(S, sampler=None, **sampler_args):
     >>> S.add_edge('Ted', 'Alice', sign=1)
     >>> S.add_edge('Ted', 'Eve', sign=1)
     >>> frustrated_edges, colors = dnx.structural_imbalance(S, sampler)
-    >>> print(frustrated_edges)
+    >>> print(frustrated_edges)  # doctest: +SKIP
     {('Ted', 'Eve'): {'sign': 1}}
     >>> print(colors)  # doctest: +SKIP
     {'Bob': 1, 'Ted': 1, 'Alice': 1, 'Eve': 0}

@@ -469,6 +469,8 @@ def elimination_order_width(G, order):
 def treewidth_branch_and_bound(G, elimination_order=None, treewidth_upperbound=None):
     """Computes the treewidth of graph G and a corresponding perfect elimination ordering.
 
+    Alogorithm based on [GD]_.
+
     Parameters
     ----------
     G : NetworkX graph
@@ -506,6 +508,7 @@ def treewidth_branch_and_bound(G, elimination_order=None, treewidth_upperbound=N
     ----------
     .. [GD] Gogate & Dechter, "A Complete Anytime Algorithm for Treewidth",
        https://arxiv.org/abs/1207.4109
+
     """
     # empty graphs have treewidth 0 and the nodes can be eliminated in
     # any order

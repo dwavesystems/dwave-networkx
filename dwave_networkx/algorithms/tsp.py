@@ -25,8 +25,6 @@ __all__ = ["traveling_salesperson",
            "traveling_salesperson_qubo",
            "traveling_salesman",
            "traveling_salesman_qubo",
-           "traveling_saleswoman",
-           "traveling_saleswoman_qubo",
            "is_hamiltonian_path",
            ]
 
@@ -116,7 +114,7 @@ def traveling_salesperson(G, sampler=None, lagrange=2, weight='weight',
     return route
 
 
-traveling_salesman = traveling_saleswoman = traveling_salesperson
+traveling_salesman = traveling_salesperson
 
 
 def traveling_salesperson_qubo(G, lagrange=2, weight='weight'):
@@ -186,7 +184,7 @@ def traveling_salesperson_qubo(G, lagrange=2, weight='weight'):
     return Q
 
 
-traveling_salesman_qubo = traveling_saleswoman_qubo = traveling_salesperson_qubo
+traveling_salesman_qubo = traveling_salesperson_qubo
 
 
 def is_hamiltonian_path(G, route):

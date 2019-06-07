@@ -6,7 +6,7 @@ A signed social network graph is a graph whose signed edges represent
 friendly/hostile interactions between vertices.
 
 .. figure:: ../../_static/Social.png
-   :name: Cover
+   :name: Social
    :alt: image
    :align: center
    :scale: 80 %

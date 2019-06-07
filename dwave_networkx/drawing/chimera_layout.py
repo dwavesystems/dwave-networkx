@@ -234,9 +234,9 @@ def draw_chimera(G, **kwargs):
     >>> # Plot 2x2 Chimera unit cells
     >>> import networkx as nx
     >>> import dwave_networkx as dnx
-    >>> import matplotlib.pyplot as plt
+    >>> import matplotlib.pyplot as plt  # doctest: +SKIP
     >>> G = dnx.chimera_graph(2, 2, 4)
-    >>> dnx.draw_chimera(G)
+    >>> dnx.draw_chimera(G)  # doctest: +SKIP
     >>> plt.show()  # doctest: +SKIP
 
     """

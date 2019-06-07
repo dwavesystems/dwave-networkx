@@ -101,14 +101,14 @@ def chimera_graph(m, n=None, t=None, create_using=None, node_list=None, edge_lis
     >>> G = dnx.chimera_graph(1, 1, 2)  # a single Chimera tile
     >>> len(G)
     4
-    >>> list(G.nodes())
+    >>> list(G.nodes())  # doctest: +SKIP
     [0, 1, 2, 3]
     >>> list(G.nodes(data=True))  # doctest: +SKIP
     [(0, {'chimera_index': (0, 0, 0, 0)}),
      (1, {'chimera_index': (0, 0, 0, 1)}),
      (2, {'chimera_index': (0, 0, 1, 0)}),
      (3, {'chimera_index': (0, 0, 1, 1)})]
-    >>> list(G.edges())
+    >>> list(G.edges())  # doctest: +SKIP
     [(0, 2), (0, 3), (1, 2), (1, 3)]
 
     """
