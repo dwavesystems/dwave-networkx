@@ -65,13 +65,13 @@ class TestTSP(unittest.TestCase):
         G = nx.complete_graph(4)
         for u, v in G.edges():
             G[u][v]['weight'] = 1
-        route = tsp.traveling_salesman(G, dimod.ExactSolver())
+        route = tsp.traveling_salesperson(G, dimod.ExactSolver())
         self.assertTrue(tsp.is_hamiltonian_path(G, route))
 
         G = nx.complete_graph(4)
         for u, v in G.edges():
             G[u][v]['weight'] = u+v
-        route = tsp.traveling_salesman(G, dimod.ExactSolver(), lagrange=10.0)
+        route = tsp.traveling_salesperson(G, dimod.ExactSolver(), lagrange=10.0)
         self.assertTrue(tsp.is_hamiltonian_path(G, route))
 
     def test_dimod_vs_list(self):
@@ -79,14 +79,14 @@ class TestTSP(unittest.TestCase):
         for u, v in G.edges():
             G[u][v]['weight'] = 1
 
-        route = tsp.traveling_salesman(G, dimod.ExactSolver())
-        route = tsp.traveling_salesman(G, dimod.SimulatedAnnealingSampler())
+        route = tsp.traveling_salesperson(G, dimod.ExactSolver())
+        route = tsp.traveling_salesperson(G, dimod.SimulatedAnnealingSampler())
 
     def test_weighted_complete_graph(self):
         G = nx.Graph()
         G.add_weighted_edges_from({(0, 1, 1), (0, 2, 2), (0, 3, 3), (1, 2, 3),
                                    (1, 3, 4), (2, 3, 5)})
-        route = dnx.traveling_salesman(G, dimod.ExactSolver(), lagrange=10)
+        route = dnx.traveling_salesperson(G, dimod.ExactSolver(), lagrange=10)
 
         self.assertEqual(len(route), len(G))
 
@@ -95,14 +95,14 @@ class TestTSP(unittest.TestCase):
         G.add_weighted_edges_from((u, v, .5)
                                   for u, v in itertools.combinations(range(3), 2))
 
-        route = dnx.traveling_salesman(G, dimod.ExactSolver(), start=2)
+        route = dnx.traveling_salesperson(G, dimod.ExactSolver(), start=2)
 
         self.assertEqual(route[0], 2)
 
 
 class TestTSPQUBO(unittest.TestCase):
     def test_empty(self):
-        Q = tsp.traveling_salesman_qubo(nx.Graph())
+        Q = tsp.traveling_salesperson_qubo(nx.Graph())
         self.assertEqual(Q, {})
 
     def test_k3(self):
@@ -112,7 +112,7 @@ class TestTSPQUBO(unittest.TestCase):
                                    ('b', 'c', 1.0),
                                    ('a', 'c', 2.0)])
 
-        Q = tsp.traveling_salesman_qubo(G, lagrange=10)
+        Q = tsp.traveling_salesperson_qubo(G, lagrange=10)
         bqm = dimod.BinaryQuadraticModel.from_qubo(Q)
 
         # all routes are min weight
@@ -144,7 +144,7 @@ class TestTSPQUBO(unittest.TestCase):
         G.add_weighted_edges_from((u, v, .5)
                                   for u, v in itertools.combinations(range(4), 2))
 
-        Q = tsp.traveling_salesman_qubo(G, lagrange=10)
+        Q = tsp.traveling_salesperson_qubo(G, lagrange=10)
         bqm = dimod.BinaryQuadraticModel.from_qubo(Q)
 
         # all routes are min weight
@@ -180,7 +180,7 @@ class TestTSPQUBO(unittest.TestCase):
                                    (0, 2, 2),
                                    (1, 3, 2)])
 
-        Q = tsp.traveling_salesman_qubo(G, lagrange=10)
+        Q = tsp.traveling_salesperson_qubo(G, lagrange=10)
         bqm = dimod.BinaryQuadraticModel.from_qubo(Q)
 
         # good routes won't have 0<->2 or 1<->3
@@ -216,7 +216,7 @@ class TestTSPQUBO(unittest.TestCase):
     def test_exceptions(self):
         G = nx.Graph([(0, 1)])
         with self.assertRaises(ValueError):
-            tsp.traveling_salesman_qubo(G)
+            tsp.traveling_salesperson_qubo(G)
 
     def test_docstring_size(self):
         # in the docstring we state the size of the resulting BQM, this checks
@@ -226,7 +226,7 @@ class TestTSPQUBO(unittest.TestCase):
             G.add_weighted_edges_from((u, v, .5)
                                       for u, v
                                       in itertools.combinations(range(n), 2))
-            Q = tsp.traveling_salesman_qubo(G)
+            Q = tsp.traveling_salesperson_qubo(G)
             bqm = dimod.BinaryQuadraticModel.from_qubo(Q)
 
             self.assertEqual(len(bqm), n**2)

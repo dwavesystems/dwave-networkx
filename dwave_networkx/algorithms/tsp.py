@@ -21,14 +21,19 @@ from collections import defaultdict
 
 from dwave_networkx.utils import binary_quadratic_model_sampler
 
-__all__ = ["traveling_salesman",
+__all__ = ["traveling_salesperson",
+           "traveling_salesperson_qubo",
+           "traveling_salesman",
            "traveling_salesman_qubo",
-           "is_hamiltonian_path"]
+           "traveling_saleswoman",
+           "traveling_saleswoman_qubo",
+           "is_hamiltonian_path",
+           ]
 
 
 @binary_quadratic_model_sampler(1)
-def traveling_salesman(G, sampler=None, lagrange=2, weight='weight', start=None,
-                       **sampler_args):
+def traveling_salesperson(G, sampler=None, lagrange=2, weight='weight',
+                          start=None, **sampler_args):
     """Returns an approximate minimum traveling salesperson route.
 
     Defines a QUBO with ground states corresponding to the
@@ -80,7 +85,7 @@ def traveling_salesman(G, sampler=None, lagrange=2, weight='weight', start=None,
     >>> G = nx.Graph()
     >>> G.add_weighted_edges_from({(0, 1, .1), (0, 2, .5), (0, 3, .1), (1, 2, .1),
     ...                            (1, 3, .5), (2, 3, .1)})
-    >>> dnx.traveling_salesman(G, dimod.ExactSolver(), start=0) # doctest: +SKIP
+    >>> dnx.traveling_salesperson(G, dimod.ExactSolver(), start=0) # doctest: +SKIP
     [0, 1, 2, 3]
 
     Notes
@@ -91,7 +96,7 @@ def traveling_salesman(G, sampler=None, lagrange=2, weight='weight', start=None,
 
     """
     # Get a QUBO representation of the problem
-    Q = traveling_salesman_qubo(G, lagrange, weight)
+    Q = traveling_salesperson_qubo(G, lagrange, weight)
 
     # use the sampler to find low energy states
     response = sampler.sample_qubo(Q, **sampler_args)
@@ -111,7 +116,10 @@ def traveling_salesman(G, sampler=None, lagrange=2, weight='weight', start=None,
     return route
 
 
-def traveling_salesman_qubo(G, lagrange=2, weight='weight'):
+traveling_salesman = traveling_saleswoman = traveling_salesperson
+
+
+def traveling_salesperson_qubo(G, lagrange=2, weight='weight'):
     """Return the QUBO with ground states corresponding to a minimum TSP route.
 
     If :math:`|G|` is the number of nodes in the graph, the resulting qubo will have:
@@ -176,6 +184,9 @@ def traveling_salesman_qubo(G, lagrange=2, weight='weight'):
             Q[((v, pos), (u, nextpos))] += G[u][v][weight]
 
     return Q
+
+
+traveling_salesman_qubo = traveling_saleswoman_qubo = traveling_salesperson_qubo
 
 
 def is_hamiltonian_path(G, route):
