@@ -19,33 +19,17 @@ import math
 import itertools
 
 import networkx as nx
-from dwave_networkx import _PY2
+
 from dwave_networkx.utils import binary_quadratic_model_sampler
 
-__all__ = ["min_vertex_coloring",
-           "is_vertex_coloring",
+__all__ = ["is_vertex_coloring",
            "is_cycle",
+           "min_vertex_color",
+           "min_vertex_coloring",  # alias for min_vertex_color
            "min_vertex_color_qubo",
-           "vertex_color_qubo",
            "vertex_color",
+           "vertex_color_qubo",
            ]
-
-# compatibility for python 2/3
-if _PY2:
-    range = xrange
-
-    def iteritems(d): return d.iteritems()
-
-    def ceil(n): return int(math.ceil(n))
-else:
-    def iteritems(d): return d.items()
-    ceil = math.ceil
-
-try:
-    import numpy
-    eigenvalues = numpy.linalg.eigvals
-except ImportError:
-    eigenvalues = False
 
 
 @nx.utils.decorators.nodes_or_number(1)
@@ -173,13 +157,15 @@ def _chromatic_number_upper_bound(G):
     n_edges = len(G.edges)
 
     # chi * (chi - 1) <= 2 * |E|
-    quad_bound = ceil((1 + math.sqrt(1 + 8 * n_edges)) / 2)
+    quad_bound = math.ceil((1 + math.sqrt(1 + 8 * n_edges)) / 2)
 
     if n_nodes % 2 == 1 and is_cycle(G):
         # odd cycle graphs need three colors
         bound = 3
     elif n_nodes > 2:
-        if not eigenvalues:
+        try:
+            import numpy as np
+        except ImportError:
             # chi <= max degree, unless it is complete or a cycle graph of odd length,
             # in which case chi <= max degree + 1 (Brook's Theorem)
             bound = max(G.degree(node) for node in G)
@@ -188,8 +174,9 @@ def _chromatic_number_upper_bound(G):
             # be the largest eigenvalue of A. Then chi <= theta_1 + 1 with
             # equality iff G is complete or an odd cycle.
             # this is strictly better than brooks theorem
-            bound = ceil(max(eigenvalues(nx.to_numpy_array(G))))
+            bound = math.ceil(max(np.linalg.eigvals(nx.to_numpy_array(G))))
     else:
+        # we know it's connected
         bound = n_nodes
 
     return min(quad_bound, bound)
@@ -257,7 +244,7 @@ def min_vertex_color_qubo(G, chromatic_lb=None, chromatic_ub=None):
 
     # our base QUBO is one with as many colors as we might need, so we use the
     # upper bound
-    Q = vertex_color_qubo(G, chromatic_ub)
+    Q = vertex_color_qubo(G, int(chromatic_ub))
 
     if chromatic_lb != chromatic_ub:
         # we want to penalize the colors that we aren't sure that we need
@@ -276,6 +263,7 @@ def min_vertex_color_qubo(G, chromatic_lb=None, chromatic_ub=None):
     return Q
 
 
+@binary_quadratic_model_sampler(1)
 def min_vertex_color(G, sampler=None, chromatic_lb=None, chromatic_ub=None,
                      **sampler_args):
     """Returns an approximate minimum vertex coloring.
@@ -342,6 +330,7 @@ def min_vertex_color(G, sampler=None, chromatic_lb=None, chromatic_ub=None,
     return {v: c for (v, c), val in sample.items() if val}
 
 
+# legacy name, alias
 min_vertex_coloring = min_vertex_color
 
 
