@@ -82,6 +82,13 @@ def draw_qubit_graph(G, layout, linear_biases={}, quadratic_biases={},
     except ImportError:
         raise ImportError("Matplotlib and numpy required for draw_qubit_graph()")
 
+    try:
+        from mpl_toolkits.axes_grid1 import make_axes_locatable
+    except ImportError:
+        _mpl_toolkit_found = False
+    else:
+        _mpl_toolkit_found = True
+
     if linear_biases or quadratic_biases:
         # if linear biases and/or quadratic biases are provided, then color accordingly.
 
@@ -139,7 +146,11 @@ def draw_qubit_graph(G, layout, linear_biases={}, quadratic_biases={},
         if ax is None:
             ax = fig.add_axes([0.01, 0.01, 0.86, 0.98])
         if cax is None:
-            cax = fig.add_axes([.87, 0.2, 0.02, 0.6])  # left, bottom, width, height
+            if _mpl_toolkit_found:
+                divider = make_axes_locatable(ax)
+                cax = divider.append_axes('right', size='2%', pad=0.05)
+            else:
+                cax = fig.add_axes([.87, 0.2, 0.02, 0.6])  # left, bottom, width, height
 
     else:
         if ax is None:
