@@ -210,3 +210,11 @@ class TestChimeraGraph(unittest.TestCase):
         o = dnx.generators.chimera.chimera_elimination_order(m, n)
         tw = dnx.elimination_order_width(p, o)
         self.assertEqual(tw, 4*n)
+
+    def test_linear_to_chimera(self):
+        G = dnx.linear_to_chimera(212, 8, 8, 4)
+        self.assertEqual(G, (3, 2, 1, 0))
+
+    def test_chimera_to_linear(self):
+        G = dnx.chimera_to_linear(0, 1, 2, 3, 8, 8, 4)
+        self.assertEqual(G, 212)
