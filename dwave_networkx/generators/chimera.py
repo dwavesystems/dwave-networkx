@@ -499,8 +499,6 @@ class chimera_coordinates:
 def linear_to_chimera(r, m, n=None, t=None):
     """Convert the linear index `r` into a chimera index.
 
-
-
     Parameters
     ----------
     r : int
@@ -526,7 +524,9 @@ def linear_to_chimera(r, m, n=None, t=None):
 
     Examples
     --------
-    >>> G = dnx.linear_to_chimera(0, 8, 8, 4)
+
+    >>> G = dnx.linear_to_chimera(212, 8, 8, 4)
+    (3, 2, 1, 0)
 
     """
     if n is None:
@@ -543,8 +543,6 @@ def linear_to_chimera(r, m, n=None, t=None):
 
 def chimera_to_linear(i, j, u, k, m, n, t):
     """Convert the chimera index `(i, j, u, k)` into a linear index.
-
-
 
     Parameters
     ----------
@@ -571,7 +569,9 @@ def chimera_to_linear(i, j, u, k, m, n, t):
 
     Examples
     --------
-    >>> G = dnx.chimera_to_linear(0, 1, 2, 3, 8, 8, 4)
+
+    >>> G = dnx.chimera_to_linear(3, 2, 1, 0, 8, 8, 4)
+    212
 
     """
     return ((n*i + j)*2 + u)*t + k
