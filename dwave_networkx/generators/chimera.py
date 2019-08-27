@@ -24,7 +24,9 @@ from networkx import diameter
 from dwave_networkx import _PY2
 from dwave_networkx.exceptions import DWaveNetworkXException
 
-__all__ = ['chimera_graph', 'find_chimera_indices', 'chimera_elimination_order', 'chimera_to_linear', 'linear_to_chimera']
+__all__ = ['chimera_graph', 'find_chimera_indices',
+           'chimera_elimination_order', 'chimera_to_linear',
+           'linear_to_chimera']
 
 # compatibility for python 2/3
 if _PY2:
@@ -518,7 +520,8 @@ def linear_to_chimera(r, m, n=None, t=None):
     j : int
         The row of the Chimera index's unit cell associated with `r`.
     u : int
-        Whether the index is even (0) or odd (1); the side of the bi-partite graph of the Chimera unit cell.
+        Whether the index is even (0) or odd (1); the side of the bi-partite
+        graph of the Chimera unit cell.
     k : int
         Index into the Chimera unit cell.
 
@@ -541,7 +544,7 @@ def linear_to_chimera(r, m, n=None, t=None):
     return i, j, u, k
 
 
-def chimera_to_linear(i, j, u, k, m, n, t):
+def chimera_to_linear(i, j, u, k, m, n=None, t=None):
     """Convert the chimera index `(i, j, u, k)` into a linear index.
 
     Parameters
@@ -551,7 +554,8 @@ def chimera_to_linear(i, j, u, k, m, n, t):
     j : int
         The row of the Chimera index's unit cell associated with `r`.
     u : int
-        Whether the index is even (0) or odd (1); the side of the bi-partite graph of the Chimera unit cell.
+        Whether the index is even (0) or odd (1); the side of the bi-partite
+        graph of the Chimera unit cell.
     k : int
         Index into the Chimera unit cell.
     m : int
@@ -574,4 +578,10 @@ def chimera_to_linear(i, j, u, k, m, n, t):
     212
 
     """
+    if n is None:
+        n = m
+
+    if t is None:
+        t = 4
+
     return ((n*i + j)*2 + u)*t + k
