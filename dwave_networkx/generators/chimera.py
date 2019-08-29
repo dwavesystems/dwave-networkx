@@ -24,7 +24,9 @@ from networkx import diameter
 from dwave_networkx import _PY2
 from dwave_networkx.exceptions import DWaveNetworkXException
 
-__all__ = ['chimera_graph', 'find_chimera_indices', 'chimera_elimination_order']
+__all__ = ['chimera_graph', 'find_chimera_indices',
+           'chimera_elimination_order', 'chimera_to_linear',
+           'linear_to_chimera']
 
 # compatibility for python 2/3
 if _PY2:
@@ -495,3 +497,91 @@ class chimera_coordinates:
             Equivalent to (tuple(self.tuples(p)) for p in plist)
         """
         return self.__pair_repack(self.tuples, plist)
+
+def linear_to_chimera(r, m, n=None, t=None):
+    """Convert the linear index `r` into a chimera index.
+
+    Parameters
+    ----------
+    r : int
+        The linear index value.
+    m : int
+        Number of rows in the Chimera lattice.
+    n : int (optional, default m)
+        Number of columns in the Chimera lattice.
+    t : int (optional, default 4)
+        Size of the shore within each Chimera tile.
+
+
+    Returns
+    -------
+    i : int
+        The column of the Chimera index's unit cell associated with `r`.
+    j : int
+        The row of the Chimera index's unit cell associated with `r`.
+    u : int
+        Whether the index is even (0) or odd (1); the side of the bi-partite
+        graph of the Chimera unit cell.
+    k : int
+        Index into the Chimera unit cell.
+
+    Examples
+    --------
+
+    >>> G = dnx.linear_to_chimera(212, 8, 8, 4)
+    (3, 2, 1, 0)
+
+    """
+    if n is None:
+        n = m
+
+    if t is None:
+        t = 4
+
+    r, k = divmod(r, t)
+    r, u = divmod(r, 2)
+    i, j = divmod(r, n)
+    return i, j, u, k
+
+
+def chimera_to_linear(i, j, u, k, m, n=None, t=None):
+    """Convert the chimera index `(i, j, u, k)` into a linear index.
+
+    Parameters
+    ----------
+    i : int
+        The column of the Chimera index's unit cell associated with `r`.
+    j : int
+        The row of the Chimera index's unit cell associated with `r`.
+    u : int
+        Whether the index is even (0) or odd (1); the side of the bi-partite
+        graph of the Chimera unit cell.
+    k : int
+        Index into the Chimera unit cell.
+    m : int
+        Number of rows in the Chimera lattice.
+    n : int (optional, default m)
+        Number of columns in the Chimera lattice.
+    t : int (optional, default 4)
+        Size of the shore within each Chimera tile.
+
+
+    Returns
+    -------
+    r : int
+        The linear index node label corresponding to `(i, j, u, k)`.
+
+    Examples
+    --------
+
+    >>> G = dnx.chimera_to_linear(3, 2, 1, 0, 8, 8, 4)
+    212
+
+    """
+    if n is None:
+        n = m
+
+    if t is None:
+        t = 4
+
+    return ((n*i + j)*2 + u)*t + k
