@@ -39,7 +39,7 @@ def pegasus_graph(m, create_using=None, node_list=None, edge_list=None, data=Tru
 
         pegasus_graph(1) contains zero nodes,
         pegasus_graph(m, fabric_only=False) contains :math:`24m(m-1)` nodes,
-        pegasus_graph(m, fabric_only=True) contains :math:`24m(m-1)-8m` nodes, and
+        pegasus_graph(m, fabric_only=True) contains :math:`24m(m-1)-8(m-1)` nodes, and
         pegasus_graph(m, nice_coordinates=True) contains :math:`24(m-1)^2` nodes.
 
     The maximum degree of these graph is 15, and counting formulas are more complicated
