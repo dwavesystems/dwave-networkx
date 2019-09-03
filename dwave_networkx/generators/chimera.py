@@ -287,7 +287,7 @@ def find_chimera_indices(G):
 
 
 class chimera_coordinates:
-    def __init__(self, m, n=None, t=4):
+    def __init__(self, m, n=None, t=None):
         """
         Provides coordinate converters for the chimera indexing scheme.
 
@@ -301,7 +301,7 @@ class chimera_coordinates:
             The size of the shore within each Chimera tile.
         """
 
-        self.args = m, m if n is None else n, t
+        self.args = m, m if n is None else n, 4 if t is None else t
 
     def int(self, q):
         """
@@ -565,6 +565,7 @@ class chimera_coordinates:
         """
         return self.__pair_repack(self.tuples, plist)
 
+
 def linear_to_chimera(r, m, n=None, t=None):
     """Convert the linear index `r` into a chimera index.
 
@@ -599,16 +600,7 @@ def linear_to_chimera(r, m, n=None, t=None):
     (3, 2, 1, 0)
 
     """
-    if n is None:
-        n = m
-
-    if t is None:
-        t = 4
-
-    r, k = divmod(r, t)
-    r, u = divmod(r, 2)
-    i, j = divmod(r, n)
-    return i, j, u, k
+    return chimera_coordinates(m, n, t).linear_to_chimera(r)
 
 
 def chimera_to_linear(i, j, u, k, m, n=None, t=None):
@@ -645,10 +637,4 @@ def chimera_to_linear(i, j, u, k, m, n=None, t=None):
     212
 
     """
-    if n is None:
-        n = m
-
-    if t is None:
-        t = 4
-
-    return ((n*i + j)*2 + u)*t + k
+    return chimera_coordinates(m, n, t).chimera_to_linear((i, j, u, k))
