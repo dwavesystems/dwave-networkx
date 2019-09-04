@@ -399,92 +399,90 @@ def get_tuple_defragmentation_fn(pegasus_graph):
 
 
 # i acknowledge that this code duplication is silly but at least it's fast
-class pegasus_coordinates:
+class pegasus_coordinates(object):
     def __init__(self, m):
-        """
-        Provides coordinate converters for the pegasus indexing scheme.
+        """Coordinate converters for Pegasus graphs.
 
         Parameters
         ----------
         m : int
             The size parameter for the Pegasus lattice.
+
         """
 
         self.args = m, m - 1
 
-    def int(self, q):
-        """
-        Converts the chimera_index `q` into an linear_index
+    def pegasus_to_linear(self, q):
+        """Convert the Pegasus index `q` into a linear index.
 
         Parameters
         ----------
         q : tuple
-            The chimera_index node label
+            The Pegasus index node label
 
         Returns
         -------
         r : int
-            The linear_index node label corresponding to q
-        """
+            The linear index node label corresponding to q
 
+        """
         u, w, k, z = q
         m, m1 = self.args
         return ((m * u + w) * 12 + k) * m1 + z
 
-    def tuple(self, r):
-        """
-        Converts the linear_index `q` into an pegasus_index
+    def linear_to_pegasus(self, r):
+        """Convert the linear index `r` into a Pegasus index.
 
         Parameters
         ----------
         r : int
-            The linear_index node label
+            The linear index node label
 
         Returns
         -------
         q : tuple
-            The pegasus_index node label corresponding to r
-        """
+            The pegasus index node label corresponding to r
 
+        """
         m, m1 = self.args
         r, z = divmod(r, m1)
         r, k = divmod(r, 12)
         u, w = divmod(r, m)
         return u, w, k, z
 
-    def ints(self, qlist):
-        """
-        Converts a sequence of pegasus_index node labels into
-        linear_index node labels, preserving order
+    def iter_pegasus_to_linear(self, qlist):
+        """An iterator of linear-indexed nodes from a sequence of Pegasus-
+        indexed nodes.
 
         Parameters
         ----------
-        qlist : sequence of ints
-            The pegasus_index node labels
+        qlist : sequence of tuples
+            The Pegasus-indexed node labels
 
-        Returns
-        -------
-        rlist : iterable of tuples
-            The linear_lindex node lables corresponding to qlist
+        Yields
+        ------
+        rlist : iterator of tuples
+            The linear index node lables corresponding to qlist.
+
         """
-
         m, m1 = self.args
-        return (((m * u + w) * 12 + k) * m1 + z for (u, w, k, z) in qlist)
+        for (u, w, k, z) in qlist:
+            yield ((m * u + w) * 12 + k) * m1 + z
 
-    def tuples(self, rlist):
-        """
-        Converts a sequence of linear_index node labels into
-        pegasus_index node labels, preserving order
+    def iter_linear_to_pegasus(self, rlist):
+        """An iterator of Pegasus-indexed nodes from a sequence of linear-
+        indexed nodes.
 
         Parameters
         ----------
-        rlist : sequence of tuples
-            The linear_index node labels
+        rlist : sequence of ints
+            The linear-indexed node labels
 
         Returns
         -------
         qlist : iterable of ints
             The pegasus_index node lables corresponding to rlist
+
         """
 
         m, m1 = self.args
@@ -516,7 +514,7 @@ class pegasus_coordinates:
             v = next(ulist)
             yield u, v
 
-    def int_pairs(self, plist):
+    def iter_pegasus_to_linear_pairs(self, plist):
         """
         Translates a sequence of pairs of chimera_index tuples
         into a a sequence of pairs of linear_index ints.
@@ -533,7 +531,7 @@ class pegasus_coordinates:
         """
         return self.__pair_repack(self.ints, plist)
 
-    def tuple_pairs(self, plist):
+    def iter_linear_to_pegasus_pairs(self, plist):
         """
         Translates a sequence of pairs of chimera_index tuples
         into a a sequence of pairs of linear_index ints.
@@ -549,6 +547,54 @@ class pegasus_coordinates:
             Equivalent to (tuple(self.tuples(p)) for p in plist)
         """
         return self.__pair_repack(self.tuples, plist)
+
+    def int(self, q):
+        """Deprecated alias of `pegasus_to_linear`."""
+        msg = ('pegasus_coordinates.int is deprecated and will be removed in '
+               'dwave-networkx 0.9.0, please use '
+               'pegasus_coordinates.pegasus_to_linear instead')
+        warnings.warn(msg, DeprecationWarning)
+        return self.pegasus_to_linear(q)
+
+    def tuple(self, r):
+        """Deprecated alias for `linear_to_pegasus`."""
+        msg = ('pegasus_coordinates.tuple is deprecated and will be removed in '
+               'dwave-networkx 0.9.0, please use '
+               'pegasus_coordinates.linear_to_pegasus instead')
+        warnings.warn(msg, DeprecationWarning)
+        return self.linear_to_pegasus(r)
+
+    def ints(self, qlist):
+        """Deprecated alias for `iter_pegasus_to_linear`."""
+        msg = ('pegasus_coordinates.ints is deprecated and will be removed in '
+               'dwave-networkx 0.9.0, please use '
+               'pegasus_coordinates.iter_pegasus_to_linear instead')
+        warnings.warn(msg, DeprecationWarning)
+        return self.iter_pegasus_to_linear(qlist)
+
+    def tuples(self, rlist):
+        """Deprecated alias for `iter_linear_to_pegasus`."""
+        msg = ('pegasus_coordinates.tuples is deprecated and will be removed in '
+               'dwave-networkx 0.9.0, please use '
+               'pegasus_coordinates.iter_linear_to_pegasus instead')
+        warnings.warn(msg, DeprecationWarning)
+        return self.iter_linear_to_pegasus(rlist)
+
+    def int_pairs(self, plist):
+        """Deprecated alias for `iter_pegasus_to_linear_pairs`."""
+        msg = ('pegasus_coordinates.int_pairs is deprecated and will be removed'
+               ' in dwave-networkx 0.9.0, please use '
+               'pegasus_coordinates.iter_pegasus_to_linear_pairs instead')
+        warnings.warn(msg, DeprecationWarning)
+        return self.iter_pegasus_to_linear_pairs(plist)
+
+    def tuple_pairs(self, plist):
+        """Deprecated alias for `iter_linear_to_pegasus_pairs`."""
+        msg = ('pegasus_coordinates.tuple_pairs is deprecated and will be removed'
+               ' in dwave-networkx 0.9.0, please use '
+               'pegasus_coordinates.iter_linear_to_pegasus_pairs instead')
+        warnings.warn(msg, DeprecationWarning)
+        return self.iter_linear_to_pegasus_pairs(plist)
 
 
 def get_pegasus_to_nice_fn(*args, **kwargs):
