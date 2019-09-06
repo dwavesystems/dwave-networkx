@@ -23,7 +23,9 @@ from dwave_networkx import _PY2
 from dwave_networkx.exceptions import DWaveNetworkXException
 import warnings
 
-__all__ = ['pegasus_graph']
+__all__ = ['pegasus_graph',
+           'pegasus_coordinates',
+           ]
 
 # compatibility for python 2/3
 if _PY2:
@@ -450,6 +452,49 @@ class pegasus_coordinates(object):
         u, w = divmod(r, m)
         return u, w, k, z
 
+    @staticmethod
+    def nice_to_pegasus(n):
+        t, y, x, u, k = n
+
+        if t == 0:
+            return (u, y+1 if u else x, 4+k if u else 4+k, x if u else y)
+        elif t == 1:
+            return (u, y+1 if u else x, k if u else 8+k, x if u else y)
+        elif t == 2:
+            return (u, y if u else x + 1, 8+k if u else k, x if u else y)
+
+        # can happen when t is a float for instance
+        raise ValueError("invalid Nice coordinates")
+
+    @staticmethod
+    def pegasus_to_nice(p):
+        """Convert a 4-term Pegasus label to a 5-term nice label.
+
+        Parameters
+        ----------
+        p : tuple
+            The Pegasus index node label.
+
+        Returns
+        -------
+        n : tuple
+            The nice index node label.
+
+        """
+        u, w, k, z = p
+
+        t = (2-u-(2*u-1)*(k//4)) % 3
+
+        if t == 0:
+            return (0, w-1 if u else z, z if u else w, u, k-4 if u else k-4)
+        elif t == 1:
+            return (1, w-1 if u else z, z if u else w, u, k if u else k-8)
+        elif t == 2:
+            return (2, w if u else z, z if u else w-1, u, k-8 if u else k)
+
+        # can happen when given floats for instance
+        raise ValueError('invalid Pegasus coordinates')
+
     def iter_pegasus_to_linear(self, qlist):
         """An iterator of linear-indexed nodes from a sequence of Pegasus-
         indexed nodes.
@@ -597,6 +642,7 @@ class pegasus_coordinates(object):
         return self.iter_linear_to_pegasus_pairs(plist)
 
 
+# maintained for backwards compatibility
 def get_pegasus_to_nice_fn(*args, **kwargs):
     """
     Returns a coordinate translation function from the 4-term pegasus_index
@@ -614,14 +660,18 @@ def get_pegasus_to_nice_fn(*args, **kwargs):
         Pegasus coordinates.
     """
     if args or kwargs:
-        warnings.warn("Deprecation warning: get_pegasus_to_nice_fn does not need / use parameters anymore")
-    def p2n0(u, w, k, z): return (0, w-1 if u else z, z if u else w, u, k-4 if u else k-4)
-    def p2n1(u, w, k, z): return (1, w-1 if u else z, z if u else w, u, k if u else k-8)
-    def p2n2(u, w, k, z): return (2, w if u else z, z if u else w-1, u, k-8 if u else k)
-    def p2n(u, w, k, z): return [p2n0, p2n1, p2n2][(2-u-(2*u-1)*(k//4)) % 3](u, w, k, z)
-    return p2n
+        msg = "get_pegasus_to_nice_fn does not need / use parameters anymore"
+        warnings.warn(msg, DeprecationWarning)
+
+    msg = ('get_pegasus_to_nice_fn is deprecated and will be removed in '
+           'dwave-networkx 0.9.0, please use '
+           'pegasus_coordinates.pegasus_to_nice instead')
+    warnings.warn(msg, DeprecationWarning)
+
+    return lambda *args: pegasus_coordinates.pegasus_to_nice(args)
 
 
+# maintained for backwards compatibility
 def get_nice_to_pegasus_fn(*args, **kwargs):
     """
     Returns a coordinate translation function from the 5-term "nice"
@@ -639,9 +689,12 @@ def get_nice_to_pegasus_fn(*args, **kwargs):
         augmented chimera coordinates
     """
     if args or kwargs:
-        warnings.warn("Deprecation warning: get_pegasus_to_nice_fn does not need / use parameters anymore")
-    def c2p0(y, x, u, k): return (u, y+1 if u else x, 4+k if u else 4+k, x if u else y)
-    def c2p1(y, x, u, k): return (u, y+1 if u else x, k if u else 8+k, x if u else y)
-    def c2p2(y, x, u, k): return (u, y if u else x + 1, 8+k if u else k, x if u else y)
-    def n2p(t, y, x, u, k): return [c2p0, c2p1, c2p2][t](y, x, u, k)
-    return n2p
+        msg = "get_pegasus_to_nice_fn does not need / use parameters anymore"
+        warnings.warn(msg, DeprecationWarning)
+
+    msg = ('get_nice_to_pegasus_fn is deprecated and will be removed in '
+           'dwave-networkx 0.9.0, please use '
+           'pegasus_coordinates.nice_to_pegasus instead')
+    warnings.warn(msg, DeprecationWarning)
+
+    return lambda *args: pegasus_coordinates.nice_to_pegasus(args)
