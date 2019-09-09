@@ -315,11 +315,6 @@ def max_cardinality_heuristic(G):
     G : NetworkX graph
         The graph on which to compute an upper bound for the treewidth.
 
-    inplace : bool
-        If True, G will be made an empty graph in the process of
-        running the function, otherwise the function uses a copy
-        of G.
-
     Returns
     -------
     treewidth_upper_bound : int
