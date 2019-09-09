@@ -26,7 +26,8 @@ from networkx import diameter
 from dwave_networkx import _PY2
 from dwave_networkx.exceptions import DWaveNetworkXException
 
-__all__ = ['chimera_graph', 'find_chimera_indices', 'chimera_to_linear',
+__all__ = ['chimera_graph', 'chimera_coordinates', 'find_chimera_indices',
+           'chimera_elimination_order', 'chimera_to_linear',
            'linear_to_chimera']
 
 # compatibility for python 2/3
@@ -357,6 +358,25 @@ class chimera_coordinates(object):
         t : int, optional (default 4)
             The size of the shore within each Chimera tile.
 
+        Examples
+        --------
+
+        Convert between Chimera coordinates and linear indices directly
+
+        >>> coords = dnx.chimera_coordinates(16, 16, 4)
+        >>> coords.chimera_to_linear((0, 2, 0, 1))
+        17
+        >>> coords.linear_to_chimera(17)
+        (0, 2, 0, 1)
+
+        Construct a new graph with the coordinate labels
+
+        >>> C16 = dnx.chimera_graph(16)
+        >>> coords = dnx.chimera_coordinates(16)
+        >>> G = nx.Graph()
+        >>> G.add_nodes_from(coords.iter_linear_to_chimera(C16.nodes))
+        >>> G.add_edges_from(coords.iter_linear_to_chimera_pairs(C16.edges))
+
         See also
         --------
         :func:`.chimera_graph` for a description of the various conventions.
@@ -403,8 +423,8 @@ class chimera_coordinates(object):
         return self.iter_chimera_to_linear(qlist)
 
     def iter_chimera_to_linear(self, qlist):
-        """Return an iterator converting 4-term Chimera coordinates to linear
-        indices.
+        """Return an iterator converting a sequence of 4-term Chimera
+        coordinates to linear indices.
         """
         m, n, t = self.args
         for (i, j, u, k) in qlist:
@@ -419,8 +439,8 @@ class chimera_coordinates(object):
         return self.iter_linear_to_chimera(rlist)
 
     def iter_linear_to_chimera(self, rlist):
-        """Return an iterator converting linear indices to 4-term Chimera
-        coordinates.
+        """Return an iterator converting a sequence of linear indices to 4-term
+        Chimera coordinates.
         """
         m, n, t = self.args
         for r in rlist:
@@ -448,15 +468,13 @@ class chimera_coordinates(object):
         return self.iter_chimera_to_linear_pairs(plist)
 
     def iter_chimera_to_linear_pairs(self, plist):
-        """Return an iterator converting pairs of 4-term Chimera coordinates to
-        pairs of linear indices.
+        """Return an iterator converting a sequence of pairs of 4-term Chimera
+        coordinates to pairs of linear indices.
         """
         return self._pair_repack(self.ints, plist)
 
     def tuple_pairs(self, plist):
-        """Deprecated alias for `iter_linear_to_chimera_pairs`.
-
-        """
+        """Deprecated alias for `iter_linear_to_chimera_pairs`."""
         msg = ('chimera_coordinates.tuple_pairs is deprecated and will be removed in '
                'dwave-networkx 0.9.0, please use '
                'chimera_coordinates.iter_linear_to_chimera_pairs instead')
@@ -464,8 +482,8 @@ class chimera_coordinates(object):
         return self.iter_linear_to_chimera_pairs(plist)
 
     def iter_linear_to_chimera_pairs(self, plist):
-        """Return an iterator converting pairs of linear indices to pairs of
-        4-term Chimera coordinates.
+        """Return an iterator converting a sequence of pairs of linear indices
+        to pairs of 4-term Chimera coordinates.
         """
         return self._pair_repack(self.tuples, plist)
 
