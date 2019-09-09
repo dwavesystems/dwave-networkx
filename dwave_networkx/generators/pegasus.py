@@ -17,6 +17,8 @@
 Generators for some graphs derived from the D-Wave System.
 
 """
+import re
+
 import networkx as nx
 
 from dwave_networkx import _PY2
@@ -400,52 +402,35 @@ def get_tuple_defragmentation_fn(pegasus_graph):
     return defragment_tuple
 
 
-# i acknowledge that this code duplication is silly but at least it's fast
+# Developer note: we could implement a function that creates the iter_*_to_* and
+# iter_*_to_*_pairs methods just-in-time, but there are a small enough number
+# that for now it makes sense to do them by hand.
 class pegasus_coordinates(object):
     def __init__(self, m):
-        """Coordinate converters for Pegasus graphs.
+        """Node label converters for Pegasus graphs.
 
         Parameters
         ----------
         m : int
             The size parameter for the Pegasus lattice.
 
+        See also
+        --------
+        :func:`.pegasus_graph` for a description of the various coordinate
+        conventions.
+
         """
 
         self.args = m, m - 1
 
     def pegasus_to_linear(self, q):
-        """Convert the Pegasus index `q` into a linear index.
-
-        Parameters
-        ----------
-        q : tuple
-            The Pegasus index node label
-
-        Returns
-        -------
-        r : int
-            The linear index node label corresponding to q
-
-        """
+        """Convert a 4-term Pegasus coordinate into a linear index."""
         u, w, k, z = q
         m, m1 = self.args
         return ((m * u + w) * 12 + k) * m1 + z
 
     def linear_to_pegasus(self, r):
-        """Convert the linear index `r` into a Pegasus index.
-
-        Parameters
-        ----------
-        r : int
-            The linear index node label
-
-        Returns
-        -------
-        q : tuple
-            The pegasus index node label corresponding to r
-
-        """
+        """Convert a linear index into a 4-term Pegasus coordinate."""
         m, m1 = self.args
         r, z = divmod(r, m1)
         r, k = divmod(r, 12)
@@ -454,6 +439,11 @@ class pegasus_coordinates(object):
 
     @staticmethod
     def nice_to_pegasus(n):
+        """Convert a 5-term nice coordinate into a 4-term Pegasus coordinate.
+
+        Note that this method does not depend on the size of the Pegasus
+        lattice.
+        """
         t, y, x, u, k = n
 
         if t == 0:
@@ -464,22 +454,14 @@ class pegasus_coordinates(object):
             return (u, y if u else x + 1, 8+k if u else k, x if u else y)
 
         # can happen when t is a float for instance
-        raise ValueError("invalid Nice coordinates")
+        raise ValueError("invalid Nice coordinate: {}".format(n))
 
     @staticmethod
     def pegasus_to_nice(p):
-        """Convert a 4-term Pegasus label to a 5-term nice label.
+        """Convert a 4-term Pegasus coordinate to a 5-term nice coordinate.
 
-        Parameters
-        ----------
-        p : tuple
-            The Pegasus index node label.
-
-        Returns
-        -------
-        n : tuple
-            The nice index node label.
-
+        Note that this method does not depend on the size of the Pegasus
+        lattice.
         """
         u, w, k, z = p
 
@@ -495,41 +477,26 @@ class pegasus_coordinates(object):
         # can happen when given floats for instance
         raise ValueError('invalid Pegasus coordinates')
 
+    def linear_to_nice(self, r):
+        """Convert a linear index into a 5-term nice coordinate."""
+        return self.pegasus_to_nice(self.linear_to_pegasus(r))
+
+    def nice_to_linear(self, n):
+        """Convert a 5-term nice coordinate into a linear index."""
+        return self.pegasus_to_linear(self.nice_to_pegasus(n))
+
     def iter_pegasus_to_linear(self, qlist):
-        """An iterator of linear-indexed nodes from a sequence of Pegasus-
-        indexed nodes.
-
-        Parameters
-        ----------
-        qlist : sequence of tuples
-            The Pegasus-indexed node labels
-
-        Yields
-        ------
-        rlist : iterator of tuples
-            The linear index node lables corresponding to qlist.
-
+        """Return an iterator converting a sequence of 4-term Pegasus
+        coordinates to linear indices.
         """
         m, m1 = self.args
         for (u, w, k, z) in qlist:
             yield ((m * u + w) * 12 + k) * m1 + z
 
     def iter_linear_to_pegasus(self, rlist):
-        """An iterator of Pegasus-indexed nodes from a sequence of linear-
-        indexed nodes.
-
-        Parameters
-        ----------
-        rlist : sequence of ints
-            The linear-indexed node labels
-
-        Returns
-        -------
-        qlist : iterable of ints
-            The pegasus_index node lables corresponding to rlist
-
+        """Return an iterator converting a sequence of linear indices to 4-term
+        Pegasus coordinates.
         """
-
         m, m1 = self.args
         for r in rlist:
             r, z = divmod(r, m1)
@@ -537,22 +504,46 @@ class pegasus_coordinates(object):
             u, w = divmod(r, m)
             yield u, w, k, z
 
-    def __pair_repack(self, f, plist):
+    @classmethod
+    def iter_nice_to_pegasus(cls, nlist):
+        """Return an iterator converting a sequence of 5-term nice coordinates
+        to 4-term Pegasus coordinates.
+
+        Note that this method does not depend on the size of the Pegasus
+        lattice.
         """
-        Flattens a sequence of pairs to pass through `f`, and then
+        for n in nlist:
+            yield cls.nice_to_pegasus(n)
+
+    @classmethod
+    def iter_pegasus_to_nice(cls, plist):
+        """Return an iterator converting a sequence of 4-term Pegasus
+        coordinates to 5-term nice coordinates.
+
+        Note that this method does not depend on the size of the Pegasus
+        lattice.
+        """
+        for p in plist:
+            yield cls.pegasus_to_nice(p)
+
+    def iter_linear_to_nice(self, rlist):
+        """Return an iterator converting a sequence of linear indices to 5-term
+        nice coordinates.
+        """
+        for r in rlist:
+            yield self.linear_to_nice(r)
+
+    def iter_nice_to_linear(self, nlist):
+        """Return an iterator converting a sequence of 5-term nice coordinates
+        to linear indices.
+        """
+        for n in nlist:
+            yield self.nice_to_linear(n)
+
+    @staticmethod
+    def _pair_repack(f, plist):
+        """Flattens a sequence of pairs to pass through `f`, and then
         re-pairs the result.
-
-        Parameters
-        ----------
-        f : callable
-            A function that accepts a sequence and returns a sequence
-        plist:
-            A sequence of pairs
-
-        Returns
-        -------
-        qlist : sequence
-            Equivalent to (tuple(f(p)) for p in plist)
         """
         ulist = f(u for p in plist for u in p)
         for u in ulist:
@@ -560,38 +551,48 @@ class pegasus_coordinates(object):
             yield u, v
 
     def iter_pegasus_to_linear_pairs(self, plist):
+        """Return an iterator converting a sequence of pairs of 4-term Pegasus
+        coordinates to pairs of linear indices.
         """
-        Translates a sequence of pairs of chimera_index tuples
-        into a a sequence of pairs of linear_index ints.
-
-        Parameters
-        ----------
-        plist:
-            A sequence of pairs of tuples
-
-        Returns
-        -------
-        qlist : sequence
-            Equivalent to (tuple(self.ints(p)) for p in plist)
-        """
-        return self.__pair_repack(self.ints, plist)
+        return self._pair_repack(self.iter_pegasus_to_linear, plist)
 
     def iter_linear_to_pegasus_pairs(self, plist):
+        """Return an iterator converting a sequence of pairs of linear indices
+        to pairs of 4-term Pegasus coordinates.
         """
-        Translates a sequence of pairs of chimera_index tuples
-        into a a sequence of pairs of linear_index ints.
+        return self._pair_repack(self.iter_linear_to_pegasus, plist)
 
-        Parameters
-        ----------
-        plist:
-            A sequence of pairs of tuples
+    @classmethod
+    def iter_nice_to_pegasus_pairs(cls, nlist):
+        """Return an iterator converting a sequence of pairs of 5-term nice
+        coordinates to pairs of 4-term Pegasus coordinates.
 
-        Returns
-        -------
-        qlist : sequence
-            Equivalent to (tuple(self.tuples(p)) for p in plist)
+        Note that this method does not depend on the size of the Pegasus
+        lattice.
         """
-        return self.__pair_repack(self.tuples, plist)
+        return cls._pair_repack(cls.iter_nice_to_pegasus, nlist)
+
+    @classmethod
+    def iter_pegasus_to_nice_pairs(cls, plist):
+        """Return an iterator converting a sequence of pairs of 4-term Pegasus
+        coordinates to pairs of 5-term nice coordinates.
+
+        Note that this method does not depend on the size of the Pegasus
+        lattice.
+        """
+        return cls._pair_repack(cls.iter_pegasus_to_nice, plist)
+
+    def iter_linear_to_nice_pairs(self, rlist):
+        """Return an iterator converting a sequence of pairs of linear indices
+        to pairs of 5-term nice coordinates.
+        """
+        return self._pair_repack(self.iter_linear_to_nice, rlist)
+
+    def iter_nice_to_linear_pairs(self, nlist):
+        """Return an iterator converting a sequence of pairs of 5-term nice
+        coordinates to pairs of linear indices.
+        """
+        return self._pair_repack(self.iter_nice_to_linear, nlist)
 
     def int(self, q):
         """Deprecated alias of `pegasus_to_linear`."""

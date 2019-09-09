@@ -18,10 +18,16 @@ from __future__ import division
 import unittest
 import warnings
 
+from random import sample
+
 import networkx as nx
 import dwave_networkx as dnx
-from dwave_networkx.generators.pegasus import (pegasus_graph, get_tuple_fragmentation_fn,
-                                               get_tuple_defragmentation_fn)
+from dwave_networkx.generators.pegasus import (pegasus_graph,
+                                               pegasus_coordinates,
+                                               get_pegasus_to_nice_fn,
+                                               get_nice_to_pegasus_fn,
+                                               get_tuple_defragmentation_fn,
+                                               get_tuple_fragmentation_fn)
 
 alpha_map = dict(enumerate('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'))
 
@@ -46,8 +52,10 @@ class TestPegasusGraph(unittest.TestCase):
             self.assertLessEqual(len(w), 13)
             self.assertGreaterEqual(len(w), 12)
 
+
+class TestPegasusCoordinates(unittest.TestCase):
+
     def test_connected_component(self):
-        from dwave_networkx.generators.pegasus import pegasus_coordinates
         test_offsets = [[0] * 12] * 2, [[2] * 12, [6] * 12], [[6] * 12, [2, 2, 6, 6, 10, 10] * 2], [[2, 2, 6, 6, 10, 10] * 2] * 2
         for offsets in test_offsets:
             G = dnx.pegasus_graph(4, fabric_only=True, offset_lists=offsets)
@@ -57,7 +65,6 @@ class TestPegasusGraph(unittest.TestCase):
             self.assertEqual(comp, nodes)
 
     def test_coordinate_basics(self):
-        from dwave_networkx.generators.pegasus import pegasus_coordinates
         G = dnx.pegasus_graph(4, fabric_only=False)
         H = dnx.pegasus_graph(4, coordinates=True, fabric_only=False)
         coords = pegasus_coordinates(4)
@@ -77,7 +84,6 @@ class TestPegasusGraph(unittest.TestCase):
             self.assertEqual(q, coords.tuple(v))
 
     def test_nice_coordinates(self):
-        from dwave_networkx.generators.pegasus import pegasus_graph, get_nice_to_pegasus_fn, get_pegasus_to_nice_fn
         G = dnx.pegasus_graph(4, nice_coordinates=True)
         H = dnx.chimera_graph(3, coordinates=True)
         for p, q in H.edges():
@@ -91,9 +97,60 @@ class TestPegasusGraph(unittest.TestCase):
             self.assertEqual(p2n(*n2p(*p)), p)
             self.assertTrue(H.has_node(p[1:]))
 
+    def test_consistent_linear_nice_pegasus(self):
+        P4 = dnx.pegasus_graph(4, nice_coordinates=True)
+
+        coords = pegasus_coordinates(4)
+
+        # `.*_to_*` methods
+
+        for n, data in P4.nodes(data=True):
+            p = data['pegasus_index']
+            i = data['linear_index']
+            self.assertEqual(coords.nice_to_pegasus(n), p)
+            self.assertEqual(coords.pegasus_to_nice(p), n)
+            self.assertEqual(coords.nice_to_linear(n), i)
+            self.assertEqual(coords.linear_to_nice(i), n)
+            self.assertEqual(coords.linear_to_pegasus(i), p)
+            self.assertEqual(coords.pegasus_to_linear(p), i)
+
+        # `.iter_*_to_*` methods
+
+        nlist, plist, ilist = zip(*((n, d['pegasus_index'], d['linear_index'])
+                                    for n, d in P4.nodes(data=True)))
+        self.assertEqual(tuple(coords.iter_nice_to_pegasus(nlist)), plist)
+        self.assertEqual(tuple(coords.iter_pegasus_to_nice(plist)), nlist)
+        self.assertEqual(tuple(coords.iter_nice_to_linear(nlist)), ilist)
+        self.assertEqual(tuple(coords.iter_linear_to_nice(ilist)), nlist)
+        self.assertEqual(tuple(coords.iter_pegasus_to_linear(plist)), ilist)
+        self.assertEqual(tuple(coords.iter_linear_to_pegasus(ilist)), plist)
+
+        # `.iter_*_to_*_pairs` methods
+
+        nedgelist = []
+        pedgelist = []
+        iedgelist = []
+        for u, v in P4.edges:
+            nedgelist.append((u, v))
+            pedgelist.append((P4.nodes[u]['pegasus_index'],
+                              P4.nodes[v]['pegasus_index']))
+            iedgelist.append((P4.nodes[u]['linear_index'],
+                              P4.nodes[v]['linear_index']))
+
+        self.assertEqual(list(coords.iter_nice_to_pegasus_pairs(nedgelist)),
+                         pedgelist)
+        self.assertEqual(list(coords.iter_pegasus_to_nice_pairs(pedgelist)),
+                         nedgelist)
+        self.assertEqual(list(coords.iter_nice_to_linear_pairs(nedgelist)),
+                         iedgelist)
+        self.assertEqual(list(coords.iter_linear_to_nice_pairs(iedgelist)),
+                         nedgelist)
+        self.assertEqual(list(coords.iter_pegasus_to_linear_pairs(pedgelist)),
+                         iedgelist)
+        self.assertEqual(list(coords.iter_linear_to_pegasus_pairs(iedgelist)),
+                         pedgelist)
+
     def test_coordinate_subgraphs(self):
-        from dwave_networkx.generators.pegasus import pegasus_coordinates
-        from random import sample
         G = dnx.pegasus_graph(4)
         H = dnx.pegasus_graph(4, coordinates=True)
         coords = pegasus_coordinates(4)
@@ -135,6 +192,20 @@ class TestPegasusGraph(unittest.TestCase):
 
         self.assertEqual(EG, sorted(map(sorted, coords.int_pairs(Hn.edges()))))
         self.assertEqual(EH, sorted(map(sorted, coords.tuple_pairs(Gn.edges()))))
+
+
+class TestPegasusVariableOrder(unittest.TestCase):
+    def test_variable_order(self):
+        n = 4
+        p = dnx.pegasus_graph(n, fabric_only=False)
+        o = dnx.generators.pegasus.pegasus_elimination_order(n)
+        tw = dnx.elimination_order_width(p, o)
+        self.assertEqual(tw, 12*n-4)
+
+        p = dnx.pegasus_graph(n, fabric_only=False, coordinates=True)
+        o = dnx.generators.pegasus.pegasus_elimination_order(n, coordinates=True)
+        tw = dnx.elimination_order_width(p, o)
+        self.assertEqual(tw, 12*n-4)
 
 
 class TestTupleFragmentation(unittest.TestCase):
