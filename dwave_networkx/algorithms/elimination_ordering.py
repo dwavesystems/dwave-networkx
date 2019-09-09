@@ -546,14 +546,15 @@ def treewidth_branch_and_bound(G, elimination_order=None, treewidth_upperbound=N
     best_found = ub, order
 
     # if our upper bound is the same as f, then we are done! Otherwise begin the
-    # algorithm
-    assert f <= ub, "Logic error"
+    # algorithm.
     if f < ub:
         # we need only deal with the adjacency structure of G. We will also
         # be manipulating it directly so let's go ahead and make a new one
         adj = {v: set(G[v]) for v in G}
 
         best_found = _branch_and_bound(adj, x, g, f, best_found)
+    elif f > ub and treewidth_upperbound is None:
+        raise RuntimeError("logic error")
 
     return best_found
 

@@ -259,6 +259,18 @@ class TestBranchAndBound(unittest.TestCase):
         tw, order = dnx.treewidth_branch_and_bound(graph, [0, 1, 2], 2)
         self.assertEqual(len(order), 3)  # all nodes should be in the order
 
+    def test_incorrect_lowerbound(self):
+        graph = nx.complete_graph(3)
+
+        tw, order = dnx.treewidth_branch_and_bound(graph, treewidth_upperbound=1)
+        self.assertEqual(order, [])  # no order produced
+
+    def test_singleton(self):
+        G = nx.Graph()
+        G.add_node('a')
+
+        tw, order = dnx.treewidth_branch_and_bound(G)
+
 
 class TestEliminationOrderWidth(unittest.TestCase):
     def test_trivial(self):
