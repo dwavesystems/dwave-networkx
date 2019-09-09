@@ -136,18 +136,6 @@ class TestPegasusGraph(unittest.TestCase):
         self.assertEqual(EG, sorted(map(sorted, coords.int_pairs(Hn.edges()))))
         self.assertEqual(EH, sorted(map(sorted, coords.tuple_pairs(Gn.edges()))))
 
-    def test_variable_order(self):
-        n = 4
-        p = dnx.pegasus_graph(n, fabric_only=False)
-        o = dnx.generators.pegasus.pegasus_elimination_order(n)
-        tw = dnx.elimination_order_width(p, o)
-        self.assertEqual(tw, 12*n-4)
-
-        p = dnx.pegasus_graph(n, fabric_only=False, coordinates=True)
-        o = dnx.generators.pegasus.pegasus_elimination_order(n, coordinates=True)
-        tw = dnx.elimination_order_width(p, o)
-        self.assertEqual(tw, 12*n-4)
-
 
 class TestTupleFragmentation(unittest.TestCase):
     def test_empty_list(self):

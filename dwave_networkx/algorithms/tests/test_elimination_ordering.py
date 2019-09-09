@@ -83,6 +83,15 @@ class HeuristicCases:
         self.assertGreaterEqual(tw, 3)
         self.check_order(graph, order)
 
+    def test_self_loop(self):
+        graph = nx.complete_graph(3)
+        graph.add_edge(0, 0)
+        graph.add_edge(2, 2)
+
+        tw, order = self.heuristic(graph)
+        self.assertGreaterEqual(tw, 2)
+        self.check_order(graph, order)
+
 
 class TestMinWidth(unittest.TestCase, HeuristicCases):
     def setUp(self):
@@ -124,6 +133,13 @@ class TestMinorMinWidth(unittest.TestCase):
 
         lb = dnx.minor_min_width(graph)
         self.assertEqual(lb, 3)
+
+    def test_self_loop(self):
+        graph = nx.complete_graph(3)
+        graph.add_edge(0, 0)
+        graph.add_edge(2, 2)
+
+        lb = dnx.minor_min_width(graph)
 
 
 class TestSimplicialTests(unittest.TestCase):
@@ -259,6 +275,27 @@ class TestBranchAndBound(unittest.TestCase):
         tw, order = dnx.treewidth_branch_and_bound(graph, [0, 1, 2], 2)
         self.assertEqual(len(order), 3)  # all nodes should be in the order
 
+    def test_incorrect_lowerbound(self):
+        graph = nx.complete_graph(3)
+
+        tw, order = dnx.treewidth_branch_and_bound(graph, treewidth_upperbound=1)
+        self.assertEqual(order, [])  # no order produced
+
+    def test_singleton(self):
+        G = nx.Graph()
+        G.add_node('a')
+
+        tw, order = dnx.treewidth_branch_and_bound(G)
+
+    def test_self_loop(self):
+        graph = nx.complete_graph(3)
+        graph.add_edge(0, 0)
+        graph.add_edge(2, 2)
+
+        tw, order = dnx.treewidth_branch_and_bound(graph)
+
+        self.assertEqual(tw, 2)
+
 
 class TestEliminationOrderWidth(unittest.TestCase):
     def test_trivial(self):
@@ -302,3 +339,32 @@ class TestEliminationOrderWidth(unittest.TestCase):
         order = range(7)
         with self.assertRaises(ValueError):
             dnx.elimination_order_width(G, order)
+
+
+class TestChimeraEliminationOrder(unittest.TestCase):
+    def test_variable_order(self):
+        n = 8
+        m = 10
+        p = dnx.chimera_graph(n, m)
+        o = dnx.chimera_elimination_order(n, m)
+        tw = dnx.elimination_order_width(p, o)
+        self.assertEqual(tw, 4*n)
+
+        p = dnx.chimera_graph(m, n)
+        o = dnx.chimera_elimination_order(m, n)
+        tw = dnx.elimination_order_width(p, o)
+        self.assertEqual(tw, 4*n)
+
+
+class TestPegasusEliminationOrder(unittest.TestCase):
+    def test_variable_order(self):
+        n = 4
+        p = dnx.pegasus_graph(n, fabric_only=False)
+        o = dnx.pegasus_elimination_order(n)
+        tw = dnx.elimination_order_width(p, o)
+        self.assertEqual(tw, 12*n-4)
+
+        p = dnx.pegasus_graph(n, fabric_only=False, coordinates=True)
+        o = dnx.pegasus_elimination_order(n, coordinates=True)
+        tw = dnx.elimination_order_width(p, o)
+        self.assertEqual(tw, 12*n-4)

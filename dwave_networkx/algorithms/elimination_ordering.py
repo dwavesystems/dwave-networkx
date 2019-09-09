@@ -12,16 +12,25 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 #
-# ================================================================================================
+# =============================================================================
 import itertools
 from random import random, sample
 
 import networkx as nx
 
-__all__ = ['min_fill_heuristic', 'min_width_heuristic', 'max_cardinality_heuristic',
-           'is_simplicial', 'is_almost_simplicial',
-           'treewidth_branch_and_bound', 'minor_min_width',
-           'elimination_order_width']
+from dwave_networkx.generators.pegasus import pegasus_coordinates
+
+__all__ = ['is_almost_simplicial',
+           'is_simplicial',
+           'chimera_elimination_order',
+           'pegasus_elimination_order',
+           'max_cardinality_heuristic',
+           'min_fill_heuristic',
+           'min_width_heuristic',
+           'treewidth_branch_and_bound',
+           'minor_min_width',
+           'elimination_order_width',
+           ]
 
 
 def is_simplicial(G, n):
@@ -45,8 +54,6 @@ def is_simplicial(G, n):
     single Chimera unit cell, which is bipartite, and K_5, the :math:`K_5`
     complete graph.
 
-    >>> import dwave_networkx as dnx
-    >>> import networkx as nx
     >>> G = dnx.chimera_graph(1, 1, 4)
     >>> K_5 = nx.complete_graph(5)
     >>> dnx.is_simplicial(G, 0)
@@ -78,8 +85,6 @@ def is_almost_simplicial(G, n):
     This example checks whether node 0 is simplicial or almost simplicial for
     a :math:`K_5` complete graph with one edge removed.
 
-    >>> import dwave_networkx as dnx
-    >>> import networkx as nx
     >>> K_5 = nx.complete_graph(5)
     >>> K_5.remove_edge(1,3)
     >>> dnx.is_simplicial(K_5, 0)
@@ -112,8 +117,6 @@ def minor_min_width(G):
     This example computes a lower bound for the treewidth of the :math:`K_7`
     complete graph.
 
-    >>> import dwave_networkx as dnx
-    >>> import networkx as nx
     >>> K_7 = nx.complete_graph(7)
     >>> dnx.minor_min_width(K_7)
     6
@@ -125,7 +128,7 @@ def minor_min_width(G):
     """
     # we need only deal with the adjacency structure of G. We will also
     # be manipulating it directly so let's go ahead and make a new one
-    adj = {v: set(G[v]) for v in G}
+    adj = {v: set(u for u in G[v] if u != v) for v in G}
 
     lb = 0  # lower bound on treewidth
     while len(adj) > 1:
@@ -185,8 +188,6 @@ def min_fill_heuristic(G):
     This example computes an upper bound for the treewidth of the :math:`K_4`
     complete graph.
 
-    >>> import dwave_networkx as dnx
-    >>> import networkx as nx
     >>> K_4 = nx.complete_graph(4)
     >>> tw, order = dnx.min_fill_heuristic(K_4)
 
@@ -197,7 +198,7 @@ def min_fill_heuristic(G):
     """
     # we need only deal with the adjacency structure of G. We will also
     # be manipulating it directly so let's go ahead and make a new one
-    adj = {v: set(G[v]) for v in G}
+    adj = {v: set(u for u in G[v] if u != v) for v in G}
 
     num_nodes = len(adj)
 
@@ -257,8 +258,6 @@ def min_width_heuristic(G):
     This example computes an upper bound for the treewidth of the :math:`K_4`
     complete graph.
 
-    >>> import dwave_networkx as dnx
-    >>> import networkx as nx
     >>> K_4 = nx.complete_graph(4)
     >>> tw, order = dnx.min_width_heuristic(K_4)
 
@@ -269,7 +268,7 @@ def min_width_heuristic(G):
     """
     # we need only deal with the adjacency structure of G. We will also
     # be manipulating it directly so let's go ahead and make a new one
-    adj = {v: set(G[v]) for v in G}
+    adj = {v: set(u for u in G[v] if u != v) for v in G}
 
     num_nodes = len(adj)
 
@@ -306,11 +305,6 @@ def max_cardinality_heuristic(G):
     G : NetworkX graph
         The graph on which to compute an upper bound for the treewidth.
 
-    inplace : bool
-        If True, G will be made an empty graph in the process of
-        running the function, otherwise the function uses a copy
-        of G.
-
     Returns
     -------
     treewidth_upper_bound : int
@@ -324,11 +318,8 @@ def max_cardinality_heuristic(G):
     This example computes an upper bound for the treewidth of the :math:`K_4`
     complete graph.
 
-    >>> import dwave_networkx as dnx
-    >>> import networkx as nx
     >>> K_4 = nx.complete_graph(4)
-    >>> dnx.max_cardinality_heuristic(K_4)
-    (3, [3, 1, 0, 2])
+    >>> tw, order = dnx.max_cardinality_heuristic(K_4)
 
     References
     ----------
@@ -337,7 +328,7 @@ def max_cardinality_heuristic(G):
     """
     # we need only deal with the adjacency structure of G. We will also
     # be manipulating it directly so let's go ahead and make a new one
-    adj = {v: set(G[v]) for v in G}
+    adj = {v: set(u for u in G[v] if u != v) for v in G}
 
     num_nodes = len(adj)
 
@@ -428,19 +419,18 @@ def elimination_order_width(G, order):
     complete graph induced by an elimination order found through the min-width
     heuristic.
 
-    >>> import dwave_networkx as dnx
-    >>> import networkx as nx
     >>> K_4 = nx.complete_graph(4)
-    >>> dnx.min_width_heuristic(K_4)
-    (3, [1, 2, 0, 3])
-    >>> dnx.elimination_order_width(K_4, [1, 2, 0, 3])
+    >>> tw, order = dnx.min_width_heuristic(K_4)
+    >>> print(tw)
+    3
+    >>> dnx.elimination_order_width(K_4, order)
     3
 
 
     """
     # we need only deal with the adjacency structure of G. We will also
     # be manipulating it directly so let's go ahead and make a new one
-    adj = {v: set(G[v]) for v in G}
+    adj = {v: set(u for u in G[v] if u != v) for v in G}
 
     treewidth = 0
 
@@ -498,8 +488,6 @@ def treewidth_branch_and_bound(G, elimination_order=None, treewidth_upperbound=N
     complete graph using an optionally provided elimination order (a sequential
     ordering of the nodes, arbitrally chosen).
 
-    >>> import dwave_networkx as dnx
-    >>> import networkx as nx
     >>> K_7 = nx.complete_graph(7)
     >>> dnx.treewidth_branch_and_bound(K_7, [0, 1, 2, 3, 4, 5, 6])
     (6, [0, 1, 2, 3, 4, 5, 6])
@@ -542,14 +530,15 @@ def treewidth_branch_and_bound(G, elimination_order=None, treewidth_upperbound=N
     best_found = ub, order
 
     # if our upper bound is the same as f, then we are done! Otherwise begin the
-    # algorithm
-    assert f <= ub, "Logic error"
+    # algorithm.
     if f < ub:
         # we need only deal with the adjacency structure of G. We will also
         # be manipulating it directly so let's go ahead and make a new one
-        adj = {v: set(G[v]) for v in G}
+        adj = {v: set(u for u in G[v] if u != v) for v in G}
 
         best_found = _branch_and_bound(adj, x, g, f, best_found)
+    elif f > ub and treewidth_upperbound is None:
+        raise RuntimeError("logic error")
 
     return best_found
 
@@ -816,3 +805,116 @@ def _theorem6p4():
         pruning_set4.append(edges_a)  # (s,E_a) with (s,a) explored
 
     return _prune4, _explored4
+
+
+def chimera_elimination_order(m, n=None, t=None):
+    """Provides a variable elimination order for a Chimera graph.
+
+    A graph defined by chimera_graph(m,n,t) has treewidth max(m,n)*t.
+    This function outputs a variable elimination order inducing a tree
+    decomposition of that width.
+
+    Parameters
+    ----------
+    m : int
+        Number of rows in the Chimera lattice.
+    n : int (optional, default m)
+        Number of columns in the Chimera lattice.
+    t : int (optional, default 4)
+        Size of the shore within each Chimera tile.
+
+    Returns
+    -------
+    order : list
+        An elimination order that induces the treewidth of chimera_graph(m,n,t).
+
+    Examples
+    --------
+
+    >>> G = dnx.chimera_elimination_order(1, 1, 4)  # a single Chimera tile
+
+    """
+    if n is None:
+        n = m
+
+    if t is None:
+        t = 4
+
+    index_flip = m > n
+    if index_flip:
+        m, n = n, m
+
+    def chimeraI(m0, n0, k0, l0):
+        if index_flip:
+            return m*2*t*n0 + 2*t*m0 + t*(1-k0) + l0
+        else:
+            return n*2*t*m0 + 2*t*n0 + t*k0 + l0
+
+    order = []
+
+    for n_i in range(n):
+        for t_i in range(t):
+            for m_i in range(m):
+                order.append(chimeraI(m_i, n_i, 0, t_i))
+
+    for n_i in range(n):
+        for m_i in range(m):
+            for t_i in range(t):
+                order.append(chimeraI(m_i, n_i, 1, t_i))
+
+    return order
+
+
+def pegasus_elimination_order(n, coordinates=False):
+    """Provides a variable elimination order for the Pegasus graph.
+
+    The treewidth of a Pegasus graph `P(n)` is lower-bounded by `12n-11` and
+    upper bounded by `12-4` [#bbrr]_ .
+
+    Simple pegasus variable elimination order rules:
+       - eliminate vertical qubits, one column at a time
+       - eliminate horizontal qubits in each column once their adjacent vertical
+       qubits have been eliminated
+
+    Args
+    ----
+    n : int
+        The size parameter for the Pegasus lattice.
+
+    coordinates : bool, optional (default False)
+        If True, the elimination order is given in terms of 4-term Pegasus
+        coordinates, otherwise given in linear indices.
+
+    Returns
+    -------
+    order : list
+        An elimination order that provides an upper bound on the treewidth.
+
+    .. [#bbrr] Boothby, K., P. Bunky, J. Raymond, A. Roy. Next-Generation
+        Topology of D-Wave Quantum Processors. Technical Report, Februrary 2019.
+        https://www.dwavesys.com/resources/publications?type=white#publication-987
+
+    """
+    m = n
+    l = 12
+
+    # ordering for horizontal qubits in each tile, from east to west:
+    h_order = [4, 5, 6, 7, 0, 1, 2, 3, 8, 9, 10, 11]
+    order = []
+    for n_i in range(n):  # for each tile offset
+        # eliminate vertical qubits:
+        for l_i in range(0, l, 2):
+            for l_v in range(l_i, l_i + 2):
+                for m_i in range(m - 1):  # for each column
+                    order.append((0, n_i, l_v, m_i))
+            # eliminate horizontal qubits:
+            if n_i > 0 and not(l_i % 4):
+                # a new set of horizontal qubits have had all their neighbouring vertical qubits eliminated.
+                for m_i in range(m):
+                    for l_h in range(h_order[l_i], h_order[l_i] + 4):
+                        order.append((1, m_i, l_h, n_i - 1))
+
+    if coordinates:
+        return order
+    else:
+        return pegasus_coordinates(n).ints(order)

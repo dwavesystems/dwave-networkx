@@ -19,11 +19,13 @@ for the subset of vertices :math:`i..n`.
    :toctree: generated/
 
     treewidth_branch_and_bound
+    max_cardinality_heuristic
     minor_min_width
     min_width_heuristic
     min_fill_heuristic
     is_simplicial
     is_almost_simplicial
+    elimination_order_width
 
 References
 ===========
