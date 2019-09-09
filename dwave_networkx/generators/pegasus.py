@@ -407,7 +407,7 @@ def get_tuple_defragmentation_fn(pegasus_graph):
 # that for now it makes sense to do them by hand.
 class pegasus_coordinates(object):
     def __init__(self, m):
-        """Node label converters for Pegasus graphs.
+        """Provides coordinate converters for the Pegasus indexing schemes.
 
         Parameters
         ----------
