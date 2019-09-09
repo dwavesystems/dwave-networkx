@@ -134,7 +134,7 @@ def minor_min_width(G):
     """
     # we need only deal with the adjacency structure of G. We will also
     # be manipulating it directly so let's go ahead and make a new one
-    adj = {v: set(G[v]) for v in G}
+    adj = {v: set(u for u in G[v] if u != v) for v in G}
 
     lb = 0  # lower bound on treewidth
     while len(adj) > 1:
@@ -206,7 +206,7 @@ def min_fill_heuristic(G):
     """
     # we need only deal with the adjacency structure of G. We will also
     # be manipulating it directly so let's go ahead and make a new one
-    adj = {v: set(G[v]) for v in G}
+    adj = {v: set(u for u in G[v] if u != v) for v in G}
 
     num_nodes = len(adj)
 
@@ -278,7 +278,7 @@ def min_width_heuristic(G):
     """
     # we need only deal with the adjacency structure of G. We will also
     # be manipulating it directly so let's go ahead and make a new one
-    adj = {v: set(G[v]) for v in G}
+    adj = {v: set(u for u in G[v] if u != v) for v in G}
 
     num_nodes = len(adj)
 
@@ -341,7 +341,7 @@ def max_cardinality_heuristic(G):
     """
     # we need only deal with the adjacency structure of G. We will also
     # be manipulating it directly so let's go ahead and make a new one
-    adj = {v: set(G[v]) for v in G}
+    adj = {v: set(u for u in G[v] if u != v) for v in G}
 
     num_nodes = len(adj)
 
@@ -444,7 +444,7 @@ def elimination_order_width(G, order):
     """
     # we need only deal with the adjacency structure of G. We will also
     # be manipulating it directly so let's go ahead and make a new one
-    adj = {v: set(G[v]) for v in G}
+    adj = {v: set(u for u in G[v] if u != v) for v in G}
 
     treewidth = 0
 
@@ -550,7 +550,7 @@ def treewidth_branch_and_bound(G, elimination_order=None, treewidth_upperbound=N
     if f < ub:
         # we need only deal with the adjacency structure of G. We will also
         # be manipulating it directly so let's go ahead and make a new one
-        adj = {v: set(G[v]) for v in G}
+        adj = {v: set(u for u in G[v] if u != v) for v in G}
 
         best_found = _branch_and_bound(adj, x, g, f, best_found)
     elif f > ub and treewidth_upperbound is None:

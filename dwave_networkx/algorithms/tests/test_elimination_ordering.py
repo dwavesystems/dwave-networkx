@@ -83,6 +83,15 @@ class HeuristicCases:
         self.assertGreaterEqual(tw, 3)
         self.check_order(graph, order)
 
+    def test_self_loop(self):
+        graph = nx.complete_graph(3)
+        graph.add_edge(0, 0)
+        graph.add_edge(2, 2)
+
+        tw, order = self.heuristic(graph)
+        self.assertGreaterEqual(tw, 2)
+        self.check_order(graph, order)
+
 
 class TestMinWidth(unittest.TestCase, HeuristicCases):
     def setUp(self):
@@ -124,6 +133,13 @@ class TestMinorMinWidth(unittest.TestCase):
 
         lb = dnx.minor_min_width(graph)
         self.assertEqual(lb, 3)
+
+    def test_self_loop(self):
+        graph = nx.complete_graph(3)
+        graph.add_edge(0, 0)
+        graph.add_edge(2, 2)
+
+        lb = dnx.minor_min_width(graph)
 
 
 class TestSimplicialTests(unittest.TestCase):
@@ -270,6 +286,15 @@ class TestBranchAndBound(unittest.TestCase):
         G.add_node('a')
 
         tw, order = dnx.treewidth_branch_and_bound(G)
+
+    def test_self_loop(self):
+        graph = nx.complete_graph(3)
+        graph.add_edge(0, 0)
+        graph.add_edge(2, 2)
+
+        tw, order = dnx.treewidth_branch_and_bound(graph)
+
+        self.assertEqual(tw, 2)
 
 
 class TestEliminationOrderWidth(unittest.TestCase):
