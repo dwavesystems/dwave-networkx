@@ -12,16 +12,25 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 #
-# ================================================================================================
+# =============================================================================
 import itertools
 from random import random, sample
 
 import networkx as nx
 
-__all__ = ['min_fill_heuristic', 'min_width_heuristic', 'max_cardinality_heuristic',
-           'is_simplicial', 'is_almost_simplicial',
-           'treewidth_branch_and_bound', 'minor_min_width',
-           'elimination_order_width']
+from dwave_networkx.generators.pegasus import pegasus_coordinates
+
+__all__ = ['is_almost_simplicial',
+           'is_simplicial',
+           'chimera_elimination_order',
+           'pegasus_elimination_order',
+           'max_cardinality_heuristic',
+           'min_fill_heuristic',
+           'min_width_heuristic',
+           'treewidth_branch_and_bound',
+           'minor_min_width',
+           'elimination_order_width',
+           ]
 
 
 def is_simplicial(G, n):
@@ -816,3 +825,116 @@ def _theorem6p4():
         pruning_set4.append(edges_a)  # (s,E_a) with (s,a) explored
 
     return _prune4, _explored4
+
+
+def chimera_elimination_order(m, n=None, t=None):
+    """Provides a variable elimination order for a Chimera graph.
+
+    A graph defined by chimera_graph(m,n,t) has treewidth max(m,n)*t.
+    This function outputs a variable elimination order inducing a tree
+    decomposition of that width.
+
+    Parameters
+    ----------
+    m : int
+        Number of rows in the Chimera lattice.
+    n : int (optional, default m)
+        Number of columns in the Chimera lattice.
+    t : int (optional, default 4)
+        Size of the shore within each Chimera tile.
+
+    Returns
+    -------
+    order : list
+        An elimination order that induces the treewidth of chimera_graph(m,n,t).
+
+    Examples
+    --------
+
+    >>> G = dnx.chimera_elimination_order(1, 1, 4)  # a single Chimera tile
+
+    """
+    if n is None:
+        n = m
+
+    if t is None:
+        t = 4
+
+    index_flip = m > n
+    if index_flip:
+        m, n = n, m
+
+    def chimeraI(m0, n0, k0, l0):
+        if index_flip:
+            return m*2*t*n0 + 2*t*m0 + t*(1-k0) + l0
+        else:
+            return n*2*t*m0 + 2*t*n0 + t*k0 + l0
+
+    order = []
+
+    for n_i in range(n):
+        for t_i in range(t):
+            for m_i in range(m):
+                order.append(chimeraI(m_i, n_i, 0, t_i))
+
+    for n_i in range(n):
+        for m_i in range(m):
+            for t_i in range(t):
+                order.append(chimeraI(m_i, n_i, 1, t_i))
+
+    return order
+
+
+def pegasus_elimination_order(n, coordinates=False):
+    """Provides a variable elimination order for the Pegasus graph.
+
+    The treewidth of a Pegasus graph `P(n)` is lower-bounded by `12n-11` and
+    upper bounded by `12-4` [#bbrr]_ .
+
+    Simple pegasus variable elimination order rules:
+       - eliminate vertical qubits, one column at a time
+       - eliminate horizontal qubits in each column once their adjacent vertical
+       qubits have been eliminated
+
+    Args
+    ----
+    n : int
+        The size parameter for the Pegasus lattice.
+
+    coordinates : bool, optional (default False)
+        If True, the elimination order is given in terms of 4-term Pegasus
+        coordinates, otherwise given in linear indices.
+
+    Returns
+    -------
+    order : list
+        An elimination order that provides an upper bound on the treewidth.
+
+    .. [#bbrr] Boothby, K., P. Bunky, J. Raymond, A. Roy. Next-Generation
+        Topology of D-Wave Quantum Processors. Technical Report, Februrary 2019.
+        https://www.dwavesys.com/resources/publications?type=white#publication-987
+
+    """
+    m = n
+    l = 12
+
+    # ordering for horizontal qubits in each tile, from east to west:
+    h_order = [4, 5, 6, 7, 0, 1, 2, 3, 8, 9, 10, 11]
+    order = []
+    for n_i in range(n):  # for each tile offset
+        # eliminate vertical qubits:
+        for l_i in range(0, l, 2):
+            for l_v in range(l_i, l_i + 2):
+                for m_i in range(m - 1):  # for each column
+                    order.append((0, n_i, l_v, m_i))
+            # eliminate horizontal qubits:
+            if n_i > 0 and not(l_i % 4):
+                # a new set of horizontal qubits have had all their neighbouring vertical qubits eliminated.
+                for m_i in range(m):
+                    for l_h in range(h_order[l_i], h_order[l_i] + 4):
+                        order.append((1, m_i, l_h, n_i - 1))
+
+    if coordinates:
+        return order
+    else:
+        return pegasus_coordinates(n).ints(order)

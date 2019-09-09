@@ -302,3 +302,32 @@ class TestEliminationOrderWidth(unittest.TestCase):
         order = range(7)
         with self.assertRaises(ValueError):
             dnx.elimination_order_width(G, order)
+
+
+class TestChimeraEliminationOrder(unittest.TestCase):
+    def test_variable_order(self):
+        n = 8
+        m = 10
+        p = dnx.chimera_graph(n, m)
+        o = dnx.chimera_elimination_order(n, m)
+        tw = dnx.elimination_order_width(p, o)
+        self.assertEqual(tw, 4*n)
+
+        p = dnx.chimera_graph(m, n)
+        o = dnx.chimera_elimination_order(m, n)
+        tw = dnx.elimination_order_width(p, o)
+        self.assertEqual(tw, 4*n)
+
+
+class TestPegasusEliminationOrder(unittest.TestCase):
+    def test_variable_order(self):
+        n = 4
+        p = dnx.pegasus_graph(n, fabric_only=False)
+        o = dnx.pegasus_elimination_order(n)
+        tw = dnx.elimination_order_width(p, o)
+        self.assertEqual(tw, 12*n-4)
+
+        p = dnx.pegasus_graph(n, fabric_only=False, coordinates=True)
+        o = dnx.pegasus_elimination_order(n, coordinates=True)
+        tw = dnx.elimination_order_width(p, o)
+        self.assertEqual(tw, 12*n-4)
