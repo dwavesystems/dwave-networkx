@@ -54,8 +54,6 @@ def is_simplicial(G, n):
     single Chimera unit cell, which is bipartite, and K_5, the :math:`K_5`
     complete graph.
 
-    >>> import dwave_networkx as dnx
-    >>> import networkx as nx
     >>> G = dnx.chimera_graph(1, 1, 4)
     >>> K_5 = nx.complete_graph(5)
     >>> dnx.is_simplicial(G, 0)
@@ -87,8 +85,6 @@ def is_almost_simplicial(G, n):
     This example checks whether node 0 is simplicial or almost simplicial for
     a :math:`K_5` complete graph with one edge removed.
 
-    >>> import dwave_networkx as dnx
-    >>> import networkx as nx
     >>> K_5 = nx.complete_graph(5)
     >>> K_5.remove_edge(1,3)
     >>> dnx.is_simplicial(K_5, 0)
@@ -121,8 +117,6 @@ def minor_min_width(G):
     This example computes a lower bound for the treewidth of the :math:`K_7`
     complete graph.
 
-    >>> import dwave_networkx as dnx
-    >>> import networkx as nx
     >>> K_7 = nx.complete_graph(7)
     >>> dnx.minor_min_width(K_7)
     6
@@ -194,8 +188,6 @@ def min_fill_heuristic(G):
     This example computes an upper bound for the treewidth of the :math:`K_4`
     complete graph.
 
-    >>> import dwave_networkx as dnx
-    >>> import networkx as nx
     >>> K_4 = nx.complete_graph(4)
     >>> tw, order = dnx.min_fill_heuristic(K_4)
 
@@ -266,8 +258,6 @@ def min_width_heuristic(G):
     This example computes an upper bound for the treewidth of the :math:`K_4`
     complete graph.
 
-    >>> import dwave_networkx as dnx
-    >>> import networkx as nx
     >>> K_4 = nx.complete_graph(4)
     >>> tw, order = dnx.min_width_heuristic(K_4)
 
@@ -328,11 +318,8 @@ def max_cardinality_heuristic(G):
     This example computes an upper bound for the treewidth of the :math:`K_4`
     complete graph.
 
-    >>> import dwave_networkx as dnx
-    >>> import networkx as nx
     >>> K_4 = nx.complete_graph(4)
-    >>> dnx.max_cardinality_heuristic(K_4)
-    (3, [3, 1, 0, 2])
+    >>> tw, order = dnx.max_cardinality_heuristic(K_4)
 
     References
     ----------
@@ -432,12 +419,11 @@ def elimination_order_width(G, order):
     complete graph induced by an elimination order found through the min-width
     heuristic.
 
-    >>> import dwave_networkx as dnx
-    >>> import networkx as nx
     >>> K_4 = nx.complete_graph(4)
-    >>> dnx.min_width_heuristic(K_4)
-    (3, [1, 2, 0, 3])
-    >>> dnx.elimination_order_width(K_4, [1, 2, 0, 3])
+    >>> tw, order = dnx.min_width_heuristic(K_4)
+    >>> print(tw)
+    3
+    >>> dnx.elimination_order_width(K_4, order)
     3
 
 
@@ -502,8 +488,6 @@ def treewidth_branch_and_bound(G, elimination_order=None, treewidth_upperbound=N
     complete graph using an optionally provided elimination order (a sequential
     ordering of the nodes, arbitrally chosen).
 
-    >>> import dwave_networkx as dnx
-    >>> import networkx as nx
     >>> K_7 = nx.complete_graph(7)
     >>> dnx.treewidth_branch_and_bound(K_7, [0, 1, 2, 3, 4, 5, 6])
     (6, [0, 1, 2, 3, 4, 5, 6])
