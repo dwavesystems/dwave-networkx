@@ -17,13 +17,17 @@
 Generators for some graphs derived from the D-Wave System.
 
 """
+import re
+
 import networkx as nx
 
 from dwave_networkx import _PY2
 from dwave_networkx.exceptions import DWaveNetworkXException
 import warnings
 
-__all__ = ['pegasus_graph']
+__all__ = ['pegasus_graph',
+           'pegasus_coordinates',
+           ]
 
 # compatibility for python 2/3
 if _PY2:
@@ -398,95 +402,101 @@ def get_tuple_defragmentation_fn(pegasus_graph):
     return defragment_tuple
 
 
-# i acknowledge that this code duplication is silly but at least it's fast
-class pegasus_coordinates:
+# Developer note: we could implement a function that creates the iter_*_to_* and
+# iter_*_to_*_pairs methods just-in-time, but there are a small enough number
+# that for now it makes sense to do them by hand.
+class pegasus_coordinates(object):
     def __init__(self, m):
-        """
-        Provides coordinate converters for the pegasus indexing scheme.
+        """Provides coordinate converters for the Pegasus indexing schemes.
 
         Parameters
         ----------
         m : int
             The size parameter for the Pegasus lattice.
+
+        See also
+        --------
+        :func:`.pegasus_graph` for a description of the various coordinate
+        conventions.
+
         """
 
         self.args = m, m - 1
 
-    def int(self, q):
-        """
-        Converts the chimera_index `q` into an linear_index
-
-        Parameters
-        ----------
-        q : tuple
-            The chimera_index node label
-
-        Returns
-        -------
-        r : int
-            The linear_index node label corresponding to q
-        """
-
+    def pegasus_to_linear(self, q):
+        """Convert a 4-term Pegasus coordinate into a linear index."""
         u, w, k, z = q
         m, m1 = self.args
         return ((m * u + w) * 12 + k) * m1 + z
 
-    def tuple(self, r):
-        """
-        Converts the linear_index `q` into an pegasus_index
-
-        Parameters
-        ----------
-        r : int
-            The linear_index node label
-
-        Returns
-        -------
-        q : tuple
-            The pegasus_index node label corresponding to r
-        """
-
+    def linear_to_pegasus(self, r):
+        """Convert a linear index into a 4-term Pegasus coordinate."""
         m, m1 = self.args
         r, z = divmod(r, m1)
         r, k = divmod(r, 12)
         u, w = divmod(r, m)
         return u, w, k, z
 
-    def ints(self, qlist):
+    @staticmethod
+    def nice_to_pegasus(n):
+        """Convert a 5-term nice coordinate into a 4-term Pegasus coordinate.
+
+        Note that this method does not depend on the size of the Pegasus
+        lattice.
         """
-        Converts a sequence of pegasus_index node labels into
-        linear_index node labels, preserving order
+        t, y, x, u, k = n
 
-        Parameters
-        ----------
-        qlist : sequence of ints
-            The pegasus_index node labels
+        if t == 0:
+            return (u, y+1 if u else x, 4+k if u else 4+k, x if u else y)
+        elif t == 1:
+            return (u, y+1 if u else x, k if u else 8+k, x if u else y)
+        elif t == 2:
+            return (u, y if u else x + 1, 8+k if u else k, x if u else y)
 
-        Returns
-        -------
-        rlist : iterable of tuples
-            The linear_lindex node lables corresponding to qlist
+        # can happen when t is a float for instance
+        raise ValueError("invalid Nice coordinate: {}".format(n))
+
+    @staticmethod
+    def pegasus_to_nice(p):
+        """Convert a 4-term Pegasus coordinate to a 5-term nice coordinate.
+
+        Note that this method does not depend on the size of the Pegasus
+        lattice.
         """
+        u, w, k, z = p
 
+        t = (2-u-(2*u-1)*(k//4)) % 3
+
+        if t == 0:
+            return (0, w-1 if u else z, z if u else w, u, k-4 if u else k-4)
+        elif t == 1:
+            return (1, w-1 if u else z, z if u else w, u, k if u else k-8)
+        elif t == 2:
+            return (2, w if u else z, z if u else w-1, u, k-8 if u else k)
+
+        # can happen when given floats for instance
+        raise ValueError('invalid Pegasus coordinates')
+
+    def linear_to_nice(self, r):
+        """Convert a linear index into a 5-term nice coordinate."""
+        return self.pegasus_to_nice(self.linear_to_pegasus(r))
+
+    def nice_to_linear(self, n):
+        """Convert a 5-term nice coordinate into a linear index."""
+        return self.pegasus_to_linear(self.nice_to_pegasus(n))
+
+    def iter_pegasus_to_linear(self, qlist):
+        """Return an iterator converting a sequence of 4-term Pegasus
+        coordinates to linear indices.
+        """
         m, m1 = self.args
-        return (((m * u + w) * 12 + k) * m1 + z for (u, w, k, z) in qlist)
+        for (u, w, k, z) in qlist:
+            yield ((m * u + w) * 12 + k) * m1 + z
 
-    def tuples(self, rlist):
+    def iter_linear_to_pegasus(self, rlist):
+        """Return an iterator converting a sequence of linear indices to 4-term
+        Pegasus coordinates.
         """
-        Converts a sequence of linear_index node labels into
-        pegasus_index node labels, preserving order
-
-        Parameters
-        ----------
-        rlist : sequence of tuples
-            The linear_index node labels
-
-        Returns
-        -------
-        qlist : iterable of ints
-            The pegasus_index node lables corresponding to rlist
-        """
-
         m, m1 = self.args
         for r in rlist:
             r, z = divmod(r, m1)
@@ -494,63 +504,146 @@ class pegasus_coordinates:
             u, w = divmod(r, m)
             yield u, w, k, z
 
-    def __pair_repack(self, f, plist):
+    @classmethod
+    def iter_nice_to_pegasus(cls, nlist):
+        """Return an iterator converting a sequence of 5-term nice coordinates
+        to 4-term Pegasus coordinates.
+
+        Note that this method does not depend on the size of the Pegasus
+        lattice.
         """
-        Flattens a sequence of pairs to pass through `f`, and then
+        for n in nlist:
+            yield cls.nice_to_pegasus(n)
+
+    @classmethod
+    def iter_pegasus_to_nice(cls, plist):
+        """Return an iterator converting a sequence of 4-term Pegasus
+        coordinates to 5-term nice coordinates.
+
+        Note that this method does not depend on the size of the Pegasus
+        lattice.
+        """
+        for p in plist:
+            yield cls.pegasus_to_nice(p)
+
+    def iter_linear_to_nice(self, rlist):
+        """Return an iterator converting a sequence of linear indices to 5-term
+        nice coordinates.
+        """
+        for r in rlist:
+            yield self.linear_to_nice(r)
+
+    def iter_nice_to_linear(self, nlist):
+        """Return an iterator converting a sequence of 5-term nice coordinates
+        to linear indices.
+        """
+        for n in nlist:
+            yield self.nice_to_linear(n)
+
+    @staticmethod
+    def _pair_repack(f, plist):
+        """Flattens a sequence of pairs to pass through `f`, and then
         re-pairs the result.
-
-        Parameters
-        ----------
-        f : callable
-            A function that accepts a sequence and returns a sequence
-        plist:
-            A sequence of pairs
-
-        Returns
-        -------
-        qlist : sequence
-            Equivalent to (tuple(f(p)) for p in plist)
         """
         ulist = f(u for p in plist for u in p)
         for u in ulist:
             v = next(ulist)
             yield u, v
 
+    def iter_pegasus_to_linear_pairs(self, plist):
+        """Return an iterator converting a sequence of pairs of 4-term Pegasus
+        coordinates to pairs of linear indices.
+        """
+        return self._pair_repack(self.iter_pegasus_to_linear, plist)
+
+    def iter_linear_to_pegasus_pairs(self, plist):
+        """Return an iterator converting a sequence of pairs of linear indices
+        to pairs of 4-term Pegasus coordinates.
+        """
+        return self._pair_repack(self.iter_linear_to_pegasus, plist)
+
+    @classmethod
+    def iter_nice_to_pegasus_pairs(cls, nlist):
+        """Return an iterator converting a sequence of pairs of 5-term nice
+        coordinates to pairs of 4-term Pegasus coordinates.
+
+        Note that this method does not depend on the size of the Pegasus
+        lattice.
+        """
+        return cls._pair_repack(cls.iter_nice_to_pegasus, nlist)
+
+    @classmethod
+    def iter_pegasus_to_nice_pairs(cls, plist):
+        """Return an iterator converting a sequence of pairs of 4-term Pegasus
+        coordinates to pairs of 5-term nice coordinates.
+
+        Note that this method does not depend on the size of the Pegasus
+        lattice.
+        """
+        return cls._pair_repack(cls.iter_pegasus_to_nice, plist)
+
+    def iter_linear_to_nice_pairs(self, rlist):
+        """Return an iterator converting a sequence of pairs of linear indices
+        to pairs of 5-term nice coordinates.
+        """
+        return self._pair_repack(self.iter_linear_to_nice, rlist)
+
+    def iter_nice_to_linear_pairs(self, nlist):
+        """Return an iterator converting a sequence of pairs of 5-term nice
+        coordinates to pairs of linear indices.
+        """
+        return self._pair_repack(self.iter_nice_to_linear, nlist)
+
+    def int(self, q):
+        """Deprecated alias of `pegasus_to_linear`."""
+        msg = ('pegasus_coordinates.int is deprecated and will be removed in '
+               'dwave-networkx 0.9.0, please use '
+               'pegasus_coordinates.pegasus_to_linear instead')
+        warnings.warn(msg, DeprecationWarning)
+        return self.pegasus_to_linear(q)
+
+    def tuple(self, r):
+        """Deprecated alias for `linear_to_pegasus`."""
+        msg = ('pegasus_coordinates.tuple is deprecated and will be removed in '
+               'dwave-networkx 0.9.0, please use '
+               'pegasus_coordinates.linear_to_pegasus instead')
+        warnings.warn(msg, DeprecationWarning)
+        return self.linear_to_pegasus(r)
+
+    def ints(self, qlist):
+        """Deprecated alias for `iter_pegasus_to_linear`."""
+        msg = ('pegasus_coordinates.ints is deprecated and will be removed in '
+               'dwave-networkx 0.9.0, please use '
+               'pegasus_coordinates.iter_pegasus_to_linear instead')
+        warnings.warn(msg, DeprecationWarning)
+        return self.iter_pegasus_to_linear(qlist)
+
+    def tuples(self, rlist):
+        """Deprecated alias for `iter_linear_to_pegasus`."""
+        msg = ('pegasus_coordinates.tuples is deprecated and will be removed in '
+               'dwave-networkx 0.9.0, please use '
+               'pegasus_coordinates.iter_linear_to_pegasus instead')
+        warnings.warn(msg, DeprecationWarning)
+        return self.iter_linear_to_pegasus(rlist)
+
     def int_pairs(self, plist):
-        """
-        Translates a sequence of pairs of chimera_index tuples
-        into a a sequence of pairs of linear_index ints.
-
-        Parameters
-        ----------
-        plist:
-            A sequence of pairs of tuples
-
-        Returns
-        -------
-        qlist : sequence
-            Equivalent to (tuple(self.ints(p)) for p in plist)
-        """
-        return self.__pair_repack(self.ints, plist)
+        """Deprecated alias for `iter_pegasus_to_linear_pairs`."""
+        msg = ('pegasus_coordinates.int_pairs is deprecated and will be removed'
+               ' in dwave-networkx 0.9.0, please use '
+               'pegasus_coordinates.iter_pegasus_to_linear_pairs instead')
+        warnings.warn(msg, DeprecationWarning)
+        return self.iter_pegasus_to_linear_pairs(plist)
 
     def tuple_pairs(self, plist):
-        """
-        Translates a sequence of pairs of chimera_index tuples
-        into a a sequence of pairs of linear_index ints.
-
-        Parameters
-        ----------
-        plist:
-            A sequence of pairs of tuples
-
-        Returns
-        -------
-        qlist : sequence
-            Equivalent to (tuple(self.tuples(p)) for p in plist)
-        """
-        return self.__pair_repack(self.tuples, plist)
+        """Deprecated alias for `iter_linear_to_pegasus_pairs`."""
+        msg = ('pegasus_coordinates.tuple_pairs is deprecated and will be removed'
+               ' in dwave-networkx 0.9.0, please use '
+               'pegasus_coordinates.iter_linear_to_pegasus_pairs instead')
+        warnings.warn(msg, DeprecationWarning)
+        return self.iter_linear_to_pegasus_pairs(plist)
 
 
+# maintained for backwards compatibility
 def get_pegasus_to_nice_fn(*args, **kwargs):
     """
     Returns a coordinate translation function from the 4-term pegasus_index
@@ -568,14 +661,18 @@ def get_pegasus_to_nice_fn(*args, **kwargs):
         Pegasus coordinates.
     """
     if args or kwargs:
-        warnings.warn("Deprecation warning: get_pegasus_to_nice_fn does not need / use parameters anymore")
-    def p2n0(u, w, k, z): return (0, w-1 if u else z, z if u else w, u, k-4 if u else k-4)
-    def p2n1(u, w, k, z): return (1, w-1 if u else z, z if u else w, u, k if u else k-8)
-    def p2n2(u, w, k, z): return (2, w if u else z, z if u else w-1, u, k-8 if u else k)
-    def p2n(u, w, k, z): return [p2n0, p2n1, p2n2][(2-u-(2*u-1)*(k//4)) % 3](u, w, k, z)
-    return p2n
+        msg = "get_pegasus_to_nice_fn does not need / use parameters anymore"
+        warnings.warn(msg, DeprecationWarning)
+
+    msg = ('get_pegasus_to_nice_fn is deprecated and will be removed in '
+           'dwave-networkx 0.9.0, please use '
+           'pegasus_coordinates.pegasus_to_nice instead')
+    warnings.warn(msg, DeprecationWarning)
+
+    return lambda *args: pegasus_coordinates.pegasus_to_nice(args)
 
 
+# maintained for backwards compatibility
 def get_nice_to_pegasus_fn(*args, **kwargs):
     """
     Returns a coordinate translation function from the 5-term "nice"
@@ -593,9 +690,12 @@ def get_nice_to_pegasus_fn(*args, **kwargs):
         augmented chimera coordinates
     """
     if args or kwargs:
-        warnings.warn("Deprecation warning: get_pegasus_to_nice_fn does not need / use parameters anymore")
-    def c2p0(y, x, u, k): return (u, y+1 if u else x, 4+k if u else 4+k, x if u else y)
-    def c2p1(y, x, u, k): return (u, y+1 if u else x, k if u else 8+k, x if u else y)
-    def c2p2(y, x, u, k): return (u, y if u else x + 1, 8+k if u else k, x if u else y)
-    def n2p(t, y, x, u, k): return [c2p0, c2p1, c2p2][t](y, x, u, k)
-    return n2p
+        msg = "get_pegasus_to_nice_fn does not need / use parameters anymore"
+        warnings.warn(msg, DeprecationWarning)
+
+    msg = ('get_nice_to_pegasus_fn is deprecated and will be removed in '
+           'dwave-networkx 0.9.0, please use '
+           'pegasus_coordinates.nice_to_pegasus instead')
+    warnings.warn(msg, DeprecationWarning)
+
+    return lambda *args: pegasus_coordinates.nice_to_pegasus(args)
