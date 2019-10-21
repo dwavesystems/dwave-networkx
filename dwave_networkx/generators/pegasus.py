@@ -261,14 +261,14 @@ def pegasus_graph(m, create_using=None, node_list=None, edge_list=None, data=Tru
                         if nice_coordinates:
                             p = c2i(*q)
                             if p in G:
-                                G.node[p]['linear_index'] = v
-                                G.node[p]['pegasus_index'] = q
+                                G.nodes[p]['linear_index'] = v
+                                G.nodes[p]['pegasus_index'] = q
                         elif coordinates:
                             if q in G:
-                                G.node[q]['linear_index'] = v
+                                G.nodes[q]['linear_index'] = v
                         else:
                             if v in G:
-                                G.node[v]['pegasus_index'] = q
+                                G.nodes[v]['pegasus_index'] = q
                         v += 1
 
     return G

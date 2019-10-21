@@ -193,11 +193,11 @@ def chimera_graph(m, n=None, t=None, create_using=None, node_list=None, edge_lis
         if coordinates:
             def checkadd(v, q):
                 if q in G:
-                    G.node[q]['linear_index'] = v
+                    G.nodes[q]['linear_index'] = v
         else:
             def checkadd(v, q):
                 if v in G:
-                    G.node[v]['chimera_index'] = q
+                    G.nodes[v]['chimera_index'] = q
 
         v = 0
         for i in range(m):
