@@ -323,8 +323,8 @@ def draw_chimera_yield(G, **kwargs):
     """
     try:
         assert(G.graph["family"] == "chimera")
-        m = G.graph["columns"]
-        n = G.graph["rows"]
+        m = G.graph["rows"]
+        n = G.graph["columns"]
         t = G.graph["tile"]
         coordinates = G.graph["labels"] == "coordinate"
     except:
