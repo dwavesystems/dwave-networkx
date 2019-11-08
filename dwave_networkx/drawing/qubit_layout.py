@@ -139,8 +139,8 @@ def draw_qubit_graph(G, layout, linear_biases={}, quadratic_biases={},
         if edge_vmax is None:
             edge_vmax = vmag
 
-    fig = plt.figure(1)
-    ax = kwargs.pop('ax',None)
+    fig = plt.gcf()
+    ax = kwargs.pop('ax', plt.gca())
     cax = kwargs.pop('cax',None)
     if linear_biases or quadratic_biases:
         if ax is None:
