@@ -43,7 +43,7 @@ __all__ = ['draw_qubit_graph']
 
 def draw_qubit_graph(G, layout, linear_biases={}, quadratic_biases={},
                      nodelist=None, edgelist=None, cmap=None, edge_cmap=None, vmin=None, vmax=None,
-                     edge_vmin=None, edge_vmax=None,
+                     edge_vmin=None, edge_vmax=None, midpoint=None,
                      **kwargs):
     """Draws graph G according to layout.
 
@@ -163,15 +163,18 @@ def draw_qubit_graph(G, layout, linear_biases={}, quadratic_biases={},
 
     # if the biases are provided, then add a legend explaining the color map
     if linear_biases:
+        if midpoint is None:
+            midpoint = (vmax+vmin)/2.0
         mpl.colorbar.ColorbarBase(cax, cmap=cmap,
-                                  norm=mpl.colors.Normalize(vmin=vmin, vmax=vmax, clip=False),
+                                 norm = mpl.colors.DivergingNorm(midpoint,vmin=vmin,vmax=vmax),
                                   orientation='vertical')
 
     if quadratic_biases:
+        if midpoint is None:
+            midpoint = (edge_vmax+edge_vmin)/2.0
         mpl.colorbar.ColorbarBase(cax, cmap=edge_cmap,
-                                  norm=mpl.colors.Normalize(vmin=edge_vmin, vmax=edge_vmax, clip=False),
+                                 norm = mpl.colors.DivergingNorm(midpoint,vmin=edge_vmin,vmax=edge_vmax),
                                   orientation='vertical')
-
 
 
 def draw_embedding(G, layout, emb, embedded_graph=None, interaction_edges=None,
