@@ -20,7 +20,7 @@ __all__ = ['min_weighted_vertex_cover', 'min_vertex_cover', 'is_vertex_cover']
 
 
 @binary_quadratic_model_sampler(2)
-def min_weighted_vertex_cover(G, weight=None, sampler=None, **sampler_args):
+def min_weighted_vertex_cover(G, weight=None, sampler=None, lagrange=2.0, **sampler_args):
     """Returns an approximate minimum weighted vertex cover.
 
     Defines a QUBO with ground states corresponding to a minimum weighted
@@ -49,6 +49,9 @@ def min_weighted_vertex_cover(G, weight=None, sampler=None, **sampler_args):
         sampler is provided, one must be provided using the
         `set_default_sampler` function.
 
+    lagrange : optional (default 2)
+        Lagrange parameter to weight constraints versus objective.
+
     sampler_args
         Additional keyword parameters are passed to the sampler.
 
@@ -73,12 +76,12 @@ def min_weighted_vertex_cover(G, weight=None, sampler=None, **sampler_args):
     Based on the formulation presented in [AL]_
 
     """
-    indep_nodes = set(maximum_weighted_independent_set(G, weight, sampler, **sampler_args))
+    indep_nodes = set(maximum_weighted_independent_set(G, weight, sampler, lagrange, **sampler_args))
     return [v for v in G if v not in indep_nodes]
 
 
 @binary_quadratic_model_sampler(1)
-def min_vertex_cover(G, sampler=None, **sampler_args):
+def min_vertex_cover(G, sampler=None, lagrange=2.0, **sampler_args):
     """Returns an approximate minimum vertex cover.
 
     Defines a QUBO with ground states corresponding to a minimum
@@ -103,6 +106,9 @@ def min_vertex_cover(G, sampler=None, **sampler_args):
         sampler is provided, one must be provided using the
         `set_default_sampler` function.
 
+    lagrange : optional (default 2)
+        Lagrange parameter to weight constraints versus objective.
+
     sampler_args
         Additional keyword parameters are passed to the sampler.
 
@@ -125,7 +131,7 @@ def min_vertex_cover(G, sampler=None, **sampler_args):
     >>> sampler = dimod.ExactSolver()  # small testing sampler
     >>> G = dnx.chimera_graph(1, 1, 4)
     >>> G.remove_node(7)  # to give a unique solution
-    >>> dnx.min_vertex_cover(G, sampler)
+    >>> dnx.min_vertex_cover(G, lagrange, sampler)
     [4, 5, 6]
 
     Notes
@@ -144,7 +150,7 @@ def min_vertex_cover(G, sampler=None, **sampler_args):
        Frontiers in Physics, Volume 2, Article 5.
 
     """
-    return min_weighted_vertex_cover(G, None, sampler, **sampler_args)
+    return min_weighted_vertex_cover(G, None, sampler, lagrange, **sampler_args)
 
 
 def is_vertex_cover(G, vertex_cover):
