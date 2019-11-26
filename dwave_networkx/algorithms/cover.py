@@ -131,7 +131,7 @@ def min_vertex_cover(G, sampler=None, lagrange=2.0, **sampler_args):
     >>> sampler = dimod.ExactSolver()  # small testing sampler
     >>> G = dnx.chimera_graph(1, 1, 4)
     >>> G.remove_node(7)  # to give a unique solution
-    >>> dnx.min_vertex_cover(G, lagrange, sampler)
+    >>> dnx.min_vertex_cover(G, lagrange=2.0, sampler)
     [4, 5, 6]
 
     Notes
