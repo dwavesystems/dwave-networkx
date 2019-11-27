@@ -3,23 +3,22 @@
 Graph Generators
 ****************
 
-Generators for graphs used by the D-Wave System.
+Generators for graphs, in particular the graphs (topologies) of D-Wave System QPUs.
 
 .. currentmodule:: dwave_networkx
 
-Architectures
--------------
-.. automodule:: dwave_networkx.generators
+Chimera
+-------
+
 .. autosummary::
    :toctree: generated/
 
    chimera_graph
    find_chimera_indices
    chimera_elimination_order
-   pegasus_graph
 
 Example
----------
+~~~~~~~
 
 This example uses the the `chimera_graph()` function to create a Chimera lattice
 of size (1, 1, 4), which is a single unit cell in Chimera topology, and
@@ -48,6 +47,15 @@ the `find_chimera()` function to determine the Chimera indices.
 	:alt: Indices of a Chimera unit cell.
 
 	Indices of a Chimera unit cell found by creating a lattice of size (1, 1, 4).
+
+Pegasus
+-------
+
+.. autosummary::
+   :toctree: generated/
+
+   pegasus_graph
+
 
 Markov Networks
 ---------------
