@@ -810,7 +810,7 @@ def _theorem6p4():
 def chimera_elimination_order(m, n=None, t=None):
     """Provides a variable elimination order for a Chimera graph.
 
-    A graph defined by chimera_graph(m,n,t) has treewidth max(m,n)*t.
+    A graph defined by `chimera_graph(m,n,t)` has treewidth :math:`max(m,n)*t`.
     This function outputs a variable elimination order inducing a tree
     decomposition of that width.
 
