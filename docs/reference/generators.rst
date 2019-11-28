@@ -56,7 +56,6 @@ Pegasus
 
    pegasus_graph
 
-
 Markov Networks
 ---------------
 

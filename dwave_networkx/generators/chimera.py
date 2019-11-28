@@ -291,42 +291,42 @@ def find_chimera_indices(G):
 
 
 class chimera_coordinates(object):
+    """Provides coordinate converters for the chimera indexing scheme.
+
+    Parameters
+    ----------
+    m : int
+        The number of rows in the Chimera lattice.
+    n : int, optional (default m)
+        The number of columns in the Chimera lattice.
+    t : int, optional (default 4)
+        The size of the shore within each Chimera tile.
+
+    Examples
+    --------
+
+    Convert between Chimera coordinates and linear indices directly
+
+    >>> coords = dnx.chimera_coordinates(16, 16, 4)
+    >>> coords.chimera_to_linear((0, 2, 0, 1))
+    17
+    >>> coords.linear_to_chimera(17)
+    (0, 2, 0, 1)
+
+    Construct a new graph with the coordinate labels
+
+    >>> C16 = dnx.chimera_graph(16)
+    >>> coords = dnx.chimera_coordinates(16)
+    >>> G = nx.Graph()
+    >>> G.add_nodes_from(coords.iter_linear_to_chimera(C16.nodes))
+    >>> G.add_edges_from(coords.iter_linear_to_chimera_pairs(C16.edges))
+
+    See also
+    --------
+    :func:`.chimera_graph` for a description of the various conventions.
+
+    """
     def __init__(self, m, n=None, t=None):
-        """Provides coordinate converters for the chimera indexing scheme.
-
-        Parameters
-        ----------
-        m : int
-            The number of rows in the Chimera lattice.
-        n : int, optional (default m)
-            The number of columns in the Chimera lattice.
-        t : int, optional (default 4)
-            The size of the shore within each Chimera tile.
-
-        Examples
-        --------
-
-        Convert between Chimera coordinates and linear indices directly
-
-        >>> coords = dnx.chimera_coordinates(16, 16, 4)
-        >>> coords.chimera_to_linear((0, 2, 0, 1))
-        17
-        >>> coords.linear_to_chimera(17)
-        (0, 2, 0, 1)
-
-        Construct a new graph with the coordinate labels
-
-        >>> C16 = dnx.chimera_graph(16)
-        >>> coords = dnx.chimera_coordinates(16)
-        >>> G = nx.Graph()
-        >>> G.add_nodes_from(coords.iter_linear_to_chimera(C16.nodes))
-        >>> G.add_edges_from(coords.iter_linear_to_chimera_pairs(C16.edges))
-
-        See also
-        --------
-        :func:`.chimera_graph` for a description of the various conventions.
-
-        """
         self.args = m, m if n is None else n, 4 if t is None else t
 
     def int(self, q):

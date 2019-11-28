@@ -160,6 +160,14 @@ def pegasus_graph(m, create_using=None, node_list=None, edge_list=None, data=Tru
 
         q = ((u * m + w) * 12 + k) * (m - 1) + z
 
+
+    Examples
+    ========
+    >>> G = dnx.pegasus_graph(2, nice_coordinates=True)
+    >>> G.nodes(data=True)[(0, 0, 0, 0, 0)]    # doctest: +SKIP
+    {'linear_index': 4, 'pegasus_index': (0, 0, 4, 0)}
+
+
     """
     if offset_lists is None:
         offsets_descriptor = offsets_index = offsets_index or 0
@@ -413,7 +421,7 @@ class pegasus_coordinates(object):
         Parameters
         ----------
         m : int
-            The size parameter for the Pegasus lattice.
+            Size parameter for the Pegasus lattice.
 
         See also
         --------
@@ -425,13 +433,36 @@ class pegasus_coordinates(object):
         self.args = m, m - 1
 
     def pegasus_to_linear(self, q):
-        """Convert a 4-term Pegasus coordinate into a linear index."""
+        """Convert a 4-term Pegasus coordinate into a linear index.
+
+        Parameters
+        ----------
+        q : 4-tuple
+            Pegasus indices.
+
+        Examples
+        --------
+        >>> dnx.pegasus_coordinates(2).pegasus_to_linear((0, 0, 4, 0))
+        4
+        """
         u, w, k, z = q
         m, m1 = self.args
         return ((m * u + w) * 12 + k) * m1 + z
 
     def linear_to_pegasus(self, r):
-        """Convert a linear index into a 4-term Pegasus coordinate."""
+        """Convert a linear index into a 4-term Pegasus coordinate.
+
+        Parameters
+        ----------
+        r : int
+            Linear index.
+
+        Examples
+        --------
+        >>> dnx.pegasus_coordinates(2).linear_to_pegasus(4)
+        (0, 0, 4, 0)
+
+        """
         m, m1 = self.args
         r, z = divmod(r, m1)
         r, k = divmod(r, 12)
@@ -441,6 +472,16 @@ class pegasus_coordinates(object):
     @staticmethod
     def nice_to_pegasus(n):
         """Convert a 5-term nice coordinate into a 4-term Pegasus coordinate.
+
+        Parameters
+        ----------
+        n : 5-tuple
+            Nice coordinate.
+
+        Examples
+        --------
+        >>> dnx.pegasus_coordinates.nice_to_pegasus((0, 0, 0, 0, 0))
+        (0, 0, 4, 0)
 
         Note that this method does not depend on the size of the Pegasus
         lattice.
@@ -461,6 +502,16 @@ class pegasus_coordinates(object):
     def pegasus_to_nice(p):
         """Convert a 4-term Pegasus coordinate to a 5-term nice coordinate.
 
+        Parameters
+        ----------
+        p : 4-tuple
+            Pegasus coordinate.
+
+        Examples
+        --------
+        >>> dnx.pegasus_coordinates.pegasus_to_nice((0, 0, 4, 0))
+        (0, 0, 0, 0, 0)
+
         Note that this method does not depend on the size of the Pegasus
         lattice.
         """
@@ -479,11 +530,33 @@ class pegasus_coordinates(object):
         raise ValueError('invalid Pegasus coordinates')
 
     def linear_to_nice(self, r):
-        """Convert a linear index into a 5-term nice coordinate."""
+        """Convert a linear index into a 5-term nice coordinate.
+
+        Parameters
+        ----------
+        r : int
+            Linear index.
+
+        Examples
+        --------
+        >>> dnx.pegasus_coordinates(2).linear_to_nice(4)
+        (0, 0, 0, 0, 0)
+        """
         return self.pegasus_to_nice(self.linear_to_pegasus(r))
 
     def nice_to_linear(self, n):
-        """Convert a 5-term nice coordinate into a linear index."""
+        """Convert a 5-term nice coordinate into a linear index.
+
+        Parameters
+        ----------
+        n : 5-tuple
+            Nice coordinate.
+
+        Examples
+        --------
+        >>> dnx.pegasus_coordinates(2).nice_to_linear((0, 0, 0, 0, 0))
+        4
+        """
         return self.pegasus_to_linear(self.nice_to_pegasus(n))
 
     def iter_pegasus_to_linear(self, qlist):
