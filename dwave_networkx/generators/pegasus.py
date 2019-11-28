@@ -110,7 +110,7 @@ def pegasus_graph(m, create_using=None, node_list=None, edge_list=None, data=Tru
 
     Note that the formulas above are valid for default offset parameters.
 
-    *Pegasus Lattice:* A Pegasus lattice is a graph minor of a lattice similar
+    A Pegasus lattice is a graph minor of a lattice similar
     to Chimera, where unit tiles are completely connected. In its most general
     definition, prelattice :math:`Q(N0,N1)` contains nodes of the form
 

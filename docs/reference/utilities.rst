@@ -15,13 +15,19 @@ Decorators
 
 .. currentmodule:: dwave_networkx
 
-Coordinate Conversion
----------------------
+Graph Indexing
+--------------
 
 Chimera
 ~~~~~~~
 
 .. autoclass:: chimera_coordinates
+
+.. autosummary::
+   :toctree: generated/
+
+   find_chimera_indices
+
 
 Pegasus
 ~~~~~~~
