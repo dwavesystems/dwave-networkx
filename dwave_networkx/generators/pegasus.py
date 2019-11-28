@@ -402,6 +402,88 @@ def get_tuple_defragmentation_fn(pegasus_graph):
     return defragment_tuple
 
 
+def fragmented_edges(pegasus_graph):
+    """
+    Generator for the edges contained in a Chimera graph obtained by splitting each Pegasus node into
+    six Chimera nodes.  If the Pegasus graph has size parameter m, then the derived graph will be a
+    subgraph of Chimera(6m, 6m, 2) -- that is, a Chimera graph with K2,2 unit tiles.
+
+        The K2,2 Chimera graph uses a coordinate system with an origin at the upper left corner of
+        the graph.
+            y: number of vertical fragments from the top-most row
+            x: number of horizontal fragments from the left-most column
+            u: 1 if it belongs to a horizontal qubit, 0 otherwise
+            r: fragment index on the K2,2 shore
+
+    Parameters
+    ----------
+    pegasus_graph: networkx.graph
+        A pegasus graph
+
+    Returns
+    -------
+    (coord0, coord1), ... : an iterator of tuples
+        Yields the edges contained in the Chimera graph derived from the "fragmentation" construction
+    """
+    offsetlist = [pegasus_graph.graph['vertical_offsets'], pegasus_graph.graph['horizontal_offsets']]
+    offsets = {(u, k): offsetlist[u][k] for u in (0, 1) for k in range(12)}
+
+    if pegasus_graph.graph['labels'] == 'nice':
+        coords = pegasus_coordinates.nice_to_pegasus
+    elif pegasus_graph.graph['labels'] == 'int':
+        coords = pegasus_coordinates(pegasus_graph.graph['rows']).linear_to_pegasus
+    else:
+        coords = lambda z: z
+
+    #first, we generate the edges internal to the fragments corresponding to a node
+    for q in pegasus_graph.nodes():
+        u, w, k, z = coords(q)
+        #copied from get_tuple_fragmentation_fn and slightly optimized
+        offset = offsets[u, k]
+        x0 = (z * 12 + offset) // 2
+        y = (w * 12 + k) // 2
+        base = [y, x0, u, k & 1] if u else [x0, y, u, k & 1]
+        prev = tuple(base)
+        for x in range(x0+1, x0+6):
+            base[u] = x
+            curr = tuple(base)
+            yield (prev, curr)
+            prev = curr
+
+    #now for the thinky part: for each Pegasus edge, generate the corresponding Chimera edge 
+    #we skip the "odd" edges because they don't exist in Chimera
+    for q0, q1 in pegasus_graph.edges():
+        u0, w0, k0, z0 = coords(q0)
+        u1, w1, k1, z1 = coords(q1)
+        if u0 == u1:
+            if k0 == k1:
+                #this is an external edge -- we could probably do some hijinks to fold this in
+                #with the nodes loop, but cost/benefit doesn't support it right now
+                offset = offsets[u0, k0]
+                x = (min(z0, z1) * 12 + offset) // 2
+                y = (w0 * 12 + k0) // 2
+                r = k0 % 2
+                if u0:
+                    yield ((y, x+5, u0, r), (y, x+6, u0, r))
+                else:
+                    yield ((x+5, y, u0, r), (x+6, y, u0, r))
+
+            #else: this is an odd edge; yield nothing
+        else:
+            #this may look a little magical -- we're looking for the intersection of the points
+            # (x00, y0), (x00+1, y0), ..., (x00+5, y0)
+            # and
+            # (y1, x10), (y1, x10+1), ..., (y1, x10+5)
+            #with the assumption that an intersection exists: it can only be located at (y1, y0)
+            #since those coordinates are constant in the respective intervals.  Thus, we get to
+            #skip looking up the offsets.  Magic?  No, Math!
+            y0 = (w0 * 12 + k0) // 2
+            y1 = (w1 * 12 + k1) // 2
+            if u0:
+                yield ((y0, y1, u0, k0 & 1), (y0, y1, u1, k1 & 1))
+            else:
+                yield ((y1, y0, u0, k0 & 1), (y1, y0, u1, k1 & 1))
+
 # Developer note: we could implement a function that creates the iter_*_to_* and
 # iter_*_to_*_pairs methods just-in-time, but there are a small enough number
 # that for now it makes sense to do them by hand.
