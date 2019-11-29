@@ -21,7 +21,13 @@ Graph Indexing
 Chimera
 ~~~~~~~
 
-.. autoclass:: chimera_coordinates
+.. toctree::
+   :hidden:
+
+   utilities/index
+
+:ref:`index_conversion_classes`
+
 
 .. autosummary::
    :toctree: generated/
