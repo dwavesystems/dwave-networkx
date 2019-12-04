@@ -69,6 +69,11 @@ def draw_qubit_graph(G, layout, linear_biases={}, quadratic_biases={},
         form {edge: bias, ...}. Each bias should be numeric. Self-loop
         edges (i.e., :math:`i=j`) are treated as linear biases.
 
+    midpoint : float (optional, default None)
+        A float that specifies where the center of the colormap should
+        be. If not provided, the colormap will default to the middle of
+        min/max values provided.
+
     kwargs : optional keywords
        See networkx.draw_networkx() for a description of optional keywords,
        with the exception of the `pos` parameter which is not used by this
@@ -89,8 +94,22 @@ def draw_qubit_graph(G, layout, linear_biases={}, quadratic_biases={},
     else:
         _mpl_toolkit_found = True
 
+    fig = plt.gcf()
+    ax = kwargs.pop('ax', plt.gca())
+    cax = kwargs.pop('cax', None)
+
     if linear_biases or quadratic_biases:
         # if linear biases and/or quadratic biases are provided, then color accordingly.
+
+        if ax is None:
+            ax = fig.add_axes([0.01, 0.01, 0.86, 0.98])
+
+        if cax is None:
+            if _mpl_toolkit_found:
+                divider = make_axes_locatable(ax)
+                cax = divider.append_axes('right', size='2%', pad=0.05)
+            else:
+                cax = fig.add_axes([.87, 0.2, 0.02, 0.6])  # left, bottom, width, height
 
         if nodelist is None:
             nodelist = G.nodes()
@@ -124,33 +143,50 @@ def draw_qubit_graph(G, layout, linear_biases={}, quadratic_biases={},
         node_color = [node_color(v) for v in nodelist]
         edge_color = [edge_color(u, v) for u, v in edgelist]
 
-        kwargs['edge_color'] = edge_color
-        kwargs['node_color'] = node_color
-
         # the range of the color map is shared for nodes/edges and is symmetric
         # around 0.
         vmag = max(max(abs(c) for c in node_color), max(abs(c) for c in edge_color))
         if vmin is None:
             vmin = -1 * vmag
+
         if vmax is None:
             vmax = vmag
+
         if edge_vmin is None:
             edge_vmin = -1 * vmag
+
         if edge_vmax is None:
             edge_vmax = vmag
 
-    fig = plt.gcf()
-    ax = kwargs.pop('ax', plt.gca())
-    cax = kwargs.pop('cax',None)
-    if linear_biases or quadratic_biases:
-        if ax is None:
-            ax = fig.add_axes([0.01, 0.01, 0.86, 0.98])
-        if cax is None:
-            if _mpl_toolkit_found:
-                divider = make_axes_locatable(ax)
-                cax = divider.append_axes('right', size='2%', pad=0.05)
-            else:
-                cax = fig.add_axes([.87, 0.2, 0.02, 0.6])  # left, bottom, width, height
+        if linear_biases and quadratic_biases:
+            global_vmin = min(edge_vmin, vmin)
+            global_vmax = max(edge_vmax, vmax)
+
+            if midpoint is None:
+                midpoint = (global_vmax + global_vmin) / 2.0
+            norm_map = mpl.colors.DivergingNorm(midpoint, vmin=global_vmin, vmax=global_vmax)
+
+            node_color = [cmap(norm_map(node)) for node in node_color]
+            edge_color = [cmap(norm_map(edge)) for edge in edge_color]
+            mpl.colorbar.ColorbarBase(cax, cmap=cmap, norm=norm_map, orientation='vertical')
+
+        # if the biases are provided, then add a legend explaining the color map
+        elif linear_biases:
+            if midpoint is None:
+                midpoint = (vmax + vmin) / 2.0
+            norm_map = mpl.colors.DivergingNorm(midpoint, vmin=vmin, vmax=vmax)
+            node_color = [cmap(norm_map(node)) for node in node_color]
+            mpl.colorbar.ColorbarBase(cax, cmap=cmap, norm=norm_map, orientation='vertical')
+
+        elif quadratic_biases:
+            if midpoint is None:
+                midpoint = (edge_vmax + edge_vmin) / 2.0
+            norm_map = mpl.colors.DivergingNorm(midpoint, vmin=edge_vmin, vmax=edge_vmax)
+            edge_color = [edge_cmap(norm_map(edge)) for edge in edge_color]
+            mpl.colorbar.ColorbarBase(cax, cmap=edge_cmap, norm=norm_map, orientation='vertical')
+
+        kwargs['edge_color'] = edge_color
+        kwargs['node_color'] = node_color
 
     else:
         if ax is None:
@@ -160,21 +196,6 @@ def draw_qubit_graph(G, layout, linear_biases={}, quadratic_biases={},
          cmap=cmap, edge_cmap=edge_cmap, vmin=vmin, vmax=vmax, edge_vmin=edge_vmin,
          edge_vmax=edge_vmax,
          **kwargs)
-
-    # if the biases are provided, then add a legend explaining the color map
-    if linear_biases:
-        if midpoint is None:
-            midpoint = (vmax+vmin)/2.0
-        mpl.colorbar.ColorbarBase(cax, cmap=cmap,
-                                 norm = mpl.colors.DivergingNorm(midpoint,vmin=vmin,vmax=vmax),
-                                  orientation='vertical')
-
-    if quadratic_biases:
-        if midpoint is None:
-            midpoint = (edge_vmax+edge_vmin)/2.0
-        mpl.colorbar.ColorbarBase(cax, cmap=edge_cmap,
-                                 norm = mpl.colors.DivergingNorm(midpoint,vmin=edge_vmin,vmax=edge_vmax),
-                                  orientation='vertical')
 
 
 def draw_embedding(G, layout, emb, embedded_graph=None, interaction_edges=None,
