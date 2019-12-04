@@ -27,7 +27,9 @@ from dwave_networkx.generators.pegasus import (pegasus_graph,
                                                get_pegasus_to_nice_fn,
                                                get_nice_to_pegasus_fn,
                                                get_tuple_defragmentation_fn,
-                                               get_tuple_fragmentation_fn)
+                                               get_tuple_fragmentation_fn,
+                                               fragmented_edges)
+from dwave_networkx.generators.chimera import chimera_graph
 
 alpha_map = dict(enumerate('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'))
 
@@ -311,3 +313,44 @@ class TestTupleDefragmentation(unittest.TestCase):
 
         expected_pegasus_coords = {(0, 2, 4, 2), (1, 4, 0, 4), (0, 5, 2, 0)}
         self.assertEqual(expected_pegasus_coords, set(pegasus_coords))
+
+class TestFragmentedEdges(unittest.TestCase):
+    def test_linear_indices(self):
+        p = pegasus_graph(3, coordinates=False)
+        c = chimera_graph(24, coordinates=True)
+        num_edges = 0
+        for u, v in fragmented_edges(p):
+            self.assertTrue(c.has_edge(u, v))
+            num_edges += 1
+        #This is a weird edgecount: each node produces 5 extra edges for the internal connections
+        #between fragments corresponding to a pegasus qubit.  But then we need to delete the odd
+        #couplers, which aren't included in the chimera graph -- odd couplers make a perfect
+        #matching, so thats 1/2 an edge per node.
+        self.assertEqual(p.number_of_edges() + 9 * p.number_of_nodes()//2, num_edges)
+
+    def test_coordinates(self):
+        p = pegasus_graph(3, coordinates=True)
+        c = chimera_graph(24, coordinates=True)
+        num_edges = 0
+        for u, v in fragmented_edges(p):
+            self.assertTrue(c.has_edge(u, v))
+            num_edges += 1
+
+        #This is a weird edgecount: each node produces 5 extra edges for the internal connections
+        #between fragments corresponding to a pegasus qubit.  But then we need to delete the odd
+        #couplers, which aren't included in the chimera graph -- odd couplers make a perfect
+        #matching, so thats 1/2 an edge per node.
+        self.assertEqual(p.number_of_edges() + 9 * p.number_of_nodes()//2, num_edges)
+
+    def test_nice_coordinates(self):
+        p = pegasus_graph(3, nice_coordinates=True)
+        c = chimera_graph(24, coordinates=True)
+        num_edges = 0
+        for u, v in fragmented_edges(p):
+            self.assertTrue(c.has_edge(u, v))
+            num_edges += 1
+        #This is a weird edgecount: each node produces 5 extra edges for the internal connections
+        #between fragments corresponding to a pegasus qubit.  But then we need to delete the odd
+        #couplers, which aren't included in the chimera graph -- odd couplers make a perfect
+        #matching, so thats 1/2 an edge per node.
+        self.assertEqual(p.number_of_edges() + 9 * p.number_of_nodes()//2, num_edges)
