@@ -415,7 +415,7 @@ class chimera_coordinates(object):
         """Return an iterator converting a sequence of pairs of 4-term Chimera
         coordinates to pairs of linear indices.
         """
-        return self._pair_repack(self.ints, plist)
+        return self._pair_repack(self.iter_chimera_to_linear, plist)
 
     def tuple_pairs(self, plist):
         """Deprecated alias for `iter_linear_to_chimera_pairs`."""
@@ -429,7 +429,7 @@ class chimera_coordinates(object):
         """Return an iterator converting a sequence of pairs of linear indices
         to pairs of 4-term Chimera coordinates.
         """
-        return self._pair_repack(self.tuples, plist)
+        return self._pair_repack(self.iter_linear_to_chimera, plist)
 
 
 def linear_to_chimera(r, m, n=None, t=None):

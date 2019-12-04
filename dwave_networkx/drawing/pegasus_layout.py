@@ -99,7 +99,7 @@ def pegasus_layout(G, scale=1., center=None, dim=2, crosses=False):
         else:
             m = G.graph.get('rows')
             coord = pegasus_coordinates(m)
-            pos = {v: xy_coords(*coord.tuple(v)) for v in G.nodes()}
+            pos = {v: xy_coords(*coord.linear_to_pegasus(v)) for v in G.nodes()}
 
     return pos
 

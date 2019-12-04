@@ -917,4 +917,4 @@ def pegasus_elimination_order(n, coordinates=False):
     if coordinates:
         return order
     else:
-        return pegasus_coordinates(n).ints(order)
+        return pegasus_coordinates(n).iter_pegasus_to_linear(order)

@@ -42,7 +42,7 @@ class TestCanonicalChimeraLabeling(unittest.TestCase):
         coord = chimera_coordinates(1, 1, 4)
 
         labels = canonical_chimera_labeling(C1)
-        labels = {v: coord.int(labels[v]) for v in labels}
+        labels = {v: coord.chimera_to_linear(labels[v]) for v in labels}
 
         G = nx.relabel_nodes(C1, labels, copy=True)
 
@@ -54,7 +54,7 @@ class TestCanonicalChimeraLabeling(unittest.TestCase):
         coord = chimera_coordinates(1, 1, 4)
 
         labels = canonical_chimera_labeling(C1bqm)
-        labels = {v: coord.int(labels[v]) for v in labels}
+        labels = {v: coord.chimera_to_linear(labels[v]) for v in labels}
 
         bqm = C1bqm.relabel_variables(labels, inplace=False)
 
@@ -65,7 +65,7 @@ class TestCanonicalChimeraLabeling(unittest.TestCase):
         coord = chimera_coordinates(4, 1, 4)
 
         labels = canonical_chimera_labeling(C41)
-        labels = {v: coord.int(labels[v]) for v in labels}
+        labels = {v: coord.chimera_to_linear(labels[v]) for v in labels}
 
         G = nx.relabel_nodes(C41, labels, copy=True)
 
@@ -76,7 +76,7 @@ class TestCanonicalChimeraLabeling(unittest.TestCase):
         coord = chimera_coordinates(3, 3, 4)
 
         labels = canonical_chimera_labeling(C33)
-        labels = {v: coord.int(labels[v]) for v in labels}
+        labels = {v: coord.chimera_to_linear(labels[v]) for v in labels}
 
         G = nx.relabel_nodes(C33, labels, copy=True)
 
@@ -97,7 +97,7 @@ class TestCanonicalChimeraLabeling(unittest.TestCase):
         assert len(bqm) == len(C22)
 
         labels = canonical_chimera_labeling(bqm)
-        labels = {v: alpha[coord.int(labels[v])] for v in labels}
+        labels = {v: alpha[coord.chimera_to_linear(labels[v])] for v in labels}
 
         bqm2 = bqm.relabel_variables(labels, inplace=False)
 

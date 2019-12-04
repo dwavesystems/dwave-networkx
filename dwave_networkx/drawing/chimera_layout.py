@@ -97,7 +97,7 @@ def chimera_layout(G, scale=1., center=None, dim=2):
             pos = {v: xy_coords(*dat['chimera_index']) for v, dat in G.nodes(data=True)}
         else:
             coord = chimera_coordinates(m, n, t)
-            pos = {v: xy_coords(*coord.tuple(v)) for v in G.nodes()}
+            pos = {v: xy_coords(*coord.linear_to_chimera(v)) for v in G.nodes()}
     else:
         # best case scenario, each node in G has a chimera_index attribute. Otherwise
         # we will try to determine it using the find_chimera_indices function.

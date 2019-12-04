@@ -76,14 +76,14 @@ class TestPegasusCoordinates(unittest.TestCase):
             q = Gnodes[v]['pegasus_index']
             self.assertIn(q, Hnodes)
             self.assertEqual(Hnodes[q]['linear_index'], v)
-            self.assertEqual(v, coords.int(q))
-            self.assertEqual(q, coords.tuple(v))
+            self.assertEqual(v, coords.pegasus_to_linear(q))
+            self.assertEqual(q, coords.linear_to_pegasus(v))
         for q in Hnodes:
             v = Hnodes[q]['linear_index']
             self.assertIn(v, Gnodes)
             self.assertEqual(Gnodes[v]['pegasus_index'], q)
-            self.assertEqual(v, coords.int(q))
-            self.assertEqual(q, coords.tuple(v))
+            self.assertEqual(v, coords.pegasus_to_linear(q))
+            self.assertEqual(q, coords.linear_to_pegasus(v))
 
     def test_nice_coordinates(self):
         G = dnx.pegasus_graph(4, nice_coordinates=True)
@@ -93,10 +93,10 @@ class TestPegasusCoordinates(unittest.TestCase):
                 pg = (t,) + p
                 qg = (t,) + q
                 self.assertTrue(G.has_edge(pg, qg))
-        n2p = get_nice_to_pegasus_fn()
-        p2n = get_pegasus_to_nice_fn()
+        n2p = pegasus_coordinates.nice_to_pegasus
+        p2n = pegasus_coordinates.pegasus_to_nice
         for p in G.nodes():
-            self.assertEqual(p2n(*n2p(*p)), p)
+            self.assertEqual(p2n(n2p(p)), p)
             self.assertTrue(H.has_node(p[1:]))
 
     def test_consistent_linear_nice_pegasus(self):
@@ -158,9 +158,9 @@ class TestPegasusCoordinates(unittest.TestCase):
         coords = pegasus_coordinates(4)
 
         lmask = sample(list(G.nodes()), G.number_of_nodes()//2)
-        cmask = list(coords.tuples(lmask))
+        cmask = list(coords.iter_linear_to_pegasus(lmask))
 
-        self.assertEqual(lmask, list(coords.ints(cmask)))
+        self.assertEqual(lmask, list(coords.iter_pegasus_to_linear(cmask)))
 
         Gm = dnx.pegasus_graph(4, node_list=lmask)
         Hm = dnx.pegasus_graph(4, node_list=cmask, coordinates=True)
@@ -183,17 +183,17 @@ class TestPegasusCoordinates(unittest.TestCase):
             q = Gnodes[v]['pegasus_index']
             self.assertIn(q, Hnodes)
             self.assertEqual(Hnodes[q]['linear_index'], v)
-            self.assertEqual(v, coords.int(q))
-            self.assertEqual(q, coords.tuple(v))
+            self.assertEqual(v, coords.pegasus_to_linear(q))
+            self.assertEqual(q, coords.linear_to_pegasus(v))
         for q in Hnodes:
             v = Hnodes[q]['linear_index']
             self.assertIn(v, Gnodes)
             self.assertEqual(Gnodes[v]['pegasus_index'], q)
-            self.assertEqual(v, coords.int(q))
-            self.assertEqual(q, coords.tuple(v))
+            self.assertEqual(v, coords.pegasus_to_linear(q))
+            self.assertEqual(q, coords.linear_to_pegasus(v))
 
-        self.assertEqual(EG, sorted(map(sorted, coords.int_pairs(Hn.edges()))))
-        self.assertEqual(EH, sorted(map(sorted, coords.tuple_pairs(Gn.edges()))))
+        self.assertEqual(EG, sorted(map(sorted, coords.iter_pegasus_to_linear_pairs(Hn.edges()))))
+        self.assertEqual(EH, sorted(map(sorted, coords.iter_linear_to_pegasus_pairs(Gn.edges()))))
 
 
 class TestTupleFragmentation(unittest.TestCase):
