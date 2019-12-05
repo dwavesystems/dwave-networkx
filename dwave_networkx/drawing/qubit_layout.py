@@ -19,6 +19,8 @@ Tools to visualize Chimera lattices and weighted graph problems on them.
 
 from __future__ import division
 
+import math
+import random
 import networkx as nx
 from networkx import draw
 
@@ -179,7 +181,7 @@ def draw_qubit_graph(G, layout, linear_biases={}, quadratic_biases={},
 
 def draw_embedding(G, layout, emb, embedded_graph=None, interaction_edges=None,
                    chain_color=None, unused_color=(0.9,0.9,0.9,1.0), cmap=None,
-                   show_labels=False, **kwargs):
+                   show_labels=False, overlapped_embedding=False, **kwargs):
     """Draws an embedding onto the graph G, according to layout.
 
     If interaction_edges is not None, then only display the couplers in that
@@ -224,6 +226,11 @@ def draw_embedding(G, layout, emb, embedded_graph=None, interaction_edges=None,
         in chains, and edges which are neither chain edges nor interactions.
         If unused_color is None, these nodes and edges will not be shown at all.
 
+    overlapped_embedding: boolean (optional, default False)
+        If overlapped_embedding is True, then chains in emb may overlap (contain
+        the same vertices in G), and the drawing will display these overlaps as
+        concentric circles.
+
     kwargs : optional keywords
        See networkx.draw_networkx() for a description of optional keywords,
        with the exception of the `pos` parameter which is not used by this
@@ -250,6 +257,20 @@ def draw_embedding(G, layout, emb, embedded_graph=None, interaction_edges=None,
             color = distinguishable_color_map(int(n+1))
         var_i = {v: i for i, v in enumerate(emb)}
         chain_color = {v: color(i/n) for i, v in enumerate(emb)}
+
+    if overlapped_embedding:
+        bags = compute_bags(G, emb)
+        base_node_size = 100
+        node_size_dict = {v: base_node_size for v in G.nodes()}
+        G, emb, interaction_edges = unoverlapped_embedding(G, emb, interaction_edges)
+        for node, data in G.nodes(data=True):
+            if 'dummy' in data:
+                v, x = node
+                layout[node] = layout[v]
+
+        for v, bag in bags.items():
+            for i, x in enumerate(bag):
+                node_size_dict[(v, x)] = base_node_size * (len(bag) - i) ** 2
 
     qlabel = {q: v for v, chain in iteritems(emb) for q in chain}
     edgelist = []
@@ -299,11 +320,47 @@ def draw_embedding(G, layout, emb, embedded_graph=None, interaction_edges=None,
             nodelist.append(p)
             node_color.append(pc)
 
+    if overlapped_embedding:
+        node_size = [node_size_dict[p] for p in G.nodes()]
+    else:
+        node_size = 300
+
     labels = {}
     if show_labels:
-        for v in emb.keys():
-            c = emb[v]
-            labels[list(c)[0]] = str(v)
+        if overlapped_embedding:
+            node_labels = {q: [] for q in bags.keys()}
+            node_index = {p: i for i, p in enumerate(G.nodes())}
+            for v in emb.keys():
+                v_labelled = False
+                chain = emb[v]
+                for node in chain:
+                    (q, _) = node
+                    if len(bags[q]) == 1:
+                        # if there's a node that only has this label, use that
+                        labels[q] = str(v)
+                        v_labelled = True
+                        break
+                if not v_labelled and chain:
+                    # otherwise, pick a random node for this label
+                    node = random.choice(list(chain))
+                    (q, _) = node
+                    node_labels[q].append(v)
+            for q, label_vars in node_labels.items():
+                x, y = layout[q]
+                # TODO: find a better way of placing labels around the outside of nodes.
+                scale = 0.1
+                # spread the labels evenly around the node.
+                for i, v in enumerate(label_vars):
+                    theta = 2 * math.pi * i / len(label_vars)
+                    new_x = x + scale * math.sin(theta)
+                    new_y = y + scale * math.cos(theta)
+
+                    plt.text(new_x, new_y, str(v), color=node_color[node_index[(q, v)]], horizontalalignment='center',
+                             verticalalignment='center')
+        else:
+            for v in emb.keys():
+                c = emb[v]
+                labels[list(c)[0]] = str(v)
 
     # draw the background (unused) graph first
     if unused_color is not None:
@@ -311,9 +368,51 @@ def draw_embedding(G, layout, emb, embedded_graph=None, interaction_edges=None,
              node_color=node_color, edge_color=background_edge_color,
              **kwargs)
 
-    draw(G, layout, nodelist=nodelist, edgelist=edgelist,
+    draw(G, layout, nodelist=nodelist, edgelist=edgelist, node_size=node_size,
          node_color=node_color, edge_color=edge_color, labels=labels,
          **kwargs)
+
+
+def compute_bags(C, emb):
+    # Given an overlapped embedding, compute the set of source nodes embedded at every target node.
+    bags = {v: [] for v in C.nodes()}
+    for x, chain in emb.items():
+        for v in chain:
+            bags[v].append(x)
+    return bags
+
+
+def unoverlapped_embedding(G, emb, interaction_edges):
+    # Given an overlapped embedding, construct a new graph and embedding without overlaps
+    # by making copies of nodes that have multiple variables.
+
+    bags = compute_bags(G, emb)
+    new_G = G.copy()
+    new_emb = dict()
+
+    for x, chain in emb.items():
+        for v in chain:
+            new_G.add_node((v, x), dummy=True)
+        for (u, v) in G.subgraph(chain).edges():
+            new_G.add_edge((u, x), (v, x))
+        new_emb[x] = {(v, x) for v in chain}
+
+    for (u, v) in G.edges():
+        for x in bags[u]:
+            for y in bags[v]:
+                new_G.add_edge((u, x), (v, y))
+
+    if interaction_edges:
+        new_interaction_edges = list(interaction_edges)
+        for (u, v) in interaction_edges:
+            for x in bags[u]:
+                for y in bags[v]:
+                    new_interaction_edges.append(((u, x), (v, y)))
+    else:
+        new_interaction_edges = None
+
+    return new_G, new_emb, new_interaction_edges
+
 
 def draw_yield(G, layout, perfect_graph, unused_color=(0.9,0.9,0.9,1.0),
                     fault_color=(1.0,0.0,0.0,1.0), fault_shape='x',

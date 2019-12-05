@@ -277,6 +277,11 @@ def draw_pegasus_embedding(G, *args, **kwargs):
         rather than L configuration. Ignored if G was defined with
         nice_coordinates=True.
 
+    overlapped_embedding: boolean (optional, default False)
+        If overlapped_embedding is True, then chains in emb may overlap (contain
+        the same vertices in G), and the drawing will display these overlaps as
+        concentric circles.
+
     kwargs : optional keywords
        See networkx.draw_networkx() for a description of optional keywords,
        with the exception of the `pos` parameter which is not used by this
