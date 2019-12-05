@@ -190,7 +190,8 @@ def pegasus_graph(m, create_using=None, node_list=None, edge_list=None, data=Tru
         if offsets_index != 0:
             raise NotImplementedError("nice coordinate system is only implemented for offsets_index 0")
         labels = 'nice'
-        c2i = get_pegasus_to_nice_fn()
+        p2n = pegasus_coordinates.pegasus_to_nice
+        c2i = lambda *q: p2n(q)
     elif coordinates:
         c2i = lambda *q: q
         labels = 'coordinate'
