@@ -212,6 +212,20 @@ class TestTSPQUBO(unittest.TestCase):
             ground_count += 1
 
         self.assertEqual(ground_count, len(min_routes))
+    
+    def test_weighted_complete_graph(self):
+        G = nx.Graph()
+        G.add_weighted_edges_from({(0, 1, 1), (0, 2, 2), (0, 3, 3), (1, 2, 3),
+                                   (1, 3, 4), (2, 3, 5)})
+        
+        Q = traveling_salesperson_qubo(G, lagrange, weight)
+
+        N = G.number_of_nodes()
+        correct_sum = G.size(weight)*2*N-2*N*N*lagrange+2*N*N*(N-1)*lagrange)
+
+        actual_sum = sum(Q.values())
+
+        self.assertEqual(correct_sum, actual_sum)
 
     def test_exceptions(self):
         G = nx.Graph([(0, 1)])
