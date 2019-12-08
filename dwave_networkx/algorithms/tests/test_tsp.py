@@ -215,8 +215,7 @@ class TestTSPQUBO(unittest.TestCase):
     
     def test_weighted_complete_graph(self):
         G = nx.Graph()
-        G.add_weighted_edges_from({(0, 1, 1), (0, 2, 2), (0, 3, 3), (1, 2, 3),
-                                   (1, 3, 4), (2, 3, 5)})
+        G.add_weighted_edges_from({(0, 1, 1), (0, 2, 100), (0, 3, 1), (1, 2, 1), (1, 3, 100), (2, 3, 1)})
 
         lagrange = 5.0
 
