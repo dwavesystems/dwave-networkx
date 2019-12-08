@@ -217,11 +217,13 @@ class TestTSPQUBO(unittest.TestCase):
         G = nx.Graph()
         G.add_weighted_edges_from({(0, 1, 1), (0, 2, 2), (0, 3, 3), (1, 2, 3),
                                    (1, 3, 4), (2, 3, 5)})
-        
-        Q = traveling_salesperson_qubo(G, lagrange, weight)
+
+        lagrange = 5.0
+
+        Q = tsp.traveling_salesperson_qubo(G, lagrange, 'weight')
 
         N = G.number_of_nodes()
-        correct_sum = G.size(weight)*2*N-2*N*N*lagrange+2*N*N*(N-1)*lagrange)
+        correct_sum = G.size('weight')*2*N-2*N*N*lagrange+2*N*N*(N-1)*lagrange
 
         actual_sum = sum(Q.values())
 
