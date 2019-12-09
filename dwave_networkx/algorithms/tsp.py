@@ -168,7 +168,9 @@ def traveling_salesperson_qubo(G, lagrange=2, weight='weight'):
         for node_1 in G:
             Q[((node_1, pos), (node_1, pos))] -= lagrange
             for node_2 in set(G)-{node_1}:
-                Q[((node_1, pos), (node_2, pos))] += 2.0*lagrange
+                # QUBO coefficient is 2*lagrange, but we are placing this value 
+                # above *and* below the diagonal, so we put half in each position.
+                Q[((node_1, pos), (node_2, pos))] += lagrange
 
     # Objective that minimizes distance
     for u, v in itertools.combinations(G.nodes, 2):
