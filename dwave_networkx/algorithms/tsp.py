@@ -211,4 +211,4 @@ def is_hamiltonian_path(G, route):
 
     """
 
-    return (len(route) == len(set(G)))
+    return (set(route) == set(G))
