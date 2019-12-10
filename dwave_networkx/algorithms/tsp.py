@@ -150,7 +150,7 @@ def traveling_salesperson_qubo(G, lagrange=None, weight='weight'):
 
     if lagrange is None:
         # if no lagrange parameter provided, set to 'average' tour length
-        lagrange = G.size(weight=weight)*G.number_of_nodes()/G.size()
+        lagrange = G.size(weight=weight)*G.number_of_nodes()/G.number_of_edges()
 
     # some input checking
     if N in (1, 2) or len(G.edges) != N*(N-1)//2:
