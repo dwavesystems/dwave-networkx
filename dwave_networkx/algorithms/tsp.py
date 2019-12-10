@@ -57,7 +57,7 @@ def traveling_salesperson(G, sampler=None, lagrange=None, weight='weight',
         sampler is provided, one must be provided using the
         `set_default_sampler` function.
 
-    lagrange : number, optional (default 2)
+    lagrange : number, optional (default None)
         Lagrange parameter to weight constraints (visit every city once)
         versus objective (shortest distance route).
 
@@ -130,7 +130,7 @@ def traveling_salesperson_qubo(G, lagrange=None, weight='weight'):
     G : NetworkX graph
         A complete graph in which each edge has a attribute giving its weight.
 
-    lagrange : number, optional (default 2)
+    lagrange : number, optional (default None)
         Lagrange parameter to weight constraints (no edges within set)
         versus objective (largest set possible).
 
@@ -149,6 +149,7 @@ def traveling_salesperson_qubo(G, lagrange=None, weight='weight'):
     N = G.number_of_nodes()
 
     if lagrange is None:
+        # if no lagrange parameter provided, set to 'average' tour length
         lagrange = G.size(weight=weight)*G.number_of_nodes()/G.size()
 
     # some input checking
