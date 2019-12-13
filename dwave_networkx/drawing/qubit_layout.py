@@ -348,6 +348,9 @@ def draw_embedding(G, layout, emb, embedded_graph=None, interaction_edges=None,
             for q, label_vars in node_labels.items():
                 x, y = layout[q]
                 # TODO: find a better way of placing labels around the outside of nodes.
+                # Currently, if the graph is resized, labels will appear at a strange distance from the vertices.
+                # To fix this, the "scale" value below, rather than being a fixed constant, should be determined using
+                # both the size of the nodes and the size of the coordinate space of the graph.
                 scale = 0.1
                 # spread the labels evenly around the node.
                 for i, v in enumerate(label_vars):
