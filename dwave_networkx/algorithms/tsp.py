@@ -30,7 +30,7 @@ __all__ = ["traveling_salesperson",
 
 
 @binary_quadratic_model_sampler(1)
-def traveling_salesperson(G, sampler=None, lagrange=2, weight='weight',
+def traveling_salesperson(G, sampler=None, lagrange=None, weight='weight',
                           start=None, **sampler_args):
     """Returns an approximate minimum traveling salesperson route.
 
@@ -57,7 +57,7 @@ def traveling_salesperson(G, sampler=None, lagrange=2, weight='weight',
         sampler is provided, one must be provided using the
         `set_default_sampler` function.
 
-    lagrange : number, optional (default 2)
+    lagrange : number, optional (default None)
         Lagrange parameter to weight constraints (visit every city once)
         versus objective (shortest distance route).
 
@@ -117,7 +117,7 @@ def traveling_salesperson(G, sampler=None, lagrange=2, weight='weight',
 traveling_salesman = traveling_salesperson
 
 
-def traveling_salesperson_qubo(G, lagrange=2, weight='weight'):
+def traveling_salesperson_qubo(G, lagrange=None, weight='weight'):
     """Return the QUBO with ground states corresponding to a minimum TSP route.
 
     If :math:`|G|` is the number of nodes in the graph, the resulting qubo will have:
@@ -130,7 +130,7 @@ def traveling_salesperson_qubo(G, lagrange=2, weight='weight'):
     G : NetworkX graph
         A complete graph in which each edge has a attribute giving its weight.
 
-    lagrange : number, optional (default 2)
+    lagrange : number, optional (default None)
         Lagrange parameter to weight constraints (no edges within set)
         versus objective (largest set possible).
 
@@ -147,6 +147,16 @@ def traveling_salesperson_qubo(G, lagrange=2, weight='weight'):
 
     """
     N = G.number_of_nodes()
+
+    if lagrange is None:
+        # If no lagrange parameter provided, set to 'average' tour length.
+        # Usually a good estimate for a lagrange parameter is between 75-150%
+        # of the objective function value, so we come up with an estimate for 
+        # tour length and use that.
+        if G.number_of_edges()>0:
+            lagrange = G.size(weight=weight)*G.number_of_nodes()/G.number_of_edges()
+        else:
+            lagrange = 2
 
     # some input checking
     if N in (1, 2) or len(G.edges) != N*(N-1)//2:
@@ -211,4 +221,4 @@ def is_hamiltonian_path(G, route):
 
     """
 
-    return (len(route) == len(set(G)))
+    return (set(route) == set(G))
