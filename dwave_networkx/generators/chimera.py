@@ -40,6 +40,40 @@ if _PY2:
 def chimera_graph(m, n=None, t=None, create_using=None, node_list=None, edge_list=None, data=True, coordinates=False):
     """Creates a Chimera lattice of size (m, n, t).
 
+    Parameters
+    ----------
+    m : int
+        Number of rows in the Chimera lattice.
+    n : int (optional, default m)
+        Number of columns in the Chimera lattice.
+    t : int (optional, default 4)
+        Size of the shore within each Chimera tile.
+    create_using : Graph (optional, default None)
+        If provided, this graph is cleared of nodes and edges and filled
+        with the new graph. Usually used to set the type of the graph.
+    node_list : iterable (optional, default None)
+        Iterable of nodes in the graph. If None, calculated
+        from (m, n, t). Note that this list is used to remove nodes,
+        so any nodes specified not in `range(m * n * 2 * t)` are not added.
+    edge_list : iterable (optional, default None)
+        Iterable of edges in the graph. If None, edges are
+        generated as described below. The nodes in each edge must be
+        integer-labeled in ``range(m * n * t * 2)``.
+    data : bool (optional, default True)
+        If True, each node has a
+        `chimera_index attribute`. The attribute is a 4-tuple Chimera index
+        as defined below.
+    coordinates : bool (optional, default False)
+        If True, node labels are 4-tuples, equivalent to the chimera_index
+        attribute as below.  In this case, the `data` parameter controls the
+        existence of a `linear_index attribute`, which is an int.
+
+    Returns
+    -------
+    G : NetworkX Graph
+        An (m, n, t) Chimera lattice. Nodes are labeled by integers.
+
+
     A Chimera lattice is an m-by-n grid of Chimera tiles. Each Chimera
     tile is itself a bipartite graph with shores of size t. The
     connection in a Chimera lattice can be expressed using a node-indexing
@@ -68,39 +102,6 @@ def chimera_graph(m, n=None, t=None, create_using=None, node_list=None, edge_lis
     Node (i, j, u, k) is labeled by:
 
         label = i * n * 2 * t + j * 2 * t + u * t + k
-
-    Parameters
-    ----------
-    m : int
-        Number of rows in the Chimera lattice.
-    n : int (optional, default m)
-        Number of columns in the Chimera lattice.
-    t : int (optional, default 4)
-        Size of the shore within each Chimera tile.
-    create_using : Graph (optional, default None)
-        If provided, this graph is cleared of nodes and edges and filled
-        with the new graph. Usually used to set the type of the graph.
-    node_list : iterable (optional, default None)
-        Iterable of nodes in the graph. If None, calculated
-        from (m, n, t). Note that this list is used to remove nodes,
-        so any nodes specified not in `range(m * n * 2 * t)` are not added.
-    edge_list : iterable (optional, default None)
-        Iterable of edges in the graph. If None, edges are
-        generated as described above. The nodes in each edge must be
-        integer-labeled in `range(m * n * t * 2)`.
-    data : bool (optional, default True)
-        If True, each node has a
-        `chimera_index attribute`. The attribute is a 4-tuple Chimera index
-        as defined above.
-    coordinates : bool (optional, default False)
-        If True, node labels are 4-tuples, equivalent to the chimera_index
-        attribute as above.  In this case, the `data` parameter controls the
-        existence of a `linear_index attribute`, which is an int
-
-    Returns
-    -------
-    G : NetworkX Graph
-        An (m, n, t) Chimera lattice. Nodes are labeled by integers.
 
     Examples
     ========
@@ -213,7 +214,7 @@ def chimera_graph(m, n=None, t=None, create_using=None, node_list=None, edge_lis
 def find_chimera_indices(G):
     """Attempts to determine the Chimera indices of the nodes in graph G.
 
-    See the `chimera_graph()` function for a definition of a Chimera graph and Chimera
+    See the :func:`~chimera_graph()` function for a definition of a Chimera graph and Chimera
     indices.
 
     Parameters
@@ -290,42 +291,42 @@ def find_chimera_indices(G):
 
 
 class chimera_coordinates(object):
+    """Provides coordinate converters for the chimera indexing scheme.
+
+    Parameters
+    ----------
+    m : int
+        The number of rows in the Chimera lattice.
+    n : int, optional (default m)
+        The number of columns in the Chimera lattice.
+    t : int, optional (default 4)
+        The size of the shore within each Chimera tile.
+
+    Examples
+    --------
+
+    Convert between Chimera coordinates and linear indices directly
+
+    >>> coords = dnx.chimera_coordinates(16, 16, 4)
+    >>> coords.chimera_to_linear((0, 2, 0, 1))
+    17
+    >>> coords.linear_to_chimera(17)
+    (0, 2, 0, 1)
+
+    Construct a new graph with the coordinate labels
+
+    >>> C16 = dnx.chimera_graph(16)
+    >>> coords = dnx.chimera_coordinates(16)
+    >>> G = nx.Graph()
+    >>> G.add_nodes_from(coords.iter_linear_to_chimera(C16.nodes))
+    >>> G.add_edges_from(coords.iter_linear_to_chimera_pairs(C16.edges))
+
+    See also
+    --------
+    :func:`.chimera_graph` for a description of the various conventions.
+
+    """
     def __init__(self, m, n=None, t=None):
-        """Provides coordinate converters for the chimera indexing scheme.
-
-        Parameters
-        ----------
-        m : int
-            The number of rows in the Chimera lattice.
-        n : int, optional (default m)
-            The number of columns in the Chimera lattice.
-        t : int, optional (default 4)
-            The size of the shore within each Chimera tile.
-
-        Examples
-        --------
-
-        Convert between Chimera coordinates and linear indices directly
-
-        >>> coords = dnx.chimera_coordinates(16, 16, 4)
-        >>> coords.chimera_to_linear((0, 2, 0, 1))
-        17
-        >>> coords.linear_to_chimera(17)
-        (0, 2, 0, 1)
-
-        Construct a new graph with the coordinate labels
-
-        >>> C16 = dnx.chimera_graph(16)
-        >>> coords = dnx.chimera_coordinates(16)
-        >>> G = nx.Graph()
-        >>> G.add_nodes_from(coords.iter_linear_to_chimera(C16.nodes))
-        >>> G.add_edges_from(coords.iter_linear_to_chimera_pairs(C16.edges))
-
-        See also
-        --------
-        :func:`.chimera_graph` for a description of the various conventions.
-
-        """
         self.args = m, m if n is None else n, 4 if t is None else t
 
     def int(self, q):

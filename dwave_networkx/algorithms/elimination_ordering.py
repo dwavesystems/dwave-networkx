@@ -810,7 +810,7 @@ def _theorem6p4():
 def chimera_elimination_order(m, n=None, t=None):
     """Provides a variable elimination order for a Chimera graph.
 
-    A graph defined by chimera_graph(m,n,t) has treewidth max(m,n)*t.
+    A graph defined by `chimera_graph(m,n,t)` has treewidth :math:`max(m,n)*t`.
     This function outputs a variable elimination order inducing a tree
     decomposition of that width.
 
@@ -869,12 +869,13 @@ def pegasus_elimination_order(n, coordinates=False):
     """Provides a variable elimination order for the Pegasus graph.
 
     The treewidth of a Pegasus graph `P(n)` is lower-bounded by `12n-11` and
-    upper bounded by `12-4` [#bbrr]_ .
+    upper bounded by `12-4` [bbrr]_ .
 
     Simple pegasus variable elimination order rules:
+
        - eliminate vertical qubits, one column at a time
        - eliminate horizontal qubits in each column once their adjacent vertical
-       qubits have been eliminated
+         qubits have been eliminated
 
     Args
     ----
@@ -890,9 +891,10 @@ def pegasus_elimination_order(n, coordinates=False):
     order : list
         An elimination order that provides an upper bound on the treewidth.
 
-    .. [#bbrr] Boothby, K., P. Bunky, J. Raymond, A. Roy. Next-Generation
-        Topology of D-Wave Quantum Processors. Technical Report, Februrary 2019.
-        https://www.dwavesys.com/resources/publications?type=white#publication-987
+
+    .. [bbrr] Boothby, K., P. Bunky, J. Raymond, A. Roy. Next-Generation Topology
+       of D-Wave Quantum Processors. Technical Report, Februrary 2019.
+       https://www.dwavesys.com/resources/publications?type=white#publication-987
 
     """
     m = n

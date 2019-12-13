@@ -38,45 +38,95 @@ def pegasus_graph(m, create_using=None, node_list=None, edge_list=None, data=Tru
                   offset_lists=None, offsets_index=None, coordinates=False, fabric_only=True,
                   nice_coordinates=False):
     """
-    Creates a Pegasus graph with size parameter m.  The number of nodes and edges varies
-    according to multiple parameters, for example,
+    Creates a Pegasus graph with size parameter `m`.
 
-        pegasus_graph(1) contains zero nodes,
-        pegasus_graph(m, fabric_only=False) contains :math:`24m(m-1)` nodes,
-        pegasus_graph(m, fabric_only=True) contains :math:`24m(m-1)-8(m-1)` nodes, and
-        pegasus_graph(m, nice_coordinates=True) contains :math:`24(m-1)^2` nodes.
+    Parameters
+    ----------
+    m : int
+        Size parameter for the Pegasus lattice.
+    create_using : Graph, optional (default None)
+        If provided, this graph is cleared of nodes and edges and filled
+        with the new graph. Usually used to set the type of the graph.
+    node_list : iterable, optional (default None)
+        Iterable of nodes in the graph. If None, calculated from `m`.
+        Note that this list is used to remove nodes, so any nodes specified
+        not in ``range(24 * m * (m-1))`` are not added.
+    edge_list : iterable, optional (default None)
+        Iterable of edges in the graph. If None, edges are generated as
+        described below. The nodes in each edge must be integer-labeled in
+        ``range(24 * m * (m-1))``.
+    data : bool, optional (default True)
+        If True, each node has a Pegasus_index attribute. The attribute
+        is a 4-tuple Pegasus index as defined below. If the `coordinates` parameter
+        is True, a linear_index, which is an integer, is used.
+    coordinates : bool, optional (default False)
+        If True, node labels are 4-tuple Pegasus indices. Ignored if the
+        `nice_coordinates` parameter is True.
+    offset_lists : pair of lists, optional (default None)
+        Directly controls the offsets. Each list in the pair must have length 12
+        and contain even ints.  If `offset_lists` is not None, the `offsets_index`
+        parameter must be None.
+    offsets_index : int, optional (default None)
+        A number between 0 and 7, inclusive, that selects a preconfigured
+        set of topological parameters. If both the `offsets_index` and
+        `offset_lists` parameters are None, the `offsets_index` parameters is set
+        to zero. At least one of these two parameters must be None.
+    fabric_only: bool, optional (default True)
+        The Pegasus graph, by definition, has some disconnected
+        components.  If True, the generator only constructs nodes from the
+        largest component. If False, the full disconnected graph is
+        constructed. Ignored if the `edge_lists` parameter is not None or
+        `nice_coordinates` is True
+    nice_coordinates: bool, optional (default False)
+        If the `offsets_index` parameter is 0, the graph uses a "nicer"
+        coordinate system, more compatible with Chimera addressing.
+        These coordinates are 5-tuples taking the form :math:`(t, y, x, u, k)` where
+        :math:`0 <= x < M-1`, :math:`0 <= y < M-1`, :math:`0 <= u < 2`,
+        :math:`0 <= k < 4`, and :math:`0 <= t < 3`.
+        For any given :math:`0 <= t0 < 3`, the subgraph of nodes with :math:`t = t0`
+        has the structure of `chimera(M-1, M-1, 4)` with the addition of odd couplers.
+        Supercedes both the `fabric_only` and `coordinates` parameters.
 
-    The maximum degree of these graph is 15, and counting formulas are more complicated
-    for edges given most parameter settings.  Upper bounds are given below,
+    Returns
+    -------
+    G : NetworkX Graph
+        A Pegasus lattice for size parameter `m`.
 
-        pegasus_graph(1, fabric_only=False) has zero edges,
-        pegasus_graph(m, fabric_only=False) has :math:`12*(15*(m-1)^2 + m - 3)` edges if m > 1
 
-    Note that the above are valid with default offset parameters.
+    The maximum degree of this graph is 15. The number of nodes depends on multiple
+    parameters; for example,
 
-    A Pegasus lattice is a graph minor of a lattice similar to Chimera,
-    where unit tiles are completely connected.  In the most generality,
-    prelattice :math:`Q(N0,N1)` contains nodes of the form
+        * `pegasus_graph(1)`: zero nodes
+        * `pegasus_graph(m, fabric_only=False)`: :math:`24m(m-1)` nodes
+        * `pegasus_graph(m, fabric_only=True)`: :math:`24m(m-1)-8(m-1)` nodes
+        * `pegasus_graph(m, nice_coordinates=True)`: :math:`24(m-1)^2` nodes
 
-        :math:`(i, j, 0, k)` with :math:`0 <= k < 2` [vertical nodes]
+    Counting formulas for edges have a complicated dependency on parameter settings.
+    Some example upper bounds are:
 
-    and
+        * `pegasus_graph(1, fabric_only=False)`: zero edges
+        * `pegasus_graph(m, fabric_only=False)`: :math:`12*(15*(m-1)^2 + m - 3)`
+          edges if m > 1
 
-        :math:`(i, j, 1, k)` with :math:`0 <= k < 2` [horizontal nodes]
+    Note that the formulas above are valid for default offset parameters.
 
-    for :math:`0 <= i <= N0` and :math:`0 <= j < N1`; and edges of the form
+    A Pegasus lattice is a graph minor of a lattice similar
+    to Chimera, where unit tiles are completely connected. In its most general
+    definition, prelattice :math:`Q(N0,N1)` contains nodes of the form
 
-        :math:`(i, j, u, k)` ~ :math:`(i+u, j+1-u, u, k)`  [external edges]
+        * vertical nodes: :math:`(i, j, 0, k)` with :math:`0 <= k < 2`
+        * horizontal nodes: :math:`(i, j, 1, k)` with :math:`0 <= k < 2`
 
-        :math:`(i, j, 0, k)` ~ :math:`(i, j, 1, k)` [internal edges]
+    for :math:`0 <= i <= N0` and :math:`0 <= j < N1`, and edges of the form
 
-        :math:`(i, j, u, 0)` ~ :math:`(i, j, u, 1)` [odd edges]
+        * external: :math:`(i, j, u, k)` ~ :math:`(i+u, j+1-u, u, k)`
+        * internal: :math:`(i, j, 0, k)` ~ :math:`(i, j, 1, k)`
+        * odd: :math:`(i, j, u, 0)` ~ :math:`(i, j, u, 1)`
 
-    The minor is specified by two lists of offsets; :math:`S0` and :math:`S1` of length
-    :math:`L0` and :math:`L1` (where :math:`L0` and :math:`L1`, and the entries of
-    :math:`S0` and :math:`S1`, must be divisible by 2).
-    From these offsets, we construct our minor, a Pegasus lattice, by contracting
-    the complete intervals of external edges::
+    Given two lists of offsets, :math:`S0` and :math:`S1`, of length
+    :math:`L0` and :math:`L1`, where both lengths and values must be divisible by
+    2, the minor---a Pegasus lattice---is constructed by contracting the complete
+    intervals of external edges::
 
         I(0, w, k, z) = [(L1*w + k, L0*z + S0[k] + r, 0, k % 2) for 0 <= r < L0]
         I(1, w, k, z) = [(L1*z + S1[k] + r, L0*w + k, 1, k % 2) for 0 <= r < L1]
@@ -84,81 +134,40 @@ def pegasus_graph(m, create_using=None, node_list=None, edge_list=None, data=Tru
     and deleting the prelattice nodes of any interval not fully contained in
     :math:`Q(N0, N1)`.
 
-    This generator is specialized to :math:`L0 = L1 = 12`; :math:`N0 = N1 = 12m`.
+    This generator, 'pegasus_graph()', is specialized for the minor constructed by
+    prelattice and offset parameters :math:`L0 = L1 = 12` and :math:`N0 = N1 = 12m`.
 
-    The notation :math:`(u, w, k, z)` is called the Pegasus index of a node in a Pegasus
-    lattice.  The entries can be interpreted as following,
+    The *Pegasus index* of a node in a Pegasus lattice, :math:`(u, w, k, z)`, can be
+    interpreted as:
 
-        :math:`u`: qubit orientation (0 = vertical, 1 = horizontal)
+        * :math:`u`: qubit orientation (0 = vertical, 1 = horizontal)
+        * :math:`w`: orthogonal major offset
+        * :math:`k`: orthogonal minor offset
+        * :math:`z`: parallel offset
 
-        :math:`w`: orthogonal major offset
+    Edges in the minor have the form
 
-        :math:`k`: orthogonal minor offset
+        * external: :math:`(u, w, k, z)` ~ :math:`(u, w, k, z+1)`
+        * internal: :math:`(0, w0, k0, z0)` ~ :math:`(1, w1, k1, z1)`
+        * odd: :math:`(u, w, 2k, z)` ~ :math:`(u, w, 2k+1, z)`
 
-        :math:`z`: parallel offset
+    where internal edges only exist when
 
-    and the edges in the minor have the form
+        1. w1 = z0 + (1 if k1 < S0[k0] else 0)
+        2. z1 = w0 - (1 if k0 < S1[k1] else 0)
 
-        :math:`(u, w, k, z)` ~ :math:`(u, w, k, z+1)` [external edges]
-
-        :math:`(0, w0, k0, z0)` ~ :math:`(1, w1, k1, z1)` [internal edges, see below]
-
-        :math:`(u, w, 2k, z)` ~ :math:`(u, w, 2k+1, z)` [odd edges]
-
-    where internal edges only exist when::
-
-        w1 = z0 + (1 if k1 < S0[k0] else 0), and
-        z1 = w0 - (1 if k0 < S1[k1] else 0)
-
-    linear indices are computed from pegasus indices by the formula::
+    Linear indices are computed from Pegasus indices by the formula::
 
         q = ((u * m + w) * 12 + k) * (m - 1) + z
 
-    Parameters
-    ----------
-    m : int
-        The size parameter for the Pegasus lattice.
-    create_using : Graph, optional (default None)
-        If provided, this graph is cleared of nodes and edges and filled
-        with the new graph. Usually used to set the type of the graph.
-    node_list : iterable, optional (default None)
-        Iterable of nodes in the graph. If None, calculated from m.
-        Note that this list is used to remove nodes, so any nodes specified
-        not in range(24 * m * (m-1)) will not be added.
-    edge_list : iterable, optional (default None)
-        Iterable of edges in the graph. If None, edges are generated as
-        described above. The nodes in each edge must be integer-labeled in
-        range(24 * m * (m-1)).
-    data : bool, optional (default True)
-        If True, each node has a pegasus_index attribute. The attribute
-        is a 4-tuple Pegasus index as defined above. (if coordinates = True,
-        we set a linear_index, which is an integer)
-    coordinates : bool, optional (default False)
-        If True, node labels are 4-tuple Pegasus indices.  Ignored if
-        nice_coordinates is True
-    offset_lists : pair of lists, optional (default None)
-        Used to directly control the offsets, each list in the pair should
-        have length 12, and contain even ints.  If offset_lists is not None,
-        then offsets_index must be None.
-    offsets_index : int, optional (default None)
-        A number between 0 and 7 inclusive, to select a preconfigured
-        set of topological parameters.  If both offsets_index and
-        offset_lists are None, then we set offsets_index = 0.  At least
-        one of these two parameters must be None.
-    fabric_only: bool, optional (default True)
-        The Pegasus graph, by definition, will have some disconnected
-        components.  If this True, we will only construct nodes from the
-        largest component.  Otherwise, the full disconnected graph will be
-        constructed.  Ignored if edge_lists is not None or nice_coordinates
-        is True
-    nice_coordinates: bool, optional (default False)
-        In the case that offsets_index = 0, generate the graph with a nicer
-        coordinate system which is more compatible with Chimera addressing.
-        These coordinates are 5-tuples taking the form (t, y, x, u, k) where
-        0 <= x < M-1, 0 <= y < M-1, 0 <= u < 2, 0 <= k < 4 and 0 <= t < 3.
-        For any given 0 <= t0 < 3, the subgraph of nodes with t = t0 has the
-        structure of chimera(M-1, M-1, 4) with the addition of odd couplers.
-        Supercedes both the fabric_only and coordinates parameters.
+
+    Examples
+    ========
+    >>> G = dnx.pegasus_graph(2, nice_coordinates=True)
+    >>> G.nodes(data=True)[(0, 0, 0, 0, 0)]    # doctest: +SKIP
+    {'linear_index': 4, 'pegasus_index': (0, 0, 4, 0)}
+
+
     """
     if offset_lists is None:
         offsets_descriptor = offsets_index = offsets_index or 0
@@ -496,7 +505,7 @@ class pegasus_coordinates(object):
         Parameters
         ----------
         m : int
-            The size parameter for the Pegasus lattice.
+            Size parameter for the Pegasus lattice.
 
         See also
         --------
@@ -508,13 +517,36 @@ class pegasus_coordinates(object):
         self.args = m, m - 1
 
     def pegasus_to_linear(self, q):
-        """Convert a 4-term Pegasus coordinate into a linear index."""
+        """Convert a 4-term Pegasus coordinate into a linear index.
+
+        Parameters
+        ----------
+        q : 4-tuple
+            Pegasus indices.
+
+        Examples
+        --------
+        >>> dnx.pegasus_coordinates(2).pegasus_to_linear((0, 0, 4, 0))
+        4
+        """
         u, w, k, z = q
         m, m1 = self.args
         return ((m * u + w) * 12 + k) * m1 + z
 
     def linear_to_pegasus(self, r):
-        """Convert a linear index into a 4-term Pegasus coordinate."""
+        """Convert a linear index into a 4-term Pegasus coordinate.
+
+        Parameters
+        ----------
+        r : int
+            Linear index.
+
+        Examples
+        --------
+        >>> dnx.pegasus_coordinates(2).linear_to_pegasus(4)
+        (0, 0, 4, 0)
+
+        """
         m, m1 = self.args
         r, z = divmod(r, m1)
         r, k = divmod(r, 12)
@@ -524,6 +556,16 @@ class pegasus_coordinates(object):
     @staticmethod
     def nice_to_pegasus(n):
         """Convert a 5-term nice coordinate into a 4-term Pegasus coordinate.
+
+        Parameters
+        ----------
+        n : 5-tuple
+            Nice coordinate.
+
+        Examples
+        --------
+        >>> dnx.pegasus_coordinates.nice_to_pegasus((0, 0, 0, 0, 0))
+        (0, 0, 4, 0)
 
         Note that this method does not depend on the size of the Pegasus
         lattice.
@@ -544,6 +586,16 @@ class pegasus_coordinates(object):
     def pegasus_to_nice(p):
         """Convert a 4-term Pegasus coordinate to a 5-term nice coordinate.
 
+        Parameters
+        ----------
+        p : 4-tuple
+            Pegasus coordinate.
+
+        Examples
+        --------
+        >>> dnx.pegasus_coordinates.pegasus_to_nice((0, 0, 4, 0))
+        (0, 0, 0, 0, 0)
+
         Note that this method does not depend on the size of the Pegasus
         lattice.
         """
@@ -562,11 +614,33 @@ class pegasus_coordinates(object):
         raise ValueError('invalid Pegasus coordinates')
 
     def linear_to_nice(self, r):
-        """Convert a linear index into a 5-term nice coordinate."""
+        """Convert a linear index into a 5-term nice coordinate.
+
+        Parameters
+        ----------
+        r : int
+            Linear index.
+
+        Examples
+        --------
+        >>> dnx.pegasus_coordinates(2).linear_to_nice(4)
+        (0, 0, 0, 0, 0)
+        """
         return self.pegasus_to_nice(self.linear_to_pegasus(r))
 
     def nice_to_linear(self, n):
-        """Convert a 5-term nice coordinate into a linear index."""
+        """Convert a 5-term nice coordinate into a linear index.
+
+        Parameters
+        ----------
+        n : 5-tuple
+            Nice coordinate.
+
+        Examples
+        --------
+        >>> dnx.pegasus_coordinates(2).nice_to_linear((0, 0, 0, 0, 0))
+        4
+        """
         return self.pegasus_to_linear(self.nice_to_pegasus(n))
 
     def iter_pegasus_to_linear(self, qlist):
@@ -741,7 +815,7 @@ def get_pegasus_to_nice_fn(*args, **kwargs):
     Returns
     -------
     pegasus_to_nice_fn(chimera_coordinates): a function
-        A function that accepts augmented chimera coordinates and returns corresponding 
+        A function that accepts augmented chimera coordinates and returns corresponding
         Pegasus coordinates.
     """
     if args or kwargs:
@@ -770,7 +844,7 @@ def get_nice_to_pegasus_fn(*args, **kwargs):
     Returns
     -------
     nice_to_pegasus_fn(pegasus_coordinates): a function
-        A function that accepts Pegasus coordinates and returns the corresponding 
+        A function that accepts Pegasus coordinates and returns the corresponding
         augmented chimera coordinates
     """
     if args or kwargs:
