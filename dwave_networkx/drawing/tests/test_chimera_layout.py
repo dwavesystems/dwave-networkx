@@ -128,3 +128,11 @@ class TestDrawing(unittest.TestCase):
         dnx.draw_chimera_embedding(C, emb)
         dnx.draw_chimera_embedding(C, emb, embedded_graph=G)
         dnx.draw_chimera_embedding(C, emb, interaction_edges=C.edges())
+
+    @unittest.skipUnless(_numpy and _plt, "No numpy or matplotlib")
+    @unittest.skipUnless(_display, " No display found")
+    def test_draw_overlapped_chimera_embedding(self):
+        C = dnx.chimera_graph(2)
+        emb = {0: [1, 5], 1: [5, 9, 13], 2: [25, 29], 3: [17, 21]}
+        dnx.draw_chimera_embedding(C, emb, overlapped_embedding=True)
+        dnx.draw_chimera_embedding(C, emb, overlapped_embedding=True, show_labels=True)

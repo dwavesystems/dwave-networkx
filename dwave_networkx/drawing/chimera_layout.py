@@ -283,6 +283,11 @@ def draw_chimera_embedding(G, *args, **kwargs):
         in chains, and edges which are neither chain edges nor interactions.
         If unused_color is None, these nodes and edges will not be shown at all.
 
+    overlapped_embedding: boolean (optional, default False)
+        If overlapped_embedding is True, then chains in emb may overlap (contain
+        the same vertices in G), and the drawing will display these overlaps as
+        concentric circles.
+
     kwargs : optional keywords
        See networkx.draw_networkx() for a description of optional keywords,
        with the exception of the `pos` parameter which is not used by this

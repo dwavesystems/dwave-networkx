@@ -112,3 +112,11 @@ class TestDrawing(unittest.TestCase):
         dnx.draw_pegasus_embedding(P, emb, embedded_graph=G)
         dnx.draw_pegasus_embedding(P, emb, interaction_edges=P.edges())
         dnx.draw_pegasus_embedding(P, emb, crosses=True)
+
+    @unittest.skipUnless(_numpy and _plt, "No numpy or matplotlib")
+    @unittest.skipUnless(_display, " No display found")
+    def test_draw_overlapped_chimera_embedding(self):
+        C = dnx.pegasus_graph(2)
+        emb = {0: [12, 35], 1: [12, 31], 2: [32], 3: [14]}
+        dnx.draw_pegasus_embedding(C, emb, overlapped_embedding=True)
+        dnx.draw_pegasus_embedding(C, emb, overlapped_embedding=True, show_labels=True)
