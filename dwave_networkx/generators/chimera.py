@@ -144,8 +144,8 @@ def chimera_graph(m, n=None, t=None, create_using=None, node_list=None, edge_lis
         if coordinates:
             # tile edges
             G.add_edges_from(((i, j, 0, k0), (i, j, 1, k1))
-                             for i in range(n)
-                             for j in range(m)
+                             for i in range(m)
+                             for j in range(n)
                              for k0 in range(t)
                              for k1 in range(t))
 

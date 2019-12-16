@@ -205,3 +205,26 @@ class TestChimeraGraph(unittest.TestCase):
     def test_chimera_to_linear(self):
         G = dnx.chimera_to_linear(3, 2, 1, 0, 8, 8, 4)
         self.assertEqual(G, 212)
+
+    def test_nonsquare_coordinate_generator(self):
+        #issue 149 found an issue with non-square generators -- let's be extra careful here
+        for (m, n) in [(2, 4), (4, 2)]:
+            G = dnx.chimera_graph(m, n, coordinates=True, data=True)
+            H = dnx.chimera_graph(m, n, coordinates=False, data=True)
+            self.assertTrue(nx.is_isomorphic(G, H))
+
+            Gnodes = set(G.nodes)
+            Glabels = set(q['linear_index'] for q in G.nodes.values())
+
+            Hnodes = set(H.nodes)
+            Hlabels = set(q['chimera_index'] for q in H.nodes.values())
+
+            self.assertEqual(Gnodes, Hlabels)
+            self.assertEqual(Hnodes, Glabels)
+
+            coords = dnx.chimera_coordinates(m, n)
+            F = nx.relabel_nodes(G, coords.chimera_to_linear, copy=True)
+            self.assertEqual(set(map(frozenset, F.edges)), set(map(frozenset, H.edges)))
+
+            E = nx.relabel_nodes(H, coords.linear_to_chimera, copy=True)
+            self.assertEqual(set(map(frozenset, E.edges)), set(map(frozenset, G.edges)))
