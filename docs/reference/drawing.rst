@@ -50,7 +50,7 @@ and `draw_chimera()` functions to display those positions on a Chimera unit cell
 
 
 
-.. figure:: ../_static/chimera_layout_0-rightside.png
+.. figure:: ../_images/chimera_layout_0-rightside.png
 	:align: center
 	:name: chimera_layout_0-rightside
 	:scale: 60 %

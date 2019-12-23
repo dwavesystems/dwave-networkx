@@ -5,7 +5,7 @@ Independent Set
 An independent set is a set of a graph's vertices with no edge connecting any
 of its member pairs.
 
-.. figure:: ../../_static/Cover.png
+.. figure:: ../../_images/Cover.png
    :name: Cover
    :alt: image
    :align: center

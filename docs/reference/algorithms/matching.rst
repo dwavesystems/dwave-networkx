@@ -4,7 +4,7 @@ Matching
 
 A matching is a subset of graph edges in which no vertex occurs more than once.
 
-.. figure:: ../../_static/Match.png
+.. figure:: ../../_images/Match.png
    :name: Matching
    :alt: image
    :align: center
