@@ -13,15 +13,24 @@ Documentation
     :Release: |version|
     :Date: |today|
 
+.. sdk-start-marker
+
 .. toctree::
    :maxdepth: 1
 
    intro
    reference/index
+   bibliography
+   
+.. sdk-end-marker
+
+.. toctree::
+   :caption: Code
+   :maxdepth: 1
+
+   Source <https://github.com/dwavesystems/dwave_networkx>
    installation
    license
-   bibliography
-   Source <https://github.com/dwavesystems/dwave_networkx>
 
 .. toctree::
   :caption: D-Wave's Ocean Software

@@ -5,7 +5,7 @@ Maximum Cut
 A maximum cut is a subset of a graph's vertices such that the number of edges
 between this subset and the remaining vertices is as large as possible.
 
-.. figure:: ../../_static/MaxCut.png
+.. figure:: ../../_images/MaxCut.png
    :name: Cut
    :alt: image
    :align: center

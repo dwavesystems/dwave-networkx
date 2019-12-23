@@ -6,7 +6,7 @@ Vertex covering is the problem of finding a set of vertices such that all
 the edges of the graph are incident to at least one of the vertices in the
 set.
 
-.. figure:: ../../_static/Cover.png
+.. figure:: ../../_images/Cover.png
    :name: Cover
    :alt: image
    :align: center

@@ -54,7 +54,7 @@ connectivity). Unit cells are tiled vertically and horizontally with adjacent
 qubits connected, creating a lattice of sparsely connected qubits. A unit cell
 is typically rendered as either a cross or a column.
 
-.. figure:: _static/ChimeraUnitCell.png
+.. figure:: _images/ChimeraUnitCell.png
 	:align: center
 	:name: ChimeraUnitCell
 	:scale: 40 %
@@ -63,7 +63,7 @@ is typically rendered as either a cross or a column.
 	Chimera unit cell.
 
 
-.. figure:: _static/chimera.png
+.. figure:: _images/chimera.png
   :name: chimera
   :scale: 70 %
   :alt: Chimera graph.  qubits are arranged in unit cells that form bipartite connections.
@@ -94,7 +94,7 @@ Pegasus qubits are also more densely connected and have three types of coupler:
 - *Odd couplers*.
   Odd couplers connect similarly aligned pairs of qubits. Each qubit has one odd coupler.
 
-.. figure:: _static/pegasus_qubits.png
+.. figure:: _images/pegasus_qubits.png
 	:align: center
 	:name: pegasus_qubits
 	:scale: 100 %
@@ -102,7 +102,7 @@ Pegasus qubits are also more densely connected and have three types of coupler:
 
 	Pegasus qubits. Qubits are drawn as horizontal and vertical loops. The horizontal qubit in the center, shown with its odd coupler in red and numbered 1, is internally coupled to vertical qubits, in pairs 3 through 8, each pair and its odd coupler shown in a different color, and externally coupled to horizontal qubits 2 and 9, each shown in a different color.
 
-.. figure:: _static/pegasus_roadway.png
+.. figure:: _images/pegasus_roadway.png
 	:align: center
 	:name: pegasus_roadway
 	:scale: 100 %

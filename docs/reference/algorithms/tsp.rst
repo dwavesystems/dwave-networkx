@@ -5,7 +5,7 @@ Traveling Salesperson
 A traveling salesperson route is an ordering of the vertices in a complete weighted
 graph.
 
-.. figure:: ../../_static/tsp.png
+.. figure:: ../../_images/tsp.png
    :name: TSP_route
    :alt: image
    :align: center
