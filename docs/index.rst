@@ -1,6 +1,6 @@
 ..  -*- coding: utf-8 -*-
 
-.. _contents:
+.. _index_dnx:
 
 .. include:: ../README.rst
   :start-after: inclusion-marker-do-not-remove
@@ -21,7 +21,7 @@ Documentation
    intro
    reference/index
    bibliography
-   
+
 .. sdk-end-marker
 
 .. toctree::

@@ -1,4 +1,4 @@
-.. _default_sampler:
+.. _default_sampler_dnx:
 
 Default sampler
 ***************

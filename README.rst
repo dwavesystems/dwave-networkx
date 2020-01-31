@@ -13,7 +13,9 @@
 .. inclusion-marker-do-not-remove
 
 D-Wave NetworkX
-====================
+===============
+
+.. index-start-marker
 
 D-Wave NetworkX is an extension of `NetworkX <http://networkx.github.io>`_\ ---a
 Python language package for exploration and analysis of networks and network
@@ -25,7 +27,7 @@ Example Usage
 ----------------
 
 This example generates a graph for a Chimera unit cell (eight nodes in a 4-by-2
-bipartite architecture). 
+bipartite architecture).
 
 .. code: python
 
@@ -33,6 +35,8 @@ bipartite architecture).
 >>> graph = dnx.chimera_graph(1, 1, 4)
 
 See the documentation for more examples.
+
+.. index-end-marker
 
 Installation
 ====================
