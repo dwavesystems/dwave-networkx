@@ -4,7 +4,7 @@
 dwave-networkx
 ==============
 
-.. include:: /readmes/dnx.rst
+.. include:: README.rst
    :start-after: index-start-marker
    :end-before: index-end-marker
 
