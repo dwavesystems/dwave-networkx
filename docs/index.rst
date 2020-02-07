@@ -13,6 +13,12 @@ Documentation
     :Release: |version|
     :Date: |today|
 
+.. note:: This documentation is for the latest version of
+   `dwave-networkx <https://github.com/dwavesystems/dwave_networkx>`_.
+   Documentation for the version currently installed by
+   `dwave-ocean-sdk <https://github.com/dwavesystems/dwave-ocean-sdk>`_
+   is here: :std:doc:`dwave-networkx <oceandocs:docs_dnx/sdk_index>`.
+
 .. sdk-start-marker
 
 .. toctree::
@@ -21,7 +27,7 @@ Documentation
    intro
    reference/index
    bibliography
-   
+
 .. sdk-end-marker
 
 .. toctree::
