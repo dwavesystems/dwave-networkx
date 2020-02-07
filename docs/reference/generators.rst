@@ -1,4 +1,4 @@
-.. _generators:
+.. _generators_dnx:
 
 Graph Generators
 ****************

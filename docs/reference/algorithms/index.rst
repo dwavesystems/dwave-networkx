@@ -1,4 +1,4 @@
-.. _algorithms:
+.. _algorithms_dnx:
 
 **********
 Algorithms

@@ -1,8 +1,8 @@
 ..  -*- coding: utf-8 -*-
 
-.. _contents:
+.. _index_dnx:
 
-.. include:: ../README.rst
+.. include:: README.rst
   :start-after: inclusion-marker-do-not-remove
 
 Documentation
@@ -60,4 +60,4 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
-* :ref:`glossary`
+* `Glossary <https://docs.ocean.dwavesys.com/en/latest/glossary.html>`_
