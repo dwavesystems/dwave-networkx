@@ -97,7 +97,7 @@ def draw_qubit_graph(G, layout, linear_biases={}, quadratic_biases={},
         _mpl_toolkit_found = True
 
     fig = plt.gcf()
-    ax = kwargs.pop('ax', plt.gca())
+    ax = kwargs.pop('ax', None)
     cax = kwargs.pop('cax', None)
 
     if linear_biases or quadratic_biases:
