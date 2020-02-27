@@ -344,7 +344,7 @@ def draw_embedding(G, layout, emb, embedded_graph=None, interaction_edges=None,
     if overlapped_embedding:
         node_size = [node_size_dict[p] for p in G.nodes()]
     else:
-        node_size = 300
+        node_size = kwargs.get('node_size', 300)
 
     labels = {}
     if show_labels:
