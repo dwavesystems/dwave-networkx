@@ -266,8 +266,8 @@ def draw_embedding(G, layout, emb, embedded_graph=None, interaction_edges=None,
 
     if nx.utils.is_string_like(unused_color):
         from matplotlib.colors import colorConverter
-        alpha = kwargs.get('alpha',1.0)
-        unused_color = colorConverter.to_rgba(unused_color,alpha)
+        alpha = kwargs.get('alpha', 1.0)
+        unused_color = colorConverter.to_rgba(unused_color, alpha)
 
     if chain_color is None:
         import matplotlib.cm
@@ -281,7 +281,7 @@ def draw_embedding(G, layout, emb, embedded_graph=None, interaction_edges=None,
 
     if overlapped_embedding:
         bags = compute_bags(G, emb)
-        base_node_size = 100
+        base_node_size = kwargs.get('node_size', 100)
         node_size_dict = {v: base_node_size for v in G.nodes()}
         G, emb, interaction_edges = unoverlapped_embedding(G, emb, interaction_edges)
         for node, data in G.nodes(data=True):
@@ -292,6 +292,8 @@ def draw_embedding(G, layout, emb, embedded_graph=None, interaction_edges=None,
         for v, bag in bags.items():
             for i, x in enumerate(bag):
                 node_size_dict[(v, x)] = base_node_size * (len(bag) - i) ** 2
+
+        kwargs['node_size'] = [node_size_dict[p] for p in G.nodes()]
 
     qlabel = {q: v for v, chain in iteritems(emb) for q in chain}
     edgelist = []
@@ -341,11 +343,6 @@ def draw_embedding(G, layout, emb, embedded_graph=None, interaction_edges=None,
             nodelist.append(p)
             node_color.append(pc)
 
-    if overlapped_embedding:
-        node_size = [node_size_dict[p] for p in G.nodes()]
-    else:
-        node_size = kwargs.get('node_size', 300)
-
     labels = {}
     if show_labels:
         if overlapped_embedding:
@@ -392,7 +389,7 @@ def draw_embedding(G, layout, emb, embedded_graph=None, interaction_edges=None,
              node_color=node_color, edge_color=background_edge_color,
              **kwargs)
 
-    draw(G, layout, nodelist=nodelist, edgelist=edgelist, node_size=node_size,
+    draw(G, layout, nodelist=nodelist, edgelist=edgelist,
          node_color=node_color, edge_color=edge_color, labels=labels,
          **kwargs)
 
