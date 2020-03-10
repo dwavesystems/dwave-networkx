@@ -24,11 +24,11 @@ __all__ = ["maximum_clique", "clique_number", "is_clique"]
 def maximum_clique(G, sampler=None, lagrange=2.0, **sampler_args):
     """
     Returns an approximate maximum clique.
-    A clique in an undirected graph G = (V, E) is a subset of the vertex set
-    `C \subseteq V` such that for every two vertices in C there exists an edge
+    A clique in an undirected graph, G = (V, E), is a subset of the vertex set
+    :math:`C \subseteq V` such that for every two vertices in C there exists an edge
     connecting the two. This is equivalent to saying that the subgraph
     induced by C is complete (in some cases, the term clique may also refer
-    to the subgraph).A maximum clique is a clique of the largest
+    to the subgraph). A maximum clique is a clique of the largest
     possible size in a given graph.
 
     This function works by finding the maximum independent set of the compliment
@@ -96,7 +96,7 @@ def clique_number(G, sampler=None, lagrange=2.0, **sampler_args):
     """
     Returns the number of vertices in the maximum clique of a graph.
     A maximum clique is a clique of the largest possible size in a given graph.
-    The clique number `\omega(G)` of a graph G is the number of
+    The clique number math:`\omega(G)` of a graph G is the number of
     vertices in a maximum clique in G. The intersection number of
     G is the smallest number of cliques that together cover all edges of G.
 
@@ -147,7 +147,7 @@ def clique_number(G, sampler=None, lagrange=2.0, **sampler_args):
     return len(maximum_clique(G, sampler, lagrange, **sampler_args))
 
 def is_clique(G, clique_nodes):
-    """Determines whether the given nodes forms a clique.
+    """Determines whether the given nodes form a clique.
 
     A clique is a subset of nodes of an undirected graph such that every two
     distinct nodes in the clique are adjacent.
