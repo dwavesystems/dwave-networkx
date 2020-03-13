@@ -100,7 +100,7 @@ def sample_markov_network(MN, sampler=None, fixed_variables=None,
     >>> MN = dnx.markov_network(potentials)
     >>> sampler = dimod.ExactSolver()
     >>> samples = dnx.sample_markov_network(MN, sampler)
-    >>> samples[0]
+    >>> samples[0]     # doctest: +SKIP
     {'a': 0, 'b': 0}
 
     >>> import dimod
@@ -112,7 +112,7 @@ def sample_markov_network(MN, sampler=None, fixed_variables=None,
     >>> MN = dnx.markov_network(potentials)
     >>> sampler = dimod.ExactSolver()
     >>> samples = dnx.sample_markov_network(MN, sampler, return_sampleset=True)
-    >>> samples.first
+    >>> samples.first       # doctest: +SKIP
     Sample(sample={'a': 0, 'b': 0}, energy=-1.0, num_occurrences=1)
 
     >>> import dimod
@@ -128,7 +128,7 @@ def sample_markov_network(MN, sampler=None, fixed_variables=None,
     >>> MN = dnx.markov_network(potentials)
     >>> sampler = dimod.ExactSolver()
     >>> samples = dnx.sample_markov_network(MN, sampler, fixed_variables={'b': 0})
-    >>> samples[0]
+    >>> samples[0]           # doctest: +SKIP
     {'a': 0, 'c': 0, 'b': 0}
 
     Notes
