@@ -50,7 +50,12 @@ def canonical_chimera_labeling(G, t=None):
     chimera_indices = {}
 
     row = col = 0
-    root = min(adj, key=lambda v: len(adj[v]))
+
+    # need to find a node in a corner
+    root_edge = min(((u, v) for u in adj for v in adj[u]),
+                    key=lambda edge: len(adj[edge[0]]) + len(adj[edge[1]]))
+    root, _ = root_edge
+
     horiz, verti = rooted_tile(adj, root, t)
     while len(chimera_indices) < len(adj):
 
