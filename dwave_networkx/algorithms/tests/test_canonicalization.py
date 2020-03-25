@@ -103,6 +103,19 @@ class TestCanonicalChimeraLabeling(unittest.TestCase):
 
         self.assertEqual(bqm, bqm2)
 
+    def test_reversed(self):
+        C33 = nx.OrderedGraph()
+        C33.add_nodes_from(reversed(range(3*3*4)))
+        C33.add_edges_from(dnx.chimera_graph(3, 3, 4).edges)
+        coord = chimera_coordinates(3, 3, 4)
+
+        labels = canonical_chimera_labeling(C33)
+        labels = {v: coord.chimera_to_linear(labels[v]) for v in labels}
+
+        G = nx.relabel_nodes(C33, labels, copy=True)
+
+        self.assertTrue(nx.is_isomorphic(G, C33))
+
     def test__shore_size_tiles(self):
         for t in range(1, 8):
             G = dnx.chimera_graph(1, 1, t)
