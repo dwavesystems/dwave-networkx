@@ -223,10 +223,10 @@ def draw_pegasus(G, crosses=False, **kwargs):
 
     >>> import networkx as nx
     >>> import dwave_networkx as dnx
-    >>> import matplotlib.pyplot as plt
+    >>> import matplotlib.pyplot as plt   # doctest: +SKIP
     >>> G = dnx.pegasus_graph(2)
-    >>> dnx.draw_pegasus(G)
-    >>> plt.show()
+    >>> dnx.draw_pegasus(G)    # doctest: +SKIP
+    >>> plt.show()    # doctest: +SKIP
 
     """
 
