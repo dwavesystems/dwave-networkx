@@ -68,8 +68,10 @@ Pegasus Graph Functions
 .. autosummary::
    :toctree: generated/
 
-   pegasus_layout
    draw_pegasus
+	 draw_pegasus_embedding
+	 pegasus_layout
+	 pegasus_node_placer_2d
 
 Example
 ---------
