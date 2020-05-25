@@ -45,17 +45,17 @@ __all__ = ['pegasus_layout', 'draw_pegasus', 'draw_pegasus_embedding', 'draw_peg
 def pegasus_layout(G, scale=1., center=None, dim=2, crosses=False):
     """Positions the nodes of graph G in a Pegasus topology.
 
-    NumPy (http://scipy.org) is required for this function.
+    `NumPy <http://scipy.org>`_ is required for this function.
 
     Parameters
     ----------
     G : NetworkX graph
-        Should be a Pegasus graph or a subgraph of a Pegasus graph.
-        This should be the product of dwave_networkx.pegasus_graph
+        A Pegasus graph or a subgraph of a Pegasus graph, as produced by
+        the :func:`dwave_networkx.pegasus_graph` function.
 
     scale : float (default 1.)
-        Scale factor. When scale = 1,  all positions fit within [0, 1]
-        on the x-axis and [-1, 0] on the y-axis.
+        Scale factor. A setting of ``scale = 1`` fits all positions within
+        [0, 1] on the x-axis and [-1, 0] on the y-axis.
 
     center : None or array (default None)
         Coordinates of the top left corner.
@@ -65,18 +65,20 @@ def pegasus_layout(G, scale=1., center=None, dim=2, crosses=False):
         set to 0.
 
     crosses: boolean (optional, default False)
-        If crosses is True, K_4,4 subgraphs are shown in a cross
-        rather than L configuration. Ignored if G was defined with
-        nice_coordinates=True.
+        If True, :math:`K_{4,4}` subgraphs are shown in a cross
+        rather than L configuration. Ignored if G is defined with
+        ``nice_coordinates=True``.
 
     Returns
     -------
     pos : dict
-        A dictionary of positions keyed by node.
+        Positions as a dictionary keyed by node.
 
     Examples
     --------
-    >>> G = dnx.pegasus_graph(1)
+        This example gives the positions of a Pegasus lattice of size 2.
+
+    >>> G = dnx.pegasus_graph(2)
     >>> pos = dnx.pegasus_layout(G)
 
     """
@@ -105,18 +107,17 @@ def pegasus_layout(G, scale=1., center=None, dim=2, crosses=False):
 
 
 def pegasus_node_placer_2d(G, scale=1., center=None, dim=2, crosses=False):
-    """Generates a function that converts Pegasus indices to x, y
-    coordinates for a plot.
+    """Generates a function to convert Pegasus indices to plottable coordinates.
 
     Parameters
     ----------
     G : NetworkX graph
-        Should be a Pegasus graph or a subgraph of a Pegasus graph.
-        This should be the product of dwave_networkx.pegasus_graph
+        A Pegasus graph or a subgraph of a Pegasus graph, as produced by
+        the :func:`dwave_networkx.pegasus_graph` function.
 
     scale : float (default 1.)
-        Scale factor. When scale = 1,  all positions fit within [0, 1]
-        on the x-axis and [-1, 0] on the y-axis.
+        Scale factor. A setting of ``scale = 1`` fits all positions within
+        [0, 1] on the x-axis and [-1, 0] on the y-axis.
 
     center : None or array (default None)
         Coordinates of the top left corner.
@@ -126,14 +127,14 @@ def pegasus_node_placer_2d(G, scale=1., center=None, dim=2, crosses=False):
         set to 0.
 
     crosses: boolean (optional, default False)
-        If crosses is True, K_4,4 subgraphs are shown in a cross
+        If True, :math:`K_{4,4}` subgraphs are shown in a cross
         rather than L configuration.
 
     Returns
     -------
     xy_coords : function
         A function that maps a Pegasus index (u, w, k, z) in a
-        Pegasus lattice to x,y coordinates such as used by a plot.
+        Pegasus lattice to plottable x,y coordinates.
 
     """
     import numpy as np
@@ -187,44 +188,45 @@ def pegasus_node_placer_2d(G, scale=1., center=None, dim=2, crosses=False):
 def draw_pegasus(G, crosses=False, **kwargs):
     """Draws graph G in a Pegasus topology.
 
-    If `linear_biases` and/or `quadratic_biases` are provided, these
+    If ``linear_biases`` and/or ``quadratic_biases`` are provided, these
     are visualized on the plot.
 
     Parameters
     ----------
     G : NetworkX graph
-        Should be a Pegasus graph or a subgraph of a Pegasus graph,
-        a product of dwave_networkx.pegasus_graph.
+        A Pegasus graph or a subgraph of a Pegasus graph, as produced by
+        the :func:`dwave_networkx.pegasus_graph` function.
 
     linear_biases : dict (optional, default {})
-        A dict of biases associated with each node in G. Should be of
-        form {node: bias, ...}. Each bias should be numeric.
+        Biases as a dict, of form {node: bias, ...}, where keys are
+        nodes in G and biases are numeric.
 
     quadratic_biases : dict (optional, default {})
-        A dict of biases associated with each edge in G. Should be of
-        form {edge: bias, ...}. Each bias should be numeric. Self-loop
+        Biases as a dict, of form {edge: bias, ...}, where keys are
+        edges in G and biases are numeric. Self-loop
         edges (i.e., :math:`i=j`) are treated as linear biases.
 
     crosses: boolean (optional, default False)
-        If crosses is True, K_4,4 subgraphs are shown in a cross
-        rather than L configuration. Ignored if G was defined with
-        nice_coordinates=True.
+        If True, :math:`K_{4,4}` subgraphs are shown in a cross
+        rather than L configuration. Ignored if G is defined with
+        ``nice_coordinates=True``.
 
     kwargs : optional keywords
        See networkx.draw_networkx() for a description of optional keywords,
-       with the exception of the `pos` parameter which is not used by this
-       function. If `linear_biases` or `quadratic_biases` are provided,
-       any provided `node_color` or `edge_color` arguments are ignored.
+       with the exception of the ``pos`` parameter, which is not used by this
+       function. If ``linear_biases`` or ``quadratic_biases`` are provided,
+       any provided ``node_color`` or ``edge_color`` arguments are ignored.
 
     Examples
     --------
-    >>> # Plot a Pegasus graph with size parameter 2
+        This example plots a Pegasus graph with size parameter 2.
+
     >>> import networkx as nx
     >>> import dwave_networkx as dnx
-    >>> import matplotlib.pyplot as plt
+    >>> import matplotlib.pyplot as plt   # doctest: +SKIP
     >>> G = dnx.pegasus_graph(2)
-    >>> dnx.draw_pegasus(G)
-    >>> plt.show()
+    >>> dnx.draw_pegasus(G)    # doctest: +SKIP
+    >>> plt.show()    # doctest: +SKIP
 
     """
 
@@ -232,61 +234,57 @@ def draw_pegasus(G, crosses=False, **kwargs):
 
 
 def draw_pegasus_embedding(G, *args, **kwargs):
-    """Draws an embedding onto the pegasus graph G, according to layout.
-
-    If interaction_edges is not None, then only display the couplers in that
-    list.  If embedded_graph is not None, the only display the couplers between
-    chains with intended couplings according to embedded_graph.
+    """Draws an embedding onto Pegasus graph G.
 
     Parameters
     ----------
     G : NetworkX graph
-        Should be a Pegasus graph or a subgraph of a Pegasus graph.
-        This should be the product of dwave_networkx.pegasus_graph
+        A Pegasus graph or a subgraph of a Pegasus graph, as produced by
+        the :func:`dwave_networkx.pegasus_graph` function.
 
     emb : dict
-        A dict of chains associated with each node in G.  Should be
-        of the form {node: chain, ...}.  Chains should be iterables
-        of qubit labels (qubits are nodes in G).
+        Chains, as a dict of form {qubit: chain, ...}, where qubits are
+        nodes in G and chains are iterables of qubit labels.
 
     embedded_graph : NetworkX graph (optional, default None)
-        A graph which contains all keys of emb as nodes.  If specified,
-        edges of G will be considered interactions if and only if they
-        exist between two chains of emb if their keys are connected by
-        an edge in embedded_graph
+        A graph that contains all keys of ``emb`` as nodes.  If specified,
+        edges of G are considered interactions if and only if (1) they
+        exist between two chains of ``emb`` and (2) their keys are connected
+        by an edge in this graph. If given, only couplers between chains
+        based on this graph are displayed.
 
     interaction_edges : list (optional, default None)
-        A list of edges which will be used as interactions.
+        A list of edges used as interactions. If given,
+        only these couplers are displayed.
 
     show_labels: boolean (optional, default False)
-        If show_labels is True, then each chain in emb is labelled with its key.
+        If True, each chain in ``emb`` is labelled with its key.
 
     chain_color : dict (optional, default None)
-        A dict of colors associated with each key in emb.  Should be
-        of the form {node: rgba_color, ...}.  Colors should be length-4
-        tuples of floats between 0 and 1 inclusive. If chain_color is None,
-        each chain will be assigned a different color.
+        Colors as a dict of form {node: rgba_color, ...} associated with
+        each key in ``emb``, where colors are length-4 tuples of floats
+        between 0 and 1 inclusive. If None, each chain is assigned a
+        different color.
 
     unused_color : tuple (optional, default (0.9,0.9,0.9,1.0))
-        The color to use for nodes and edges of G which are not involved
-        in chains, and edges which are neither chain edges nor interactions.
-        If unused_color is None, these nodes and edges will not be shown at all.
+        Color for nodes of G that are not part of chains, and edges
+        that are neither chain edges nor interactions. If None, these
+        nodes and edges are not shown.
 
     crosses: boolean (optional, default False)
-        If crosses is True, K_4,4 subgraphs are shown in a cross
-        rather than L configuration. Ignored if G was defined with
-        nice_coordinates=True.
+        If True, :math:`K_{4,4}` subgraphs are shown in a cross
+        rather than L configuration. Ignored if G is defined with
+        ``nice_coordinates=True``.
 
     overlapped_embedding: boolean (optional, default False)
-        If overlapped_embedding is True, then chains in emb may overlap (contain
-        the same vertices in G), and the drawing will display these overlaps as
-        concentric circles.
+        If True, chains in ``emb`` may overlap (contain the same vertices
+        in G), and these overlaps are displayed as concentric circles.
 
     kwargs : optional keywords
        See networkx.draw_networkx() for a description of optional keywords,
-       with the exception of the `pos` parameter which is not used by this
-       function. If `linear_biases` or `quadratic_biases` are provided,
-       any provided `node_color` or `edge_color` arguments are ignored.
+       with the exception of the ``pos`` parameter, which is not used by this
+       function. If ``linear_biases`` or ``quadratic_biases`` are provided,
+       any provided ``node_color`` or ``edge_color`` arguments are ignored.
     """
     crosses = kwargs.pop("crosses", False)
     draw_embedding(G, pegasus_layout(G, crosses=crosses), *args, **kwargs)
@@ -297,7 +295,7 @@ def draw_pegasus_yield(G, **kwargs):
     Parameters
     ----------
     G : NetworkX graph
-        The graph to be parsed for faults
+        Graph to be parsed for faults.
 
     unused_color : tuple or color string (optional, default (0.9,0.9,0.9,1.0))
         The color to use for nodes and edges of G which are not faults.
