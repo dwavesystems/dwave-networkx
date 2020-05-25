@@ -458,7 +458,7 @@ def fragmented_edges(pegasus_graph):
             yield (prev, curr)
             prev = curr
 
-    #now for the thinky part: for each Pegasus edge, generate the corresponding Chimera edge 
+    #now for the thinky part: for each Pegasus edge, generate the corresponding Chimera edge
     #we skip the "odd-coupler" edges because they don't exist in Chimera
     for q0, q1 in pegasus_graph.edges():
         u0, w0, k0, z0 = coords(q0)
@@ -478,7 +478,7 @@ def fragmented_edges(pegasus_graph):
 
             #else: this is an odd edge; yield nothing
         else:
-            #this may look a little magical -- we're looking for an edge of the form 
+            #this may look a little magical -- we're looking for an edge of the form
             # (fy, fx, u0, fk0), (fy, fx, u1, fk1)
             #where (fy, fx) are the first two coordinates of both the fragments of (u0, w0, k0,z0),
             # (fy, fx) in [(fz0+0, fw0), (fz0+1, fw0), ..., (fz0+5, fw0)]
@@ -499,20 +499,19 @@ def fragmented_edges(pegasus_graph):
 # iter_*_to_*_pairs methods just-in-time, but there are a small enough number
 # that for now it makes sense to do them by hand.
 class pegasus_coordinates(object):
+    """Provides coordinate converters for the Pegasus indexing schemes.
+
+    Parameters
+    ----------
+    m : int
+        Size parameter for the Pegasus lattice.
+
+    See also
+    --------
+    :func:`.pegasus_graph` : Describes the various coordinate conventions.
+
+    """
     def __init__(self, m):
-        """Provides coordinate converters for the Pegasus indexing schemes.
-
-        Parameters
-        ----------
-        m : int
-            Size parameter for the Pegasus lattice.
-
-        See also
-        --------
-        :func:`.pegasus_graph` for a description of the various coordinate
-        conventions.
-
-        """
 
         self.args = m, m - 1
 

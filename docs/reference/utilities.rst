@@ -15,30 +15,31 @@ Decorators
 
 .. currentmodule:: dwave_networkx
 
-Graph Indexing
---------------
-
-Chimera
-~~~~~~~
-
 .. toctree::
    :hidden:
 
    utilities/index
 
-:ref:`index_conversion_classes`
+Graph Indexing
+--------------
 
+See :ref:`index_conversion_classes` on instantiating the needed lattice size
+and setting correct domain and range for coordinates in a QPU working graph.
+
+For the iterator versions of these functions, see the code.
+
+Chimera
+~~~~~~~
 
 .. autosummary::
    :toctree: generated/
 
+   chimera_coordinates.chimera_to_linear
+   chimera_coordinates.linear_to_chimera
    find_chimera_indices
-
 
 Pegasus
 ~~~~~~~
-
-For the iterator versions of these functions, see the code.
 
 .. autosummary::
    :toctree: generated/
