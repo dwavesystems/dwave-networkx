@@ -323,7 +323,7 @@ class chimera_coordinates(object):
 
     See also
     --------
-    :func:`.chimera_graph` for a description of the various conventions.
+    :func:`.chimera_graph` : Describes the various conventions.
 
     """
     def __init__(self, m, n=None, t=None):
@@ -338,7 +338,19 @@ class chimera_coordinates(object):
         return self.chimera_to_linear(q)
 
     def chimera_to_linear(self, q):
-        """Convert a 4-term Chimera coordinate to a linear index."""
+        """Convert a 4-term Chimera coordinate to a linear index.
+
+        Parameters
+        ----------
+        q : 4-tuple
+            Chimera coordinate.
+
+        Examples
+        --------
+        >>> dnx.chimera_coordinates(16).chimera_to_linear((2, 2, 0, 0))
+        272
+
+        """
         i, j, u, k = q
         m, n, t = self.args
         return ((n*i + j)*2 + u)*t + k
@@ -352,7 +364,18 @@ class chimera_coordinates(object):
         return self.linear_to_chimera(r)
 
     def linear_to_chimera(self, r):
-        """Convert a linear index to a 4-term Chimera coordinate."""
+        """Convert a linear index to a 4-term Chimera coordinate.
+
+        Parameters
+        ----------
+        r : int
+            Linear index.
+
+        Examples
+        --------
+        >>> dnx.chimera_coordinates(16).linear_to_chimera(272)
+        (2, 2, 0, 0)
+        """
         m, n, t = self.args
         r, k = divmod(r, t)
         r, u = divmod(r, 2)
