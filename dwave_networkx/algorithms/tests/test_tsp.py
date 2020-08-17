@@ -95,9 +95,9 @@ class TestTSP(unittest.TestCase):
         G.add_weighted_edges_from((u, v, .5)
                                   for u, v in itertools.combinations(range(3), 2))
 
-        route = dnx.traveling_salesperson(G, dimod.ExactSolver(), start=2)
+        route = dnx.traveling_salesperson(G, dimod.ExactSolver(), start=1)
 
-        self.assertEqual(route[0], 2)
+        self.assertEqual(route[0], 1)
 
 
 class TestTSPQUBO(unittest.TestCase):
