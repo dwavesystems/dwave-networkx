@@ -12,19 +12,19 @@ jobs:
 
       - restore_cache: &restore-cache-template
           keys:
-          - v1-dependencies-{{ checksum "requirements_tests.txt" }}-{{ checksum "requirements.txt" }}-{{ .Environment.CIRCLE_JOB }}
+          - v1-dependencies-{{ checksum "requirements.txt" }}-{{ checksum "tests/requirements.txt" }}-{{ .Environment.CIRCLE_JOB }}
 
       - run:
           name: install dependencies
           command: |
             python -m virtualenv env
             . env/bin/activate
-            pip install -r requirements_tests.txt
+            pip install -r requirements.txt -r tests/requirements.txt
 
       - save_cache: &save-cache-template
           paths:
             - ./env
-          key: v1-dependencies-{{ checksum "requirements_tests.txt" }}-{{ checksum "requirements.txt" }}-{{ .Environment.CIRCLE_JOB }}
+          key: v1-dependencies-{{ checksum "requirements.txt" }}-{{ checksum "tests/requirements.txt" }}-{{ .Environment.CIRCLE_JOB }}
 
       - run: &run-tests-template
           name: run tests
@@ -103,7 +103,7 @@ jobs:
           name: install dependencies
           command: |
             . env/bin/activate
-            pip install -r requirements_tests.txt
+            pip install -r requirements.txt -r tests/requirements.txt
 
       - save_cache: *save-cache-template
 
@@ -153,7 +153,7 @@ jobs:
           command: |
             python -m virtualenv env
             . env/bin/activate
-            pip install -r docs/requirements.txt
+            pip install -r requirements.txt -r docs/requirements.txt
 
       - save_cache:
           paths:

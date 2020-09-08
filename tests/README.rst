@@ -1,0 +1,1 @@
+Tests can be found in the subdirectories of dwave_networkx/dwave_networkx.
