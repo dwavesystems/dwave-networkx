@@ -24,3 +24,4 @@ from dwave_networkx.algorithms.coloring import *
 from dwave_networkx.algorithms.max_cut import *
 from dwave_networkx.algorithms.markov import *
 from dwave_networkx.algorithms.tsp import *
+from dwave_networkx.algorithms.exact_cover import *
