@@ -86,7 +86,7 @@ def exact_cover(problem_set, subsets, sampler=None, **sampler_args):
         An iterable of unique numbers
 
     subsets : list(iterable(numeric))
-        A list of subsets of `problem_set`
+        A list of subsets of `problem_set` used to find an exact cover.
 
     sampler
         A binary quadratic model sampler. A sampler is a process that samples
