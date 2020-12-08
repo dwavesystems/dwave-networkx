@@ -11,8 +11,7 @@
 #    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
-#
-# ================================================================================================
+
 """Sets a binary quadratic model sampler used by default
 for functions that require a sample when none is specified.
 

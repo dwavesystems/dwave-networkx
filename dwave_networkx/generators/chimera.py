@@ -11,8 +11,7 @@
 #    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
-#
-# ================================================================================================
+
 """
 Generators for graphs derived from the D-Wave System.
 
@@ -23,7 +22,6 @@ import networkx as nx
 from networkx.algorithms.bipartite import color
 from networkx import diameter
 
-from dwave_networkx import _PY2
 from dwave_networkx.exceptions import DWaveNetworkXException
 
 __all__ = ['chimera_graph',
@@ -31,10 +29,6 @@ __all__ = ['chimera_graph',
            'find_chimera_indices',
            'chimera_to_linear',
            'linear_to_chimera']
-
-# compatibility for python 2/3
-if _PY2:
-    range = xrange
 
 
 def chimera_graph(m, n=None, t=None, create_using=None, node_list=None, edge_list=None, data=True, coordinates=False):

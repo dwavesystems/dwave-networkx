@@ -11,13 +11,13 @@
 #    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
-#
-# ================================================================================================
-from __future__ import division
 
 from dwave_networkx.utils import binary_quadratic_model_sampler
 
-__all__ = ["maximum_weighted_independent_set", "maximum_independent_set", "is_independent_set"]
+__all__ = ["maximum_weighted_independent_set",
+          "maximum_independent_set",
+          "is_independent_set",
+          ]
 
 
 @binary_quadratic_model_sampler(2)

@@ -11,12 +11,6 @@
 #    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
-#
-# ================================================================================================
-from __future__ import absolute_import
-
-import sys
-_PY2 = sys.version_info[0] == 2
 
 import dwave_networkx.generators
 from dwave_networkx.generators import *
@@ -33,4 +27,5 @@ from dwave_networkx.default_sampler import *
 import dwave_networkx.drawing
 from dwave_networkx.drawing import *
 
-from dwave_networkx.package_info import __version__, __author__, __authoremail__, __description__
+from dwave_networkx.package_info import __version__, __author__, \
+    __authoremail__, __description__

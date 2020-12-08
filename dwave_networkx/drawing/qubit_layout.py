@@ -11,34 +11,18 @@
 #    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
-#
-# ================================================================================================
+
 """
 Tools to visualize Chimera lattices and weighted graph problems on them.
 """
 
-from __future__ import division
-
 import math
 import random
 import networkx as nx
+
 from networkx import draw
 
-from dwave_networkx import _PY2
-
 from dwave_networkx.drawing.distinguishable_colors import distinguishable_color_map
-
-# compatibility for python 2/3
-if _PY2:
-    range = xrange
-
-    def itervalues(d): return d.itervalues()
-
-    def iteritems(d): return d.iteritems()
-else:
-    def itervalues(d): return d.values()
-
-    def iteritems(d): return d.items()
 
 __all__ = ['draw_qubit_graph']
 
@@ -295,7 +279,7 @@ def draw_embedding(G, layout, emb, embedded_graph=None, interaction_edges=None,
 
         kwargs['node_size'] = [node_size_dict[p] for p in G.nodes()]
 
-    qlabel = {q: v for v, chain in iteritems(emb) for q in chain}
+    qlabel = {q: v for v, chain in emb.items() for q in chain}
     edgelist = []
     edge_color = []
     background_edgelist = []

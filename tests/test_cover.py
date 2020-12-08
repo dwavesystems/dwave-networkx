@@ -11,8 +11,7 @@
 #    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
-#
-# ================================================================================================
+
 import unittest
 import random
 
@@ -21,10 +20,6 @@ import dwave_networkx as dnx
 
 from dimod import ExactSolver, SimulatedAnnealingSampler
 
-
-#######################################################################################
-# Unit Tests
-#######################################################################################
 
 class TestCover(unittest.TestCase):
 
@@ -84,10 +79,6 @@ class TestCover(unittest.TestCase):
 
         cover = dnx.min_vertex_cover(G, ExactSolver())
         cover = dnx.min_vertex_cover(G, SimulatedAnnealingSampler())
-
-#######################################################################################
-# Helper functions
-#######################################################################################
 
     def vertex_cover_check(self, G, cover):
         # each node in the vertex cover should be in G

@@ -11,8 +11,7 @@
 #    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
-#
-# ================================================================================================
+
 from dwave_networkx.algorithms.independent_set import maximum_weighted_independent_set
 from dwave_networkx.utils import binary_quadratic_model_sampler
 

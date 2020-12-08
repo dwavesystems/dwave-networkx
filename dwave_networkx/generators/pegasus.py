@@ -11,27 +11,20 @@
 #    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
-#
-# ================================================================================================
+
 """
 Generators for some graphs derived from the D-Wave System.
-
 """
 import re
 
 import networkx as nx
 
-from dwave_networkx import _PY2
 from dwave_networkx.exceptions import DWaveNetworkXException
 import warnings
 
 __all__ = ['pegasus_graph',
            'pegasus_coordinates',
            ]
-
-# compatibility for python 2/3
-if _PY2:
-    range = xrange
 
 
 def pegasus_graph(m, create_using=None, node_list=None, edge_list=None, data=True,

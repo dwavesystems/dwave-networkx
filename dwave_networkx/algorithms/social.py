@@ -11,18 +11,10 @@
 #    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
-#
-# ================================================================================================
+
 from dwave_networkx.utils import binary_quadratic_model_sampler
-from dwave_networkx import _PY2
 
 __all__ = ["structural_imbalance"]
-
-# compatibility for python 2/3
-if _PY2:
-    def iteritems(d): return d.iteritems()
-else:
-    def iteritems(d): return d.items()
 
 
 @binary_quadratic_model_sampler(1)
@@ -117,7 +109,7 @@ def structural_imbalance(S, sampler=None, **sampler_args):
     sample = next(iter(response))
 
     # spins determine the color
-    colors = {v: (spin + 1) // 2 for v, spin in iteritems(sample)}
+    colors = {v: (spin + 1) // 2 for v, spin in sample.items()}
 
     # frustrated edges are the ones that are violated
     frustrated_edges = {}
