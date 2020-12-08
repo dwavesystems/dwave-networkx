@@ -1,235 +1,206 @@
-version: 2
-jobs:
-  test-3.7: &full-test-template
-    docker:
-      - image: circleci/python:3.7-stretch
+version: 2.1
 
-    working_directory: ~/repo
+orbs:
+  win: circleci/windows@2.2.0
+
+jobs:
+  test-linux:
+    parameters:
+      python-image-version:
+        type: string
+
+    docker:
+      - image: circleci/python:<< parameters.python-image-version >>
 
     steps:
-
       - checkout
 
-      - restore_cache: &restore-cache-template
-          keys:
-          - v1-dependencies-{{ checksum "requirements.txt" }}-{{ checksum "tests/requirements.txt" }}-{{ .Environment.CIRCLE_JOB }}
-
-      - run:
-          name: install dependencies
-          command: |
-            python -m virtualenv env
-            . env/bin/activate
-            pip install -r requirements.txt -r tests/requirements.txt
-
-      - save_cache: &save-cache-template
-          paths:
-            - ./env
+      - restore_cache: &restore-cache-env
           key: v1-dependencies-{{ checksum "requirements.txt" }}-{{ checksum "tests/requirements.txt" }}-{{ .Environment.CIRCLE_JOB }}
 
-      - run: &run-tests-template
-          name: run tests
+      - run: &create-venv-install-deps
+          name: Create virtual environment and install dependencies
+          command: |
+            python -m venv env
+            . env/bin/activate
+            pip install -U pip setuptools wheel twine
+            pip install -r requirements.txt -r tests/requirements.txt
+
+      - save_cache: &save-cache-env
+          key: v1-dependencies-{{ checksum "requirements.txt" }}-{{ checksum "tests/requirements.txt" }}-{{ .Environment.CIRCLE_JOB }}
+          paths:
+            - env
+
+      - run: &run-tests
+          name: Run unittests
           command: |
             . env/bin/activate
             coverage run -m unittest discover
 
-      - run: &codecov-template
-          name: codecov
+      - run: &run-codecov
+          name: Run codecov
           command: |
             . env/bin/activate
             codecov
 
-  test-3.6:
-    <<: *full-test-template
-    docker:
-      - image: circleci/python:3.6-jessie
+  test-osx:
+    parameters:
+      python-version:
+        type: string
 
-  test-3.5:
-    <<: *full-test-template
-    docker:
-      - image: circleci/python:3.5-jessie
-
-  test-3.4:
-    <<: *full-test-template
-    docker:
-      - image: circleci/python:3.4-jessie
-
-  test-2.7:
-    <<: *full-test-template
-    docker:
-      - image: circleci/python:2.7-jessie
-
-  test-osx-3.7: &osx-tests-template
     macos:
-      xcode: "10.1.0"
+      xcode: "12.2.0"
+
     environment:
-      PYTHON: 3.7.0
       HOMEBREW_NO_AUTO_UPDATE: 1
 
-    working_directory: ~/repo
-
-    steps: 
+    steps:
       - checkout
 
-      - run: 
-          name: install pyenv
+      - run:
+          name: Install pyenv
           command: |
             brew install pyenv
 
-      - restore_cache:
-          keys:
-            - pyenv-{{ .Environment.CIRCLE_JOB }}
+      - restore_cache: &restore-cache-pyenv
+          key: v1-pyenv-{{ .Environment.CIRCLE_JOB }}-xcode-12.2.0
 
       - run:
-          name: install python
+          name: Install python
           command: |
-            pyenv install $PYTHON -s
+            pyenv install << parameters.python-version>> -s
 
-      - save_cache:
+      - run:
+          name: Set system python
+          command: |
+            pyenv global << parameters.python-version >>
+            echo 'eval "$(pyenv init -)"' >> ~/.bash_profile
+
+      - save_cache: &save-cache-pyenv
+          key: v1-pyenv-{{ .Environment.CIRCLE_JOB }}-xcode-12.2.0
           paths:
             - ~/.pyenv
-          key: pyenv-{{ .Environment.CIRCLE_JOB }}
 
-      - restore_cache: *restore-cache-template
+      - restore_cache: *restore-cache-env
+
+      - run: *create-venv-install-deps
+
+      - save_cache: *save-cache-env
+
+      - run: *run-tests
+
+      - run: *run-codecov
+
+  test-win:
+    parameters:
+      python-version:
+        type: string
+
+    executor:
+      name: win/default
+
+    steps:
+      - checkout
 
       - run:
-          name: create virtualenv
+          name: Install python and create virtualenv
           command: |
-            eval "$(pyenv init -)"
-            pyenv local $PYTHON
-            python -m pip install virtualenv
-            python -m virtualenv env
+            nuget install python -Version << parameters.python-version >> -ExcludeVersion -OutputDirectory .
+            .\python\tools\python.exe --version
+            .\python\tools\python.exe -m pip install virtualenv
+            .\python\tools\python.exe -m virtualenv env
 
       - run:
-          name: install dependencies
+          name: Install dependencies
           command: |
-            . env/bin/activate
-            pip install -r requirements.txt -r tests/requirements.txt
+            env\Scripts\activate.ps1
+            python --version
+            pip install -r requirements.txt
+            pip install -r tests\requirements.txt
 
-      - save_cache: *save-cache-template
-
-      - run: *run-tests-template
-
-      - run: *codecov-template
-
-  test-osx-3.6:
-    <<: *osx-tests-template
-    environment:
-      PYTHON: 3.6.5
-      HOMEBREW_NO_AUTO_UPDATE: 1
-
-  test-osx-3.5:
-    <<: *osx-tests-template
-    environment:
-      PYTHON: 3.5.5
-      HOMEBREW_NO_AUTO_UPDATE: 1
-
-  test-osx-3.4:
-    <<: *osx-tests-template
-    environment:
-      PYTHON: 3.4.8
-      HOMEBREW_NO_AUTO_UPDATE: 1
-
-  test-osx-2.7:
-    <<: *osx-tests-template
-    environment:
-      PYTHON: 2.7.15
-      HOMEBREW_NO_AUTO_UPDATE: 1
+      - run:
+          name: Run unittests
+          command: |
+            env\Scripts\activate.ps1
+            python -m unittest discover
 
   test-doctest:
     docker:
       - image: circleci/python:3.7-stretch # as of march 2019 RTD uses 3.7
 
-    working_directory: ~/repo
-
     steps:
       - checkout
 
-      - restore_cache:
-          keys:
-          - v1-dependencies-{{ checksum "docs/requirements.txt" }}-{{ checksum "requirements.txt" }}-{{ .Environment.CIRCLE_JOB }}
+      - restore_cache: *restore-cache-env
+
+      - run: *create-venv-install-deps
 
       - run:
-          name: install dependencies
+          name: Install docs dependencies
           command: |
-            python -m virtualenv env
             . env/bin/activate
-            pip install -r requirements.txt -r docs/requirements.txt
+            pip install -r docs/requirements.txt
 
-      - save_cache:
-          paths:
-            - ./env
-          key: v1-dependencies-{{ checksum "docs/requirements.txt" }}-{{ checksum "requirements.txt" }}-{{ .Environment.CIRCLE_JOB }}
+      - save_cache: *save-cache-env
+
+      - run:
+          name: build docs
+          command: |
+            . env/bin/activate
+            make -C docs/ html
+
+      - store_artifacts:
+          path: ./docs/build/html
 
       - run:
           name: doctest
           command: |
             . env/bin/activate
-            make -C docs/ html doctest
+            make -C docs/ doctest
 
   deploy:
     docker:
-      - image: circleci/python:3.6-jessie
-
-    working_directory: ~/repo
+      - image: circleci/python:3.7
 
     steps:
       - checkout
 
-      - run:
-          name: install dependencies
-          command: |
-            python -m virtualenv env
-            . env/bin/activate
-            pip install -r requirements.txt
+      - run: *create-venv-install-deps
 
       - run:
-          name: install twine
-          command: |
-            . env/bin/activate
-            pip install twine
-
-      - run:
-          name: verify version matches tag
+          name: Verify version matches tag
           command: |
             . env/bin/activate
             pip install .
-            echo $CIRCLE_TAG
-            [[ "$(pip show dwave-networkx 2>/dev/null | grep Version)" == "Version: $CIRCLE_TAG" ]]
+            [[ "$(pip show dwave-qiskit-plugin 2>/dev/null | grep Version)" == "Version: $CIRCLE_TAG" ]]
 
       - run:
-          name: init .pypirc
-          command: |
-            echo -e "[pypi]" >> ~/.pypirc
-            echo -e "username = $PYPI_USERNAME" >> ~/.pypirc
-            echo -e "password = $PYPI_PASSWORD" >> ~/.pypirc
-
-      - run:
-          name: build sdist and bdist
+          name: Build sdist and bdist
           command: |
             . env/bin/activate
-            python setup.py sdist
-            python setup.py bdist_wheel
+            python setup.py sdist bdist_wheel
 
       - run:
-          name: upload
+          name: Upload to PyPI
           command: |
             . env/bin/activate
-            twine upload dist/*
+            twine upload -u $PYPI_USERNAME -p $PYPI_PASSWORD --skip-existing ./dist/*
 
 workflows:
-  version: 2
-  tests:
+  test:
     jobs:
-      - test-3.7
-      - test-3.6
-      - test-3.5
-      - test-3.4
-      - test-2.7
-      - test-osx-3.7
-      - test-osx-3.6
-      - test-osx-3.5
-      - test-osx-3.4
-      - test-osx-2.7
+      - test-linux:
+          matrix:
+            parameters:
+              python-image-version: ["3.5", "3.6", "3.7", "3.8", "3.9"]
+      - test-osx:
+          matrix:
+            parameters:
+              python-version: ["3.5.4", "3.6.8", "3.7.5", "3.8.6", "3.9.0"]
+      - test-win:
+          matrix:
+            parameters:
+              python-version: ["3.5.4", "3.6.8", "3.7.5", "3.8.6", "3.9.0"]
       - test-doctest
 
   deploy:
@@ -237,6 +208,6 @@ workflows:
       - deploy:
           filters:
             tags:
-              only: /^[0-9]+(\.[0-9]+)*(\.dev([0-9]+)?)?$/
+              only: /^[0-9]+(\.[0-9]+)*((\.dev|rc)([0-9]+)?)?$/
             branches:
               ignore: /.*/
