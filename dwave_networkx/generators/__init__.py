@@ -11,8 +11,7 @@
 #    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
-#
-# ================================================================================================
+
 from dwave_networkx.generators.chimera import *
 from dwave_networkx.generators.markov import markov_network
 from dwave_networkx.generators.pegasus import *

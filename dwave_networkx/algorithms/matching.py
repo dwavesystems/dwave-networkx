@@ -11,26 +11,12 @@
 #    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
-#
-# ================================================================================================
+
 import itertools
 
 from dwave_networkx.utils import binary_quadratic_model_sampler
-from dwave_networkx import _PY2
 
 __all__ = ['min_maximal_matching', 'is_matching', 'is_maximal_matching']
-
-# compatibility for python 2/3
-if _PY2:
-    range = xrange
-
-    def iteritems(d): return d.iteritems()
-
-    def itervalues(d): return d.itervalues()
-else:
-    def iteritems(d): return d.items()
-
-    def itervalues(d): return d.values()
 
 
 @binary_quadratic_model_sampler(1)

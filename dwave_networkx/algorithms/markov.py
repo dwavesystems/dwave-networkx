@@ -11,14 +11,12 @@
 #    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
-#
-# =============================================================================
 
 import dimod
 
 from dwave_networkx.utils import binary_quadratic_model_sampler
 
-__all__ = 'sample_markov_network', 'markov_network_bqm'
+__all__ = ['sample_markov_network', 'markov_network_bqm']
 
 
 ###############################################################################

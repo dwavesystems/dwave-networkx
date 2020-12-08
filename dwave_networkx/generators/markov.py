@@ -11,14 +11,9 @@
 #    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
-#
-# =============================================================================
-import itertools
 
-try:
-    import collections.abc as abc
-except ImportError:
-    import collections as abc
+import itertools
+import collections.abc as abc
 
 from collections import namedtuple
 

@@ -11,8 +11,7 @@
 #    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
-#
-# ================================================================================================
+
 def distinguishable_color_map(num_colors):
     # Creates a matplotlib Colormap with num_colors visually distinct colors.
     try:

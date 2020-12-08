@@ -11,35 +11,24 @@
 #    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
-#
-# ================================================================================================
+
 """
 Tools to visualize Pegasus lattices and weighted graph problems on them.
 """
 
-from __future__ import division
-
 import networkx as nx
 from networkx import draw
 
-from dwave_networkx import _PY2
 from dwave_networkx.drawing.qubit_layout import draw_qubit_graph, draw_embedding, draw_yield
 from dwave_networkx.generators.pegasus import pegasus_graph, pegasus_coordinates
 from dwave_networkx.drawing.chimera_layout import chimera_node_placer_2d
 
-# compatibility for python 2/3
-if _PY2:
-    range = xrange
 
-    def itervalues(d): return d.itervalues()
-
-    def iteritems(d): return d.iteritems()
-else:
-    def itervalues(d): return d.values()
-
-    def iteritems(d): return d.items()
-
-__all__ = ['pegasus_layout', 'draw_pegasus', 'draw_pegasus_embedding', 'draw_pegasus_yield']
+__all__ = ['pegasus_layout',
+           'draw_pegasus',
+           'draw_pegasus_embedding',
+           'draw_pegasus_yield',
+           ]
 
 
 def pegasus_layout(G, scale=1., center=None, dim=2, crosses=False):

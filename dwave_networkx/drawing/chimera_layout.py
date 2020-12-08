@@ -17,26 +17,12 @@
 Tools to visualize Chimera lattices and weighted graph problems on them.
 """
 
-from __future__ import division
-
 import networkx as nx
 from networkx import draw
 
-from dwave_networkx import _PY2
 from dwave_networkx.drawing.qubit_layout import draw_qubit_graph, draw_embedding, draw_yield
 from dwave_networkx.generators.chimera import chimera_graph, find_chimera_indices, chimera_coordinates
 
-# compatibility for python 2/3
-if _PY2:
-    range = xrange
-
-    def itervalues(d): return d.itervalues()
-
-    def iteritems(d): return d.iteritems()
-else:
-    def itervalues(d): return d.values()
-
-    def iteritems(d): return d.items()
 
 __all__ = ['chimera_layout', 'draw_chimera', 'draw_chimera_embedding', 'draw_chimera_yield']
 
@@ -108,13 +94,13 @@ def chimera_layout(G, scale=1., center=None, dim=2):
 
         # we could read these off of the name attribute for G, but we would want the values in
         # the nodes to override the name in case of conflict.
-        m = max(idx[0] for idx in itervalues(chimera_indices)) + 1
-        n = max(idx[1] for idx in itervalues(chimera_indices)) + 1
-        t = max(idx[3] for idx in itervalues(chimera_indices)) + 1
+        m = max(idx[0] for idx in chimera_indices.values()) + 1
+        n = max(idx[1] for idx in chimera_indices.values()) + 1
+        t = max(idx[3] for idx in chimera_indices.values()) + 1
         xy_coords = chimera_node_placer_2d(m, n, t, scale, center, dim)
 
         # compute our coordinates
-        pos = {v: xy_coords(i, j, u, k) for v, (i, j, u, k) in iteritems(chimera_indices)}
+        pos = {v: xy_coords(i, j, u, k) for v, (i, j, u, k) in chimera_indices.items()}
 
     return pos
 
