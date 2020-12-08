@@ -11,10 +11,8 @@
 #    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
-#
-# ================================================================================================
+
 import os
-import sys
 
 from setuptools import setup
 
@@ -22,12 +20,7 @@ from setuptools import setup
 my_loc = os.path.dirname(os.path.abspath(__file__))
 os.chdir(my_loc)
 
-# add __version__, __author__, __authoremail__, __description__ to this namespace
-_PY2 = sys.version_info.major == 2
-if _PY2:
-    execfile(os.path.join(".", "dwave_networkx", "package_info.py"))
-else:
-    exec(open(os.path.join(".", "dwave_networkx", "package_info.py")).read())
+exec(open(os.path.join(".", "dwave_networkx", "package_info.py")).read())
 
 packages = ['dwave_networkx',
             'dwave_networkx.algorithms',
@@ -41,6 +34,19 @@ install_requires = ['networkx>=2.0,<3.0',
                     'dimod>=0.8.0',
                     ]
 
+python_requires = ">=3.5"
+
+classifiers = [
+    'License :: OSI Approved :: Apache Software License',
+    'Operating System :: OS Independent',
+    'Programming Language :: Python :: 3 :: Only',
+    'Programming Language :: Python :: 3.5',
+    'Programming Language :: Python :: 3.6',
+    'Programming Language :: Python :: 3.7',
+    'Programming Language :: Python :: 3.8',
+    'Programming Language :: Python :: 3.9',
+]
+
 setup(
     name='dwave_networkx',
     version=__version__,
@@ -53,4 +59,6 @@ setup(
     packages=packages,
     license='Apache 2.0',
     install_requires=install_requires,
+    python_requires=python_requires,
+    classifiers=classifiers,
 )
