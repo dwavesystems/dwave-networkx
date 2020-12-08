@@ -13,7 +13,6 @@
 #    limitations under the License.
 #
 # ================================================================================================
-from __future__ import print_function
 import dwave_networkx as dnx
 import networkx as nx
 import dimod
