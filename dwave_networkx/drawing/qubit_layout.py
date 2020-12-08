@@ -24,6 +24,8 @@ import random
 import networkx as nx
 from networkx import draw
 
+from itertools import repeat
+
 from dwave_networkx import _PY2
 
 from dwave_networkx.drawing.distinguishable_colors import distinguishable_color_map
@@ -293,7 +295,8 @@ def draw_embedding(G, layout, emb, embedded_graph=None, interaction_edges=None,
             for i, x in enumerate(bag):
                 node_size_dict[(v, x)] = base_node_size * (len(bag) - i) ** 2
 
-        kwargs['node_size'] = [node_size_dict[p] for p in G.nodes()]
+        kwargs['node_size'] = [node_size_dict[p]  for p in G]
+
 
     qlabel = {q: v for v, chain in iteritems(emb) for q in chain}
     edgelist = []
@@ -332,7 +335,11 @@ def draw_embedding(G, layout, emb, embedded_graph=None, interaction_edges=None,
 
     nodelist = []
     node_color = []
-    for p in G.nodes():
+    size_list = []
+    original_size = sizes = kwargs.get('node_size')
+    if not nx.utils.iterable(sizes):
+        sizes = repeat(sizes)
+    for p, s in zip(G, sizes):
         u = qlabel.get(p)
         if u is None:
             pc = unused_color
@@ -342,6 +349,10 @@ def draw_embedding(G, layout, emb, embedded_graph=None, interaction_edges=None,
         if pc is not None:
             nodelist.append(p)
             node_color.append(pc)
+            size_list.append(s)
+
+    if original_size is not None:
+        kwargs['node_size'] = size_list
 
     labels = {}
     if show_labels:
