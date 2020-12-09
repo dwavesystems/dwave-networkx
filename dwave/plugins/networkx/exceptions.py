@@ -21,6 +21,10 @@ All exceptions are derived from NetworkXException.
 
 from networkx import NetworkXException
 
+__all__ = ['DWaveNetworkXException',
+           'DWaveNetworkXMissingSampler',
+           ]
+
 
 class DWaveNetworkXException(NetworkXException):
     """Base class for exceptions in DWaveNetworkX."""

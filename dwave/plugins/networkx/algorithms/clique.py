@@ -13,11 +13,13 @@
 #    limitations under the License.
 
 import networkx as nx
-import dwave.plugins.networkx as dnx
 
+from dwave.plugins.networkx.algorithms.independent_set import maximum_independent_set
 from dwave.plugins.networkx.utils import binary_quadratic_model_sampler
 
+
 __all__ = ["maximum_clique", "clique_number", "is_clique"]
+
 
 @binary_quadratic_model_sampler(1)
 def maximum_clique(G, sampler=None, lagrange=2.0, **sampler_args):
@@ -87,7 +89,7 @@ def maximum_clique(G, sampler=None, lagrange=2.0, **sampler_args):
     # finding the maximum clique in a graph is equivalent to finding
     # the independent set in the complementary graph
     complement_G = nx.complement(G)
-    return dnx.maximum_independent_set(complement_G, sampler, lagrange, **sampler_args)
+    return maximum_independent_set(complement_G, sampler, lagrange, **sampler_args)
 
 
 @binary_quadratic_model_sampler(1)
@@ -144,6 +146,7 @@ def clique_number(G, sampler=None, lagrange=2.0, **sampler_args):
     `Maximum Clique on Wikipedia <https://en.wikipedia.org/wiki/Maximum_clique(graph_theory)>`_
     """
     return len(maximum_clique(G, sampler, lagrange, **sampler_args))
+
 
 def is_clique(G, clique_nodes):
     """Determines whether the given nodes form a clique.

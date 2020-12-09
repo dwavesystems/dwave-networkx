@@ -19,6 +19,8 @@ import dwave.plugins.networkx.algorithms
 from dwave.plugins.networkx.algorithms import *
 
 import dwave.plugins.networkx.utils
+
+import dwave.plugins.networkx.exceptions
 from dwave.plugins.networkx.exceptions import *
 
 import dwave.plugins.networkx.default_sampler
@@ -27,5 +29,9 @@ from dwave.plugins.networkx.default_sampler import *
 import dwave.plugins.networkx.drawing
 from dwave.plugins.networkx.drawing import *
 
-from dwave.plugins.networkx.package_info import __version__, __author__, \
-    __authoremail__, __description__
+from dwave.plugins.networkx.package_info import (
+    __version__,
+    __author__,
+    __authoremail__,
+    __description__,
+    )
