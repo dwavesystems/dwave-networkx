@@ -20,13 +20,14 @@ from setuptools import setup
 my_loc = os.path.dirname(os.path.abspath(__file__))
 os.chdir(my_loc)
 
-exec(open(os.path.join(".", "dwave_networkx", "package_info.py")).read())
+exec(open(os.path.join(".", "dwave", "plugins", "networkx", "package_info.py")).read())
 
 packages = ['dwave_networkx',
-            'dwave_networkx.algorithms',
-            'dwave_networkx.utils',
-            'dwave_networkx.drawing',
-            'dwave_networkx.generators',
+            'dwave.plugins.networkx',
+            'dwave.plugins.networkx.algorithms',
+            'dwave.plugins.networkx.utils',
+            'dwave.plugins.networkx.drawing',
+            'dwave.plugins.networkx.generators',
             ]
 
 install_requires = ['networkx>=2.0,<3.0',
@@ -48,17 +49,18 @@ classifiers = [
 ]
 
 setup(
-    name='dwave_networkx',
+    name='dwave-networkx',
     version=__version__,
     author=__author__,
     author_email=__authoremail__,
     description=__description__,
     long_description=open('README.rst').read(),
-    url='https://github.com/dwavesystems/dwave_networkx',
-    download_url='https://github.com/dwavesystems/dwave_networkx/releases',
+    url='https://github.com/dwavesystems/dwave-networkx',
+    download_url='https://github.com/dwavesystems/dwave-networkx/releases',
     packages=packages,
     license='Apache 2.0',
     install_requires=install_requires,
     python_requires=python_requires,
     classifiers=classifiers,
+    zip_safe=False,
 )
