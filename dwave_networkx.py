@@ -28,14 +28,27 @@ def alias_subpackages():
     import pkgutil
     import sys
 
+    if sys.version_info[1] <= 5:
+        # in python 3.5, we need a named tuple
+        from collections import namedtuple
+
+        Module = namedtuple('Module', ['module_finder', 'name', 'ispkg'])
+
+        def walk_packages(*args, **kwargs):
+            for module in pkgutil.walk_packages(*args, **kwargs):
+                yield Module(*module)
+
+    else:
+        walk_packages = pkgutil.walk_packages
+
     import warnings
     warnings.warn("the dwave_networkx namespace was deprecated in "
                   "dwave-networkx 0.9.0, please use "
                   "dwave.plugins.networkx instead.",
                   DeprecationWarning, stacklevel=3)
 
-    for module in pkgutil.walk_packages(dwave.plugins.networkx.__path__,
-                                        dwave.plugins.networkx.__name__ + '.'):
+    for module in walk_packages(dwave.plugins.networkx.__path__,
+                                dwave.plugins.networkx.__name__ + '.'):
         # only want the subpackages
         if not module.ispkg:
             continue
