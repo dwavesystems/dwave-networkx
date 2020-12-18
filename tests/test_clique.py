@@ -16,7 +16,6 @@ import unittest
 import networkx as nx
 import dimod
 import dwave_networkx as dnx
-import dwave_networkx.algorithms.clique as clique
 
 
 class TestIsClique(unittest.TestCase):
@@ -63,7 +62,8 @@ class TestMaxClique(unittest.TestCase):
 
         clique = dnx.maximum_clique(G)
         dnx.unset_default_sampler()
-        self.assertEqual(dnx.get_default_sampler(), None, "sampler did not unset correctly")
+        self.assertEqual(dnx.get_default_sampler(), None,
+                         "sampler did not unset correctly")
 
     def test_two_cliques(self):
         # This graph has two major cliques [0,1,2,3,4] and [11,12,13,14]

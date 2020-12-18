@@ -15,11 +15,8 @@
 import unittest
 
 import networkx as nx
-
 import dimod
-
 import dwave_networkx as dnx
-import dwave_networkx.algorithms.independent_set as indep
 
 
 class TestIsIndependentSet(unittest.TestCase):
@@ -54,14 +51,14 @@ class TestWeightedMaximumIndependentSet(unittest.TestCase):
     def test_empty(self):
         G = nx.Graph()
 
-        Q = indep.maximum_weighted_independent_set_qubo(G)
+        Q = dnx.maximum_weighted_independent_set_qubo(G)
 
         self.assertEqual(Q, {})
 
     def test_K1_no_weights(self):
         G = nx.complete_graph(1)
 
-        Q = indep.maximum_weighted_independent_set_qubo(G)
+        Q = dnx.maximum_weighted_independent_set_qubo(G)
 
         self.assertEqual(Q, {(0, 0): -1})
 
@@ -69,7 +66,7 @@ class TestWeightedMaximumIndependentSet(unittest.TestCase):
         G = nx.Graph()
         G.add_node(0, weight=.5)
 
-        Q = indep.maximum_weighted_independent_set_qubo(G)
+        Q = dnx.maximum_weighted_independent_set_qubo(G)
 
         self.assertEqual(Q, {(0, 0): -1.})  # should be scaled to 1
 
@@ -79,7 +76,7 @@ class TestWeightedMaximumIndependentSet(unittest.TestCase):
         G.add_node(1, weight=1)
         G.add_edge(0, 1)
 
-        Q = indep.maximum_weighted_independent_set_qubo(G, weight='weight')
+        Q = dnx.maximum_weighted_independent_set_qubo(G, weight='weight')
 
         self.assertEqual(Q, {(0, 0): -.5, (1, 1): -1, (0, 1): 2.0})
 
@@ -89,7 +86,7 @@ class TestWeightedMaximumIndependentSet(unittest.TestCase):
         G.add_node(1)
         G.add_edge(0, 1)
 
-        Q = indep.maximum_weighted_independent_set_qubo(G, weight='weight')
+        Q = dnx.maximum_weighted_independent_set_qubo(G, weight='weight')
 
         self.assertEqual(Q, {(0, 0): -.5, (1, 1): -1, (0, 1): 2.0})
 
@@ -97,7 +94,7 @@ class TestWeightedMaximumIndependentSet(unittest.TestCase):
         G = nx.path_graph(3)
         G.nodes[1]['weight'] = 2.1
 
-        Q = indep.maximum_weighted_independent_set_qubo(G, weight='weight')
+        Q = dnx.maximum_weighted_independent_set_qubo(G, weight='weight')
 
         self.assertLess(dimod.qubo_energy({0: 0, 1: 1, 2: 0}, Q),
                         dimod.qubo_energy({0: 1, 1: 0, 2: 1}, Q))
