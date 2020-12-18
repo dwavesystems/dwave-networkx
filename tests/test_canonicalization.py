@@ -19,13 +19,12 @@ import dimod
 import dwave_networkx as dnx
 import networkx as nx
 
-from dwave_networkx.algorithms.canonicalization import rooted_tile, canonical_chimera_labeling, _chimera_shore_size
-from dwave_networkx.generators.chimera import chimera_coordinates
-
 
 class TestRootedTile(unittest.TestCase):
-
     def test_C33_tiles(self):
+        # not a public function
+        rooted_tile = dnx.algorithms.canonicalization.rooted_tile
+
         C33 = dnx.chimera_graph(3, 3, 4)
 
         for root in range(0, len(C33), 8):
@@ -39,9 +38,9 @@ class TestRootedTile(unittest.TestCase):
 class TestCanonicalChimeraLabeling(unittest.TestCase):
     def test_tile_identity(self):
         C1 = dnx.chimera_graph(1)
-        coord = chimera_coordinates(1, 1, 4)
+        coord = dnx.chimera_coordinates(1, 1, 4)
 
-        labels = canonical_chimera_labeling(C1)
+        labels = dnx.canonical_chimera_labeling(C1)
         labels = {v: coord.chimera_to_linear(labels[v]) for v in labels}
 
         G = nx.relabel_nodes(C1, labels, copy=True)
@@ -50,10 +49,11 @@ class TestCanonicalChimeraLabeling(unittest.TestCase):
         self.assertEqual(set(G), set(C1))
 
     def test_bqm_tile_identity(self):
-        C1bqm = dimod.BinaryQuadraticModel.from_ising({}, {e: -1 for e in dnx.chimera_graph(1).edges})
-        coord = chimera_coordinates(1, 1, 4)
+        J = {e: -1 for e in dnx.chimera_graph(1).edges}
+        C1bqm = dimod.BinaryQuadraticModel.from_ising({}, J)
+        coord = dnx.chimera_coordinates(1, 1, 4)
 
-        labels = canonical_chimera_labeling(C1bqm)
+        labels = dnx.canonical_chimera_labeling(C1bqm)
         labels = {v: coord.chimera_to_linear(labels[v]) for v in labels}
 
         bqm = C1bqm.relabel_variables(labels, inplace=False)
@@ -62,9 +62,9 @@ class TestCanonicalChimeraLabeling(unittest.TestCase):
 
     def test_row_identity(self):
         C41 = dnx.chimera_graph(4, 1)
-        coord = chimera_coordinates(4, 1, 4)
+        coord = dnx.chimera_coordinates(4, 1, 4)
 
-        labels = canonical_chimera_labeling(C41)
+        labels = dnx.canonical_chimera_labeling(C41)
         labels = {v: coord.chimera_to_linear(labels[v]) for v in labels}
 
         G = nx.relabel_nodes(C41, labels, copy=True)
@@ -73,9 +73,9 @@ class TestCanonicalChimeraLabeling(unittest.TestCase):
 
     def test_3x3_identity(self):
         C33 = dnx.chimera_graph(3, 3)
-        coord = chimera_coordinates(3, 3, 4)
+        coord = dnx.chimera_coordinates(3, 3, 4)
 
-        labels = canonical_chimera_labeling(C33)
+        labels = dnx.canonical_chimera_labeling(C33)
         labels = {v: coord.chimera_to_linear(labels[v]) for v in labels}
 
         G = nx.relabel_nodes(C33, labels, copy=True)
@@ -84,7 +84,7 @@ class TestCanonicalChimeraLabeling(unittest.TestCase):
 
     def test_construction_string_labels(self):
         C22 = dnx.chimera_graph(2, 2, 3)
-        coord = chimera_coordinates(2, 2, 3)
+        coord = dnx.chimera_coordinates(2, 2, 3)
 
         alpha = 'abcdefghijklmnopqrstuvwxyz'
 
@@ -96,7 +96,7 @@ class TestCanonicalChimeraLabeling(unittest.TestCase):
         assert len(bqm.quadratic) == len(C22.edges)
         assert len(bqm) == len(C22)
 
-        labels = canonical_chimera_labeling(bqm)
+        labels = dnx.canonical_chimera_labeling(bqm)
         labels = {v: alpha[coord.chimera_to_linear(labels[v])] for v in labels}
 
         bqm2 = bqm.relabel_variables(labels, inplace=False)
@@ -107,9 +107,9 @@ class TestCanonicalChimeraLabeling(unittest.TestCase):
         C33 = nx.OrderedGraph()
         C33.add_nodes_from(reversed(range(3*3*4)))
         C33.add_edges_from(dnx.chimera_graph(3, 3, 4).edges)
-        coord = chimera_coordinates(3, 3, 4)
+        coord = dnx.chimera_coordinates(3, 3, 4)
 
-        labels = canonical_chimera_labeling(C33)
+        labels = dnx.canonical_chimera_labeling(C33)
         labels = {v: coord.chimera_to_linear(labels[v]) for v in labels}
 
         G = nx.relabel_nodes(C33, labels, copy=True)
@@ -117,21 +117,27 @@ class TestCanonicalChimeraLabeling(unittest.TestCase):
         self.assertTrue(nx.is_isomorphic(G, C33))
 
     def test__shore_size_tiles(self):
+        shore_size = dnx.algorithms.canonicalization._chimera_shore_size
+
         for t in range(1, 8):
             G = dnx.chimera_graph(1, 1, t)
-            self.assertEqual(_chimera_shore_size(G.adj, len(G.edges)), t)
+            self.assertEqual(shore_size(G.adj, len(G.edges)), t)
 
     def test__shore_size_columns(self):
+        shore_size = dnx.algorithms.canonicalization._chimera_shore_size
+
         # 2, 1, 1 is the same as 1, 1, 2
         for m in range(2, 11):
             for t in range(9, 1, -1):
                 G = dnx.chimera_graph(m, 1, t)
-                self.assertEqual(_chimera_shore_size(G.adj, len(G.edges)), t)
+                self.assertEqual(shore_size(G.adj, len(G.edges)), t)
 
     def test__shore_size_rectangles(self):
+        shore_size = dnx.algorithms.canonicalization._chimera_shore_size
+
         # 2, 1, 1 is the same as 1, 1, 2
         for m in range(2, 7):
             for n in range(2, 7):
                 for t in range(1, 6):
                     G = dnx.chimera_graph(m, n, t)
-                    self.assertEqual(_chimera_shore_size(G.adj, len(G.edges)), t)
+                    self.assertEqual(shore_size(G.adj, len(G.edges)), t)

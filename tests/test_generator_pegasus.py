@@ -19,14 +19,12 @@ from random import sample
 
 import networkx as nx
 import dwave_networkx as dnx
-from dwave_networkx.generators.pegasus import (pegasus_graph,
-                                               pegasus_coordinates,
-                                               get_pegasus_to_nice_fn,
-                                               get_nice_to_pegasus_fn,
-                                               get_tuple_defragmentation_fn,
-                                               get_tuple_fragmentation_fn,
-                                               fragmented_edges)
-from dwave_networkx.generators.chimera import chimera_graph
+
+from dwave_networkx.generators.pegasus import (
+    fragmented_edges,
+    get_tuple_defragmentation_fn,
+    get_tuple_fragmentation_fn,
+    )
 
 alpha_map = dict(enumerate('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'))
 
@@ -66,7 +64,7 @@ class TestPegasusCoordinates(unittest.TestCase):
     def test_coordinate_basics(self):
         G = dnx.pegasus_graph(4, fabric_only=False)
         H = dnx.pegasus_graph(4, coordinates=True, fabric_only=False)
-        coords = pegasus_coordinates(4)
+        coords = dnx.pegasus_coordinates(4)
         Gnodes = G.nodes
         Hnodes = H.nodes
         for v in Gnodes:
@@ -90,8 +88,8 @@ class TestPegasusCoordinates(unittest.TestCase):
                 pg = (t,) + p
                 qg = (t,) + q
                 self.assertTrue(G.has_edge(pg, qg))
-        n2p = pegasus_coordinates.nice_to_pegasus
-        p2n = pegasus_coordinates.pegasus_to_nice
+        n2p = dnx.pegasus_coordinates.nice_to_pegasus
+        p2n = dnx.pegasus_coordinates.pegasus_to_nice
         for p in G.nodes():
             self.assertEqual(p2n(n2p(p)), p)
             self.assertTrue(H.has_node(p[1:]))
@@ -99,7 +97,7 @@ class TestPegasusCoordinates(unittest.TestCase):
     def test_consistent_linear_nice_pegasus(self):
         P4 = dnx.pegasus_graph(4, nice_coordinates=True)
 
-        coords = pegasus_coordinates(4)
+        coords = dnx.pegasus_coordinates(4)
 
         # `.*_to_*` methods
 
@@ -152,7 +150,7 @@ class TestPegasusCoordinates(unittest.TestCase):
     def test_coordinate_subgraphs(self):
         G = dnx.pegasus_graph(4)
         H = dnx.pegasus_graph(4, coordinates=True)
-        coords = pegasus_coordinates(4)
+        coords = dnx.pegasus_coordinates(4)
 
         lmask = sample(list(G.nodes()), G.number_of_nodes()//2)
         cmask = list(coords.iter_linear_to_pegasus(lmask))
@@ -194,9 +192,10 @@ class TestPegasusCoordinates(unittest.TestCase):
 
 
 class TestTupleFragmentation(unittest.TestCase):
+
     def test_empty_list(self):
         # Set up fragmentation function
-        pg = pegasus_graph(3)
+        pg = dnx.pegasus_graph(3)
         fragment_tuple = get_tuple_fragmentation_fn(pg)
 
         # Fragment pegasus coordinates
@@ -205,7 +204,7 @@ class TestTupleFragmentation(unittest.TestCase):
 
     def test_single_horizontal_coordinate(self):
         # Set up fragmentation function
-        pg = pegasus_graph(2)
+        pg = dnx.pegasus_graph(2)
         fragment_tuple = get_tuple_fragmentation_fn(pg)
 
         # Fragment pegasus coordinates
@@ -223,7 +222,7 @@ class TestTupleFragmentation(unittest.TestCase):
 
     def test_single_vertical_coordinate(self):
         # Set up fragmentation function
-        pg = pegasus_graph(6)
+        pg = dnx.pegasus_graph(6)
         fragment_tuple = get_tuple_fragmentation_fn(pg)
 
         pegasus_coord = (0, 1, 3, 1)
@@ -240,7 +239,7 @@ class TestTupleFragmentation(unittest.TestCase):
 
     def test_list_of_coordinates(self):
         # Set up fragmentation function
-        pg = pegasus_graph(6)
+        pg = dnx.pegasus_graph(6)
         fragment_tuple = get_tuple_fragmentation_fn(pg)
 
         # Fragment pegasus coordinates
@@ -266,7 +265,7 @@ class TestTupleFragmentation(unittest.TestCase):
 class TestTupleDefragmentation(unittest.TestCase):
     def test_empty_list(self):
         # Set up defragmentation function
-        pg = pegasus_graph(2)
+        pg = dnx.pegasus_graph(2)
         defragment_tuple = get_tuple_defragmentation_fn(pg)
 
         # De-fragment chimera coordinates
@@ -277,7 +276,7 @@ class TestTupleDefragmentation(unittest.TestCase):
 
     def test_single_fragment(self):
         # Set up defragmentation function
-        pg = pegasus_graph(4)
+        pg = dnx.pegasus_graph(4)
         defragment_tuple = get_tuple_defragmentation_fn(pg)
 
         # De-fragment chimera coordinates
@@ -289,7 +288,7 @@ class TestTupleDefragmentation(unittest.TestCase):
 
     def test_multiple_fragments_from_same_qubit(self):
         # Set up defragmentation function
-        pg = pegasus_graph(3)
+        pg = dnx.pegasus_graph(3)
         defragment_tuple = get_tuple_defragmentation_fn(pg)
 
         # De-fragment chimera coordinates
@@ -301,7 +300,7 @@ class TestTupleDefragmentation(unittest.TestCase):
 
     def test_mixed_fragments(self):
         # Set up defragmenation function
-        pg = pegasus_graph(8)
+        pg = dnx.pegasus_graph(8)
         defragment_tuple = get_tuple_defragmentation_fn(pg)
 
         # De-fragment chimera coordinates
@@ -313,8 +312,8 @@ class TestTupleDefragmentation(unittest.TestCase):
 
 class TestFragmentedEdges(unittest.TestCase):
     def test_linear_indices(self):
-        p = pegasus_graph(3, coordinates=False)
-        c = chimera_graph(24, coordinates=True)
+        p = dnx.pegasus_graph(3, coordinates=False)
+        c = dnx.chimera_graph(24, coordinates=True)
         num_edges = 0
         for u, v in fragmented_edges(p):
             self.assertTrue(c.has_edge(u, v))
@@ -326,8 +325,8 @@ class TestFragmentedEdges(unittest.TestCase):
         self.assertEqual(p.number_of_edges() + 9 * p.number_of_nodes()//2, num_edges)
 
     def test_coordinates(self):
-        p = pegasus_graph(3, coordinates=True)
-        c = chimera_graph(24, coordinates=True)
+        p = dnx.pegasus_graph(3, coordinates=True)
+        c = dnx.chimera_graph(24, coordinates=True)
         num_edges = 0
         for u, v in fragmented_edges(p):
             self.assertTrue(c.has_edge(u, v))
@@ -340,8 +339,8 @@ class TestFragmentedEdges(unittest.TestCase):
         self.assertEqual(p.number_of_edges() + 9 * p.number_of_nodes()//2, num_edges)
 
     def test_nice_coordinates(self):
-        p = pegasus_graph(3, nice_coordinates=True)
-        c = chimera_graph(24, coordinates=True)
+        p = dnx.pegasus_graph(3, nice_coordinates=True)
+        c = dnx.chimera_graph(24, coordinates=True)
         num_edges = 0
         for u, v in fragmented_edges(p):
             self.assertTrue(c.has_edge(u, v))

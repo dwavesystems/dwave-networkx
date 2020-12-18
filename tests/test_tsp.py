@@ -20,39 +20,38 @@ import networkx as nx
 import dimod
 
 import dwave_networkx as dnx
-import dwave_networkx.algorithms.tsp as tsp
 
 
 class TestIsHamiltonCycle(unittest.TestCase):
     def test_empty(self):
         G = nx.Graph()
 
-        self.assertTrue(tsp.is_hamiltonian_path(G, []))
+        self.assertTrue(dnx.is_hamiltonian_path(G, []))
 
     def test_K1(self):
         G = nx.complete_graph(1)
 
-        self.assertTrue(tsp.is_hamiltonian_path(G, [0]))
-        self.assertFalse(tsp.is_hamiltonian_path(G, []))
+        self.assertTrue(dnx.is_hamiltonian_path(G, [0]))
+        self.assertFalse(dnx.is_hamiltonian_path(G, []))
 
     def test_K2(self):
         G = nx.complete_graph(2)
 
-        self.assertTrue(tsp.is_hamiltonian_path(G, [0, 1]))
-        self.assertTrue(tsp.is_hamiltonian_path(G, [1, 0]))
-        self.assertFalse(tsp.is_hamiltonian_path(G, [0]))
-        self.assertFalse(tsp.is_hamiltonian_path(G, [1]))
-        self.assertFalse(tsp.is_hamiltonian_path(G, []))
+        self.assertTrue(dnx.is_hamiltonian_path(G, [0, 1]))
+        self.assertTrue(dnx.is_hamiltonian_path(G, [1, 0]))
+        self.assertFalse(dnx.is_hamiltonian_path(G, [0]))
+        self.assertFalse(dnx.is_hamiltonian_path(G, [1]))
+        self.assertFalse(dnx.is_hamiltonian_path(G, []))
 
     def test_K3(self):
         G = nx.complete_graph(3)
 
-        self.assertTrue(tsp.is_hamiltonian_path(G, [0, 1, 2]))
-        self.assertTrue(tsp.is_hamiltonian_path(G, [1, 0, 2]))
-        self.assertFalse(tsp.is_hamiltonian_path(G, [0, 1]))
-        self.assertFalse(tsp.is_hamiltonian_path(G, [0]))
-        self.assertFalse(tsp.is_hamiltonian_path(G, [1]))
-        self.assertFalse(tsp.is_hamiltonian_path(G, []))
+        self.assertTrue(dnx.is_hamiltonian_path(G, [0, 1, 2]))
+        self.assertTrue(dnx.is_hamiltonian_path(G, [1, 0, 2]))
+        self.assertFalse(dnx.is_hamiltonian_path(G, [0, 1]))
+        self.assertFalse(dnx.is_hamiltonian_path(G, [0]))
+        self.assertFalse(dnx.is_hamiltonian_path(G, [1]))
+        self.assertFalse(dnx.is_hamiltonian_path(G, []))
 
 
 class TestTSP(unittest.TestCase):
@@ -64,22 +63,22 @@ class TestTSP(unittest.TestCase):
         G = nx.complete_graph(4)
         for u, v in G.edges():
             G[u][v]['weight'] = 1
-        route = tsp.traveling_salesperson(G, dimod.ExactSolver())
-        self.assertTrue(tsp.is_hamiltonian_path(G, route))
+        route = dnx.traveling_salesperson(G, dimod.ExactSolver())
+        self.assertTrue(dnx.is_hamiltonian_path(G, route))
 
         G = nx.complete_graph(4)
         for u, v in G.edges():
             G[u][v]['weight'] = u+v
-        route = tsp.traveling_salesperson(G, dimod.ExactSolver(), lagrange=10.0)
-        self.assertTrue(tsp.is_hamiltonian_path(G, route))
+        route = dnx.traveling_salesperson(G, dimod.ExactSolver(), lagrange=10.0)
+        self.assertTrue(dnx.is_hamiltonian_path(G, route))
 
     def test_dimod_vs_list(self):
         G = nx.complete_graph(4)
         for u, v in G.edges():
             G[u][v]['weight'] = 1
 
-        route = tsp.traveling_salesperson(G, dimod.ExactSolver())
-        route = tsp.traveling_salesperson(G, dimod.SimulatedAnnealingSampler())
+        route = dnx.traveling_salesperson(G, dimod.ExactSolver())
+        route = dnx.traveling_salesperson(G, dimod.SimulatedAnnealingSampler())
 
     def test_weighted_complete_graph(self):
         G = nx.Graph()
@@ -101,7 +100,7 @@ class TestTSP(unittest.TestCase):
 
 class TestTSPQUBO(unittest.TestCase):
     def test_empty(self):
-        Q = tsp.traveling_salesperson_qubo(nx.Graph())
+        Q = dnx.traveling_salesperson_qubo(nx.Graph())
         self.assertEqual(Q, {})
 
     def test_k3(self):
@@ -111,7 +110,7 @@ class TestTSPQUBO(unittest.TestCase):
                                    ('b', 'c', 1.0),
                                    ('a', 'c', 2.0)])
 
-        Q = tsp.traveling_salesperson_qubo(G, lagrange=10)
+        Q = dnx.traveling_salesperson_qubo(G, lagrange=10)
         bqm = dimod.BinaryQuadraticModel.from_qubo(Q)
 
         # all routes are min weight
@@ -143,7 +142,7 @@ class TestTSPQUBO(unittest.TestCase):
         G.add_weighted_edges_from((u, v, .5)
                                   for u, v in itertools.combinations(range(4), 2))
 
-        Q = tsp.traveling_salesperson_qubo(G, lagrange=10)
+        Q = dnx.traveling_salesperson_qubo(G, lagrange=10)
         bqm = dimod.BinaryQuadraticModel.from_qubo(Q)
 
         # all routes are min weight
@@ -179,7 +178,7 @@ class TestTSPQUBO(unittest.TestCase):
                                    (0, 2, 2),
                                    (1, 3, 2)])
 
-        Q = tsp.traveling_salesperson_qubo(G, lagrange=10)
+        Q = dnx.traveling_salesperson_qubo(G, lagrange=10)
         bqm = dimod.BinaryQuadraticModel.from_qubo(Q)
 
         # good routes won't have 0<->2 or 1<->3
@@ -211,14 +210,16 @@ class TestTSPQUBO(unittest.TestCase):
             ground_count += 1
 
         self.assertEqual(ground_count, len(min_routes))
-    
+
     def test_weighted_complete_graph(self):
         G = nx.Graph()
-        G.add_weighted_edges_from({(0, 1, 1), (0, 2, 100), (0, 3, 1), (1, 2, 1), (1, 3, 100), (2, 3, 1)})
+        G.add_weighted_edges_from({(0, 1, 1), (0, 2, 100),
+                                   (0, 3, 1), (1, 2, 1),
+                                   (1, 3, 100), (2, 3, 1)})
 
         lagrange = 5.0
 
-        Q = tsp.traveling_salesperson_qubo(G, lagrange, 'weight')
+        Q = dnx.traveling_salesperson_qubo(G, lagrange, 'weight')
 
         N = G.number_of_nodes()
         correct_sum = G.size('weight')*2*N-2*N*N*lagrange+2*N*N*(N-1)*lagrange
@@ -230,7 +231,7 @@ class TestTSPQUBO(unittest.TestCase):
     def test_exceptions(self):
         G = nx.Graph([(0, 1)])
         with self.assertRaises(ValueError):
-            tsp.traveling_salesperson_qubo(G)
+            dnx.traveling_salesperson_qubo(G)
 
     def test_docstring_size(self):
         # in the docstring we state the size of the resulting BQM, this checks
@@ -240,7 +241,7 @@ class TestTSPQUBO(unittest.TestCase):
             G.add_weighted_edges_from((u, v, .5)
                                       for u, v
                                       in itertools.combinations(range(n), 2))
-            Q = tsp.traveling_salesperson_qubo(G)
+            Q = dnx.traveling_salesperson_qubo(G)
             bqm = dimod.BinaryQuadraticModel.from_qubo(Q)
 
             self.assertEqual(len(bqm), n**2)

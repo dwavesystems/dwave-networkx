@@ -20,55 +20,44 @@ import dwave_networkx as dnx
 
 try:
     import matplotlib.pyplot as plt
-    _plt = True
 except ImportError:
-    _plt = False
+    plt = False
 
 try:
     import numpy as np
-    _numpy = True
 except ImportError:
-    _numpy = False
+    np = False
 
-if os.environ.get('DISPLAY', '') == '':
-    _display = False
-else:
-    _display = True
+_display = os.environ.get('DISPLAY', '') != ''
 
 
+@unittest.skipUnless(np and plt, "No numpy or matplotlib")
 class TestDrawing(unittest.TestCase):
-    @unittest.skipUnless(_numpy and _plt, "No numpy or matplotlib")
     def test_pegasus_layout_coords(self):
         G = dnx.pegasus_graph(2, coordinates=True)
         pos = dnx.pegasus_layout(G)
 
-    @unittest.skipUnless(_numpy and _plt, "No numpy or matplotlib")
     def test_pegasus_layout_ints(self):
         G = dnx.pegasus_graph(2)
         pos = dnx.pegasus_layout(G)
 
-    @unittest.skipUnless(_numpy and _plt, "No numpy or matplotlib")
     def test_pegasus_layout_chim(self):
         G = dnx.pegasus_graph(2, nice_coordinates=True)
         pos = dnx.pegasus_layout(G)
 
-    @unittest.skipUnless(_numpy and _plt, "No numpy or matplotlib")
     def test_pegasus_layout_ints_nodata(self):
         G = dnx.pegasus_graph(2, data=False)
         pos = dnx.pegasus_layout(G)
 
-    @unittest.skipUnless(_numpy and _plt, "No numpy or matplotlib")
     def test_pegasus_layout_crosses(self):
         G = dnx.pegasus_graph(2)
         pos = dnx.pegasus_layout(G, crosses=True)
 
-    @unittest.skipUnless(_numpy and _plt, "No numpy or matplotlib")
     def test_pegasus_layout_ints_badcenter(self):
         G = dnx.pegasus_graph(2, data=False)
         with self.assertRaises(ValueError):
             pos = dnx.pegasus_layout(G, center=(0, 0, 0, 0))
 
-    @unittest.skipUnless(_numpy and _plt, "No numpy or matplotlib")
     def test_pegasus_layout_ints_noinfo(self):
         G = dnx.pegasus_graph(2, data=False)
         badG = nx.Graph()
@@ -76,7 +65,6 @@ class TestDrawing(unittest.TestCase):
         with self.assertRaises(ValueError):
             pos = dnx.pegasus_layout(badG)
 
-    @unittest.skipUnless(_numpy and _plt, "No numpy or matplotlib")
     @unittest.skipUnless(_display, " No display found")
     def test_draw_pegasus_yield(self):
         G = dnx.pegasus_graph(3, data=False)
@@ -84,7 +72,6 @@ class TestDrawing(unittest.TestCase):
         G.remove_nodes_from([109,139])
         dnx.draw_pegasus_yield(G)
 
-    @unittest.skipUnless(_numpy and _plt, "No numpy or matplotlib")
     @unittest.skipUnless(_display, " No display found")
     def test_draw_pegasus_biases(self):
         G = dnx.pegasus_graph(2)
@@ -95,7 +82,6 @@ class TestDrawing(unittest.TestCase):
 
         dnx.draw_pegasus(G, linear_biases=h, quadratic_biases=J)
 
-    @unittest.skipUnless(_numpy and _plt, "No numpy or matplotlib")
     @unittest.skipUnless(_display, " No display found")
     def test_draw_pegasus_embedding(self):
         P = dnx.pegasus_graph(2)
@@ -110,7 +96,6 @@ class TestDrawing(unittest.TestCase):
         dnx.draw_pegasus_embedding(P, emb, interaction_edges=P.edges())
         dnx.draw_pegasus_embedding(P, emb, crosses=True)
 
-    @unittest.skipUnless(_numpy and _plt, "No numpy or matplotlib")
     @unittest.skipUnless(_display, " No display found")
     def test_draw_overlapped_chimera_embedding(self):
         C = dnx.pegasus_graph(2)

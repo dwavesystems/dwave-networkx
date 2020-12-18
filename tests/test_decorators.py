@@ -38,7 +38,8 @@ class TestDecorators(unittest.TestCase):
         mock_function(0)
         dnx.unset_default_sampler()
 
-        self.assertEqual(dnx.get_default_sampler(), None, "sampler did not unset correctly")
+        self.assertEqual(dnx.get_default_sampler(), None,
+                         "sampler did not unset correctly")
 
     def test_no_sampler_set(self):
         with self.assertRaises(dnx.DWaveNetworkXMissingSampler):
