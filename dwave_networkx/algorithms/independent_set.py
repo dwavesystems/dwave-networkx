@@ -15,9 +15,10 @@
 from dwave_networkx.utils import binary_quadratic_model_sampler
 
 __all__ = ["maximum_weighted_independent_set",
-          "maximum_independent_set",
-          "is_independent_set",
-          ]
+           "maximum_weighted_independent_set_qubo",
+           "maximum_independent_set",
+           "is_independent_set",
+           ]
 
 
 @binary_quadratic_model_sampler(2)
