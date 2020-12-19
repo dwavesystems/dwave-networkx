@@ -13,10 +13,164 @@
 #    limitations under the License.
 
 import itertools
+import numbers
+import warnings
+
+import dimod
+import networkx as nx
 
 from dwave_networkx.utils import binary_quadratic_model_sampler
 
-__all__ = ['min_maximal_matching', 'is_matching', 'is_maximal_matching']
+__all__ = ['is_matching',
+           'is_maximal_matching',
+           'matching_bqm',
+           'maximal_matching_bqm',
+           'min_maximal_matching',
+           'min_maximal_matching_bqm',
+           ]
+
+
+def matching_bqm(G):
+    """Return a BQM with ground states corresponding to the possible matchings
+    of G.
+
+    A matching is a subset of edges in which no node occurs more than
+    once.
+
+    Finding valid matchings can be done is polynomial time, so this BQM
+    is only efficient when combined with other constraints and objectives.
+
+    Parameters
+    ----------
+    G : NetworkX graph
+        The graph on which to find a matching.
+
+    Returns
+    -------
+    bqm : :class:`dimod.BinaryQuadraticModel`
+        A binary quadratic model with ground states corresponding to a
+        matching. The variables of the BQM are the edges of `G` as frozensets.
+        The BQM's ground state energy is 0 by construction.
+        The energy of the first excited state is 1.
+
+    """
+    try:
+        bqm = dimod.AdjVectorBQM.empty('BINARY')
+    except AttributeError:
+        # support dimod < 0.9.0
+        bqm = dimod.BinaryQuadraticModel.empty('BINARY')
+
+    # add the edges of G as variables
+    for edge in G.edges:
+        bqm.add_variable(frozenset(edge), 0)
+
+    for node in G:
+        for edge0, edge1 in itertools.combinations(G.edges(node), 2):
+            u = frozenset(edge0)
+            v = frozenset(edge1)
+            bqm.add_interaction(u, v, 1)
+
+    return bqm
+
+
+def maximal_matching_bqm(G, lagrange=None):
+    """Return a BQM with ground states corresponding to the possible maximal
+    matchings of G.
+
+    A matching is a subset of edges in which no node occurs more than
+    once. A maximal matching is one in which no edges from G can be
+    added without violating the matching rule.
+
+    Finding maximal matchings can be done is polynomial time, so this BQM
+    is only efficient when combined with other constraints and objectives.
+
+    Parameters
+    ----------
+    G : NetworkX graph
+        The graph on which to find a maximal matching.
+
+    lagrange : float (optional)
+        The Lagrange multiplier for the matching constraint. Should be postivie
+        and greater than `max_degree - 2`.
+        Defaults to `1.25 * (max_degree - 2)`.
+
+    Returns
+    -------
+    bqm : :class:`dimod.BinaryQuadraticModel`
+        A binary quadratic model with ground states corresponding to a maximal
+        matching. The variables of the BQM are the edges of `G` as frozensets.
+        The BQM's ground state energy is 0 by construction.
+
+    """
+    bqm = matching_bqm(G)
+
+    if lagrange is None:
+        delta = max((G.degree[v] for v in G), default=0)
+        lagrange = max(1.25 * (delta - 2), 1)
+
+    bqm.scale(lagrange)
+
+    for node0, node1 in G.edges:
+        # (1 - y_v - y_u + y_v*y_u) <- see paper
+
+        bqm.offset += 1
+
+        for edge in G.edges(node0):
+            bqm.linear[frozenset(edge)] -= 1
+
+        for edge in G.edges(node1):
+            bqm.linear[frozenset(edge)] -= 1
+
+        for edge0 in G.edges(node0):
+            u = frozenset(edge0)
+            for edge1 in G.edges(node1):
+                v = frozenset(edge1)
+                if u == v:
+                    bqm.linear[u] += 1
+                else:
+                    bqm.add_interaction(u, v, 1)
+
+    return bqm
+
+
+def min_maximal_matching_bqm(G, maximal_lagrange=2, matching_lagrange=None):
+    """Return a BQM with ground states corresponding to a minimum maximal
+    matching.
+
+    Parameters
+    ----------
+    G : NetworkX graph
+        The graph on which to find a minimum maximal matching.
+
+    maximal_lagrange : float (optional, default=2)
+        The Lagrange multiplier for the maximal constraint. Should be greater
+        than 1.
+
+    matching_lagrange : float (optional)
+        The Lagrange multiplier for the matching constraint. Should be postivie
+        and greater than `maximal_lagrange * max_degree - 2`.
+        Defaults to `1.25 * (maximal_lagrange * max_degree - 2)`.
+
+    Returns
+    -------
+    bqm : :class:`dimod.BinaryQuadraticModel`
+        A binary quadratic model with ground states corresponding to a
+        minimum maximal matching. The variables of the BQM are the edges
+        of `G` as frozensets.
+
+    """
+
+    if matching_lagrange is not None:
+        # we're going to scale the bqm by maximal_matching so undo that
+        # for maximal_lagrange
+        matching_lagrange /= maximal_lagrange
+    bqm = maximal_matching_bqm(G, lagrange=matching_lagrange)
+    bqm.scale(maximal_lagrange)
+
+    for v in bqm.variables:
+        bqm.linear[v] += 1
+
+    return bqm
 
 
 @binary_quadratic_model_sampler(1)
@@ -29,6 +183,9 @@ def maximal_matching(G, sampler=None, **sampler_args):
     A matching is a subset of edges in which no node occurs more than
     once. A maximal matching is one in which no edges from G can be
     added without violating the matching rule.
+
+    Finding maximal matchings can be done is polynomial time, so this method
+    is only useful pedagogically.
 
     Parameters
     ----------
@@ -62,44 +219,22 @@ def maximal_matching(G, sampler=None, **sampler_args):
     References
     ----------
 
-    `Matching on Wikipedia <https://en.wikipedia.org/wiki/Matching_(graph_theory)>`_
+    `Matching on Wikipedia <https://w.wiki/r9s>`_
 
-    `QUBO on Wikipedia <https://en.wikipedia.org/wiki/Quadratic_unconstrained_binary_optimization>`_
+    `QUBO on Wikipedia <https://w.wiki/r9t>`_
 
     Based on the formulation presented in [AL]_
 
     """
+    if not G.edges:
+        return set()
 
-    # the maximum degree
-    delta = max(G.degree(node) for node in G)
-
-    # use the maximum degree to determine the infeasible gaps
-    A = 1.
-    if delta == 2:
-        B = .75
-    else:
-        B = .75 * A / (delta - 2.)  # we want A > (delta - 2) * B
-
-    # each edge in G gets a variable, so let's create those
-    edge_mapping = _edge_mapping(G)
-
-    # build the QUBO
-    Q = _maximal_matching_qubo(G, edge_mapping, magnitude=B)
-    Qm = _matching_qubo(G, edge_mapping, magnitude=A)
-    for edge, bias in Qm.items():
-        if edge not in Q:
-            Q[edge] = bias
-        else:
-            Q[edge] += bias
-
-    # use the sampler to find low energy states
-    response = sampler.sample_qubo(Q, **sampler_args)
-
-    # we want the lowest energy sample
-    sample = next(iter(response))
+    bqm = maximal_matching_bqm(G)
+    sampleset = sampler.sample(bqm, **sampler_args)
+    sample = sampleset.first.sample
 
     # the matching are the edges that are 1 in the sample
-    return set(edge for edge in G.edges if sample[edge_mapping[edge]] > 0)
+    return set(tuple(edge) for edge, val in sample.items() if val > 0)
 
 
 @binary_quadratic_model_sampler(1)
@@ -157,129 +292,45 @@ def min_maximal_matching(G, sampler=None, **sampler_args):
     References
     ----------
 
-    `Matching on Wikipedia <https://en.wikipedia.org/wiki/Matching_(graph_theory)>`_
+    `Matching on Wikipedia <https://w.wiki/r9s>`_
 
-    `QUBO on Wikipedia <https://en.wikipedia.org/wiki/Quadratic_unconstrained_binary_optimization>`_
+    `QUBO on Wikipedia <https://w.wiki/r9t>`_
 
     .. [AL] Lucas, A. (2014). Ising formulations of many NP problems.
        Frontiers in Physics, Volume 2, Article 5.
 
     """
+    if not G.edges:
+        return set()
 
-    # the maximum degree
-    delta = max(G.degree(node) for node in G)
-
-    # use the maximum degree to determine the infeasible gaps
-    A = 1.
-    if delta == 2:
-        B = .75
-    else:
-        B = .75 * A / (delta - 2.)  # we want A > (delta - 2) * B
-    C = .75 * B  # we want B > C
-
-    # each edge in G gets a variable, so let's create those
-    edge_mapping = _edge_mapping(G)
-
-    # build the QUBO
-    Q = _maximal_matching_qubo(G, edge_mapping, magnitude=B)
-    Qm = _matching_qubo(G, edge_mapping, magnitude=A)
-    for edge, bias in Qm.items():
-        if edge not in Q:
-            Q[edge] = bias
-        else:
-            Q[edge] += bias
-
-    # to enforce the minimal constraint, we additionally add a small bias to
-    # each variable
-    for v in set(edge_mapping.values()):
-        if (v, v) not in Q:
-            Q[(v, v)] = C
-        else:
-            Q[(v, v)] += C
-
-    # use the sampler to find low energy states
-    response = sampler.sample_qubo(Q, **sampler_args)
-
-    # we want the lowest energy sample
-    sample = next(iter(response))
+    bqm = min_maximal_matching_bqm(G)
+    sampleset = sampler.sample(bqm, **sampler_args)
+    sample = sampleset.first.sample
 
     # the matching are the edges that are 1 in the sample
-    return set(edge for edge in G.edges if sample[edge_mapping[edge]] > 0)
+    return set(tuple(edge) for edge, val in sample.items() if val > 0)
 
 
 def is_matching(edges):
-    """Determines whether the given set of edges is a matching.
+    """Determine whether the given set of edges is a matching.
 
-    A matching is a subset of edges in which no node occurs more than
-    once.
-
-    Parameters
-    ----------
-    edges : iterable
-        A iterable of edges.
-
-    Returns
-    -------
-    is_matching : bool
-        True if the given edges are a matching.
-
-    Example
-    -------
-    This example checks two sets of edges, both derived from a
-    single Chimera unit cell, for a matching. Because every node in a Chimera
-    unit cell connects to four other nodes in the cell, the first set, which
-    contains all the edges, repeats each node 4 times; the second is a subset
-    of those edges found using the `min_maximal_matching()` function.
-
-    >>> import dwave_networkx as dnx
-    >>> G = dnx.chimera_graph(1, 1, 4)
-    >>> dnx.is_matching(G.edges())
-    False
-    >>> dnx.is_matching({(0, 4), (1, 5), (2, 7), (3, 6)})
-    True
-
+    Deprecated in favour of :func:`networkx.is_matching`.
     """
+    warnings.warn("This method is deprecated, please use NetworkX's"
+                  "nx.is_matching(G, edges) rather than dwave-networkx's "
+                  "dnx.is_matching(edges)", DeprecationWarning, stacklevel=2)
     return len(set().union(*edges)) == len(edges) * 2
 
 
 def is_maximal_matching(G, matching):
-    """Determines whether the given set of edges is a maximal matching.
+    """Determine whether the given set of edges is a maximal matching.
 
-    A matching is a subset of edges in which no node occurs more than
-    once. The cardinality of a matching is the number of matched edges.
-    A maximal matching is one where one cannot add any more edges
-    without violating the matching rule.
-
-    Parameters
-    ----------
-    G : NetworkX graph
-        The graph on which to check the maximal matching.
-
-    edges : iterable
-        A iterable of edges.
-
-    Returns
-    -------
-    is_matching : bool
-        True if the given edges are a maximal matching.
-
-    Example
-    -------
-    This example checks two sets of edges, both derived from a
-    single Chimera unit cell, for a matching. The first set (a matching) is
-    a subset of the second, which was found using the `min_maximal_matching()`
-    function.
-
-    >>> import dwave_networkx as dnx
-    >>> G = dnx.chimera_graph(1, 1, 4)
-    >>> dnx.is_matching({(0, 4), (2, 7)})
-    True
-    >>> dnx.is_maximal_matching(G,{(0, 4), (2, 7)})
-    False
-    >>> dnx.is_maximal_matching(G,{(0, 4), (1, 5), (2, 7), (3, 6)})
-    True
-
+    Deprecated in favour of :func:`networkx.is_matching`.
     """
+    warnings.warn("This method is deprecated, please use NetworkX's"
+                  "nx.is_maximal_matching(G, edges) rather than "
+                  "dwave-networkx's dnx.is_maximal_matching(G, edges)",
+                  DeprecationWarning, stacklevel=2)
     touched_nodes = set().union(*matching)
 
     # first check if a matching
@@ -293,88 +344,3 @@ def is_maximal_matching(G, matching):
             return False
 
     return True
-
-
-def _edge_mapping(G):
-    """Assigns a variable for each edge in G.
-    (u, v) and (v, u) map to the same variable.
-    """
-    edge_mapping = {edge: idx for idx, edge in enumerate(G.edges)}
-    edge_mapping.update({(e1, e0): idx for (e0, e1), idx in edge_mapping.items()})
-    return edge_mapping
-
-
-def _maximal_matching_qubo(G, edge_mapping, magnitude=1.):
-    """Generates a QUBO that when combined with one as generated by _matching_qubo,
-    induces a maximal matching on the given graph G.
-    The variables in the QUBO are the edges, as given my edge_mapping.
-
-    ground_energy = -1 * magnitude * |edges|
-    infeasible_gap >= magnitude
-    """
-    Q = {}
-
-    # for each node n in G, define a variable y_n to be 1 when n has a colored edge
-    # and 0 otherwise.
-    # for each edge (u, v) in the graph we want to enforce y_u OR y_v. This is because
-    # if both y_u == 0 and y_v == 0, then we could add (u, v) to the matching.
-    for (u, v) in G.edges:
-        # 1 - y_v - y_u + y_v*y_u
-
-        # for each edge connected to u
-        for edge in G.edges(u):
-            x = edge_mapping[edge]
-            if (x, x) not in Q:
-                Q[(x, x)] = -1 * magnitude
-            else:
-                Q[(x, x)] -= magnitude
-
-        # for each edge connected to v
-        for edge in G.edges(v):
-            x = edge_mapping[edge]
-            if (x, x) not in Q:
-                Q[(x, x)] = -1 * magnitude
-            else:
-                Q[(x, x)] -= magnitude
-
-        for e0 in G.edges(v):
-            x0 = edge_mapping[e0]
-            for e1 in G.edges(u):
-                x1 = edge_mapping[e1]
-
-                if x0 < x1:
-                    if (x0, x1) not in Q:
-                        Q[(x0, x1)] = magnitude
-                    else:
-                        Q[(x0, x1)] += magnitude
-                else:
-                    if (x1, x0) not in Q:
-                        Q[(x1, x0)] = magnitude
-                    else:
-                        Q[(x1, x0)] += magnitude
-
-    return Q
-
-
-def _matching_qubo(G, edge_mapping, magnitude=1.):
-    """Generates a QUBO that induces a matching on the given graph G.
-    The variables in the QUBO are the edges, as given my edge_mapping.
-
-    ground_energy = 0
-    infeasible_gap = magnitude
-    """
-    Q = {}
-
-    # We wish to enforce the behavior that no node has two colored edges
-    for node in G:
-
-        # for each pair of edges that contain node
-        for edge0, edge1 in itertools.combinations(G.edges(node), 2):
-
-            v0 = edge_mapping[edge0]
-            v1 = edge_mapping[edge1]
-
-            # penalize both being True
-            Q[(v0, v1)] = magnitude
-
-    return Q
