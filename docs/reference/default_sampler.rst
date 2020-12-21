@@ -3,9 +3,9 @@
 Default sampler
 ***************
 
-.. currentmodule:: dwave_networkx.default_sampler
+.. currentmodule:: dwave.plugins.networkx.default_sampler
 
-.. automodule:: dwave_networkx.default_sampler
+.. automodule:: dwave.plugins.networkx.default_sampler
 
 Functions
 ---------

@@ -2,9 +2,9 @@
 Canonicalization
 ****************
 
-.. automodule:: dwave_networkx.algorithms.canonicalization
+.. automodule:: dwave.plugins.networkx.algorithms.canonicalization
 
-.. currentmodule:: dwave_networkx
+.. currentmodule:: dwave.plugins.networkx
 
 .. autosummary::
    :toctree: generated/

@@ -16,7 +16,7 @@ set.
    (the horizontal tile of the Chimera unit cell) and the red set
    (vertical tile) connect to all 16 edges of the graph.
 
-.. automodule:: dwave_networkx.algorithms.cover
+.. automodule:: dwave.plugins.networkx.algorithms.cover
 .. autosummary::
    :toctree: generated/
 

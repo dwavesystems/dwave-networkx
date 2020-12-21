@@ -2,7 +2,7 @@
 Markov Networks
 ***************
 
-.. automodule:: dwave_networkx.algorithms.markov
+.. automodule:: dwave.plugins.networkx.algorithms.markov
 .. autosummary::
    :toctree: generated/
 

@@ -13,7 +13,7 @@ graph.
 
    A traveling salesperson route of [2, 1, 0, 3].
 
-.. automodule:: dwave_networkx.algorithms.tsp
+.. automodule:: dwave.plugins.networkx.algorithms.tsp
 .. autosummary::
    :toctree: generated/
 

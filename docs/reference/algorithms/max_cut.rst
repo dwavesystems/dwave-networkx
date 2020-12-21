@@ -15,7 +15,7 @@ between this subset and the remaining vertices is as large as possible.
    {4, 5, 6, 7} cuts 16 edges; adding or removing a node decreases
    the number of edges between the two complementary subsets of the graph.
 
-.. automodule:: dwave_networkx.algorithms.max_cut
+.. automodule:: dwave.plugins.networkx.algorithms.max_cut
 .. autosummary::
    :toctree: generated/
 

@@ -5,7 +5,7 @@ Drawing
 
 Tools to visualize topologies of D-Wave QPUs and weighted graph problems on them.
 
-.. currentmodule:: dwave_networkx
+.. currentmodule:: dwave.plugins.networkx
 
 .. note:: Some functionality requires `NumPy <http://scipy.org>`_ and/or
 	 `Matplotlib <https://matplotlib.org>`_\ .
@@ -13,7 +13,7 @@ Tools to visualize topologies of D-Wave QPUs and weighted graph problems on them
 Chimera Graph Functions
 -----------------------
 
-.. automodule:: dwave_networkx.drawing.chimera_layout
+.. automodule:: dwave.plugins.networkx.drawing.chimera_layout
 
 .. autosummary::
    :toctree: generated/
@@ -32,7 +32,7 @@ positions on a Chimera unit cell.
 .. code-block:: python
 
    >>> import networkx as nx
-   >>> import dwave_networkx as dnx
+   >>> import dwave.plugins.networkx as dnx
    >>> import matplotlib.pyplot as plt
    >>> H = nx.Graph()
    >>> H.add_nodes_from([0, 4, 5, 6, 7])
@@ -63,7 +63,7 @@ positions on a Chimera unit cell.
 Pegasus Graph Functions
 -----------------------
 
-.. automodule:: dwave_networkx.drawing.pegasus_layout
+.. automodule:: dwave.plugins.networkx.drawing.pegasus_layout
 
 .. autosummary::
    :toctree: generated/
@@ -81,7 +81,7 @@ of nodes of a simple 5-node graph on a small Pegasus lattice.
 
 .. code-block:: python
 
-   >>> import dwave_networkx as dnx
+   >>> import dwave.plugins.networkx as dnx
    >>> import matplotlib.pyplot as plt
    >>> G = dnx.pegasus_graph(2)
    >>> H = dnx.pegasus_graph(2, node_list=[4, 40, 41, 42, 43],

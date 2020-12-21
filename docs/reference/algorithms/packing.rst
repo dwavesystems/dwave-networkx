@@ -16,9 +16,9 @@ of its member pairs.
    (vertical tile) are independent sets of the graph, with no blue node adjacent
    to another blue node and likewise for red nodes.
 
-.. automodule:: dwave_networkx.algorithms.independent_set
+.. automodule:: dwave.plugins.networkx.algorithms.independent_set
 
-.. currentmodule:: dwave_networkx
+.. currentmodule:: dwave.plugins.networkx
 
 .. autosummary::
    :toctree: generated/
@@ -30,7 +30,7 @@ of its member pairs.
 Helper Functions
 ----------------
 
-.. currentmodule:: dwave_networkx.algorithms.independent_set
+.. currentmodule:: dwave.plugins.networkx.algorithms.independent_set
 
 .. autosummary::
    :toctree: generated/
