@@ -17,6 +17,7 @@ A matching is a subset of graph edges in which no vertex occurs more than once.
 .. autosummary::
    :toctree: generated/
 
+    matching_bqm
+    maximal_matching_bqm
+    min_maximal_matching_bqm
     min_maximal_matching
-    is_matching
-    is_maximal_matching

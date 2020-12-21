@@ -31,14 +31,15 @@ __all__ = ['is_matching',
 
 
 def matching_bqm(G):
-    """Return a BQM with ground states corresponding to the possible matchings
-    of G.
+    """Find a binary quadratic model for the graph's matchings.
 
     A matching is a subset of edges in which no node occurs more than
-    once.
+    once. This function returns a binary quadratic model (BQM) with ground
+    states corresponding to the possible matchings of G.
 
-    Finding valid matchings can be done is polynomial time, so this BQM
-    is only efficient when combined with other constraints and objectives.
+    Finding valid matchings can be done in polynomial time, so finding matching
+    with BQMs is generally inefficient.
+    This BQM may be useful when combined with other constraints and objectives.
 
     Parameters
     ----------
@@ -74,15 +75,17 @@ def matching_bqm(G):
 
 
 def maximal_matching_bqm(G, lagrange=None):
-    """Return a BQM with ground states corresponding to the possible maximal
-    matchings of G.
+    """Find a binary quadratic model for the graph's maximal matchings.
 
     A matching is a subset of edges in which no node occurs more than
     once. A maximal matching is one in which no edges from G can be
     added without violating the matching rule.
+    This function returns a binary quadratic model (BQM) with ground
+    states corresponding to the possible maximal matchings of G.
 
-    Finding maximal matchings can be done is polynomial time, so this BQM
-    is only efficient when combined with other constraints and objectives.
+    Finding maximal matchings can be done in polynomial time, so finding
+    maximal matching with BQMs is generally inefficient.
+    This BQM may be useful when combined with other constraints and objectives.
 
     Parameters
     ----------
@@ -90,7 +93,7 @@ def maximal_matching_bqm(G, lagrange=None):
         The graph on which to find a maximal matching.
 
     lagrange : float (optional)
-        The Lagrange multiplier for the matching constraint. Should be postivie
+        The Lagrange multiplier for the matching constraint. Should be positive
         and greater than `max_degree - 2`.
         Defaults to `1.25 * (max_degree - 2)`.
 
@@ -134,8 +137,14 @@ def maximal_matching_bqm(G, lagrange=None):
 
 
 def min_maximal_matching_bqm(G, maximal_lagrange=2, matching_lagrange=None):
-    """Return a BQM with ground states corresponding to a minimum maximal
-    matching.
+    """Find a binary quadratic model for the graph's minimum maximal matchings.
+
+    A matching is a subset of edges in which no node occurs more than
+    once. A maximal matching is one in which no edges from G can be
+    added without violating the matching rule. A minimum maximal matching
+    is a maximal matching that contains the smallest possible number of edges.
+    This function returns a binary quadratic model (BQM) with ground
+    states corresponding to the possible maximal matchings of G.
 
     Parameters
     ----------
@@ -147,7 +156,7 @@ def min_maximal_matching_bqm(G, maximal_lagrange=2, matching_lagrange=None):
         than 1.
 
     matching_lagrange : float (optional)
-        The Lagrange multiplier for the matching constraint. Should be postivie
+        The Lagrange multiplier for the matching constraint. Should be positive
         and greater than `maximal_lagrange * max_degree - 2`.
         Defaults to `1.25 * (maximal_lagrange * max_degree - 2)`.
 
