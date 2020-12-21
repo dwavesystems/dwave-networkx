@@ -11,9 +11,9 @@ such that for every two vertices in C there exists an edge connecting the two.
    :align: center
    :scale: 40 %
 
-.. automodule:: dwave_networkx.algorithms.clique
+.. automodule:: dwave.plugins.networkx.algorithms.clique
 
-.. currentmodule:: dwave_networkx
+.. currentmodule:: dwave.plugins.networkx
 
 .. autosummary::
    :toctree: generated/

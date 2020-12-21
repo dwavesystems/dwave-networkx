@@ -3,7 +3,7 @@
 Coordinates Conversion
 **********************
 
-.. automodule:: dwave_networkx
+.. automodule:: dwave.plugins.networkx
 
 .. autoclass:: chimera_coordinates
 

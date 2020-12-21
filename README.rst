@@ -28,7 +28,7 @@ bipartite architecture).
 
 .. code: python
 
->>> import dwave_networkx as dnx
+>>> import dwave.plugins.networkx as dnx
 >>> graph = dnx.chimera_graph(1, 1, 4)
 
 See the documentation for more examples.
@@ -44,7 +44,7 @@ Installation
 
 .. code-block:: bash
 
-  pip install dwave_networkx
+  pip install dwave-networkx
 
 **Installation from source:**
 

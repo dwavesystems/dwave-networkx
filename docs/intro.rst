@@ -28,7 +28,7 @@ Below you can see how to create Chimera graphs implemented in the D-Wave 2X and 
 
 .. code:: python
 
-  import dwave_networkx as dnx
+  import dwave.plugins.networkx as dnx
 
   # D-Wave 2X
   C = dnx.chimera_graph(12, 12, 4)

@@ -16,7 +16,7 @@ friendly/hostile interactions between vertices.
    be cleanly divided into two subsets, {Bob, Eve} and {Alice}, with friendly
    relations within each subset and only hostile relations between the subsets.
 
-.. automodule:: dwave_networkx.algorithms.social
+.. automodule:: dwave.plugins.networkx.algorithms.social
 .. autosummary::
    :toctree: generated/
 

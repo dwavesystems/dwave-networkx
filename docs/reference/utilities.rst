@@ -2,18 +2,18 @@
 Utilities
 *********
 
-.. automodule:: dwave_networkx.utils
-.. currentmodule:: dwave_networkx.utils
+.. automodule:: dwave.plugins.networkx.utils
+.. currentmodule:: dwave.plugins.networkx.utils
 
 Decorators
 ----------
-.. automodule:: dwave_networkx.utils.decorators
+.. automodule:: dwave.plugins.networkx.utils.decorators
 .. autosummary::
    :toctree: generated/
 
    binary_quadratic_model_sampler
 
-.. currentmodule:: dwave_networkx
+.. currentmodule:: dwave.plugins.networkx
 
 .. toctree::
    :hidden:
@@ -53,7 +53,7 @@ Pegasus
 
 Exceptions
 ----------
-.. automodule:: dwave_networkx.exceptions
+.. automodule:: dwave.plugins.networkx.exceptions
 .. autosummary::
    :toctree: generated/
 

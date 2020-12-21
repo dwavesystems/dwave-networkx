@@ -14,7 +14,7 @@ whose neighborhood induces a clique. A perfect elimination ordering is an
 ordering of vertices :math:`1..n` such that any vertex :math:`i` is simplicial
 for the subset of vertices :math:`i..n`.
 
-.. automodule:: dwave_networkx.algorithms.elimination_ordering
+.. automodule:: dwave.plugins.networkx.algorithms.elimination_ordering
 .. autosummary::
    :toctree: generated/
 

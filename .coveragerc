@@ -1,7 +1,5 @@
 [run]
-# omit virtualenv and test files
-omit = venv/*, */tests/*
-source=dwave_networkx
+source=dwave_networkx, dwave/plugins/networkx
 
 [report]
 exclude_lines:

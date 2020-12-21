@@ -20,7 +20,7 @@ border (represented by an edge of the graph) have different colors.
 
    Coloring a map of Canada with four colors.
 
-.. automodule:: dwave_networkx.algorithms.coloring
+.. automodule:: dwave.plugins.networkx.algorithms.coloring
 .. autosummary::
    :toctree: generated/
 
