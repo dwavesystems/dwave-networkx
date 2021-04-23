@@ -158,6 +158,12 @@ jobs:
             . env/bin/activate
             make -C docs/ doctest
 
+      - run:
+          name: linkcheck
+          command: |
+            . env/bin/activate
+            make -C docs/ linkcheck
+
   deploy:
     docker:
       - image: circleci/python:3.7
