@@ -34,7 +34,7 @@ __all__ = ['pegasus_layout',
 def pegasus_layout(G, scale=1., center=None, dim=2, crosses=False):
     """Positions the nodes of graph G in a Pegasus topology.
 
-    `NumPy <http://scipy.org>`_ is required for this function.
+    `NumPy <https://scipy.org>`_ is required for this function.
 
     Parameters
     ----------

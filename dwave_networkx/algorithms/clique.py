@@ -72,7 +72,7 @@ def maximum_clique(G, sampler=None, lagrange=2.0, **sampler_args):
     References
     ----------
 
-    `Maximum Clique on Wikipedia <https://en.wikipedia.org/wiki/Maximum_clique(graph_theory)>`_
+    `Maximum Clique on Wikipedia <https://en.wikipedia.org/wiki/Clique_(graph_theory)>`_
 
     `Independent Set on Wikipedia <https://en.wikipedia.org/wiki/Independent_set_(graph_theory)>`_
 
@@ -141,7 +141,7 @@ def clique_number(G, sampler=None, lagrange=2.0, **sampler_args):
     References
     ----------
 
-    `Maximum Clique on Wikipedia <https://en.wikipedia.org/wiki/Maximum_clique(graph_theory)>`_
+    `Maximum Clique on Wikipedia <https://en.wikipedia.org/wiki/Clique_(graph_theory)>`_
     """
     return len(maximum_clique(G, sampler, lagrange, **sampler_args))
 

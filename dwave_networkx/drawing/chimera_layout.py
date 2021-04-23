@@ -30,7 +30,7 @@ __all__ = ['chimera_layout', 'draw_chimera', 'draw_chimera_embedding', 'draw_chi
 def chimera_layout(G, scale=1., center=None, dim=2):
     """Positions the nodes of graph G in a Chimera cross topology.
 
-    NumPy (http://scipy.org) is required for this function.
+    NumPy (https://scipy.org) is required for this function.
 
     Parameters
     ----------
