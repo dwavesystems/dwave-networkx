@@ -16,4 +16,4 @@ dwave-networkx
    :caption: Code
    :maxdepth: 1
 
-   Source <https://github.com/dwavesystems/dwave_networkx>
+   Source <https://github.com/dwavesystems/dwave-networkx>

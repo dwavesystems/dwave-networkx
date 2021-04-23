@@ -1,5 +1,5 @@
 .. image:: https://img.shields.io/pypi/v/dwave-networkx.svg
-    :target: https://pypi.python.org/pypi/dwave-networkx
+    :target: https://pypi.org/project/dwave-networkx
 
 .. image:: https://readthedocs.com/projects/d-wave-systems-dwave-networkx/badge/?version=latest
     :target: https://docs.ocean.dwavesys.com/projects/dwave-networkx/en/latest/?badge=latest
@@ -17,7 +17,7 @@ D-Wave NetworkX
 
 .. index-start-marker
 
-D-Wave NetworkX is an extension of `NetworkX <http://networkx.github.io>`_\ ---a
+D-Wave NetworkX is an extension of `NetworkX <https://networkx.org>`_\ ---a
 Python language package for exploration and analysis of networks and network
 algorithms---for users of D-Wave Systems. It provides tools for working with
 Chimera graphs and implementations of graph-theory algorithms on the D-Wave

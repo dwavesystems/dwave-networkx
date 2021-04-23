@@ -894,7 +894,7 @@ def pegasus_elimination_order(n, coordinates=False):
 
     .. [bbrr] Boothby, K., P. Bunky, J. Raymond, A. Roy. Next-Generation Topology
        of D-Wave Quantum Processors. Technical Report, Februrary 2019.
-       https://www.dwavesys.com/resources/publications?type=white#publication-987
+       https://www.dwavesys.com/resources/publications?type=white
 
     """
     m = n

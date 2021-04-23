@@ -14,7 +14,7 @@ Documentation
     :Date: |today|
 
 .. note:: This documentation is for the latest version of
-   `dwave-networkx <https://github.com/dwavesystems/dwave_networkx>`_.
+   `dwave-networkx <https://github.com/dwavesystems/dwave-networkx>`_.
    Documentation for the version currently installed by
    `dwave-ocean-sdk <https://github.com/dwavesystems/dwave-ocean-sdk>`_
    is here: :std:doc:`dwave-networkx <oceandocs:docs_dnx/sdk_index>`.
@@ -34,7 +34,7 @@ Documentation
    :caption: Code
    :maxdepth: 1
 
-   Source <https://github.com/dwavesystems/dwave_networkx>
+   Source <https://github.com/dwavesystems/dwave-networkx>
    installation
    license
 
@@ -44,7 +44,7 @@ Documentation
 
   Ocean Home <https://ocean.dwavesys.com/>
   Ocean Documentation <https://docs.ocean.dwavesys.com>
-  Ocean Glossary <https://docs.ocean.dwavesys.com/en/latest/glossary.html>
+  Ocean Glossary <https://docs.ocean.dwavesys.com/en/stable/concepts/index.html>
 
 .. toctree::
   :caption: D-Wave
@@ -60,4 +60,4 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
-* `Glossary <https://docs.ocean.dwavesys.com/en/latest/glossary.html>`_
+* `Glossary <https://docs.ocean.dwavesys.com/en/stable/concepts/index.html>`_
