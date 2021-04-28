@@ -12,8 +12,6 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
-from dwave_networkx.exceptions import DWaveNetworkXException
-from dwave_networkx.utils import binary_quadratic_model_sampler
 from dwave_networkx import chimera_graph
 from dimod import DiscreteQuadraticModel
 from dwave.system import LeapHybridDQMSampler
@@ -23,7 +21,6 @@ import numpy as np
 __all__ = ["partition", "weighted_partition"]
 
 
-#@binary_quadratic_model_sampler(1)
 def partition(G, num_partitions=2, lagrange=4, sampler=None, **sampler_args):
     """Returns an approximate k-partition of G.
 
