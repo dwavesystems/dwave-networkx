@@ -16,7 +16,7 @@ import unittest
 
 import networkx as nx
 import dwave_networkx as dnx
-from dwave.system import LeapHybridDQMSampler
+from dwave_system import LeapHybridDQMSampler
 
 
 class TestPartitioning(unittest.TestCase):

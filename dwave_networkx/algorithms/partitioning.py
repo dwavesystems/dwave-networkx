@@ -14,7 +14,7 @@
 
 from dwave_networkx import chimera_graph
 from dimod import DiscreteQuadraticModel
-from dwave.system import LeapHybridDQMSampler
+from dwave_system import LeapHybridDQMSampler
 import networkx as nx
 import numpy as np
 
@@ -29,13 +29,13 @@ def partition(G, num_partitions=2, lagrange=4, sampler=None, **sampler_args):
 
     A k-partition is a collection of k subsets of the vertices
     of G such that each vertex is in exactly one subset, and
-    the sum of the number of edges between vertices in different
-    subsets is as small as possible.
+    the number of edges between vertices in different subsets
+    is as small as possible.
 
     Parameters
     ----------
     G : NetworkX graph
-        The graph on which to find a partition.
+        The graph to partition.
 
     num_partitions : int, optional (default 2)
         The number of subsets in the desired partition.
@@ -48,10 +48,9 @@ def partition(G, num_partitions=2, lagrange=4, sampler=None, **sampler_args):
         A discrete quadratic model sampler. A sampler is a process that
         samples from low energy states in models defined by an Ising
         equation or a Quadratic Unconstrained Binary Optimization
-        Problem (QUBO). A sampler is expected to have a 'sample_dqm'
+        Problem (QUBO). The sampler is expected to have a 'sample_dqm'
         method. A sampler is expected to return an iterable of samples,
-        in order of increasing energy. If no sampler is provided, one
-        must be provided using the `set_default_sampler` function.
+        in order of increasing energy.
 
     sampler_args
         Additional keyword parameters are passed to the sampler.
@@ -70,6 +69,7 @@ def partition(G, num_partitions=2, lagrange=4, sampler=None, **sampler_args):
     function.
 
     >>> import dimod
+    >>> from dwave.system import LeapHybridDqmSampler
     ...
     >>> sampler = LeapHybridDQMSampler()
     >>> G = dnx.chimera_graph(1, 1, 4)
@@ -83,42 +83,16 @@ def partition(G, num_partitions=2, lagrange=4, sampler=None, **sampler_args):
 
     """
 
-    # Set up partitions
-    partitions = range(num_partitions)
-    num_nodes = G.number_of_nodes()
-
-    # Initialize the DQM object
-    dqm = DiscreteQuadraticModel()
-
-    # Define the DQM variables. We need to define all of them first because there
-    # are not edges between all the nodes; hence, there may be quadratic terms
-    # between nodes which don't have edges connecting them.
-    for p in G.nodes:
-        dqm.add_variable(num_partitions, label=p)
-
-    constraint_const = lagrange * (1 - (2 * num_nodes / num_partitions))
-    for p in G.nodes:
-        linear_term = constraint_const + (0.5 * np.ones(num_partitions) * G.degree[p])
-        dqm.set_linear(p, linear_term)
-
-    # Quadratic term for node pairs which do not have edges between them
-    for p0, p1 in nx.non_edges(G):
-        dqm.set_quadratic(p0, p1, {(c, c): (2 * lagrange) for c in partitions})
-
-    # Quadratic term for node pairs which have edges between them
-    for p0, p1 in G.edges:
-        dqm.set_quadratic(p0, p1, {(c, c): ((2 * lagrange) - 1) for c in partitions})
+    dqm = graph_partition_dqm(G, num_partitions, lagrange, weighted=True)
 
     # Solve the problem using the DQM solver
-    offset = lagrange * num_nodes * num_nodes / num_partitions
-    sampleset = sampler.sample_dqm(dqm)#, label='Graph Partitioning DQM')
-
-    node_partition = sampleset.first.sample
+    node_partition = sampler.sample_dqm(dqm, **sampler_args).first.sample
 
     return node_partition
 
+
 def weighted_partition(G, num_partitions=2, lagrange=4, sampler=None, **sampler_args):
-    """Returns an approximate weighted maximum cut.
+    """Returns an approximate weighted k-partition.
 
     Defines an Ising problem with ground states corresponding to
     a weighted k-partition and uses the sampler to sample from it.
@@ -131,7 +105,7 @@ def weighted_partition(G, num_partitions=2, lagrange=4, sampler=None, **sampler_
     Parameters
     ----------
     G : NetworkX graph
-        The graph on which to find a weighted maximum cut. Each edge in G should
+        The graph on which to find a weighted k-partition. Each edge in G should
         have a numeric `weight` attribute.
 
     num_partitions : int, optional (default 2)
@@ -145,11 +119,9 @@ def weighted_partition(G, num_partitions=2, lagrange=4, sampler=None, **sampler_
         A discrete quadratic model sampler. A sampler is a process that
         samples from low energy states in models defined by an Ising
         equation or a Quadratic Unconstrained Binary Optimization
-        Problem (QUBO). A sampler is expected to have a 'sample_qubo'
-        and 'sample_ising' method. A sampler is expected to return an
-        iterable of samples, in order of increasing energy. If no
-        sampler is provided, one must be provided using the
-        `set_default_sampler` function.
+        Problem (QUBO). The sampler is expected to have a 'sample_dqm'
+        method. A sampler is expected to return an iterable of samples,
+        in order of increasing energy.
 
     sampler_args
         Additional keyword parameters are passed to the sampler.
@@ -158,7 +130,7 @@ def weighted_partition(G, num_partitions=2, lagrange=4, sampler=None, **sampler_
     -------
     node_partition : dict
         The partition as a dictionary mapping each node to subsets labelled
-        as integers {0, 1, 2, ... num_partitions}.
+        as integers from 0 to num_partitions.
 
     Notes
     -----
@@ -167,9 +139,17 @@ def weighted_partition(G, num_partitions=2, lagrange=4, sampler=None, **sampler_
     sample.
 
     """
+    dqm = graph_partition_dqm(G, num_partitions, lagrange, weighted=True)
+
+    # Solve the problem using the DQM solver
+    node_partition = sampler.sample_dqm(dqm, **sampler_args).first.sample
+
+    return node_partition
+
+
+def graph_partition_dqm(G, num_partitions, lagrange, weighted=False):
     # Set up partitions
     partitions = range(num_partitions)
-    num_nodes = G.number_of_nodes()
 
     # Initialize the DQM object
     dqm = DiscreteQuadraticModel()
@@ -180,9 +160,9 @@ def weighted_partition(G, num_partitions=2, lagrange=4, sampler=None, **sampler_
     for p in G.nodes:
         dqm.add_variable(num_partitions, label=p)
 
-    constraint_const = lagrange * (1 - (2 * num_nodes / num_partitions))
+    constraint_const = lagrange * (1 - (2 * G.number_of_nodes() / num_partitions))
     for p in G.nodes:
-        linear_term = constraint_const + (0.5 * np.ones(num_partitions) * G.degree[p])
+        linear_term = constraint_const + (0.5 * np.ones(num_partitions) * G.degree(p, weight='weight'))
         dqm.set_linear(p, linear_term)
 
     # Quadratic term for node pairs which do not have edges between them
@@ -190,13 +170,11 @@ def weighted_partition(G, num_partitions=2, lagrange=4, sampler=None, **sampler_
         dqm.set_quadratic(p0, p1, {(c, c): (2 * lagrange) for c in partitions})
 
     # Quadratic term for node pairs which have edges between them
-    for p0, p1 in G.edges:
-        dqm.set_quadratic(p0, p1, {(c, c): ((2 * lagrange) - G[p0][p1]["weight"]) for c in partitions})
+    if weighted:
+        for p0, p1 in G.edges:
+            dqm.set_quadratic(p0, p1, {(c, c): ((2 * lagrange) - G[p0][p1]['weight']) for c in partitions})
+    else:
+        for p0, p1 in G.edges:
+            dqm.set_quadratic(p0, p1, {(c, c): ((2 * lagrange) - 1) for c in partitions})
 
-    # Solve the problem using the DQM solver
-    offset = lagrange * num_nodes * num_nodes / num_partitions
-    sampleset = sampler.sample_dqm(dqm)#, label='Graph Partitioning DQM')
-
-    node_partition = sampleset.first.sample
-
-    return node_partition
+    return dqm

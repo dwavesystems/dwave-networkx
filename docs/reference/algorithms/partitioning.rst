@@ -14,7 +14,7 @@ distinct subsets is as small as possible.
 
    A 2-partition for a simple graph: the nodes in blue are in the
    '0' subset, and the nodes in red are in the '1' subset. There are no
-   other arrangements with few edges between two equally sized subsets.
+   other arrangements with fewer edges between two equally sized subsets.
 
 .. automodule:: dwave_networkx.algorithms.partition
 .. autosummary::
