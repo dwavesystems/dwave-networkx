@@ -14,7 +14,6 @@
 
 from dwave_networkx import chimera_graph
 from dimod import DiscreteQuadraticModel
-from dwave_system import LeapHybridDQMSampler
 import networkx as nx
 import numpy as np
 
@@ -24,7 +23,7 @@ __all__ = ["partition", "weighted_partition"]
 def partition(G, num_partitions=2, lagrange=4, sampler=None, **sampler_args):
     """Returns an approximate k-partition of G.
 
-    Defines an Ising problem with ground states corresponding to a
+    Defines an DQM with ground states corresponding to a
     balanced k-partition of G and uses the sampler to sample from it.
 
     A k-partition is a collection of k subsets of the vertices
@@ -83,7 +82,7 @@ def partition(G, num_partitions=2, lagrange=4, sampler=None, **sampler_args):
 
     """
 
-    dqm = graph_partition_dqm(G, num_partitions, lagrange, weighted=True)
+    dqm = graph_partition_dqm(G, num_partitions, lagrange, weighted=False)
 
     # Solve the problem using the DQM solver
     node_partition = sampler.sample_dqm(dqm, **sampler_args).first.sample
