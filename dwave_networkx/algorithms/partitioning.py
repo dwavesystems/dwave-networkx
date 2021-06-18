@@ -13,6 +13,7 @@
 #    limitations under the License.
 
 from dwave_networkx import chimera_graph
+from dwave_networkx.exceptions import DWaveNetworkXException
 from dimod import DiscreteQuadraticModel
 import networkx as nx
 import numpy as np
@@ -170,8 +171,11 @@ def graph_partition_dqm(G, num_partitions, lagrange, weighted=False):
 
     # Quadratic term for node pairs which have edges between them
     if weighted:
-        for p0, p1 in G.edges:
-            dqm.set_quadratic(p0, p1, {(c, c): ((2 * lagrange) - G[p0][p1]['weight']) for c in partitions})
+        try:
+            for p0, p1 in G.edges:
+                dqm.set_quadratic(p0, p1, {(c, c): ((2 * lagrange) - G[p0][p1]['weight']) for c in partitions})
+        except KeyError:
+            raise DWaveNetworkXException("edges must have 'weight' attribute")
     else:
         for p0, p1 in G.edges:
             dqm.set_quadratic(p0, p1, {(c, c): ((2 * lagrange) - 1) for c in partitions})

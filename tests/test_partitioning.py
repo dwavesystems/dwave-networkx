@@ -42,10 +42,10 @@ class TestPartitioning(unittest.TestCase):
         self.assertTrue(sum(x == 0 for x in node_partitions.values()) == 5)  # half of the nodes in subset '0'
 
         with self.assertRaises(dnx.DWaveNetworkXException):
-            node_partitions = dnx.weighted_maximum_cut(G, sampler=ExactDQMSolver())
+            node_partitions = dnx.weighted_partition(G, sampler=ExactDQMSolver())
 
         nx.set_edge_attributes(G, 1, 'weight')
-        node_partitions = dnx.weighted_maximum_cut(G, sampler=ExactDQMSolver())
+        node_partitions = dnx.weighted_partition(G, sampler=ExactDQMSolver())
         self.assertTrue(sum(x == 0 for x in node_partitions.values()) == 5)  # half of the nodes in subset '0'
 
         node_partitions = dnx.weighted_partition(G, num_partitions=5, sampler=ExactDQMSolver())
