@@ -12,7 +12,6 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
-from dwave_networkx import chimera_graph
 from dwave_networkx.exceptions import DWaveNetworkXException
 from dimod import DiscreteQuadraticModel
 import networkx as nx
