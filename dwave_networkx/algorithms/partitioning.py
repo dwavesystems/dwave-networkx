@@ -69,11 +69,11 @@ def partition(G, num_partitions=2, lagrange=4, sampler=None, **sampler_args):
     function.
 
     >>> import dimod
-    >>> from dwave.system import LeapHybridDqmSampler
+    >>> from dwave.system import LeapHybridDQMSampler
     ...
     >>> sampler = LeapHybridDQMSampler()
     >>> G = dnx.chimera_graph(1, 1, 4)
-    >>> partitions = dnx.partition(G, sampler)
+    >>> partitions = dnx.partition(G, sampler=sampler)
 
     Notes
     -----
