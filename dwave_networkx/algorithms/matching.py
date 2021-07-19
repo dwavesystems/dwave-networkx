@@ -55,11 +55,7 @@ def matching_bqm(G):
         The energy of the first excited state is 1.
 
     """
-    try:
-        bqm = dimod.AdjVectorBQM.empty('BINARY')
-    except AttributeError:
-        # support dimod < 0.9.0
-        bqm = dimod.BinaryQuadraticModel.empty('BINARY')
+    bqm = dimod.BinaryQuadraticModel.empty('BINARY')
 
     # add the edges of G as variables
     for edge in G.edges:
