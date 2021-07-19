@@ -13,6 +13,11 @@
 #    limitations under the License.
 
 import dimod
+try:
+    from dwave.preprocessing import FixVariablesComposite
+except ImportError:
+    # fall back on dimod (<0.10) if dwave.preprocessing not installed
+    from dimod import FixedVariableComposite as FixVariablesComposite
 
 from dwave_networkx.utils import binary_quadratic_model_sampler
 
@@ -139,8 +144,7 @@ def sample_markov_network(MN, sampler=None, fixed_variables=None,
 
     bqm = markov_network_bqm(MN)
 
-    # use the FixedVar
-    fv_sampler = dimod.FixedVariableComposite(sampler)
+    fv_sampler = FixVariablesComposite(sampler)
 
     sampleset = fv_sampler.sample(bqm, fixed_variables=fixed_variables,
                                   **sampler_args)
@@ -182,7 +186,7 @@ def markov_network_bqm(MN):
         phi1 = potential[(1,)]
 
         bqm.add_variable(v, phi1 - phi0)
-        bqm.add_offset(phi0)
+        bqm.offset += phi0
 
     # the interaction potentials
     for u, v, ddict in MN.edges(data=True, default=None):
@@ -204,6 +208,6 @@ def markov_network_bqm(MN):
         bqm.add_variable(u, phi10 - phi00)
         bqm.add_variable(v, phi01 - phi00)
         bqm.add_interaction(u, v, phi11 - phi10 - phi01 + phi00)
-        bqm.add_offset(phi00)
+        bqm.offset += phi00
 
     return bqm
