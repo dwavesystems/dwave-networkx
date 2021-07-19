@@ -6,11 +6,13 @@ orbs:
 jobs:
   test-linux:
     parameters:
-      python-image-version:
+      dimod-version:
+        type: string
+      python-version:
         type: string
 
     docker:
-      - image: circleci/python:<< parameters.python-image-version >>
+      - image: circleci/python:<< parameters.python-version >>
 
     steps:
       - checkout
@@ -26,6 +28,12 @@ jobs:
             pip install -U pip setuptools wheel
             pip install -U twine
             pip install -r requirements.txt -r tests/requirements.txt
+
+      - run:
+          name: Install specified dimod version
+          command: |
+            . env/bin/activate
+            pip install --upgrade 'dimod<< parameters.dimod-version >>'
 
       - save_cache: &save-cache-env
           key: v1-dependencies-{{ checksum "requirements.txt" }}-{{ checksum "tests/requirements.txt" }}-{{ .Environment.CIRCLE_JOB }}
@@ -199,15 +207,16 @@ workflows:
       - test-linux:
           matrix:
             parameters:
-              python-image-version: ["3.5", "3.6", "3.7", "3.8", "3.9"]
+              python-version: &python-versions [3.6.8, 3.7.9, 3.8.9, 3.9.4]
+              dimod-version: [==0.8.0, <0.10, '[preprocessing]<0.11']
       - test-osx:
           matrix:
             parameters:
-              python-version: ["3.5.4", "3.6.8", "3.7.5", "3.8.6", "3.9.0"]
+              python-version: *python-versions
       - test-win:
           matrix:
             parameters:
-              python-version: ["3.5.4", "3.6.8", "3.7.5", "3.8.6", "3.9.0"]
+              python-version: *python-versions
       - test-doctest
 
   deploy:
