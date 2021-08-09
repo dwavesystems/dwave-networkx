@@ -17,9 +17,6 @@ import unittest
 import networkx as nx
 import dwave_networkx as dnx
 
-alpha_map = dict(enumerate('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'))
-
-
 class TestZephyrGraph(unittest.TestCase):
     def test_single_tile(self):
 

@@ -16,13 +16,13 @@
 Generators for some graphs derived from the D-Wave System.
 """
 import re
+import warnings
+from itertools import product
 
 import networkx as nx
 
 from dwave_networkx.exceptions import DWaveNetworkXException
-import warnings
 
-from itertools import product
 
 __all__ = ['zephyr_graph',
            'zephyr_coordinates',
@@ -45,33 +45,33 @@ def zephyr_graph(m, t=4, create_using=None, node_list=None, edge_list=None,
         with the new graph. Usually used to set the type of the graph.
     node_list : iterable, optional (default None)
         Iterable of nodes in the graph. If None, calculated from `m`.
-        Note that this list is used to remove nodes, so any nodes specified
+        Note that this list is used to remove nodes, so any specified nodes
         not in ``range(8*t*(m**2) + 4*t*m)`` are not added.
     edge_list : iterable, optional (default None)
         Iterable of edges in the graph. If None, edges are generated as
         described below. The nodes in each edge must be integer-labeled in
         ``range(8*t*(m**2) + 4*t*m)``.
     data : bool, optional (default True)
-        If True, each node has a  attribute. The attribute
+        If True, each node has a 'zephyr_index' attribute. The attribute
         is a 5-tuple zephyr index as defined below. If the `coordinates` parameter
-        is True, a linear_index, which is an integer, is used.
+        is True, each noode has a 'linear_index' attribute, which is an integer.
     coordinates : bool, optional (default False)
         If True, node labels are 5-tuple Zephyr indices.
 
     Returns
     -------
     G : NetworkX Graph
-        A Zephyr lattice for grid parameter `m` and tile parameter `q`.
+        A Zephyr lattice for grid parameter `m` and tile parameter `t`.
 
 
     The maximum degree of this graph is 4*t+4. The number of nodes is given by
 
         * `zephyr_graph(m, t)`: :math:`4tm(2m+1)`
 
-    Counting formulas for edges dependency on parameter settings,
+    The number of edges depends on parameter settings,
 
-        * `zephyr_graph(1, t)`: :math:`q(8t+3)`
-        * `zephyr_graph(m, t)`: :math:`q((8t+8)m^2-2m-3)`  if m > 1
+        * `zephyr_graph(1, t)`: :math:`2t(8t+3)`
+        * `zephyr_graph(m, t)`: :math:`2t((8t+8)m^2-2m-3)`  if m > 1
 
     A Zephyr lattice is a graph minor of a lattice similar to Chimera, where 
     unit tiles have odd couplers similar to Pegasus graphs. In its most
@@ -92,7 +92,7 @@ def zephyr_graph(m, t=4, create_using=None, node_list=None, edge_list=None,
         I(0, w, k, j, z) = [(2*z+j, w, 0, 2*k+j), (2*z+1+j, w, 0, 2*k+j)]
         I(1, w, k, j, z) = [(w, 2*z+j, 1, 2*k+j), (w, 2*z+1+j, 1, 2*k+j)]
 
-    and deleting the prelattice nodes of any interval not fully contained in
+    and deleting the prelattice nodes of any pair not fully contained in
     :math:`Q(2m+1)`.
 
     The *Zephyr index* of a node in a Zephyr lattice, :math:`(u, w, k, j, z)`,
@@ -139,11 +139,12 @@ def zephyr_graph(m, t=4, create_using=None, node_list=None, edge_list=None,
     M = 2*m+1
     
     if coordinates:
-        c2i = lambda *q: q
+        def label(*q):
+            return q
         labels = 'coordinate'
     else:
         labels = 'int'
-        def c2i(u, w, k, j, z):
+        def label(u, w, k, j, z):
             return (((u * M + w) * t + k) * 2 + j) * m + z
 
     construction = (("family", "zephyr"), ("rows", m), ("columns", m),
@@ -155,45 +156,45 @@ def zephyr_graph(m, t=4, create_using=None, node_list=None, edge_list=None,
 
     if edge_list is None:
         #external edges
-        G.add_edges_from((c2i(u, w, k, j, z), c2i(u, w, k, j, z + 1))
+        G.add_edges_from((label(u, w, k, j, z), label(u, w, k, j, z + 1))
                          for u, w, k, j, z in product(
                             (0, 1), range(M), range(t), (0, 1), range(m-1)
                          ))
 
         #odd edges with a=0
-        G.add_edges_from((c2i(u, w, k, 0, z), c2i(u, w, k, 1, z))
+        G.add_edges_from((label(u, w, k, 0, z), label(u, w, k, 1, z))
                          for u, w, k, j, z in product(
                             (0, 1), range(M), range(t), (0, 1), range(m)
                          ))
 
         #odd edges with a=1
-        G.add_edges_from((c2i(u, w, k, 0, z), c2i(u, w, k, 1, z-1))
+        G.add_edges_from((label(u, w, k, 0, z), label(u, w, k, 1, z-1))
                          for u, w, k, j, z in product(
                             (0, 1), range(M), range(t), (0, 1), range(1, m)
                          ))
 
         #internal edges with a=b=0
-        G.add_edges_from((c2i(0, 2*w+1, k, j, z), c2i(1, 2*z+1, h, i, w))
+        G.add_edges_from((label(0, 2*w+1, k, j, z), label(1, 2*z+1, h, i, w))
                          for w, z, h, k, i, j in product(
                             range(m), range(m), range(t), range(t), (0, 1), (0, 1)
                          ))
         
         #internal edges with a=0, b=1
-        G.add_edges_from((c2i(0, 2*w+1, k, j, z-j), c2i(1, 2*z, h, i, w))
+        G.add_edges_from((label(0, 2*w+1, k, j, z-j), label(1, 2*z, h, i, w))
                          for w, h, k, i, j in product(
                             range(m), range(t), range(t), (0, 1), (0, 1)
                          )
                          for z in (range(1, m+1) if j else range(m)))
 
         #internal edges with a=1, b=0
-        G.add_edges_from((c2i(0, 2*w, k, j, z), c2i(1, 2*z+1, h, i, w-i))
+        G.add_edges_from((label(0, 2*w, k, j, z), label(1, 2*z+1, h, i, w-i))
                          for z, h, k, i, j in product(
                             range(m), range(t), range(t), (0, 1), (0, 1)
                          )
                          for w in (range(1, m+1) if i else range(m)))
 
         #internal edges with a=b=1
-        G.add_edges_from((c2i(0, 2*w, k, j, z-j), c2i(1, 2*z, h, i, w-i))
+        G.add_edges_from((label(0, 2*w, k, j, z-j), label(1, 2*z, h, i, w-i))
                          for h, k, i, j in product(
                             range(t), range(t), (0, 1), (0, 1)
                          )

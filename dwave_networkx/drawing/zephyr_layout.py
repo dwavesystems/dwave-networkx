@@ -205,9 +205,9 @@ def draw_zephyr_embedding(G, *args, **kwargs):
     embedded_graph : NetworkX graph (optional, default None)
         A graph that contains all keys of ``emb`` as nodes.  If specified,
         edges of G are considered interactions if and only if (1) they
-        exist between two chains of ``emb`` and (2) their keys are connected
-        by an edge in this graph. If given, only couplers between chains
-        based on this graph are displayed.
+        exist between two chains of ``emb`` and (2) the keys of the
+        corresponding chains are connected by an edge in embedded_graph.
+        If given, only couplers between chains based on this graph are displayed.
 
     interaction_edges : list (optional, default None)
         A list of edges used as interactions. If given,
@@ -260,7 +260,7 @@ def draw_zephyr_yield(G, **kwargs):
         marker, one of 'so^>v<dph8'.
 
     fault_style : string, optional (default='dashed')
-        Edge fault line style (solid|dashed|dotted,dashdot)
+        Edge fault line style (solid|dashed|dotted|dashdot)
 
     kwargs : optional keywords
        See networkx.draw_networkx() for a description of optional keywords,
