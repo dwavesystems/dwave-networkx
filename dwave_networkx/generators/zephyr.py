@@ -152,8 +152,6 @@ def zephyr_graph(m, t=4, create_using=None, node_list=None, edge_list=None,
 
     G.graph.update(construction)
 
-    max_size = 2*t*m*(2*m+1)  # max number of nodes G can have
-
     if edge_list is None:
         #external edges
         G.add_edges_from((label(u, w, k, j, z), label(u, w, k, j, z + 1))
@@ -161,45 +159,18 @@ def zephyr_graph(m, t=4, create_using=None, node_list=None, edge_list=None,
                             (0, 1), range(M), range(t), (0, 1), range(m-1)
                          ))
 
-        #odd edges with a=0
-        G.add_edges_from((label(u, w, k, 0, z), label(u, w, k, 1, z))
-                         for u, w, k, j, z in product(
-                            (0, 1), range(M), range(t), (0, 1), range(m)
-                         ))
-
-        #odd edges with a=1
-        G.add_edges_from((label(u, w, k, 0, z), label(u, w, k, 1, z-1))
-                         for u, w, k, j, z in product(
-                            (0, 1), range(M), range(t), (0, 1), range(1, m)
-                         ))
-
-        #internal edges with a=b=0
-        G.add_edges_from((label(0, 2*w+1, k, j, z), label(1, 2*z+1, h, i, w))
-                         for w, z, h, k, i, j in product(
-                            range(m), range(m), range(t), range(t), (0, 1), (0, 1)
-                         ))
-        
-        #internal edges with a=0, b=1
-        G.add_edges_from((label(0, 2*w+1, k, j, z-j), label(1, 2*z, h, i, w))
-                         for w, h, k, i, j in product(
-                            range(m), range(t), range(t), (0, 1), (0, 1)
+        #odd edges
+        G.add_edges_from((label(u, w, k, 0, z), label(u, w, k, 1, z-a))
+                         for u, w, k, a in product(
+                            (0, 1), range(M), range(t), (0, 1)
                          )
-                         for z in (range(1, m+1) if j else range(m)))
+                         for z in range(a, m))
 
-        #internal edges with a=1, b=0
-        G.add_edges_from((label(0, 2*w, k, j, z), label(1, 2*z+1, h, i, w-i))
-                         for z, h, k, i, j in product(
-                            range(m), range(t), range(t), (0, 1), (0, 1)
-                         )
-                         for w in (range(1, m+1) if i else range(m)))
-
-        #internal edges with a=b=1
-        G.add_edges_from((label(0, 2*w, k, j, z-j), label(1, 2*z, h, i, w-i))
-                         for h, k, i, j in product(
-                            range(t), range(t), (0, 1), (0, 1)
-                         )
-                         for w in (range(1, m+1) if i else range(m))
-                         for z in (range(1, m+1) if j else range(m)))
+        #internal edges
+        G.add_edges_from((label(0, 2*w+1+a*(2*i-1), k, j, z), label(1, 2*z+1+b*(2*j-1), h, i, w))
+                         for w, z, h, k, i, j, a, b in product(
+                            range(m), range(m), range(t), range(t), (0, 1), (0, 1), (0, 1), (0, 1)
+                         ))
 
     else:
         G.add_edges_from(edge_list)
