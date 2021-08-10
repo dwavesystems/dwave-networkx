@@ -134,10 +134,15 @@ def traveling_salesperson_qubo(G, lagrange=None, weight='weight', missing_edge_w
     weight : optional (default 'weight')
         The name of the edge attribute containing the weight.
     
+<<<<<<< HEAD
     missing_edge_weight : number, optional (default None)
         For bi-directional graphs, the weight given to missing edges.
         If None is given (the default), missing edges will be set to
         the sum of all weights.
+=======
+    missing_edge_penalty : number, optional (default 'sum')
+        For bi-directional graphs, the penalty associated with the back missing edges. Default is to use the sum all weights.
+>>>>>>> added missing edge penalty parameter in tsp.py
 
     Returns
     -------
@@ -160,10 +165,16 @@ def traveling_salesperson_qubo(G, lagrange=None, weight='weight', missing_edge_w
         else:
             lagrange = 2
     
+<<<<<<< HEAD
     # calculate default missing_edge_weight if required
     if missing_edge_weight is None:
         # networkx method to calculate sum of all weights
         missing_edge_weight = G.size(weight=weight)
+=======
+    # default penalty format is sum
+    if missing_edge_penalty is "sum":
+        missing_edge_weight = sum(dict( (x[:-1], x[-1][weight]) for x in edges if weight in x[-1] ).values())
+>>>>>>> added missing edge penalty parameter in tsp.py
 
     # some input checking
     if N in (1, 2):
