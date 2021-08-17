@@ -208,6 +208,7 @@ class TestTSPQUBO(unittest.TestCase):
 
         self.assertEqual(ground_count, len(min_routes))
 
+<<<<<<< HEAD
     def test_graph_missing_edges(self):
         G = nx.Graph()
         G.add_weighted_edges_from([
@@ -232,6 +233,8 @@ class TestTSPQUBO(unittest.TestCase):
         # TODO: some assertions?
 
 
+=======
+>>>>>>> added unit tests
     def test_k4_equal_weights(self):
         # k5 with all equal weights so all paths are equally good
         G = nx.Graph()
