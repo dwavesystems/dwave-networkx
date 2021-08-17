@@ -161,7 +161,7 @@ def traveling_salesperson_qubo(G, lagrange=None, weight='weight', missing_edge_p
     missing_edge_weight=""
     
     # default penalty format is sum
-    if missing_edge_penalty is "sum":
+    if missing_edge_penalty == "sum":
         missing_edge_weight = sum(weight for _, _, weight in G.edges.data('weight', default=0))
 
     # some input checking

@@ -136,6 +136,41 @@ class TestTSPQUBO(unittest.TestCase):
 
         self.assertEqual(ground_count, len(min_routes))
 
+    def test_k3_bidirectional(self):
+        G = nx.Graph()
+        G.add_weighted_edges_from([('a', 'b', 0.5),
+                                   ('b', 'c', 1.0),
+                                   ('a', 'c', 2.0),
+                                   ('b', 'a', 0.5),
+                                   ('c', 'b', 1.0),
+                                   ('a', 'b', 0.5)])
+
+        Q = dnx.traveling_salesperson_qubo(G, lagrange=10)
+        bqm = dimod.BinaryQuadraticModel.from_qubo(Q)
+
+        # all routes are min weight
+        min_routes = list(itertools.permutations(G.nodes))
+
+        # get the min energy of the qubo
+        sampleset = dimod.ExactSolver().sample(bqm)
+        ground_energy = sampleset.first.energy
+
+        # all possible routes are equally good
+        for route in min_routes:
+            sample = {v: 0 for v in bqm.variables}
+            for idx, city in enumerate(route):
+                sample[(city, idx)] = 1
+            self.assertAlmostEqual(bqm.energy(sample), ground_energy)
+
+        # all min-energy solutions are valid routes
+        ground_count = 0
+        for sample, energy in sampleset.data(['sample', 'energy']):
+            if abs(energy - ground_energy) > .001:
+                break
+            ground_count += 1
+
+        self.assertEqual(ground_count, len(min_routes))
+
     def test_k4_equal_weights(self):
         # k5 with all equal weights so all paths are equally good
         G = nx.Graph()
