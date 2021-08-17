@@ -154,7 +154,7 @@ def traveling_salesperson_qubo(G, lagrange=None, weight='weight', missing_edge_w
 
     """
     N = G.number_of_nodes()
-
+    print("hi")
     if lagrange is None:
         # If no lagrange parameter provided, set to 'average' tour length.
         # Usually a good estimate for a lagrange parameter is between 75-150%
