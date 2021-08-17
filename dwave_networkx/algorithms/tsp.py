@@ -114,40 +114,25 @@ def traveling_salesperson(G, sampler=None, lagrange=None, weight='weight',
 traveling_salesman = traveling_salesperson
 
 
-def traveling_salesperson_qubo(G, lagrange=None, weight='weight', missing_edge_penalty=None):
+def traveling_salesperson_qubo(G, lagrange=None, weight='weight', missing_edge_weight=None):
     """Return the QUBO with ground states corresponding to a minimum TSP route.
-
     If :math:`|G|` is the number of nodes in the graph, the resulting qubo will have:
-
     * :math:`|G|^2` variables/nodes
     * :math:`2 |G|^2 (|G| - 1)` interactions/edges
-
     Parameters
     ----------
     G : NetworkX graph
         A complete graph in which each edge has a attribute giving its weight.
-
     lagrange : number, optional (default None)
         Lagrange parameter to weight constraints (no edges within set)
         versus objective (largest set possible).
-
     weight : optional (default 'weight')
         The name of the edge attribute containing the weight.
     
-<<<<<<< HEAD
     missing_edge_weight : number, optional (default None)
         For bi-directional graphs, the weight given to missing edges.
         If None is given (the default), missing edges will be set to
         the sum of all weights.
-=======
-    missing_edge_penalty : number, optional (default 'sum')
-<<<<<<< HEAD
-        For bi-directional graphs, the penalty associated with the back missing edges. Default is to use the sum all weights.
->>>>>>> added missing edge penalty parameter in tsp.py
-=======
-        For bi-directional graphs, the penalty associated with the back missing edges. Default is none. Alternatives include using the sum all weights.
->>>>>>> revised old changes
-
     Returns
     -------
     QUBO : dict
@@ -155,7 +140,6 @@ def traveling_salesperson_qubo(G, lagrange=None, weight='weight', missing_edge_p
        salesperson route. The QUBO variables are labelled `(c, t)` where `c`
        is a node in `G` and `t` is the time index. For instance, if `('a', 0)`
        is 1 in the ground state, that means the node 'a' is visted first.
-
     """
     N = G.number_of_nodes()
 
@@ -169,28 +153,14 @@ def traveling_salesperson_qubo(G, lagrange=None, weight='weight', missing_edge_p
         else:
             lagrange = 2
     
-<<<<<<< HEAD
     # calculate default missing_edge_weight if required
     if missing_edge_weight is None:
         # networkx method to calculate sum of all weights
         missing_edge_weight = G.size(weight=weight)
-=======
-    # default penalty format is sum
-    if missing_edge_penalty is "sum":
-<<<<<<< HEAD
-        missing_edge_weight = sum(dict( (x[:-1], x[-1][weight]) for x in edges if weight in x[-1] ).values())
->>>>>>> added missing edge penalty parameter in tsp.py
 
     # some input checking
     if N in (1, 2):
         msg = "graph must have at least 3 nodes or be empty"
-=======
-        missing_edge_weight = sum(weight for _, _, weight in G.edges.data('weight', default=0))
-
-    # some input checking
-    if N in (1, 2):
-        msg = "graph must be a complete graph"
->>>>>>> revised old changes
         raise ValueError(msg)
 
     # Creating the QUBO
@@ -218,7 +188,6 @@ def traveling_salesperson_qubo(G, lagrange=None, weight='weight', missing_edge_p
             nextpos = (pos + 1) % N
 
             # going from u -> v
-<<<<<<< HEAD
             try:
                 value = G[u][v][weight]
             except KeyError:
@@ -233,12 +202,6 @@ def traveling_salesperson_qubo(G, lagrange=None, weight='weight', missing_edge_p
                 value = missing_edge_weight
 
             Q[((v, pos), (u, nextpos))] += value
-=======
-            Q[((u, pos), (v, nextpos))] += G[u][v].get('weight', missing_edge_weight)
-
-            # going from v -> u
-            Q[((v, pos), (u, nextpos))] += G[u][v].get('weight', missing_edge_weight)
->>>>>>> revised old changes
 
     return Q
 
