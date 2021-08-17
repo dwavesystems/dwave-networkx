@@ -114,7 +114,7 @@ def traveling_salesperson(G, sampler=None, lagrange=None, weight='weight',
 traveling_salesman = traveling_salesperson
 
 
-def traveling_salesperson_qubo(G, lagrange=None, weight='weight', missing_edge_penalty='sum'):
+def traveling_salesperson_qubo(G, lagrange=None, weight='weight', missing_edge_penalty='None'):
     """Return the QUBO with ground states corresponding to a minimum TSP route.
 
     If :math:`|G|` is the number of nodes in the graph, the resulting qubo will have:
@@ -135,7 +135,7 @@ def traveling_salesperson_qubo(G, lagrange=None, weight='weight', missing_edge_p
         The name of the edge attribute containing the weight.
     
     missing_edge_penalty : number, optional (default 'sum')
-        For bi-directional graphs, the penalty associated with the back missing edges. Default is to use the sum all weights.
+        For bi-directional graphs, the penalty associated with the back missing edges. Default is none. Alternatives include using the sum all weights.
 
     Returns
     -------
@@ -147,7 +147,7 @@ def traveling_salesperson_qubo(G, lagrange=None, weight='weight', missing_edge_p
 
     """
     N = G.number_of_nodes()
-    print("hi")
+
     if lagrange is None:
         # If no lagrange parameter provided, set to 'average' tour length.
         # Usually a good estimate for a lagrange parameter is between 75-150%
@@ -160,11 +160,11 @@ def traveling_salesperson_qubo(G, lagrange=None, weight='weight', missing_edge_p
     
     # default penalty format is sum
     if missing_edge_penalty is "sum":
-        missing_edge_weight = sum(dict( (x[:-1], x[-1][weight]) for x in edges if weight in x[-1] ).values())
+        missing_edge_weight = sum(weight for _, _, weight in G.edges.data('weight', default=0))
 
     # some input checking
-    if N in (1, 2) or len(G.edges) != N*(N-1)//2:
-        msg = "graph must be a complete graph with at least 3 nodes or empty"
+    if N in (1, 2):
+        msg = "graph must be a complete graph"
         raise ValueError(msg)
 
     # Creating the QUBO
@@ -192,10 +192,10 @@ def traveling_salesperson_qubo(G, lagrange=None, weight='weight', missing_edge_p
             nextpos = (pos + 1) % N
 
             # going from u -> v
-            Q[((u, pos), (v, nextpos))] += G[u][v][weight]
+            Q[((u, pos), (v, nextpos))] += G[u][v].get('weight', missing_edge_weight)
 
             # going from v -> u
-            Q[((v, pos), (u, nextpos))] += G[u][v][weight]
+            Q[((v, pos), (u, nextpos))] += G[u][v].get('weight', missing_edge_weight)
 
     return Q
 
