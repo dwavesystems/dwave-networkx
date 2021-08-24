@@ -137,9 +137,10 @@ def zephyr_node_placer_2d(G, scale=1., center=None, dim=2):
         Z = (2*z+j+1)*2*tile_width - .5
 
         if u:
-            xy = np.array([W, -Z])
-        else:
             xy = np.array([Z, -W])
+        else:
+            xy = np.array([W, -Z])
+
 
         return np.hstack((xy * scale, np.zeros(paddims))) + center
 
