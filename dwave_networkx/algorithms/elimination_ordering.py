@@ -19,11 +19,14 @@ from random import random, sample
 import networkx as nx
 
 from dwave_networkx.generators.pegasus import pegasus_coordinates
+from dwave_networkx.generators.zephyr import zephyr_coordinates
+from dwave_networkx.generators.chimera import chimera_coordinates
 
 __all__ = ['is_almost_simplicial',
            'is_simplicial',
            'chimera_elimination_order',
            'pegasus_elimination_order',
+           'zephyr_elimination_order',
            'max_cardinality_heuristic',
            'min_fill_heuristic',
            'min_width_heuristic',
@@ -807,7 +810,7 @@ def _theorem6p4():
     return _prune4, _explored4
 
 
-def chimera_elimination_order(m, n=None, t=None):
+def chimera_elimination_order(m, n=None, t=4, coordinates=False):
     """Provides a variable elimination order for a Chimera graph.
 
     A graph defined by `chimera_graph(m,n,t)` has treewidth :math:`max(m,n)*t`.
@@ -822,7 +825,10 @@ def chimera_elimination_order(m, n=None, t=None):
         Number of columns in the Chimera lattice.
     t : int (optional, default 4)
         Size of the shore within each Chimera tile.
-
+    coordinates bool (optional, default False):
+        If True, the elimination order is given in terms of 4-term Chimera
+        coordinates, otherwise given in linear indices.
+        
     Returns
     -------
     order : list
@@ -836,9 +842,6 @@ def chimera_elimination_order(m, n=None, t=None):
     """
     if n is None:
         n = m
-
-    if t is None:
-        t = 4
 
     index_flip = m > n
     if index_flip:
@@ -862,14 +865,17 @@ def chimera_elimination_order(m, n=None, t=None):
             for t_i in range(t):
                 order.append(chimeraI(m_i, n_i, 1, t_i))
 
-    return order
+    if coordinates:
+        return chimera_coordinates(m,n,t).iter_linear_to_chimera(order)
+    else:
+        return order
 
 
 def pegasus_elimination_order(n, coordinates=False):
     """Provides a variable elimination order for the Pegasus graph.
 
     The treewidth of a Pegasus graph `P(n)` is lower-bounded by `12n-11` and
-    upper bounded by `12-4` [bbrr]_ .
+    upper bounded by `12n-4` [bbrr]_ .
 
     Simple pegasus variable elimination order rules:
 
@@ -920,3 +926,41 @@ def pegasus_elimination_order(n, coordinates=False):
         return order
     else:
         return pegasus_coordinates(n).iter_pegasus_to_linear(order)
+
+    
+def zephyr_elimination_order(m, t=4, coordinates=False):
+    """Provides a variable elimination order for the zephyr graph.
+
+    The treewidth of a Zephyr graph `Z(m,t)` is upper-bounded by `4tm+2t` and
+    lower-bounded by `4tm` [brk]_ .
+    
+    Simple zephyr variable elimination rules:
+       - eliminate vertical qubits, one column at a time
+       - eliminate horizontal qubits in each column from top to bottom
+
+    Args
+    ----
+    m : int
+        Grid parameter for the Zephyr lattice.
+    t : int
+        Tile parameter for the Zephyr lattice.
+    coordinates : bool, optional (default False)
+        If True, the elimination order is given in terms of 4-term Zephyr
+        coordinates, otherwise given in linear indices.
+
+    Returns
+    -------
+    order : list
+        An elimination order that achieves an upper bound on the treewidth.
+
+    .. [bkr] Boothby, King, Raymond, in preparation
+
+    """
+    order = ([(0,w,k,j,z) for w in range(2*m+1) for k in range(t) for z in range(m) for j in range(2)]
+             + [(1,w,k,j,z) for z in range(m) for j in range(2)  for w in range(2*m+1) for k in range(t)])
+    
+    if coordinates:
+        return order
+    else:
+        return zephyr_coordinates(m).iter_zephyr_to_linear(order)
+
