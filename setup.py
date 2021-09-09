@@ -31,7 +31,7 @@ packages = ['dwave_networkx',
 
 install_requires = ['networkx>=2.0,<3.0',
                     'decorator>=4.1.0,<5.0.0',
-                    'dimod[preprocessing]>=0.8.0',
+                    'dimod>=0.8.0,!=0.10.0,!=0.10.1,!=0.10.2,!=0.10.3,!=0.10.4',
                     ]
 
 python_requires = ">=3.6"
