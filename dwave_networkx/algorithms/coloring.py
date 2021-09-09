@@ -125,7 +125,7 @@ def vertex_color(G, colors, sampler=None, **sampler_args):
     References
     ----------
     .. [DWMP] Dahl, E., "Programming the D-Wave: Map Coloring Problem",
-       https://www.dwavesys.com/sites/default/files/Map%20Coloring%20WP2.pdf
+       https://www.dwavesys.com/media/htfgw5bk/map-coloring-wp2.pdf
 
     Notes
     -----
@@ -308,7 +308,7 @@ def min_vertex_color(G, sampler=None, chromatic_lb=None, chromatic_ub=None,
     References
     ----------
     .. [DWMP] Dahl, E., "Programming the D-Wave: Map Coloring Problem",
-       https://www.dwavesys.com/sites/default/files/Map%20Coloring%20WP2.pdf
+       https://www.dwavesys.com/media/htfgw5bk/map-coloring-wp2.pdf
 
     Notes
     -----
