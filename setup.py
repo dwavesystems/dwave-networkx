@@ -34,13 +34,12 @@ install_requires = ['networkx>=2.0,<3.0',
                     'dimod[preprocessing]>=0.8.0',
                     ]
 
-python_requires = ">=3.5"
+python_requires = ">=3.6"
 
 classifiers = [
     'License :: OSI Approved :: Apache Software License',
     'Operating System :: OS Independent',
     'Programming Language :: Python :: 3 :: Only',
-    'Programming Language :: Python :: 3.5',
     'Programming Language :: Python :: 3.6',
     'Programming Language :: Python :: 3.7',
     'Programming Language :: Python :: 3.8',
