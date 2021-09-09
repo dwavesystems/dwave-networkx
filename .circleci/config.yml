@@ -187,7 +187,7 @@ jobs:
           command: |
             . env/bin/activate
             pip install .
-            [[ "$(pip show dwave-qiskit-plugin 2>/dev/null | grep Version)" == "Version: $CIRCLE_TAG" ]]
+            [[ "$(pip show dwave-networkx 2>/dev/null | grep Version)" == "Version: $CIRCLE_TAG" ]]
 
       - run:
           name: Build sdist and bdist
