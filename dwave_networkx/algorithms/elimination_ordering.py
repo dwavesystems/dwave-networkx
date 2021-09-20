@@ -813,7 +813,7 @@ def _theorem6p4():
 def chimera_elimination_order(m, n=None, t=4, coordinates=False):
     """Provides a variable elimination order for a Chimera graph.
 
-    A graph defined by `chimera_graph(m,n,t)` has treewidth :math:`max(m,n)*t`.
+    A graph defined by ``chimera_graph(m,n,t)`` has treewidth :math:`max(m,n)*t`.
     This function outputs a variable elimination order inducing a tree
     decomposition of that width.
 
@@ -874,8 +874,8 @@ def chimera_elimination_order(m, n=None, t=4, coordinates=False):
 def pegasus_elimination_order(n, coordinates=False):
     """Provides a variable elimination order for the Pegasus graph.
 
-    The treewidth of a Pegasus graph `P(n)` is lower-bounded by `12n-11` and
-    upper bounded by `12n-4` [bbrr]_ .
+    The treewidth of a Pegasus graph ``pegasus_graph(n)`` is lower-bounded by 
+    :math:`12n-11` and upper bounded by :math:`12n-4` [bbrr]_ .
 
     Simple pegasus variable elimination order rules:
 
@@ -931,8 +931,8 @@ def pegasus_elimination_order(n, coordinates=False):
 def zephyr_elimination_order(m, t=4, coordinates=False):
     """Provides a variable elimination order for the zephyr graph.
 
-    The treewidth of a Zephyr graph `Z(m,t)` is upper-bounded by `4tm+2t` and
-    lower-bounded by `4tm` [brk]_ .
+    The treewidth of a Zephyr graph ``zephyr_graph(m,t)`` is upper-bounded by 
+    :math:`4tm+2t` and lower-bounded by :math:`4tm` [brk]_ .
     
     Simple zephyr variable elimination rules:
        - eliminate vertical qubits, one column at a time
