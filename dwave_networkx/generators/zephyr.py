@@ -53,8 +53,9 @@ def zephyr_graph(m, t=4, create_using=None, node_list=None, edge_list=None,
         ``range(8*t*(m**2) + 4*t*m)``.
     data : bool, optional (default True)
         If True, each node has a 'zephyr_index' attribute. The attribute
-        is a 5-tuple zephyr index as defined below. If the `coordinates` parameter
-        is True, each node has a 'linear_index' attribute, which is an integer.
+        is a 5-tuple zephyr index as defined below. If the `coordinates`
+        parameter is True, each node has a 'linear_index' attribute, which is an
+        integer.
     coordinates : bool, optional (default False)
         If True, node labels are 5-tuple Zephyr indices.
 
@@ -63,8 +64,8 @@ def zephyr_graph(m, t=4, create_using=None, node_list=None, edge_list=None,
     G : NetworkX Graph
         A Zephyr lattice for grid parameter `m` and tile parameter `t`.
 
-
-    The maximum degree of this graph is 4*t+4. The number of nodes is given by
+    The maximum degree of this graph is :math:`4*t+4`. The number of nodes is
+    given by
 
         * `zephyr_graph(m, t)`: :math:`4tm(2m+1)`
 
@@ -115,11 +116,11 @@ def zephyr_graph(m, t=4, create_using=None, node_list=None, edge_list=None,
         1. :math:`0 <= 2w+1-a < 2m+1`,
         2. :math:`0 <= 2z+1-a < 2m+1`,
         3. :math:`0 <= z-jb < m`, and
-        4. :math:`0 <= w-ia < m`, and
+        4. :math:`0 <= w-ia < m`.
 
     Linear indices are computed from Zephyr indices by the formula::
 
-        q = (((u * (2 * m + 1) + w) * t + k) * 2 + j) * m + z
+        :math:`q = (((u * (2 * m + 1) + w) * t + k) * 2 + j) * m + z`
 
 
     Examples
@@ -127,8 +128,6 @@ def zephyr_graph(m, t=4, create_using=None, node_list=None, edge_list=None,
     >>> G = dnx.zephyr_graph(2)
     >>> G.nodes(data=True)[(0, 0, 0, 0, 0)]    # doctest: +SKIP
     {'linear_index': 0}
-
-
     """
     G = nx.empty_graph(0, create_using)
     m = int(m)
