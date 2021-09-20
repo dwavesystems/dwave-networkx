@@ -54,7 +54,7 @@ def zephyr_graph(m, t=4, create_using=None, node_list=None, edge_list=None,
     data : bool, optional (default True)
         If True, each node has a 'zephyr_index' attribute. The attribute
         is a 5-tuple zephyr index as defined below. If the `coordinates` parameter
-        is True, each noode has a 'linear_index' attribute, which is an integer.
+        is True, each node has a 'linear_index' attribute, which is an integer.
     coordinates : bool, optional (default False)
         If True, node labels are 5-tuple Zephyr indices.
 
@@ -234,7 +234,7 @@ class zephyr_coordinates(object):
 
         Parameters
         ----------
-        t : 5-tuple
+        q : 5-tuple
             Zephyr coordinate.
 
         Examples

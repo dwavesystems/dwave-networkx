@@ -41,14 +41,14 @@ class TestZephyrGraph(unittest.TestCase):
 
         nodes = [0, 1, 2]
         G = dnx.zephyr_graph(1, 2, node_list=nodes)
-        self.assertTrue(len(G) == 3)
-        self.assertTrue(len(G.edges()) == 1)
+        self.assertEqual(len(G), 3)
+        self.assertEqual(len(G.edges()), 1)
 
         edges = [(0, 1), (2, 3)]
         nodes = [0, 1, 2, 3]
         G = dnx.zephyr_graph(1, 2, node_list=nodes, edge_list=edges)
-        self.assertTrue(len(G) == 4)
-        self.assertTrue(len(G.edges()) == 2)
+        self.assertEqual(len(G) == 4)
+        self.assertEqual(len(G.edges()) == 2)
 
     def test_float_robustness(self):
         G = dnx.zephyr_graph(8 / 2)
@@ -62,10 +62,6 @@ class TestZephyrGraph(unittest.TestCase):
         self.assertEqual(set(G.nodes), set(dnx.zephyr_graph(4).nodes))
         for u, v in dnx.zephyr_graph(4).edges:
             self.assertIn(u, G[v])
-
-    def _check_matching_zephyr_indices(self, G, zephyr_indices):
-        for v, dat in G.nodes(data=True):
-            self.assertEqual(dat['zephyr_index'], zephyr_indices[v])
 
     def test_coordinate_basics(self):
         from dwave_networkx.generators.zephyr import zephyr_coordinates
