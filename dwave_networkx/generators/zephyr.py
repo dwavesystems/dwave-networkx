@@ -32,7 +32,7 @@ __all__ = ['zephyr_graph',
 def zephyr_graph(m, t=4, create_using=None, node_list=None, edge_list=None, 
                    data=True, coordinates=False):
     """
-    Creates a Zephyr graph with grid parameter `m` and tile parameter `t`.
+    Creates a Zephyr graph with grid parameter ``m`` and tile parameter ``t``.
 
     Parameters
     ----------
@@ -44,35 +44,36 @@ def zephyr_graph(m, t=4, create_using=None, node_list=None, edge_list=None,
         If provided, this graph is cleared of nodes and edges and filled
         with the new graph. Usually used to set the type of the graph.
     node_list : iterable, optional (default None)
-        Iterable of nodes in the graph. If None, calculated from `m`.
-        Note that this list is used to remove nodes, so any specified nodes
-        not in ``range(8*t*(m**2) + 4*t*m)`` are not added.
+        Iterable of nodes in the graph. If None, calculated from ``m``.
+        Note that this list is used to remove nodes, so only specified nodes 
+        that belong to the base node set (described in the ``coordinates``
+        parameter below) will be added.
     edge_list : iterable, optional (default None)
         Iterable of edges in the graph. If None, edges are generated as
-        described below. The nodes in each edge must be integer-labeled in
-        ``range(8*t*(m**2) + 4*t*m)``.
+        described below. The nodes in each edge must be labeled according to the
+        ``coordinates`` parameter, described below.
     data : bool, optional (default True)
-        If True, each node has a 'zephyr_index' attribute. The attribute
-        is a 5-tuple zephyr index as defined below. If the `coordinates`
-        parameter is True, each node has a 'linear_index' attribute, which is an
-        integer.
+        If True, adds to each node an attribute with a format that depends on
+        the ``coordinates`` parameter:
+            a 5-tuple ``'zephyr_index'`` if ``coordinates`` is False
+            an integer ``'linear_index'`` if ``coordinates`` is True
     coordinates : bool, optional (default False)
         If True, node labels are 5-tuple Zephyr indices.
 
     Returns
     -------
     G : NetworkX Graph
-        A Zephyr lattice for grid parameter `m` and tile parameter `t`.
+        A Zephyr lattice for grid parameter ``m`` and tile parameter ``t``.
 
-    The maximum degree of this graph is :math:`4*t+4`. The number of nodes is
+    The maximum degree of this graph is :math:`4t+4`. The number of nodes is
     given by
 
-        * `zephyr_graph(m, t)`: :math:`4tm(2m+1)`
+        * ``zephyr_graph(m, t)``: :math:`4tm(2m+1)`
 
     The number of edges depends on parameter settings,
 
-        * `zephyr_graph(1, t)`: :math:`2t(8t+3)`
-        * `zephyr_graph(m, t)`: :math:`2t((8t+8)m^2-2m-3)`  if m > 1
+        * ``zephyr_graph(1, t)``: :math:`2t(8t+3)`
+        * ``zephyr_graph(m, t)``: :math:`2t((8t+8)m^2-2m-3)`  if m > 1
 
     A Zephyr lattice is a graph minor of a lattice similar to Chimera, where 
     unit tiles have odd couplers similar to Pegasus graphs. In its most
@@ -90,8 +91,8 @@ def zephyr_graph(m, t=4, create_using=None, node_list=None, edge_list=None,
     The minor---a Zephyr lattice---is constructed by contracting pairs of
     external edges::
 
-        I(0, w, k, j, z) = [(2*z+j, w, 0, 2*k+j), (2*z+1+j, w, 0, 2*k+j)]
-        I(1, w, k, j, z) = [(w, 2*z+j, 1, 2*k+j), (w, 2*z+1+j, 1, 2*k+j)]
+        ``I(0, w, k, j, z) = [(2*z+j, w, 0, 2*k+j), (2*z+1+j, w, 0, 2*k+j)]``
+        ``I(1, w, k, j, z) = [(w, 2*z+j, 1, 2*k+j), (w, 2*z+1+j, 1, 2*k+j)]``
 
     and deleting the prelattice nodes of any pair not fully contained in
     :math:`Q(2m+1)`.
@@ -100,10 +101,10 @@ def zephyr_graph(m, t=4, create_using=None, node_list=None, edge_list=None,
     can be interpreted as:
 
         * :math:`u`: qubit orientation (0 = vertical, 1 = horizontal)
-        * :math:`w`: orthogonal major offset; 0 <= w < 2m+1
-        * :math:`k`: orthogonal secondary offset; 0 <= k < t
-        * :math:`j`: orthogonal minor offset; 0 <= j < 2
-        * :math:`z`: parallel offset; 0 <= z < m
+        * :math:`w`: orthogonal major offset; :math:`0 <= w < 2m+1`
+        * :math:`k`: orthogonal secondary offset; :math:`0 <= k < t`
+        * :math:`j`: orthogonal minor offset; :math:`0 <= j < 2`
+        * :math:`z`: parallel offset; :math:`0 <= z < m`
 
     Edges in the minor have the form
 
@@ -111,7 +112,7 @@ def zephyr_graph(m, t=4, create_using=None, node_list=None, edge_list=None,
         * odd: :math:`(u, w, 2k, z)` ~ :math:`(u, w, 2k+1, z-a)`
         * internal: :math:`(0, 2w+1-a, k, j, z-jb)` ~ :math:`(1, 2z+1-b, h, i, w-ia)`
 
-    for 0 <= a < 2 and 0 <= b < 2, where internal edges only exist when
+    for :math:`0 <= a < 2` and :math:`0 <= b < 2`, where internal edges only exist when
 
         1. :math:`0 <= 2w+1-a < 2m+1`,
         2. :math:`0 <= 2z+1-a < 2m+1`,
@@ -120,7 +121,7 @@ def zephyr_graph(m, t=4, create_using=None, node_list=None, edge_list=None,
 
     Linear indices are computed from Zephyr indices by the formula::
 
-        :math:`q = (((u * (2 * m + 1) + w) * t + k) * 2 + j) * m + z`
+        ``q = (((u * (2 * m + 1) + w) * t + k) * 2 + j) * m + z``
 
 
     Examples
