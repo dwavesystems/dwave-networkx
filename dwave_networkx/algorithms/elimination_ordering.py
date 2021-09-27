@@ -953,7 +953,12 @@ def zephyr_elimination_order(m, t=4, coordinates=False):
     order : list
         An elimination order that achieves an upper bound on the treewidth.
 
-    .. [bkr] Boothby, King, Raymond, in preparation
+
+    References
+    ----------
+    .. [brk] Boothby, Raymond, King, Zephyr Topology of D-Wave Quantum
+        Processors, October 2021.
+        https://dwavesys.com/media/fawfas04/14-1056a-a_zephyr_topology_of_d-wave_quantum_processors.pdf
 
     """
     order = ([(0,w,k,j,z) for w in range(2*m+1) for k in range(t) for z in range(m) for j in range(2)]

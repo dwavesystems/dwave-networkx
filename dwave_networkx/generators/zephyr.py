@@ -32,7 +32,7 @@ __all__ = ['zephyr_graph',
 def zephyr_graph(m, t=4, create_using=None, node_list=None, edge_list=None, 
                    data=True, coordinates=False):
     """
-    Creates a Zephyr graph with grid parameter ``m`` and tile parameter ``t``.
+    Creates a Zephyr graph [brk]_ with grid parameter ``m`` and tile parameter ``t``.
 
     Parameters
     ----------
@@ -125,10 +125,16 @@ def zephyr_graph(m, t=4, create_using=None, node_list=None, edge_list=None,
 
 
     Examples
-    ========
+    --------
     >>> G = dnx.zephyr_graph(2)
     >>> G.nodes(data=True)[(0, 0, 0, 0, 0)]    # doctest: +SKIP
     {'linear_index': 0}
+
+    References
+    ----------
+    .. [brk] Boothby, Raymond, King, Zephyr Topology of D-Wave Quantum
+        Processors, October 2021.
+        https://dwavesys.com/media/fawfas04/14-1056a-a_zephyr_topology_of_d-wave_quantum_processors.pdf
     """
     G = nx.empty_graph(0, create_using)
     m = int(m)
