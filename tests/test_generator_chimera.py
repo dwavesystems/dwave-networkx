@@ -79,8 +79,8 @@ class TestChimeraGraph(unittest.TestCase):
 
         nodes = [0, 1, 2]
         G = dnx.chimera_graph(1, 1, 2, node_list=nodes)
-        self.assertEqual(len(G), == 3)
-        self.assertEqual(len(G.edges()), == 2)
+        self.assertEqual(len(G), 3)
+        self.assertEqual(len(G.edges()), 2)
 
         edges = [(0, 2), (1, 2)]
         nodes = [0, 1, 2, 3]

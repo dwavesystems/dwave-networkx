@@ -47,8 +47,8 @@ class TestZephyrGraph(unittest.TestCase):
         edges = [(0, 1), (2, 3)]
         nodes = [0, 1, 2, 3]
         G = dnx.zephyr_graph(1, 2, node_list=nodes, edge_list=edges)
-        self.assertEqual(len(G) == 4)
-        self.assertEqual(len(G.edges()) == 2)
+        self.assertEqual(len(G), 4)
+        self.assertEqual(len(G.edges()), 2)
 
     def test_float_robustness(self):
         G = dnx.zephyr_graph(8 / 2)

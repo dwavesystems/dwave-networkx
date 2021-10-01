@@ -967,5 +967,5 @@ def zephyr_elimination_order(m, t=4, coordinates=False):
     if coordinates:
         return order
     else:
-        return zephyr_coordinates(m).iter_zephyr_to_linear(order)
+        return list(zephyr_coordinates(m).iter_zephyr_to_linear(order))
 
