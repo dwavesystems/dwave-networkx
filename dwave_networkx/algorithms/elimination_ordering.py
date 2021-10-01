@@ -866,7 +866,7 @@ def chimera_elimination_order(m, n=None, t=4, coordinates=False):
                 order.append(chimeraI(m_i, n_i, 1, t_i))
 
     if coordinates:
-        return chimera_coordinates(m,n,t).iter_linear_to_chimera(order)
+        return list(chimera_coordinates(m,n,t).iter_linear_to_chimera(order))
     else:
         return order
 
@@ -925,7 +925,7 @@ def pegasus_elimination_order(n, coordinates=False):
     if coordinates:
         return order
     else:
-        return pegasus_coordinates(n).iter_pegasus_to_linear(order)
+        return list(pegasus_coordinates(n).iter_pegasus_to_linear(order))
 
     
 def zephyr_elimination_order(m, t=4, coordinates=False):
