@@ -114,7 +114,7 @@ def traveling_salesperson(G, sampler=None, lagrange=None, weight='weight',
 traveling_salesman = traveling_salesperson
 
 
-def traveling_salesperson_qubo(G, lagrange=None, weight='weight', missing_edge_penalty='None'):
+def traveling_salesperson_qubo(G, lagrange=None, weight='weight', missing_edge_weight=None):
     """Return the QUBO with ground states corresponding to a minimum TSP route.
 
     If :math:`|G|` is the number of nodes in the graph, the resulting qubo will have:
@@ -134,8 +134,10 @@ def traveling_salesperson_qubo(G, lagrange=None, weight='weight', missing_edge_p
     weight : optional (default 'weight')
         The name of the edge attribute containing the weight.
     
-    missing_edge_penalty : number, optional (default 'sum')
-        For bi-directional graphs, the penalty associated with the back missing edges. Default is none. Alternatives include using the sum all weights.
+    missing_edge_weight : number, optional (default None)
+        For bi-directional graphs, the weight given to missing edges.
+        If None is given (the default), missing edges will be set to
+        the sum of all weights.
 
     Returns
     -------
@@ -158,15 +160,14 @@ def traveling_salesperson_qubo(G, lagrange=None, weight='weight', missing_edge_p
         else:
             lagrange = 2
     
-    missing_edge_weight=""
-    
-    # default penalty format is sum
-    if missing_edge_penalty == "sum":
-        missing_edge_weight = sum(weight for _, _, weight in G.edges.data('weight', default=0))
+    # calculate default missing_edge_weight if required
+    if missing_edge_weight is None:
+        # networkx method to calculate sum of all weights
+        missing_edge_weight = G.size(weight=weight)
 
     # some input checking
     if N in (1, 2):
-        msg = "graph must be a complete graph"
+        msg = "graph must have at least 3 nodes or be empty"
         raise ValueError(msg)
 
     # Creating the QUBO
@@ -194,10 +195,10 @@ def traveling_salesperson_qubo(G, lagrange=None, weight='weight', missing_edge_p
             nextpos = (pos + 1) % N
 
             # going from u -> v
-            Q[((u, pos), (v, nextpos))] += G[u][v].get('weight', missing_edge_weight)
+            Q[((u, pos), (v, nextpos))] += G[u][v].get(weight, missing_edge_weight)
 
             # going from v -> u
-            Q[((v, pos), (u, nextpos))] += G[u][v].get('weight', missing_edge_weight)
+            Q[((v, pos), (u, nextpos))] += G[u][v].get(weight, missing_edge_weight)
 
     return Q
 

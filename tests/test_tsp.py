@@ -97,6 +97,29 @@ class TestTSP(unittest.TestCase):
 
         self.assertEqual(route[0], 1)
 
+    def test_weighted_complete_digraph(self):
+        G = nx.DiGraph()
+        G.add_weighted_edges_from([
+            (0, 1, 2),
+            (1, 0, 1),
+            (0, 2, 2),
+            (2, 0, 2),
+            (0, 3, 1),
+            (3, 0, 2),
+            (1, 2, 2),
+            (2, 1, 1),
+            (1, 3, 2),
+            (3, 1, 2),
+            (2, 3, 2),
+            (3, 2, 1),
+        ])
+
+        route = dnx.traveling_salesperson(G, dimod.ExactSolver(), start=1)
+
+        self.assertEqual(len(route), len(G))
+        self.assertEqual(nx.path_weight(G, route, 'weight'), 4)
+        self.assertListEqual(route, [1, 0, 3, 2])
+
 
 class TestTSPQUBO(unittest.TestCase):
     def test_empty(self):
@@ -137,7 +160,7 @@ class TestTSPQUBO(unittest.TestCase):
         self.assertEqual(ground_count, len(min_routes))
 
     def test_k3_bidirectional(self):
-        G = nx.Graph()
+        G = nx.DiGraph()
         G.add_weighted_edges_from([('a', 'b', 0.5),
                                    ('b', 'c', 1.0),
                                    ('a', 'c', 2.0),
@@ -170,6 +193,26 @@ class TestTSPQUBO(unittest.TestCase):
             ground_count += 1
 
         self.assertEqual(ground_count, len(min_routes))
+
+    def test_graph_missing_edges(self):
+        G = nx.Graph()
+        G.add_weighted_edges_from([
+            (1, 0, 1),
+            (0, 3, 1),
+            (3, 2, 1),
+            (2, 1, 1),
+        ])
+        dnx.traveling_salesperson_qubo(G, missing_edge_weight=15)
+
+    def test_digraph_missing_edges(self):
+        G = nx.DiGraph()
+        G.add_weighted_edges_from([
+            (1, 0, 1),
+            (0, 3, 1),
+            (3, 2, 1),
+            (2, 1, 1),
+        ])
+        dnx.traveling_salesperson_qubo(G, missing_edge_weight=15)
 
     def test_k4_equal_weights(self):
         # k5 with all equal weights so all paths are equally good
