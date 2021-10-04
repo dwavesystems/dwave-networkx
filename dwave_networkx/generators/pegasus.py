@@ -49,7 +49,7 @@ def pegasus_graph(m, create_using=None, node_list=None, edge_list=None, data=Tru
         described below. The nodes in each edge must be integer-labeled in
         ``range(24 * m * (m-1))``.
     data : bool, optional (default True)
-        If True, each node has a Pegasus_index attribute. The attribute
+        If True, each node has a pegasus_index attribute. The attribute
         is a 4-tuple Pegasus index as defined below. If the `coordinates` parameter
         is True, a linear_index, which is an integer, is used.
     coordinates : bool, optional (default False)
@@ -113,7 +113,7 @@ def pegasus_graph(m, create_using=None, node_list=None, edge_list=None, data=Tru
     for :math:`0 <= i <= N0` and :math:`0 <= j < N1`, and edges of the form
 
         * external: :math:`(i, j, u, k)` ~ :math:`(i+u, j+1-u, u, k)`
-        * internal: :math:`(i, j, 0, k)` ~ :math:`(i, j, 1, k)`
+        * internal: :math:`(i, j, 0, k)` ~ :math:`(i, j, 1, h)`
         * odd: :math:`(i, j, u, 0)` ~ :math:`(i, j, u, 1)`
 
     Given two lists of offsets, :math:`S0` and :math:`S1`, of length
