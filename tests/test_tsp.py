@@ -22,6 +22,17 @@ import dimod
 import dwave_networkx as dnx
 
 
+# adapted from future networkx version (nx.path_weight(...))
+def path_weight(G, path):
+    '''Return the total cost of a cycle in G specified by path.'''
+    cost = 0
+    for node, nbr in nx.utils.pairwise(path):
+        cost += G[node][nbr]['weight']
+    # add back to the starting point
+    cost += G[path[-1]][path[0]]['weight']
+    return cost
+
+
 class TestIsHamiltonCycle(unittest.TestCase):
     def test_empty(self):
         G = nx.Graph()
@@ -117,8 +128,11 @@ class TestTSP(unittest.TestCase):
         route = dnx.traveling_salesperson(G, dimod.ExactSolver(), start=1)
 
         self.assertEqual(len(route), len(G))
-        self.assertEqual(nx.path_weight(G, route, 'weight'), 4)
         self.assertListEqual(route, [1, 0, 3, 2])
+
+        cost = path_weight(G, route)
+
+        self.assertEqual(cost, 4)
 
 
 class TestTSPQUBO(unittest.TestCase):
@@ -162,11 +176,11 @@ class TestTSPQUBO(unittest.TestCase):
     def test_k3_bidirectional(self):
         G = nx.DiGraph()
         G.add_weighted_edges_from([('a', 'b', 0.5),
-                                   ('b', 'c', 1.0),
-                                   ('a', 'c', 2.0),
                                    ('b', 'a', 0.5),
+                                   ('b', 'c', 1.0),
                                    ('c', 'b', 1.0),
-                                   ('a', 'b', 0.5)])
+                                   ('a', 'c', 2.0),
+                                   ('c', 'a', 2.0)])
 
         Q = dnx.traveling_salesperson_qubo(G, lagrange=10)
         bqm = dimod.BinaryQuadraticModel.from_qubo(Q)
@@ -202,7 +216,9 @@ class TestTSPQUBO(unittest.TestCase):
             (3, 2, 1),
             (2, 1, 1),
         ])
-        dnx.traveling_salesperson_qubo(G, missing_edge_weight=15)
+        Q = dnx.traveling_salesperson_qubo(G, missing_edge_weight=1)
+        # TODO: some assertions?
+
 
     def test_digraph_missing_edges(self):
         G = nx.DiGraph()
@@ -212,7 +228,9 @@ class TestTSPQUBO(unittest.TestCase):
             (3, 2, 1),
             (2, 1, 1),
         ])
-        dnx.traveling_salesperson_qubo(G, missing_edge_weight=15)
+        Q = dnx.traveling_salesperson_qubo(G, missing_edge_weight=15)
+        # TODO: some assertions?
+
 
     def test_k4_equal_weights(self):
         # k5 with all equal weights so all paths are equally good

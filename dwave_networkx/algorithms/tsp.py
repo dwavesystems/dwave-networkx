@@ -195,10 +195,20 @@ def traveling_salesperson_qubo(G, lagrange=None, weight='weight', missing_edge_w
             nextpos = (pos + 1) % N
 
             # going from u -> v
-            Q[((u, pos), (v, nextpos))] += G[u][v].get(weight, missing_edge_weight)
+            try:
+                value = G[u][v][weight]
+            except KeyError:
+                value = missing_edge_weight
+
+            Q[((u, pos), (v, nextpos))] += value
 
             # going from v -> u
-            Q[((v, pos), (u, nextpos))] += G[u][v].get(weight, missing_edge_weight)
+            try:
+                value = G[v][u][weight]
+            except KeyError:
+                value = missing_edge_weight
+
+            Q[((v, pos), (u, nextpos))] += value
 
     return Q
 
