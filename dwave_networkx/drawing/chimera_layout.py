@@ -304,7 +304,7 @@ def draw_chimera_yield(G, **kwargs):
         marker, one of 'so^>v<dph8'.
 
     fault_style : string, optional (default='dashed')
-        Edge fault line style (solid|dashed|dotted,dashdot)
+        Edge fault line style (solid|dashed|dotted|dashdot)
 
     kwargs : optional keywords
        See networkx.draw_networkx() for a description of optional keywords,

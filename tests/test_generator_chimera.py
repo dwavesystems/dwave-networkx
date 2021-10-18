@@ -79,14 +79,14 @@ class TestChimeraGraph(unittest.TestCase):
 
         nodes = [0, 1, 2]
         G = dnx.chimera_graph(1, 1, 2, node_list=nodes)
-        self.assertTrue(len(G) == 3)
-        self.assertTrue(len(G.edges()) == 2)
+        self.assertEqual(len(G), 3)
+        self.assertEqual(len(G.edges()), 2)
 
         edges = [(0, 2), (1, 2)]
         nodes = [0, 1, 2, 3]
         G = dnx.chimera_graph(1, 1, 2, node_list=nodes, edge_list=edges)
         # 3 should be added as a singleton
-        self.assertTrue(len(G[3]) == 0)
+        self.assertEqual(len(G[3]), 0)
 
     def test_float_robustness(self):
         G = dnx.chimera_graph(8 / 2)

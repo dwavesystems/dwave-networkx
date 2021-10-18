@@ -9,4 +9,4 @@ Bibliography
 
 .. [FIA] Facchetti, G., Iacono G., and Altafini C. (2011). Computing global structural balance in large-scale signed social networks. PNAS, 108, no. 52, 20953-20958
 
-.. [DWMP] Dahl, E., "Programming the D-Wave: Map Coloring Problem:, https://www.dwavesys.com/sites/default/files/Map%20Coloring%20WP2.pdf
+.. [DWMP] Dahl, E., "Programming the D-Wave: Map Coloring Problem", https://www.dwavesys.com/media/htfgw5bk/map-coloring-wp2.pdf
