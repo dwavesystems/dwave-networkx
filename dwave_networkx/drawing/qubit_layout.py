@@ -226,6 +226,10 @@ def draw_embedding(G, layout, emb, embedded_graph=None, interaction_edges=None,
         tuples of floats between 0 and 1 inclusive. If chain_color is None,
         each chain will be assigned a different color.
 
+    cmap : str or matplotlib colormap (optional, default None)
+        A matplotlib colormap for coloring of chains.  Only used if chain_color
+        is None.
+
     unused_color : tuple or color string (optional, default (0.9,0.9,0.9,1.0))
         The color to use for nodes and edges of G which are not involved
         in chains, and edges which are neither chain edges nor interactions.
@@ -256,8 +260,8 @@ def draw_embedding(G, layout, emb, embedded_graph=None, interaction_edges=None,
     if chain_color is None:
         import matplotlib.cm
         n = max(1., len(emb) - 1.)
-        if kwargs.get("cmap"):
-            color = matplotlib.cm.get_cmap(kwargs.get("cmap"))
+        if cmap:
+            color = matplotlib.cm.get_cmap(cmap)
         else:
             color = distinguishable_color_map(int(n+1))
         var_i = {v: i for i, v in enumerate(emb)}
