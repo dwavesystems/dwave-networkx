@@ -150,7 +150,7 @@ def draw_qubit_graph(G, layout, linear_biases={}, quadratic_biases={},
 
             if midpoint is None:
                 midpoint = (global_vmax + global_vmin) / 2.0
-            norm_map = mpl.colors.DivergingNorm(midpoint, vmin=global_vmin, vmax=global_vmax)
+            norm_map = mpl.colors.TwoSlopeNorm(midpoint, vmin=global_vmin, vmax=global_vmax)
 
             node_color = [cmap(norm_map(node)) for node in node_color]
             edge_color = [cmap(norm_map(edge)) for edge in edge_color]
@@ -160,14 +160,14 @@ def draw_qubit_graph(G, layout, linear_biases={}, quadratic_biases={},
         elif linear_biases:
             if midpoint is None:
                 midpoint = (vmax + vmin) / 2.0
-            norm_map = mpl.colors.DivergingNorm(midpoint, vmin=vmin, vmax=vmax)
+            norm_map = mpl.colors.TwoSlopeNorm(midpoint, vmin=vmin, vmax=vmax)
             node_color = [cmap(norm_map(node)) for node in node_color]
             mpl.colorbar.ColorbarBase(cax, cmap=cmap, norm=norm_map, orientation='vertical')
 
         elif quadratic_biases:
             if midpoint is None:
                 midpoint = (edge_vmax + edge_vmin) / 2.0
-            norm_map = mpl.colors.DivergingNorm(midpoint, vmin=edge_vmin, vmax=edge_vmax)
+            norm_map = mpl.colors.TwoSlopeNorm(midpoint, vmin=edge_vmin, vmax=edge_vmax)
             edge_color = [edge_cmap(norm_map(edge)) for edge in edge_color]
             mpl.colorbar.ColorbarBase(cax, cmap=edge_cmap, norm=norm_map, orientation='vertical')
 
