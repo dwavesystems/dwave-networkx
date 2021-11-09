@@ -114,7 +114,7 @@ def traveling_salesperson(G, sampler=None, lagrange=None, weight='weight',
 traveling_salesman = traveling_salesperson
 
 
-def traveling_salesperson_qubo(G, lagrange=None, weight='weight'):
+def traveling_salesperson_qubo(G, lagrange=None, weight='weight', missing_edge_weight=None):
     """Return the QUBO with ground states corresponding to a minimum TSP route.
 
     If :math:`|G|` is the number of nodes in the graph, the resulting qubo will have:
@@ -133,6 +133,11 @@ def traveling_salesperson_qubo(G, lagrange=None, weight='weight'):
 
     weight : optional (default 'weight')
         The name of the edge attribute containing the weight.
+    
+    missing_edge_weight : number, optional (default None)
+        For bi-directional graphs, the weight given to missing edges.
+        If None is given (the default), missing edges will be set to
+        the sum of all weights.
 
     Returns
     -------
@@ -154,10 +159,15 @@ def traveling_salesperson_qubo(G, lagrange=None, weight='weight'):
             lagrange = G.size(weight=weight)*G.number_of_nodes()/G.number_of_edges()
         else:
             lagrange = 2
+    
+    # calculate default missing_edge_weight if required
+    if missing_edge_weight is None:
+        # networkx method to calculate sum of all weights
+        missing_edge_weight = G.size(weight=weight)
 
     # some input checking
-    if N in (1, 2) or len(G.edges) != N*(N-1)//2:
-        msg = "graph must be a complete graph with at least 3 nodes or empty"
+    if N in (1, 2):
+        msg = "graph must have at least 3 nodes or be empty"
         raise ValueError(msg)
 
     # Creating the QUBO
@@ -185,10 +195,20 @@ def traveling_salesperson_qubo(G, lagrange=None, weight='weight'):
             nextpos = (pos + 1) % N
 
             # going from u -> v
-            Q[((u, pos), (v, nextpos))] += G[u][v][weight]
+            try:
+                value = G[u][v][weight]
+            except KeyError:
+                value = missing_edge_weight
+
+            Q[((u, pos), (v, nextpos))] += value
 
             # going from v -> u
-            Q[((v, pos), (u, nextpos))] += G[u][v][weight]
+            try:
+                value = G[v][u][weight]
+            except KeyError:
+                value = missing_edge_weight
+
+            Q[((v, pos), (u, nextpos))] += value
 
     return Q
 
