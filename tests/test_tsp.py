@@ -209,28 +209,49 @@ class TestTSPQUBO(unittest.TestCase):
         self.assertEqual(ground_count, len(min_routes))
 
     def test_graph_missing_edges(self):
-        G = nx.Graph()
-        G.add_weighted_edges_from([
-            (1, 0, 1),
-            (0, 3, 1),
-            (3, 2, 1),
-            (2, 1, 1),
+        G1 = nx.Graph()
+        G1.add_weighted_edges_from([
+            ('a', 'b', 0.5),
+            ('b', 'c', 1.0),
+            ('a', 'c', 2.0),
         ])
-        Q = dnx.traveling_salesperson_qubo(G, missing_edge_weight=1)
-        # TODO: some assertions?
+        Q1 = dnx.traveling_salesperson_qubo(G1, lagrange=10)
 
+        G2 = nx.Graph()
+        G2.add_weighted_edges_from([
+            ('a', 'b', 0.5),
+            ('a', 'c', 2.0),
+        ])
+        # make sure that missing_edge_weight gets applied correctly
+        Q2 = dnx.traveling_salesperson_qubo(G2, lagrange=10, missing_edge_weight=1.0)
+
+        self.assertDictEqual(Q1, Q2)
 
     def test_digraph_missing_edges(self):
-        G = nx.DiGraph()
-        G.add_weighted_edges_from([
-            (1, 0, 1),
-            (0, 3, 1),
-            (3, 2, 1),
-            (2, 1, 1),
+        G1 = nx.DiGraph()
+        G1.add_weighted_edges_from([
+            ('a', 'b', 0.5),
+            ('b', 'a', 0.8),
+            ('b', 'c', 1.0),
+            ('c', 'b', 0.7),
+            ('a', 'c', 2.0),
+            ('c', 'a', 2.0),
         ])
-        Q = dnx.traveling_salesperson_qubo(G, missing_edge_weight=15)
-        # TODO: some assertions?
+        Q1 = dnx.traveling_salesperson_qubo(G1, lagrange=10)
 
+        G2 = nx.DiGraph()
+        G2.add_weighted_edges_from([
+            ('a', 'b', 0.5),
+            ('b', 'a', 0.8),
+            ('c', 'b', 0.7),
+            ('a', 'c', 2.0),
+            ('c', 'a', 2.0),
+        ])
+
+        # make sure that missing_edge_weight gets applied correctly
+        Q2 = dnx.traveling_salesperson_qubo(G2, lagrange=10, missing_edge_weight=1.0)
+
+        self.assertDictEqual(Q1, Q2)
 
     def test_k4_equal_weights(self):
         # k5 with all equal weights so all paths are equally good
