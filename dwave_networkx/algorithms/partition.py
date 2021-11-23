@@ -66,11 +66,9 @@ def partition(G, num_partitions=2, sampler=None, **sampler_args):
     function.
 
     >>> import dimod
-    >>> from dwave.system import LeapHybridCQMSampler
-    ...
-    >>> sampler = LeapHybridCQMSampler()
-    >>> G = chimera_graph(1, 1, 4)
-    >>> partitions = partition(G, sampler=sampler)
+    >>> sampler = dimod.ExactCQMSolver()
+    >>> G = dnx.chimera_graph(1, 1, 4)
+    >>> partitions = dnx.partition(G, sampler=sampler)
 
     Notes
     -----
