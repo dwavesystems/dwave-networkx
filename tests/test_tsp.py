@@ -22,6 +22,17 @@ import dimod
 import dwave_networkx as dnx
 
 
+# adapted from future networkx version (nx.path_weight(...))
+def path_weight(G, path):
+    '''Return the total cost of a cycle in G specified by path.'''
+    cost = 0
+    for node, nbr in nx.utils.pairwise(path):
+        cost += G[node][nbr]['weight']
+    # add back to the starting point
+    cost += G[path[-1]][path[0]]['weight']
+    return cost
+
+
 class TestIsHamiltonCycle(unittest.TestCase):
     def test_empty(self):
         G = nx.Graph()
@@ -97,6 +108,32 @@ class TestTSP(unittest.TestCase):
 
         self.assertEqual(route[0], 1)
 
+    def test_weighted_complete_digraph(self):
+        G = nx.DiGraph()
+        G.add_weighted_edges_from([
+            (0, 1, 2),
+            (1, 0, 1),
+            (0, 2, 2),
+            (2, 0, 2),
+            (0, 3, 1),
+            (3, 0, 2),
+            (1, 2, 2),
+            (2, 1, 1),
+            (1, 3, 2),
+            (3, 1, 2),
+            (2, 3, 2),
+            (3, 2, 1),
+        ])
+
+        route = dnx.traveling_salesperson(G, dimod.ExactSolver(), start=1)
+
+        self.assertEqual(len(route), len(G))
+        self.assertListEqual(route, [1, 0, 3, 2])
+
+        cost = path_weight(G, route)
+
+        self.assertEqual(cost, 4)
+
 
 class TestTSPQUBO(unittest.TestCase):
     def test_empty(self):
@@ -135,6 +172,86 @@ class TestTSPQUBO(unittest.TestCase):
             ground_count += 1
 
         self.assertEqual(ground_count, len(min_routes))
+
+    def test_k3_bidirectional(self):
+        G = nx.DiGraph()
+        G.add_weighted_edges_from([('a', 'b', 0.5),
+                                   ('b', 'a', 0.5),
+                                   ('b', 'c', 1.0),
+                                   ('c', 'b', 1.0),
+                                   ('a', 'c', 2.0),
+                                   ('c', 'a', 2.0)])
+
+        Q = dnx.traveling_salesperson_qubo(G, lagrange=10)
+        bqm = dimod.BinaryQuadraticModel.from_qubo(Q)
+
+        # all routes are min weight
+        min_routes = list(itertools.permutations(G.nodes))
+
+        # get the min energy of the qubo
+        sampleset = dimod.ExactSolver().sample(bqm)
+        ground_energy = sampleset.first.energy
+
+        # all possible routes are equally good
+        for route in min_routes:
+            sample = {v: 0 for v in bqm.variables}
+            for idx, city in enumerate(route):
+                sample[(city, idx)] = 1
+            self.assertAlmostEqual(bqm.energy(sample), ground_energy)
+
+        # all min-energy solutions are valid routes
+        ground_count = 0
+        for sample, energy in sampleset.data(['sample', 'energy']):
+            if abs(energy - ground_energy) > .001:
+                break
+            ground_count += 1
+
+        self.assertEqual(ground_count, len(min_routes))
+
+    def test_graph_missing_edges(self):
+        G1 = nx.Graph()
+        G1.add_weighted_edges_from([
+            ('a', 'b', 0.5),
+            ('b', 'c', 1.0),
+            ('a', 'c', 2.0),
+        ])
+        Q1 = dnx.traveling_salesperson_qubo(G1, lagrange=10)
+
+        G2 = nx.Graph()
+        G2.add_weighted_edges_from([
+            ('a', 'b', 0.5),
+            ('a', 'c', 2.0),
+        ])
+        # make sure that missing_edge_weight gets applied correctly
+        Q2 = dnx.traveling_salesperson_qubo(G2, lagrange=10, missing_edge_weight=1.0)
+
+        self.assertDictEqual(Q1, Q2)
+
+    def test_digraph_missing_edges(self):
+        G1 = nx.DiGraph()
+        G1.add_weighted_edges_from([
+            ('a', 'b', 0.5),
+            ('b', 'a', 0.8),
+            ('b', 'c', 1.0),
+            ('c', 'b', 0.7),
+            ('a', 'c', 2.0),
+            ('c', 'a', 2.0),
+        ])
+        Q1 = dnx.traveling_salesperson_qubo(G1, lagrange=10)
+
+        G2 = nx.DiGraph()
+        G2.add_weighted_edges_from([
+            ('a', 'b', 0.5),
+            ('b', 'a', 0.8),
+            ('c', 'b', 0.7),
+            ('a', 'c', 2.0),
+            ('c', 'a', 2.0),
+        ])
+
+        # make sure that missing_edge_weight gets applied correctly
+        Q2 = dnx.traveling_salesperson_qubo(G2, lagrange=10, missing_edge_weight=1.0)
+
+        self.assertDictEqual(Q1, Q2)
 
     def test_k4_equal_weights(self):
         # k5 with all equal weights so all paths are equally good
