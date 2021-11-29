@@ -155,3 +155,36 @@ class TestZephyrGraph(unittest.TestCase):
             coords.graph_to_linear(h)
         with self.assertRaises(ValueError):
             coords.graph_to_zephyr(h)
+
+
+    def test_sublattice_mappings(self):
+        def check_subgraph_mapping(f, g, h):
+            for v in g:
+                if not h.has_node(f(v)):
+                    raise RuntimeError(f"node {v} mapped to {f(v)} is not in {h.graph['name']} ({h.graph['labels']})")
+            for u, v in g.edges:
+                if not h.has_edge(f(u), f(v)):
+                    raise RuntimeError(f"edge {(u, v)} mapped to {(f(u), f(v))} not present in {h.graph['name']} ({h.graph['labels']})")
+
+        z2l = dnx.zephyr_graph(2)
+        z2c = dnx.zephyr_graph(2, coordinates=True)
+        c2l = dnx.chimera_graph(2)
+        c2c = dnx.chimera_graph(2, coordinates=True)
+        c23l = dnx.chimera_graph(2, 3)
+        c32c = dnx.chimera_graph(3, 2, coordinates=True)
+        c2l8 = dnx.chimera_graph(2, t=8)
+        c2c8 = dnx.chimera_graph(2, t=8, coordinates=True)        
+        c23l8 = dnx.chimera_graph(2, 3, t=8)
+        c32c8 = dnx.chimera_graph(3, 2, t=8, coordinates=True)        
+
+        z5l = dnx.zephyr_graph(5)
+        z5c = dnx.zephyr_graph(5, coordinates=True)
+
+        for target in z5l, z5c:
+            for source in z2l, z2c, c2l, c2c, c2l8, c2c8, c23l, c32c, c23l8, c32c8, target:
+                covered = set()
+                for f in dnx.zephyr_sublattice_mappings(source, target):
+                    check_subgraph_mapping(f, source, target)
+                    covered.update(map(f, source))
+                self.assertEqual(covered, set(target))
+

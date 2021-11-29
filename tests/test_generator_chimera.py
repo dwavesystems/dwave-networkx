@@ -253,3 +253,32 @@ class TestChimeraGraph(unittest.TestCase):
             coords.graph_to_linear(h)
         with self.assertRaises(ValueError):
             coords.graph_to_chimera(h)
+
+
+    def test_sublattice_mappings(self):
+        def check_subgraph_mapping(f, g, h):
+            for v in g:
+                if not h.has_node(f(v)):
+                    raise RuntimeError(f"node {v} mapped to {f(v)} is not in {h.graph['name']} ({h.graph['labels']})")
+            for u, v in g.edges:
+                if not h.has_edge(f(u), f(v)):
+                    raise RuntimeError(f"edge {(u, v)} mapped to {(f(u), f(v))} not present in {h.graph['name']} ({h.graph['labels']})")
+
+        c2l = dnx.chimera_graph(2)
+        c2c = dnx.chimera_graph(2, coordinates=True)
+        c32l = dnx.chimera_graph(3, 2)
+        c23c = dnx.chimera_graph(2, 3, coordinates=True)
+
+        c5l = dnx.chimera_graph(5)
+        c5c = dnx.chimera_graph(5, coordinates=True)
+        c54l = dnx.chimera_graph(5, 4)
+        c45c = dnx.chimera_graph(4, 5, coordinates=True)
+
+        for target in c5l, c5c, c54l, c45c:
+            for source in c2l, c2c, c32l, c23c, target:
+                covered = set()
+                for f in dnx.chimera_sublattice_mappings(source, target):
+                    check_subgraph_mapping(f, source, target)
+                    covered.update(map(f, source))
+                self.assertEqual(covered, set(target))
+

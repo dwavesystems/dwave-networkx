@@ -244,6 +244,51 @@ class TestPegasusCoordinates(unittest.TestCase):
         with self.assertRaises(ValueError):
             coords.graph_to_pegasus(h)
 
+    def test_sublattice_mappings(self):
+        def check_subgraph_mapping(f, g, h):
+            for v in g:
+                if not h.has_node(f(v)):
+                    raise RuntimeError(f"node {v} mapped to {f(v)} is not in {h.graph['name']} ({h.graph['labels']})")
+            for u, v in g.edges:
+                if not h.has_edge(f(u), f(v)):
+                    raise RuntimeError(f"edge {(u, v)} mapped to {(f(u), f(v))} not present in {h.graph['name']} ({h.graph['labels']})")
+
+        coords5 = dnx.pegasus_coordinates(5)
+        coords3 = dnx.pegasus_coordinates(3)
+
+        p3l = dnx.pegasus_graph(3)
+        p3c = dnx.pegasus_graph(3, coordinates=True)
+        p3n = coords3.graph_to_nice(p3c)
+
+        p5l = dnx.pegasus_graph(5)
+        p5c = dnx.pegasus_graph(5, coordinates=True)
+        p5n = coords5.graph_to_nice(p5c)
+
+        for target in p5l, p5c, p5n:
+            for source in p3l, p3c, p3n:
+                covered = set()
+                for f in dnx.pegasus_sublattice_mappings(source, target):
+                    check_subgraph_mapping(f, source, target)
+                    covered.update(map(f, source))
+                self.assertEqual(covered, set(target))
+
+        c2l = dnx.chimera_graph(2)
+        c2c = dnx.chimera_graph(2, coordinates=True)
+        c23l = dnx.chimera_graph(2, 3)
+        c32c = dnx.chimera_graph(3, 2, coordinates=True)
+
+        p5n = dnx.pegasus_graph(5, nice_coordinates=True)
+        p5l = coords5.graph_to_linear(p5n)
+        p5c = coords5.graph_to_pegasus(p5n)
+
+        for target in p5l, p5c, p5n:
+            for source in c2l, c2c, c23l, c32c, target:
+                covered = set()
+                for f in dnx.pegasus_sublattice_mappings(source, target):
+                    check_subgraph_mapping(f, source, target)
+                    covered.update(map(f, source))
+                self.assertEqual(covered, set(target))
+
 
 class TestTupleFragmentation(unittest.TestCase):
 

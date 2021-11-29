@@ -23,9 +23,11 @@ import networkx as nx
 
 from dwave_networkx.exceptions import DWaveNetworkXException
 
+from .chimera import _chimera_coordinates_cache
 
 __all__ = ['zephyr_graph',
            'zephyr_coordinates',
+           'zephyr_sublattice_mappings',
            ]
 
 
@@ -355,3 +357,295 @@ class zephyr_coordinates(object):
             data=g.graph['data'],
             coordinates=True,
         )
+
+
+class __zephyr_coordinates_cache_dict(dict):
+    """An internal-use cached factory for `zephyr_coordinates` objects"""
+
+    def __missing__(self, key):
+        self[key] = val = zephyr_coordinates(*key)
+        return val
+
+
+_zephyr_coordinates_cache = __zephyr_coordinates_cache_dict()
+
+
+def _zephyr_zephyr_sublattice_mapping(source_to_zephyr, zephyr_to_target, offset):
+    """Constructs a mapping from a Zephyr graph to a Zephyr graph, via an offset.
+    This function is used by zephyr_sublattice_mappings, and serves to construct
+    a closure that is stable under iteration therein.
+
+    The mappings implemented by this function interpret offsets in the grid of
+    the Chimera(2m+1, 2m+1, 2*t) graphs underlying the source and tartget Zephyr
+    graphs.  The formulas (see implementation) are somewhat complex, because 
+
+        * a shift by a y-unit induces a reversal of the orthogonal minor offset
+            (j index) of vertical qubits,
+        * a shift by an x-unit induces a reversal of the j index of horizontal
+            qubits, and
+        * a shift by a unit parallel to a qubit is equivalent to 1/2-unit shift
+            in the z-direction (but z-coordinates are integral) which is
+            mediated by the j index.
+
+    Parameters
+    ----------
+        source_to_zephyr : function
+            A function mapping a source node to a zephyr coordinate
+        zephyr_to_target: function
+            A function mapping a zephyr coordinate to a target node
+        offset : tuple (int, int)
+            A pair of ints representing the y- and x-offset of the sublattice
+
+    Returns
+    -------
+        mapping : function
+            The function implementing the mapping from the source Zephyr
+            graph to the target Zephyr graph.  We store ``offset`` in the
+            attribute ``mapping.offset`` for later reconstruction.
+        
+    """
+    y_offset, x_offset = offset
+
+    delta = [
+        [y_offset % 2, x_offset, y_offset],
+        [x_offset % 2, y_offset, x_offset],
+    ]
+
+    def mapping(q):
+        u, w, k, j, z = source_to_zephyr(q)
+        dj, dw, dz = delta[u]
+        return zephyr_to_target((u, w + dw, k, j ^ dj, z + (dz + j) // 2))
+
+    #store the offset in the mapping, so the user can reconstruct it
+    mapping.offset = offset
+
+    return mapping
+
+def _single_chimera_zephyr_sublattice_mapping(source_to_chimera, zephyr_to_target, offset):
+    """Constructs a mapping from a Chimera graph to a Zephyr graph, via an offset.
+    This function is used by zephyr_sublattice_mappings, and serves to construct
+    a closure that is stable under iteration therein.
+
+    The mappings implemented by this function view a ``chimera(2*m, 2*m, t)`` as
+    a subgraph of ``zephyr_graph(m, t)`` through the mapping
+    
+        (2*y+j, x, 0, k) -> (0, x, k, j, y)
+        (y, 2*x+j, 1, k) -> (1, y, k, j, x)
+        
+    which interprets odd couplers of Zephyr as external couplers of Chimera.
+    The above is a slight simplification of matters; it is the simplest of a
+    family of :math:`(t+1)^2` offsets (see how ``k_offset0`` and ``k_offset``
+    are used in the implementation).
+    
+    Additionally, the sublattice represented  by the source graph can have x-
+    and y-offsets into the chimera graph above, as with ordinary Chimera
+    subgraph mappings.    
+
+    Parameters
+    ----------
+        source_to_chimera : function
+            A function mapping a source node to a chimera coordinate
+        zephyr_to_target: function
+            A function mapping a zephyr coordinate to a target node
+        offset : tuple (int, int, int, int, int)
+            A tuple of ints (t, k_offset0, k_offset1, y_offset, x_offset)
+            defining the sublattice mapping
+
+    Returns
+    -------
+        mapping : function
+            The function implementing the mapping from the source Zephyr
+            graph to the target Zephyr graph.  We store ``offset`` in the
+            attribute ``mapping.offset`` for later reconstruction.
+        
+    """
+    t, y_offset, x_offset, k_offset0, k_offset1 = offset
+
+    def mapping(q):
+        y, x, u, k = source_to_chimera(q)
+        if u:
+            dw, k = divmod(k + k_offset1, t)
+            z, j = divmod(x + x_offset, 2)
+            return zephyr_to_target((u, y + y_offset + dw, k, j, z))
+        else:
+            dw, k = divmod(k + k_offset0, t)
+            z, j = divmod(y + y_offset, 2)
+            return zephyr_to_target((u, x + x_offset + dw, k, j, z))
+
+    #store the offset in the mapping, so the user can reconstruct it
+    mapping.offset = offset
+
+    return mapping
+    
+def _double_chimera_zephyr_sublattice_mapping(source_to_chimera, zephyr_to_target, offset):
+    """Constructs a mapping from a Chimera graph to a Zephyr graph, via an offset.
+    This function is used by zephyr_sublattice_mappings, and serves to construct
+    a closure that is stable under iteration therein.
+
+    The mappings implemented by this function view a ``chimera(m, m, 2*t)`` as
+    a subgraph of ``zephyr_graph(m, t)`` through the mappings
+    
+        (y, x, 0, k) -> (0, x, k, j0, y)
+        (y, x, 1, k) -> (1, y, k, j1, x)
+        
+    where j0 and j1 are each 0 or 1.  Additionally, the sublattice represented 
+    by the source graph can have x- and y-offsets into the chimera graph above,
+    as with ordinary Chimera subgraph mappings.    
+
+    Parameters
+    ----------
+        source_to_chimera : function
+            A function mapping a source node to a chimera coordinate
+        zephyr_to_target: function
+            A function mapping a zephyr coordinate to a target node
+        offset : tuple (int, int, int, int, int)
+            A tuple of ints (t, j0, j1, y_offset, x_offset) defining the
+            sublattice mapping
+
+    Returns
+    -------
+        mapping : function
+            The function implementing the mapping from the source Zephyr
+            graph to the target Zephyr graph.  We store ``offset`` in the
+            attribute ``mapping.offset`` for later reconstruction.
+        
+    """
+    t, y_offset, x_offset, j0, j1 = offset
+    def mapping(q):
+        y, x, u, k = source_to_chimera(q)
+        wz, kz = divmod(k, t)
+        if u:
+            return zephyr_to_target((u, 2 * (y + y_offset) + j0 + wz, kz, j1, x + x_offset))
+        else:
+            return zephyr_to_target((u, 2 * (x + x_offset) + j1 + wz, kz, j0, y + y_offset))
+            
+    #store the offset in the mapping, so the user can reconstruct it
+    mapping.offset = offset
+
+    return mapping
+
+
+def zephyr_sublattice_mappings(source, target, offset_list=None):
+    """Yields mappings from a Chimera or Zephyr graph into a Zephyr graph.
+    
+    A sublattice mapping is a function from nodes of
+        * a ``zephyr_graph(m_s, t)`` to nodes of a ``zephyr_graph(m_t, t)``
+            where ``m_s <= m_t``,
+        * a ``chimera_graph(m_s, n_s, t)`` to nodes of a ``zephyr_graph(m_t, t)``
+            where ``m_s <= 2*m_t`` and ``n_s <= 2*m_t``, or
+        * a ``chimera_graph(m_s, n_s, 2*t)`` to nodes of a ``zephyr_graph(m_t, t)``
+            where ``m_s <= m_t`` and ``n_s <= m_t``, or
+
+    This is used to identify subgraphs of the target Zephyr graphs which are 
+    isomorphic to the source graph.  However, if the target graph is not of
+    perfect yield, these functions do not generally produce isomorphisms (for
+    example, if a node is missing in the target graph, it may still appear in
+    the image of the source graph).
+    
+    Note that we require the tile parameter of Chimera graphs to be either the
+    same our double that of the target Zephyr graphs; or if both graphs are
+    Zephyr graphs, we require the tile parameters to be the same.  The mappings
+    we produce preserve the linear ordering of tile indices; see 
+    ``_zephyr_zephyr_sublattice_mapping``,
+    ``_double_chimera_zephyr_sublattice_mapping``, and
+    ``_single_chimera_zephyr_sublattice_mapping`` for more details.
+    
+    Academic note: the full group of isomorphisms of a Chimera graph includes 
+    mappings which permute tile indices on a per-row and per-column basis, in
+    addition to reflections and rotations of the grid of unit cells where 
+    rotations by 90 and 270 degrees induce a change in orientation.  The
+    isomorphisms of Zephyr graphs permit permutations of major tile indices on a 
+    per-row and per-column basis, in addition to reflections of the grid which
+    induce inversion of orthogonal minor offsets, and rotations which induce 
+    inversions of minor offsets and/or orientation. The full set of sublattice
+    mappings would take those isomorphisms into account; we do not undertake
+    that complexity here.
+
+    Parameters
+    ----------
+        source : NetworkX Graph
+            The Chimera or Zephyr graph that nodes are input from
+        target : NetworkX Graph
+            The Zephyr graph that nodes are output to
+        offset_list : iterable (tuple), optional (default None)
+            An iterable of offsets.  This can be used to reconstruct a set of
+            mappings, as the offset used to generate a single mapping is stored
+            in the ``offset`` attribute of that mapping.
+            
+    Yields
+    ------
+        mapping : function
+            A function from nodes of the source graph, to nodes of the target
+            graph.  The offset used to generate this mapping is stored in
+            ``mapping.offset`` -- these can be collected and passed into 
+            ``offset_list`` in a later session.
+        
+    """
+    if target.graph.get('family') != 'zephyr':
+        raise ValueError("source graphs must a Zephyr graph constructed by dwave_networkx.zephyr_graph")
+
+    m_t = target.graph['rows']
+    t = target.graph['tile']
+    labels_t = target.graph['labels']
+    if labels_t == 'int':
+        zephyr_to_target = _zephyr_coordinates_cache[m_t, t].zephyr_to_linear
+    elif labels_t == 'coordinate':
+        def zephyr_to_target(q):
+            return q
+    else:
+        raise ValueError(f"Zephyr node labeling {labels_t} not recognized")
+
+    labels_s = source.graph['labels']    
+    if source.graph.get('family') == 'chimera':
+        t_t = source.graph['tile']
+        m_s = source.graph['rows']
+        n_s = source.graph['columns']
+
+        if t_t == t:
+            make_mapping = _single_chimera_zephyr_sublattice_mapping
+            if offset_list is None:
+                krange = range(t+1)
+                mrange = range(2*m_t - m_s + 1)
+                nrange = range(2*m_t - n_s + 1)
+                offset_list = product([t], mrange, nrange, krange, krange)
+        elif t_t == 2*t:
+            make_mapping = _double_chimera_zephyr_sublattice_mapping
+            if offset_list is None:
+                jrange = range(2)
+                mrange = range(m_t - m_s + 1)
+                nrange = range(m_t - n_s + 1)
+                offset_list = product([t], mrange, nrange, jrange, jrange)
+        else:
+            raise ValueError(f"Cannot construct sublattice mappings from Chimera to this Zephyr graph unless the tile parameter of the chimera graph is {t} or {2*t}.")
+
+        if labels_s == 'coordinate':
+            def source_to_inner(q):
+                return q
+        elif labels_s == 'int':
+            source_to_inner = _chimera_coordinates_cache[m_s, n_s, t_t].linear_to_chimera
+        else:
+            raise ValueError(f"Chimera node labeling {labels_s} not recognized")
+
+    elif source.graph.get('family') == 'zephyr':
+        m_s = source.graph['rows']
+        if offset_list is None:
+            mrange = range((2*m_t+1) - (2*m_s+1) + 1)
+            offset_list = product(mrange, mrange)
+
+        labels_s = source.graph['labels']
+        if labels_s == 'int':
+            source_to_inner = _zephyr_coordinates_cache[m_s, t].linear_to_zephyr
+        elif labels_s == 'coordinate':
+            def source_to_inner(q):
+                return q
+        else:
+            raise ValueError(f"Zephyr node labeling {labels_s} not recognized")
+
+        make_mapping = _zephyr_zephyr_sublattice_mapping
+
+    else:
+        raise ValueError("source graph must be a Chimera graph or Zephyr graph constructed by dwave_networkx.chimera_graph or dwave_networkx.zephyr_graph respectively")
+
+    for offset in offset_list:
+        yield make_mapping(source_to_inner, zephyr_to_target, offset)
+
