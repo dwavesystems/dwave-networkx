@@ -225,3 +225,31 @@ class TestChimeraGraph(unittest.TestCase):
 
             E = nx.relabel_nodes(H, coords.linear_to_chimera, copy=True)
             self.assertEqual(set(map(frozenset, E.edges)), set(map(frozenset, G.edges)))
+
+
+    def test_graph_relabeling(self):
+        def graph_equal(g, h):
+            self.assertEqual(set(g), set(h))
+            self.assertEqual(
+                set(map(tuple, map(sorted, g.edges))),
+                set(map(tuple, map(sorted, g.edges)))
+            )
+            for v, d in g.nodes(data=True):
+                self.assertEqual(h.nodes[v], d)
+
+        coords = dnx.chimera_coordinates(3)
+        for data in True, False:
+            c3l = dnx.chimera_graph(3, data=data)
+            c3c = dnx.chimera_graph(3, data=data, coordinates=True)
+
+            graph_equal(c3l, coords.graph_to_linear(c3c))
+            graph_equal(c3l, coords.graph_to_linear(c3l))
+            graph_equal(c3c, coords.graph_to_chimera(c3l))
+            graph_equal(c3c, coords.graph_to_chimera(c3c))
+
+        h = dnx.chimera_graph(2)
+        del h.graph['labels']
+        with self.assertRaises(ValueError):
+            coords.graph_to_linear(h)
+        with self.assertRaises(ValueError):
+            coords.graph_to_chimera(h)

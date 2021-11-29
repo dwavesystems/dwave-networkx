@@ -88,11 +88,24 @@ class TestPegasusCoordinates(unittest.TestCase):
                 pg = (t,) + p
                 qg = (t,) + q
                 self.assertTrue(G.has_edge(pg, qg))
-        n2p = dnx.pegasus_coordinates.nice_to_pegasus
-        p2n = dnx.pegasus_coordinates.pegasus_to_nice
+        coords = dnx.pegasus_coordinates(4)
+        n2p = coords.nice_to_pegasus
+        p2n = coords.pegasus_to_nice
+        n2l = coords.nice_to_linear
+        l2n = coords.linear_to_nice
         for p in G.nodes():
             self.assertEqual(p2n(n2p(p)), p)
+            self.assertEqual(l2n(n2l(p)), p)
             self.assertTrue(H.has_node(p[1:]))
+
+        G = dnx.pegasus_graph(4)
+        for p in G.nodes():
+            self.assertEqual(n2l(l2n(p)), p)
+
+        G = dnx.pegasus_graph(4, coordinates=True)
+        for p in G.nodes():
+            self.assertEqual(n2p(p2n(p)), p)
+
 
     def test_consistent_linear_nice_pegasus(self):
         P4 = dnx.pegasus_graph(4, nice_coordinates=True)
@@ -189,6 +202,47 @@ class TestPegasusCoordinates(unittest.TestCase):
 
         self.assertEqual(EG, sorted(map(sorted, coords.iter_pegasus_to_linear_pairs(Hn.edges()))))
         self.assertEqual(EH, sorted(map(sorted, coords.iter_linear_to_pegasus_pairs(Gn.edges()))))
+
+    def test_graph_relabeling(self):
+        def graph_equal(g, h):
+            self.assertEqual(set(g), set(h))
+            self.assertEqual(
+                set(map(tuple, map(sorted, g.edges))),
+                set(map(tuple, map(sorted, g.edges)))
+            )
+            for v, d in g.nodes(data=True):
+                self.assertEqual(h.nodes[v], d)
+
+        coords = dnx.pegasus_coordinates(3)
+        nodes_nice = dnx.pegasus_graph(3, nice_coordinates=True)
+        nodes_linear = list(coords.iter_nice_to_linear(nodes_nice))
+        nodes_pegasus = list(coords.iter_nice_to_pegasus(nodes_nice))
+        
+        for data in True, False:
+            p3l = dnx.pegasus_graph(3, data=data).subgraph(nodes_linear)
+            p3p = dnx.pegasus_graph(3, data=data, coordinates=True).subgraph(nodes_pegasus)
+            p3n = dnx.pegasus_graph(3, data=data, nice_coordinates=True)
+
+            graph_equal(p3l, coords.graph_to_linear(p3l))
+            graph_equal(p3l, coords.graph_to_linear(p3p))
+            graph_equal(p3l, coords.graph_to_linear(p3n))
+            
+            graph_equal(p3p, coords.graph_to_pegasus(p3l))
+            graph_equal(p3p, coords.graph_to_pegasus(p3p))
+            graph_equal(p3p, coords.graph_to_pegasus(p3n))
+
+            graph_equal(p3n, coords.graph_to_nice(p3l))
+            graph_equal(p3n, coords.graph_to_nice(p3p))
+            graph_equal(p3n, coords.graph_to_nice(p3n))
+
+        h = dnx.pegasus_graph(2)
+        del h.graph['labels']
+        with self.assertRaises(ValueError):
+            coords.graph_to_nice(h)
+        with self.assertRaises(ValueError):
+            coords.graph_to_linear(h)
+        with self.assertRaises(ValueError):
+            coords.graph_to_pegasus(h)
 
 
 class TestTupleFragmentation(unittest.TestCase):

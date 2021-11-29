@@ -127,3 +127,31 @@ class TestZephyrGraph(unittest.TestCase):
 
         self.assertEqual(EG, sorted(map(sorted, coords.iter_zephyr_to_linear_pairs(Hn.edges()))))
         self.assertEqual(EH, sorted(map(sorted, coords.iter_linear_to_zephyr_pairs(Gn.edges()))))
+
+    def test_graph_relabeling(self):
+        def graph_equal(g, h):
+            self.assertEqual(set(g), set(h))
+            self.assertEqual(
+                set(map(tuple, map(sorted, g.edges))),
+                set(map(tuple, map(sorted, g.edges)))
+            )
+            for v, d in g.nodes(data=True):
+                self.assertEqual(h.nodes[v], d)
+
+        coords = dnx.zephyr_coordinates(3)
+        for data in True, False:
+            z3l = dnx.zephyr_graph(3, data=data)
+            z3c = dnx.zephyr_graph(3, data=data, coordinates=True)
+
+            graph_equal(z3l, coords.graph_to_linear(z3l))
+            graph_equal(z3l, coords.graph_to_linear(z3c))
+            
+            graph_equal(z3c, coords.graph_to_zephyr(z3c))
+            graph_equal(z3c, coords.graph_to_zephyr(z3l))
+
+        h = dnx.zephyr_graph(2)
+        del h.graph['labels']
+        with self.assertRaises(ValueError):
+            coords.graph_to_linear(h)
+        with self.assertRaises(ValueError):
+            coords.graph_to_zephyr(h)
