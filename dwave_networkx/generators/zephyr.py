@@ -29,7 +29,7 @@ __all__ = ['zephyr_graph',
            ]
 
 
-def zephyr_graph(m, t=4, create_using=None, node_list=None, edge_list=None, 
+def zephyr_graph(m, t=4, create_using=None, node_list=None, edge_list=None,
                    data=True, coordinates=False):
     """
     Creates a Zephyr graph [brk]_ with grid parameter ``m`` and tile parameter ``t``.
@@ -45,7 +45,7 @@ def zephyr_graph(m, t=4, create_using=None, node_list=None, edge_list=None,
         with the new graph. Usually used to set the type of the graph.
     node_list : iterable, optional (default None)
         Iterable of nodes in the graph. If None, calculated from ``m``.
-        Note that this list is used to remove nodes, so only specified nodes 
+        Note that this list is used to remove nodes, so only specified nodes
         that belong to the base node set (described in the ``coordinates``
         parameter below) will be added.
     edge_list : iterable, optional (default None)
@@ -143,7 +143,7 @@ def zephyr_graph(m, t=4, create_using=None, node_list=None, edge_list=None,
     G.name = "zephyr_graph(%s, %s)" % (m, t)
 
     M = 2*m+1
-    
+
     if coordinates:
         def label(*q):
             return q
@@ -187,28 +187,26 @@ def zephyr_graph(m, t=4, create_using=None, node_list=None, edge_list=None,
         G.add_nodes_from(nodes)  # for singleton nodes
 
     if data:
-        v = 0
-        def coord_label():
-            return q
-        def int_label():
-            return v
         if coordinates:
-            other_name = 'linear_index'
-            this_label = coord_label
-            other_label = int_label
+            def fill_data():
+                d = get_node_data((u, w, k, j, z))
+                if d is not None:
+                    d['linear_index'] = v
+
         else:
-            other_name = 'zephyr_index'
-            this_label = int_label
-            other_label = coord_label
+            def fill_data():
+                d = get_node_data(v)
+                if d is not None:
+                    d['zephyr_index'] = (u, w, k, j, z)
+
+        v = 0
+        get_node_data = G.nodes.get
         for u in range(2):
             for w in range(M):
                 for k in range(t):
                     for j in (0, 1):
                         for z in range(m):
-                            q = u, w, k, j, z
-                            p = this_label()
-                            if p in G:
-                                G.nodes[p][other_name] = other_label()
+                            fill_data()
                             v += 1
 
     return G
@@ -226,14 +224,14 @@ class zephyr_coordinates(object):
         Grid parameter for the Zephyr lattice.
     t : int
         Tile parameter for the Zephyr lattice; must be even.
-        
+
     See also
     --------
     :func:`.zephyr_graph` : Describes the various coordinate conventions.
 
     """
     def __init__(self, m, t=4):
-        self.args = m, 2*m+1, t
+        self.args = m, 2 * m + 1, t
 
     def zephyr_to_linear(self, q):
         """Convert a 5-term Zephyr coordinate into a linear index.
@@ -292,7 +290,6 @@ class zephyr_coordinates(object):
             r, k = divmod(r, t)
             u, w = divmod(r, M)
             yield u, w, k, j, z
-
 
     @staticmethod
     def _pair_repack(f, plist):

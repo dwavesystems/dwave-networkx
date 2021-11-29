@@ -192,14 +192,16 @@ def pegasus_graph(m, create_using=None, node_list=None, edge_list=None, data=Tru
         if offsets_index != 0:
             raise NotImplementedError("nice coordinate system is only implemented for offsets_index 0")
         labels = 'nice'
-        p2n = pegasus_coordinates.pegasus_to_nice
-        c2i = lambda *q: p2n(q)
+        pegasus_to_nice = pegasus_coordinates.pegasus_to_nice
+        nice_to_pegasus = pegasus_coordinates.nice_to_pegasus
+        label = lambda *q: pegasus_to_nice(q)
     elif coordinates:
-        c2i = lambda *q: q
+        label = lambda *q: q
         labels = 'coordinate'
     else:
         labels = 'int'
-        def c2i(u, w, k, z): return u * 12 * m * m1 + w * 12 * m1 + k * m1 + z
+        def label(u, w, k, z):
+            return u * 12 * m * m1 + w * 12 * m1 + k * m1 + z
 
     construction = (("family", "pegasus"), ("rows", m), ("columns", m),
                     ("tile", 12), ("vertical_offsets", offset_lists[0]),
@@ -220,13 +222,13 @@ def pegasus_graph(m, create_using=None, node_list=None, edge_list=None, data=Tru
         else:
             fabric_end = fabric_start = 0, 0
 
-        G.add_edges_from((c2i(u, w, k, z), c2i(u, w, k, z + 1))
+        G.add_edges_from((label(u, w, k, z), label(u, w, k, z + 1))
                          for u in (0, 1)
                          for w in range(m)
                          for k in range(fabric_start[u] if w == 0 else 0, 12 - (fabric_end[u] if w == m1 else 0))
                          for z in range(m1 - 1))
 
-        G.add_edges_from((c2i(u, w, k, z), c2i(u, w, k + 1, z))
+        G.add_edges_from((label(u, w, k, z), label(u, w, k + 1, z))
                          for u in (0, 1)
                          for w in range(m)
                          for k in range(fabric_start[u] if w == 0 else 0, 12 - (fabric_end[u] if w == m1 else 0), 2)
@@ -244,7 +246,7 @@ def pegasus_graph(m, create_using=None, node_list=None, edge_list=None, data=Tru
                          for kk in range(12)
                          for k in range(0 if w else off1[kk], 12 if w < m1 else off1[kk])
                          for z in range(m1))
-        G.add_edges_from((c2i(*e[0]), c2i(*e[1])) for e in internal_couplers if efilter(e))
+        G.add_edges_from((label(*e[0]), label(*e[1])) for e in internal_couplers if efilter(e))
 
     else:
         G.add_edges_from(edge_list)
@@ -256,22 +258,30 @@ def pegasus_graph(m, create_using=None, node_list=None, edge_list=None, data=Tru
 
     if data:
         v = 0
+        if nice_coordinates:
+            def fill_data():
+                q = (u, w, k, z)
+                d = get_node_data(pegasus_to_nice(q))
+                if d is not None:
+                    d['linear_index'] = v
+                    d['pegasus_index'] = q
+        elif coordinates:
+            def fill_data():
+                d = get_node_data((u, w, k, z))
+                if d is not None:
+                    d['linear_index'] = v
+        else:
+            def fill_data():
+                d = get_node_data(v)
+                if d is not None:
+                    d['pegasus_index'] = (u, w, k, z)
+
+        get_node_data = G.nodes.get
         for u in range(2):
             for w in range(m):
                 for k in range(12):
                     for z in range(m1):
-                        q = u, w, k, z
-                        if nice_coordinates:
-                            p = c2i(*q)
-                            if p in G:
-                                G.nodes[p]['linear_index'] = v
-                                G.nodes[p]['pegasus_index'] = q
-                        elif coordinates:
-                            if q in G:
-                                G.nodes[q]['linear_index'] = v
-                        else:
-                            if v in G:
-                                G.nodes[v]['pegasus_index'] = q
+                        fill_data()
                         v += 1
 
     return G

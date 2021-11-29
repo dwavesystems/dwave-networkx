@@ -48,7 +48,7 @@ def chimera_graph(m, n=None, t=None, create_using=None, node_list=None, edge_lis
     node_list : iterable (optional, default None)
         Iterable of nodes in the graph. If None, calculated
         from (m, n, t). Note that this list is used to remove nodes,
-        so any nodes specified not in `range(m * n * 2 * t)` are not added.
+        so any nodes specified not in ``range(m * n * 2 * t)`` are not added.
     edge_list : iterable (optional, default None)
         Iterable of edges in the graph. If None, edges are
         generated as described below. The nodes in each edge must be
