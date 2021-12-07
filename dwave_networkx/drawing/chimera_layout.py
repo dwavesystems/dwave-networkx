@@ -314,10 +314,13 @@ def draw_chimera_yield(G, **kwargs):
         If unused_color is None, these nodes and edges will not be shown at all.
 
     fault_color : tuple or color string (optional, default (1.0,0.0,0.0,1.0))
-        A color to represent nodes absent from the graph G. Colors should be
+        A color to represent nodes absent from the graph G.
+
+    incident_fault_color : tuple or color string (optional, default (1.0,0.8,0.8,1.0))
+        A color to represent edges incident to faulty nodes.  Colors should be
         length-4 tuples of floats between 0 and 1 inclusive.
 
-    fault_shape : string, optional (default='x')
+    fault_shape : string, optional (default='o')
         The shape of the fault nodes. Specification is as matplotlib.scatter
         marker, one of 'so^>v<dph8'.
 
@@ -343,4 +346,3 @@ def draw_chimera_yield(G, **kwargs):
     perfect_graph = chimera_graph(m,n,t, coordinates=coordinates)
     layout = chimera_layout(perfect_graph, normalize_kwargs = kwargs)
     draw_yield(G, layout, perfect_graph, **kwargs)
-

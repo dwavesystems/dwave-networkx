@@ -424,9 +424,9 @@ def unoverlapped_embedding(G, emb, interaction_edges):
 
 
 def draw_yield(G, layout, perfect_graph, unused_color=(0.9,0.9,0.9,1.0),
-                    fault_color=(1.0,0.0,0.0,1.0), fault_shape='x',
-                    fault_style='dashed', **kwargs):
-
+               fault_color=(1.0,0.0,0.0,1.0), fault_shape='o',
+               fault_style='dashed', incident_fault_color=(1.0,0.8,0.8,1.0),
+               **kwargs):
     """Draws the given graph G with highlighted faults, according to layout.
 
     Parameters
@@ -442,16 +442,19 @@ def draw_yield(G, layout, perfect_graph, unused_color=(0.9,0.9,0.9,1.0),
     perfect_graph : NetworkX graph
         The graph to be drawn with highlighted faults
 
-
     unused_color : tuple or color string (optional, default (0.9,0.9,0.9,1.0))
         The color to use for nodes and edges of G which are not faults.
         If unused_color is None, these nodes and edges will not be shown at all.
 
     fault_color : tuple or color string (optional, default (1.0,0.0,0.0,1.0))
-        A color to represent nodes absent from the graph G. Colors should be
+        A color to represent nodes absent from the graph G, and edges absent
+        from the graph G which are not incident to faulty nodes. 
+
+    incident_fault_color : tuple or color string (optional, default (1.0,0.8,0.8,1.0))
+        A color to represent edges incident to faulty nodes.  Colors should be
         length-4 tuples of floats between 0 and 1 inclusive.
 
-    fault_shape : string, optional (default='x')
+    fault_shape : string, optional (default='o')
         The shape of the fault nodes. Specification is as matplotlib.scatter
         marker, one of 'so^>v<dph8'.
 
@@ -468,37 +471,33 @@ def draw_yield(G, layout, perfect_graph, unused_color=(0.9,0.9,0.9,1.0),
         import matplotlib.pyplot as plt
         import matplotlib as mpl
     except ImportError:
-        raise ImportError("Matplotlib and numpy required for draw_chimera()")
+        raise ImportError("Matplotlib and numpy required for draw_yield()")
 
+    edgeset = lambda E: set(map(lambda e: tuple(sorted(e)), E))
     nodelist = G.nodes()
     edgelist = G.edges()
+    
     faults_nodelist = perfect_graph.nodes() - nodelist
-    faults_edgelist = perfect_graph.edges() - edgelist
+    incident_edgelist = edgeset(perfect_graph.edges) - edgeset(perfect_graph.subgraph(nodelist).edges)
+    faults_edgelist = edgeset(perfect_graph.subgraph(nodelist).edges) - edgeset(G.edges)
 
-    # To avoid matplotlib.pyplot.scatter warnings for single tuples, create
-    # lists of colors from given colors.
     faults_node_color = [fault_color for v in faults_nodelist]
-    faults_edge_color = [fault_color for v in faults_edgelist]
+    faults_edge_color = [fault_color for e in faults_edgelist]
+    incident_edge_color = [incident_fault_color for e in incident_edgelist]
 
-    # Draw faults with different style and shape
-    draw(perfect_graph, layout, nodelist=faults_nodelist, edgelist=faults_edgelist,
-        node_color=faults_node_color, edge_color=faults_edge_color,
-        style=fault_style, node_shape=fault_shape,
-        **kwargs )
-
-    # Draw rest of graph
+    # Draw edges first, in the order (unused, incident, faults)
     if unused_color is not None:
-        if nodelist is None:
-            nodelist = G.nodes() - faults_nodelist
-        if edgelist is None:
-            edgelist = G.edges() - faults_edgelist
+        unused_edge_color = [unused_color for e in G.edges()]
+        nx.draw_networkx_edges(G, layout, edge_color=unused_edge_color, **kwargs)
+    nx.draw_networkx_edges(perfect_graph, layout, incident_edgelist, style=fault_style, edge_color=incident_edge_color, **kwargs)
+    nx.draw_networkx_edges(perfect_graph, layout, faults_edgelist, style=fault_style, edge_color=faults_edge_color, **kwargs)
 
-        unused_node_color = [unused_color for v in nodelist]
-        unused_edge_color = [unused_color for v in edgelist]
+    # Draw nodes second, in the order (unused, faults)
+    if unused_color is not None:
+        unused_node_color = [unused_color for e in G]
+        nx.draw_networkx_nodes(G, layout, node_color = unused_node_color, **kwargs)
+    nx.draw_networkx_nodes(perfect_graph, layout, faults_nodelist, node_shape=fault_shape, node_color=faults_node_color, **kwargs)
 
-        draw(perfect_graph, layout, nodelist=nodelist, edgelist=edgelist,
-            node_color=unused_node_color, edge_color=unused_edge_color,
-            **kwargs)
 
 def normalize_size_and_aspect(scale, node_scale, kwargs):
     ax = kwargs.get('ax')

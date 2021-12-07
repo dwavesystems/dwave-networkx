@@ -267,7 +267,10 @@ def draw_zephyr_yield(G, **kwargs):
         If unused_color is None, these nodes and edges will not be shown at all.
 
     fault_color : tuple or color string (optional, default (1.0,0.0,0.0,1.0))
-        A color to represent nodes absent from the graph G. Colors should be
+        A color to represent nodes absent from the graph G.
+
+    incident_fault_color : tuple or color string (optional, default (1.0,0.5,0.5,1.0))
+        A color to represent edges incident to faulty nodes.  Colors should be
         length-4 tuples of floats between 0 and 1 inclusive.
 
     fault_shape : string, optional (default='x')
