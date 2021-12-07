@@ -113,39 +113,36 @@ def zephyr_node_placer_2d(G, scale=1., center=None, dim=2):
     """
     import numpy as np
 
-    m = G.graph.get('rows')
-    tile_width = G.graph.get("tile")
+    m = G.graph['rows']
+    tile_width = 2*G.graph["tile"]
 
-    # want the enter plot to fill in [0, 1] when scale=1
-    scale /= m * tile_width
+    if dim < 2:
+        raise ValueError("layout must have at least two dimensions")
+
+    paddims = np.zeros(dim - 2)
 
     if center is None:
         center = np.zeros(dim)
     else:
         center = np.asarray(center)
 
-    paddims = dim - 2
-    if paddims < 0:
-        raise ValueError("layout must have at least two dimensions")
-
     if len(center) != dim:
         raise ValueError("length of center coordinates must match dimension of layout")
 
     def _xy_coords(u, w, k, j, z):
         # orientation, major perpendicular offset, secondary perpendicular offset, minor perpendicular offset, parallel offset
-        W = 2*tile_width*w + 2*k + .625*j + .125
-        Z = (2*z+j+1)*2*tile_width - .5
-
+        W = tile_width*w + 2*k + .625*j
+        Z = (2*z+j+1)*tile_width - .6875
         if u:
-            xy = np.array([Z, -W])
+            xy = np.array([Z, -W], dtype='float')
         else:
-            xy = np.array([W, -Z])
+            xy = np.array([W, -Z], dtype='float')
 
+        return np.hstack((xy * scale, paddims)) + center
 
-        return np.hstack((xy * scale, np.zeros(paddims))) + center
-
+    # want the enter plot to fill in [0, 1] when scale=1
+    scale /= max(map(abs, _xy_coords(0, 2*m, G.graph["tile"]-1, 1, m-1)))
     return _xy_coords
-
 
 def draw_zephyr(G, **kwargs):
     """Draws graph G in a Zephyr topology.

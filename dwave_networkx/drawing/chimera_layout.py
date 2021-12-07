@@ -141,10 +141,11 @@ def chimera_node_placer_2d(m, n, t, scale=1., center=None, dim=2):
     """
     import numpy as np
 
+    center_pad = 1
     tile_center = t // 2
-    tile_length = t + 3  # 1 for middle of cross, 2 for spacing between tiles
+    tile_length = t + 2 + center_pad  # 2 for spacing between tiles
     # want the enter plot to fill in [0, 1] when scale=1
-    scale /= max(m, n) * tile_length - 3
+    scale /= max(m, n) * tile_length - 2 - center_pad
 
     grid_offsets = {}
 
@@ -153,9 +154,10 @@ def chimera_node_placer_2d(m, n, t, scale=1., center=None, dim=2):
     else:
         center = np.asarray(center)
 
-    paddims = dim - 2
-    if paddims < 0:
+    if dim < 2:
         raise ValueError("layout must have at least two dimensions")
+
+    paddims = np.zeros(dim - 2, dtype='float')
 
     if len(center) != dim:
         raise ValueError("length of center coordinates must match dimension of layout")
@@ -167,24 +169,24 @@ def chimera_node_placer_2d(m, n, t, scale=1., center=None, dim=2):
         if k < tile_center:
             p = k
         else:
-            p = k + 1
+            p = k + center_pad
 
         if u:
-            xy = np.array([tile_center, -1 * p])
+            xy = np.array([tile_center, -1 * p], dtype='float')
         else:
-            xy = np.array([p, -1 * tile_center])
+            xy = np.array([p, -1 * tile_center], dtype='float')
 
         # next offset the corrdinates based on the which tile
         if i > 0 or j > 0:
             if (i, j) in grid_offsets:
                 xy += grid_offsets[(i, j)]
             else:
-                off = np.array([j * tile_length, -1 * i * tile_length])
+                off = np.array([j * tile_length, -1 * i * tile_length], dtype='float')
                 xy += off
                 grid_offsets[(i, j)] = off
 
         # convention for Chimera-lattice pictures is to invert the y-axis
-        return np.hstack((xy * scale, np.zeros(paddims))) + center
+        return np.hstack((xy * scale, paddims)) + center
 
     return _xy_coords
 

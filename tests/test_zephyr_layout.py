@@ -109,3 +109,15 @@ class TestDrawing(unittest.TestCase):
         emb = {0: [1, 3], 1: [3, 128, 15], 2: [25, 140], 3: [17, 122]}
         dnx.draw_zephyr_embedding(C, emb, overlapped_embedding=True)
         dnx.draw_zephyr_embedding(C, emb, overlapped_embedding=True, show_labels=True)
+
+    def test_layout_bounds(self):
+        for Z in [dnx.zephyr_graph(2), dnx.zephyr_graph(3), dnx.zephyr_graph(4), dnx.zephyr_graph(2, 8)]:
+            pos = dnx.zephyr_layout(Z)
+            minx = min(x for x, y in pos.values())
+            miny = min(y for x, y in pos.values())
+            maxx = max(x for x, y in pos.values())
+            maxy = max(y for x, y in pos.values())
+            self.assertAlmostEqual(minx, 0)
+            self.assertAlmostEqual(maxx, 1)
+            self.assertAlmostEqual(miny, -1)
+            self.assertAlmostEqual(maxy, 0)

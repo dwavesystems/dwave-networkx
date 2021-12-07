@@ -129,48 +129,48 @@ def pegasus_node_placer_2d(G, scale=1., center=None, dim=2, crosses=False):
     """
     import numpy as np
 
-    m = G.graph.get('rows')
-    h_offsets = G.graph.get("horizontal_offsets")
-    v_offsets = G.graph.get("vertical_offsets")
-    tile_width = G.graph.get("tile")
+    m = G.graph['rows']
+    h_offsets = G.graph["horizontal_offsets"]
+    v_offsets = G.graph["vertical_offsets"]
+    tile_width = G.graph["tile"]
+    odd_k_wobble = .05
     tile_center = tile_width / 2 - .5
+    cross_shift = 2 if crosses else 0
 
     # want the enter plot to fill in [0, 1] when scale=1
-    scale /= m * tile_width
+    scale /= m*tile_width - 2*odd_k_wobble - 1
 
     if center is None:
         center = np.zeros(dim)
     else:
         center = np.asarray(center)
 
-    paddims = dim - 2
-    if paddims < 0:
+    center[0] -= (cross_shift + odd_k_wobble)*scale
+    center[1] -= (cross_shift - odd_k_wobble)*scale
+
+    if dim < 0:
         raise ValueError("layout must have at least two dimensions")
+
+    paddims = np.zeros(dim - 2)
 
     if len(center) != dim:
         raise ValueError("length of center coordinates must match dimension of layout")
-
-    if crosses:
-        # adjustment for crosses
-        cross_shift = 2.
-    else:
-        cross_shift = 0.
 
     def _xy_coords(u, w, k, z):
         # orientation, major perpendicular offset, minor perpendicular offset, parallel offset
 
         if k % 2:
-            p = -.1
+            p = -odd_k_wobble
         else:
-            p = .1
+            p = odd_k_wobble
 
         if u:
-            xy = np.array([z*tile_width+h_offsets[k] + tile_center, -tile_width*w-k-p+cross_shift])
+            xy = np.array([z*tile_width+h_offsets[k] + tile_center, -tile_width*w-k-p+cross_shift], dtype='float')
         else:
-            xy = np.array([tile_width*w+k+p+cross_shift, -z*tile_width-v_offsets[k]-tile_center])
+            xy = np.array([tile_width*w+k+p+cross_shift, -z*tile_width-v_offsets[k]-tile_center], dtype='float')
 
         # convention for Pegasus-lattice pictures is to invert the y-axis
-        return np.hstack((xy * scale, np.zeros(paddims))) + center
+        return np.hstack((xy * scale, paddims)) + center
 
     return _xy_coords
 
