@@ -19,7 +19,7 @@ Tools to visualize Zephyr lattices and weighted graph problems on them.
 import networkx as nx
 from networkx import draw
 
-from dwave_networkx.drawing.qubit_layout import draw_qubit_graph, draw_embedding, draw_yield, normalize_size_and_aspect
+from dwave_networkx.drawing.qubit_layout import draw_qubit_graph, draw_embedding, draw_yield, normalize_size_and_aspect, draw_lineplot
 from dwave_networkx.generators.zephyr import zephyr_graph, zephyr_coordinates
 
 
@@ -123,6 +123,8 @@ def zephyr_node_placer_2d(G, scale=1., center=None, dim=2, normalize_kwargs = No
     """
     import numpy as np
 
+    line_plot = False if normalize_kwargs is None else normalize_kwargs.get('line_plot')
+
     m = G.graph['rows']
     tile_width = 2*G.graph["tile"]
 
@@ -157,7 +159,18 @@ def zephyr_node_placer_2d(G, scale=1., center=None, dim=2, normalize_kwargs = No
     if normalize_kwargs is not None:
         normalize_size_and_aspect(fabric_scale, 200, normalize_kwargs)
 
-    return _xy_coords
+    if line_plot:
+        qubit_dx = np.hstack(([tile_width - .25, 0], paddims)) * scale
+        qubit_dy = np.hstack(([0, tile_width - .25], paddims)) * scale
+        def _line_coords(u, w, k, j, z):
+            xy = _xy_coords(u, w, k, j, z)
+            if u:
+                return np.vstack((xy - qubit_dx, xy + qubit_dx))
+            else:
+                return np.vstack((xy - qubit_dy, xy + qubit_dy))
+        return _line_coords
+    else:
+        return _xy_coords
 
 def draw_zephyr(G, **kwargs):
     """Draws graph G in a Zephyr topology.
@@ -180,6 +193,14 @@ def draw_zephyr(G, **kwargs):
         edges in G and biases are numeric. Self-loop
         edges (i.e., :math:`i=j`) are treated as linear biases.
 
+    line_plot : boolean (optional, default False)
+        If line_plot is True, then qubits are drawn as line segments, and edges
+        are drawn either as line segments between qubits, or as circles where
+        two qubits overlap.  In this drawing style, the interpretation the width
+        and node_size parameters (provided in kwargs) determines the area of the
+        circles, and line widths, respectively.  For more information, see
+        :func:`dwave_networkx.qubit_layout.draw_lineplot`.
+
     kwargs : optional keywords
        See :func:`~networkx.drawing.nx_pylab.draw_networkx` for a description of
        optional keywords, with the exception of the ``pos`` parameter, which is
@@ -199,9 +220,8 @@ def draw_zephyr(G, **kwargs):
     >>> plt.show()    # doctest: +SKIP
 
     """
-
-    draw_qubit_graph(G, zephyr_layout(G), **kwargs)
-
+    layout = zephyr_layout(G, normalize_kwargs = kwargs)
+    draw_qubit_graph(G, layout, **kwargs)
 
 def draw_zephyr_embedding(G, *args, **kwargs):
     """Draws an embedding onto Zephyr graph G.
@@ -245,6 +265,14 @@ def draw_zephyr_embedding(G, *args, **kwargs):
         If True, chains in ``emb`` may overlap (contain the same vertices
         in G), and these overlaps are displayed as concentric circles.
 
+    line_plot : boolean (optional, default False)
+        If line_plot is True, then qubits are drawn as line segments, and edges
+        are drawn either as line segments between qubits, or as circles where
+        two qubits overlap.  In this drawing style, the interpretation the width
+        and node_size parameters (provided in kwargs) determines the area of the
+        circles, and line widths, respectively.  For more information, see
+        :func:`dwave_networkx.qubit_layout.draw_lineplot`.
+
     kwargs : optional keywords
        See :func:`~networkx.drawing.nx_pylab.draw_networkx` for a description of
        optional keywords, with the exception of the ``pos`` parameter, which is
@@ -252,7 +280,8 @@ def draw_zephyr_embedding(G, *args, **kwargs):
        are provided, any provided ``node_color`` or ``edge_color`` arguments are
        ignored.
     """
-    draw_embedding(G, zephyr_layout(G), *args, **kwargs)
+    layout = zephyr_layout(G, normalize_kwargs = kwargs)
+    draw_embedding(G, layout, *args, **kwargs)
 
 def draw_zephyr_yield(G, **kwargs):
     """Draws the given graph G with highlighted faults, according to layout.
@@ -282,6 +311,14 @@ def draw_zephyr_yield(G, **kwargs):
     fault_style : string, optional (default='dashed')
         Edge fault line style (solid|dashed|dotted|dashdot)
 
+    line_plot : boolean (optional, default False)
+        If line_plot is True, then qubits are drawn as line segments, and edges
+        are drawn either as line segments between qubits, or as circles where
+        two qubits overlap.  In this drawing style, the interpretation the width
+        and node_size parameters (provided in kwargs) determines the area of the
+        circles, and line widths, respectively.  For more information, see
+        :func:`dwave_networkx.qubit_layout.draw_lineplot`.
+
     kwargs : optional keywords
        See :func:`~networkx.drawing.nx_pylab.draw_networkx` for a description of
        optional keywords, with the exception of the ``pos`` parameter, which is
@@ -298,7 +335,6 @@ def draw_zephyr_yield(G, **kwargs):
         raise ValueError("Target zephyr graph needs to have columns, rows, \
         tile, and label attributes to be able to identify faulty qubits.")
 
-
     perfect_graph = zephyr_graph(m, t, coordinates=coordinates)
-
-    draw_yield(G, zephyr_layout(perfect_graph), perfect_graph, **kwargs)
+    layout = zephyr_layout(perfect_graph, normalize_kwargs = kwargs)
+    draw_yield(G, layout, perfect_graph, **kwargs)

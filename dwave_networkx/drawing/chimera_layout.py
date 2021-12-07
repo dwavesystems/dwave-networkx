@@ -20,7 +20,7 @@ Tools to visualize Chimera lattices and weighted graph problems on them.
 import networkx as nx
 from networkx import draw
 
-from dwave_networkx.drawing.qubit_layout import draw_qubit_graph, draw_embedding, draw_yield, normalize_size_and_aspect
+from dwave_networkx.drawing.qubit_layout import draw_qubit_graph, draw_embedding, draw_yield, normalize_size_and_aspect, draw_lineplot
 from dwave_networkx.generators.chimera import chimera_graph, find_chimera_indices, chimera_coordinates
 
 
@@ -151,7 +151,10 @@ def chimera_node_placer_2d(m, n, t, scale=1., center=None, dim=2, normalize_kwar
     """
     import numpy as np
 
-    center_pad = 1
+    line_plot = False if normalize_kwargs is None else normalize_kwargs.get('line_plot')
+
+    center_pad = 0 if line_plot else 1
+
     tile_center = t // 2
     tile_length = t + 2 + center_pad  # 2 for spacing between tiles
 
@@ -203,7 +206,18 @@ def chimera_node_placer_2d(m, n, t, scale=1., center=None, dim=2, normalize_kwar
         # convention for Chimera-lattice pictures is to invert the y-axis
         return np.hstack((xy * scale, paddims)) + center
 
-    return _xy_coords
+    if line_plot:
+        qubit_dx = np.hstack(([(t + 1)/2, 0], paddims)) * scale
+        qubit_dy = np.hstack(([0, (t + 1)/2], paddims)) * scale
+        def _line_coords(i, j, u, k):
+            xy = _xy_coords(i, j, u, k)
+            if u:
+                return np.vstack((xy - qubit_dx, xy + qubit_dx))
+            else:
+                return np.vstack((xy - qubit_dy, xy + qubit_dy))
+        return _line_coords
+    else:
+        return _xy_coords
 
 
 def draw_chimera(G, **kwargs):
@@ -225,6 +239,14 @@ def draw_chimera(G, **kwargs):
         A dict of biases associated with each edge in G. Should be of
         form {edge: bias, ...}. Each bias should be numeric. Self-loop
         edges (i.e., :math:`i=j`) are treated as linear biases.
+
+    line_plot : boolean (optional, default False)
+        If line_plot is True, then qubits are drawn as line segments, and edges
+        are drawn either as line segments between qubits, or as circles where
+        two qubits overlap.  In this drawing style, the interpretation the width
+        and node_size parameters (provided in kwargs) determines the area of the
+        circles, and line widths, respectively.  For more information, see
+        :func:`dwave_networkx.qubit_layout.draw_lineplot`.
 
     kwargs : optional keywords
        See networkx.draw_networkx() for a description of optional keywords,
@@ -291,6 +313,14 @@ def draw_chimera_embedding(G, *args, **kwargs):
         the same vertices in G), and the drawing will display these overlaps as
         concentric circles.
 
+    line_plot : boolean (optional, default False)
+        If line_plot is True, then qubits are drawn as line segments, and edges
+        are drawn either as line segments between qubits, or as circles where
+        two qubits overlap.  In this drawing style, the interpretation the width
+        and node_size parameters (provided in kwargs) determines the area of the
+        circles, and line widths, respectively.  For more information, see
+        :func:`dwave_networkx.qubit_layout.draw_lineplot`.
+
     kwargs : optional keywords
        See networkx.draw_networkx() for a description of optional keywords,
        with the exception of the `pos` parameter which is not used by this
@@ -326,6 +356,14 @@ def draw_chimera_yield(G, **kwargs):
 
     fault_style : string, optional (default='dashed')
         Edge fault line style (solid|dashed|dotted|dashdot)
+
+    line_plot : boolean (optional, default False)
+        If line_plot is True, then qubits are drawn as line segments, and edges
+        are drawn either as line segments between qubits, or as circles where
+        two qubits overlap.  In this drawing style, the interpretation the width
+        and node_size parameters (provided in kwargs) determines the area of the
+        circles, and line widths, respectively.  For more information, see
+        :func:`dwave_networkx.qubit_layout.draw_lineplot`.
 
     kwargs : optional keywords
        See networkx.draw_networkx() for a description of optional keywords,

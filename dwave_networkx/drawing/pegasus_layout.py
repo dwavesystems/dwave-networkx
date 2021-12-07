@@ -19,7 +19,7 @@ Tools to visualize Pegasus lattices and weighted graph problems on them.
 import networkx as nx
 from networkx import draw
 
-from dwave_networkx.drawing.qubit_layout import draw_qubit_graph, draw_embedding, draw_yield, normalize_size_and_aspect
+from dwave_networkx.drawing.qubit_layout import draw_qubit_graph, draw_embedding, draw_yield, normalize_size_and_aspect, draw_lineplot
 from dwave_networkx.generators.pegasus import pegasus_graph, pegasus_coordinates
 from dwave_networkx.drawing.chimera_layout import chimera_node_placer_2d
 
@@ -133,6 +133,11 @@ def pegasus_node_placer_2d(G, scale=1., center=None, dim=2, crosses=False, norma
     """
     import numpy as np
 
+    line_plot = False if normalize_kwargs is None else normalize_kwargs.get('line_plot')
+
+    if line_plot:
+        crosses = False
+
     m = G.graph['rows']
     h_offsets = G.graph["horizontal_offsets"]
     v_offsets = G.graph["vertical_offsets"]
@@ -180,7 +185,19 @@ def pegasus_node_placer_2d(G, scale=1., center=None, dim=2, crosses=False, norma
         # convention for Pegasus-lattice pictures is to invert the y-axis
         return np.hstack((xy * scale, paddims)) + center
 
-    return _xy_coords
+
+    if line_plot:
+        qubit_dx = np.hstack(([5.75, 0], paddims)) * scale
+        qubit_dy = np.hstack(([0, 5.75], paddims)) * scale
+        def _line_coords(u, w, k, z):
+            xy = _xy_coords(u, w, k, z)
+            if u:
+                return np.vstack((xy - qubit_dx, xy + qubit_dx))
+            else:
+                return np.vstack((xy - qubit_dy, xy + qubit_dy))
+        return _line_coords
+    else:
+        return _xy_coords
 
 
 def draw_pegasus(G, crosses=False, **kwargs):
@@ -207,7 +224,16 @@ def draw_pegasus(G, crosses=False, **kwargs):
     crosses: boolean (optional, default False)
         If True, :math:`K_{4,4}` subgraphs are shown in a cross
         rather than L configuration. Ignored if G is defined with
-        ``nice_coordinates=True``.
+        ``nice_coordinates=True`` or ``line_plot=True``.
+
+    line_plot : boolean (optional, default False)
+        If line_plot is True, then qubits are drawn as line segments, and edges
+        are drawn either as line segments between qubits, or as circles where
+        two qubits overlap.  In this drawing style, the interpretation the width
+        and node_size parameters (provided in kwargs) determines the area of the
+        circles, and line widths, respectively.  For more information, see
+        :func:`dwave_networkx.qubit_layout.draw_lineplot`.
+
 
     kwargs : optional keywords
        See networkx.draw_networkx() for a description of optional keywords,
@@ -277,6 +303,15 @@ def draw_pegasus_embedding(G, *args, crosses=False, **kwargs):
         If True, chains in ``emb`` may overlap (contain the same vertices
         in G), and these overlaps are displayed as concentric circles.
 
+    line_plot : boolean (optional, default False)
+        If line_plot is True, then qubits are drawn as line segments, and edges
+        are drawn either as line segments between qubits, or as circles where
+        two qubits overlap.  In this drawing style, the interpretation the width
+        and node_size parameters (provided in kwargs) determines the area of the
+        circles, and line widths, respectively.  For more information, see
+        :func:`dwave_networkx.qubit_layout.draw_lineplot`.
+
+
     kwargs : optional keywords
        See networkx.draw_networkx() for a description of optional keywords,
        with the exception of the ``pos`` parameter, which is not used by this
@@ -315,7 +350,16 @@ def draw_pegasus_yield(G, crosses=False, **kwargs):
     crosses: boolean (optional, default False)
         If True, :math:`K_{4,4}` subgraphs are shown in a cross
         rather than L configuration. Ignored if G is defined with
-        ``nice_coordinates=True``.
+        ``nice_coordinates=True`` or ``line_plot=True``.
+
+    line_plot : boolean (optional, default False)
+        If line_plot is True, then qubits are drawn as line segments, and edges
+        are drawn either as line segments between qubits, or as circles where
+        two qubits overlap.  In this drawing style, the interpretation the width
+        and node_size parameters (provided in kwargs) determines the area of the
+        circles, and line widths, respectively.  For more information, see
+        :func:`dwave_networkx.qubit_layout.draw_lineplot`.
+
 
     kwargs : optional keywords
        See networkx.draw_networkx() for a description of optional keywords,
