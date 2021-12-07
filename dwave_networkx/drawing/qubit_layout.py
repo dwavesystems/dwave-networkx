@@ -499,3 +499,37 @@ def draw_yield(G, layout, perfect_graph, unused_color=(0.9,0.9,0.9,1.0),
         draw(perfect_graph, layout, nodelist=nodelist, edgelist=edgelist,
             node_color=unused_node_color, edge_color=unused_edge_color,
             **kwargs)
+
+def normalize_size_and_aspect(scale, node_scale, kwargs):
+    ax = kwargs.get('ax')
+    if ax is None:
+        try:
+            import matplotlib.pyplot as plt
+        except ImportError:
+            raise ImportError("Matplotlib required for graph drawing")
+        cf = plt.gcf()
+    else:
+        cf = ax.get_figure()
+    cf.set_facecolor("w")
+    if ax is None:
+        if cf._axstack() is None:
+            ax = cf.add_axes((0, 0, 1, 1))
+        else:
+            ax = cf.gca()
+    kwargs['ax'] = ax
+    ax.set_aspect(1)
+    fig_scale = min(cf.get_figheight(), cf.get_figwidth())
+    ax.set_axis_off()
+
+    if kwargs.get('node_size') is None:
+        if kwargs.get("line_plot"):
+            kwargs['node_size'] = 50*(fig_scale/scale)**2
+        else:
+            kwargs['node_size'] = node_scale*(fig_scale/scale)**2
+
+    if kwargs.get('width') is None:
+        if kwargs.get("line_plot"):
+            kwargs['width'] = 5*(fig_scale / scale)
+        else:
+            kwargs['width'] = 2*(fig_scale / scale)
+

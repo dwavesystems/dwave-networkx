@@ -20,14 +20,14 @@ Tools to visualize Chimera lattices and weighted graph problems on them.
 import networkx as nx
 from networkx import draw
 
-from dwave_networkx.drawing.qubit_layout import draw_qubit_graph, draw_embedding, draw_yield
+from dwave_networkx.drawing.qubit_layout import draw_qubit_graph, draw_embedding, draw_yield, normalize_size_and_aspect
 from dwave_networkx.generators.chimera import chimera_graph, find_chimera_indices, chimera_coordinates
 
 
 __all__ = ['chimera_layout', 'draw_chimera', 'draw_chimera_embedding', 'draw_chimera_yield']
 
 
-def chimera_layout(G, scale=1., center=None, dim=2):
+def chimera_layout(G, scale=1., center=None, dim=2, normalize_kwargs = None):
     """Positions the nodes of graph G in a Chimera cross topology.
 
     NumPy (https://scipy.org) is required for this function.
@@ -50,6 +50,11 @@ def chimera_layout(G, scale=1., center=None, dim=2):
     dim : int (default 2)
         Number of dimensions. When dim > 2, all extra dimensions are
         set to 0.
+
+    normalize_kwargs : None or dict (default None)
+        A dict of keyword arguments to be used in a plotting function.  If not
+        None, we will populate the "ax" keyword with matplotlib axes, and the
+        "node_size" and "width" keywords with defaults if they are not set.
 
     Returns
     -------
@@ -75,9 +80,9 @@ def chimera_layout(G, scale=1., center=None, dim=2):
         n = G.graph['columns']
         t = G.graph['tile']
         # get a node placement function
-        xy_coords = chimera_node_placer_2d(m, n, t, scale, center, dim)
+        xy_coords = chimera_node_placer_2d(m, n, t, scale, center, dim, normalize_kwargs = normalize_kwargs)
 
-        if G.graph.get('labels') == 'coordinate':
+        if G.graph['labels'] == 'coordinate':
             pos = {v: xy_coords(*v) for v in G.nodes()}
         elif G.graph.get('data'):
             pos = {v: xy_coords(*dat['chimera_index']) for v, dat in G.nodes(data=True)}
@@ -97,7 +102,7 @@ def chimera_layout(G, scale=1., center=None, dim=2):
         m = max(idx[0] for idx in chimera_indices.values()) + 1
         n = max(idx[1] for idx in chimera_indices.values()) + 1
         t = max(idx[3] for idx in chimera_indices.values()) + 1
-        xy_coords = chimera_node_placer_2d(m, n, t, scale, center, dim)
+        xy_coords = chimera_node_placer_2d(m, n, t, scale, center, dim, normalize_kwargs = normalize_kwargs)
 
         # compute our coordinates
         pos = {v: xy_coords(i, j, u, k) for v, (i, j, u, k) in chimera_indices.items()}
@@ -105,7 +110,7 @@ def chimera_layout(G, scale=1., center=None, dim=2):
     return pos
 
 
-def chimera_node_placer_2d(m, n, t, scale=1., center=None, dim=2):
+def chimera_node_placer_2d(m, n, t, scale=1., center=None, dim=2, normalize_kwargs = None):
     """Generates a function that converts Chimera indices to x, y
     coordinates for a plot.
 
@@ -130,6 +135,11 @@ def chimera_node_placer_2d(m, n, t, scale=1., center=None, dim=2):
     dim : int (default 2)
         Number of dimensions. When dim > 2, all extra dimensions are
         set to 0.
+        
+    normalize_kwargs : None or dict (default None)
+        A dict of keyword arguments to be used in a plotting function.  If not
+        None, we will populate the "ax" keyword with matplotlib axes, and the
+        "node_size" and "width" keywords with defaults if they are not set.
 
     Returns
     -------
@@ -144,8 +154,13 @@ def chimera_node_placer_2d(m, n, t, scale=1., center=None, dim=2):
     center_pad = 1
     tile_center = t // 2
     tile_length = t + 2 + center_pad  # 2 for spacing between tiles
+
     # want the enter plot to fill in [0, 1] when scale=1
-    scale /= max(m, n) * tile_length - 2 - center_pad
+    fabric_scale = max(m, n) * tile_length - 2 - center_pad
+    scale /= fabric_scale
+
+    if normalize_kwargs is not None:
+        normalize_size_and_aspect(fabric_scale, 200, normalize_kwargs)
 
     grid_offsets = {}
 
@@ -228,8 +243,8 @@ def draw_chimera(G, **kwargs):
     >>> plt.show()  # doctest: +SKIP
 
     """
-    draw_qubit_graph(G, chimera_layout(G), **kwargs)
-
+    layout = chimera_layout(G, normalize_kwargs = kwargs)
+    draw_qubit_graph(G, layout, **kwargs)
 
 def draw_chimera_embedding(G, *args, **kwargs):
     """Draws an embedding onto the chimera graph G, according to layout.
@@ -282,7 +297,8 @@ def draw_chimera_embedding(G, *args, **kwargs):
        function. If `linear_biases` or `quadratic_biases` are provided,
        any provided `node_color` or `edge_color` arguments are ignored.
     """
-    draw_embedding(G, chimera_layout(G), *args, **kwargs)
+    layout = chimera_layout(G, normalize_kwargs = kwargs)
+    draw_embedding(G, layout, *args, **kwargs)
 
 
 def draw_chimera_yield(G, **kwargs):
@@ -325,5 +341,6 @@ def draw_chimera_yield(G, **kwargs):
         tile, and label attributes to be able to identify faulty qubits.")
 
     perfect_graph = chimera_graph(m,n,t, coordinates=coordinates)
+    layout = chimera_layout(perfect_graph, normalize_kwargs = kwargs)
+    draw_yield(G, layout, perfect_graph, **kwargs)
 
-    draw_yield(G, chimera_layout(perfect_graph), perfect_graph, **kwargs)
