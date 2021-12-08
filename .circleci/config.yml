@@ -8,6 +8,8 @@ jobs:
     parameters:
       dimod-version:
         type: string
+      networkx-version:
+        type: string
       python-version:
         type: string
 
@@ -18,7 +20,7 @@ jobs:
       - checkout
 
       - restore_cache: &restore-cache-env
-          key: v1-dependencies-{{ checksum "requirements.txt" }}-{{ checksum "tests/requirements.txt" }}-{{ .Environment.CIRCLE_JOB }}
+          key: pip-{{ checksum "requirements.txt" }}-{{ checksum "tests/requirements.txt" }}-{{ .Environment.CIRCLE_JOB }}
 
       - run: &create-venv-install-deps
           name: Create virtual environment and install dependencies
@@ -30,15 +32,16 @@ jobs:
             pip install -r requirements.txt -r tests/requirements.txt
 
       - run:
-          name: Install specified dimod version
+          name: Install dependencies
           command: |
             . env/bin/activate
             pip install --upgrade 'dimod<< parameters.dimod-version >>'
+            pip install --upgrade 'networkx<< parameters.networkx-version >>'
 
       - save_cache: &save-cache-env
-          key: v1-dependencies-{{ checksum "requirements.txt" }}-{{ checksum "tests/requirements.txt" }}-{{ .Environment.CIRCLE_JOB }}
+          key: pip-{{ checksum "requirements.txt" }}-{{ checksum "tests/requirements.txt" }}-{{ .Environment.CIRCLE_JOB }}
           paths:
-            - env
+            - ~/.cache/pip
 
       - run: &run-tests
           name: Run unittests
@@ -58,7 +61,7 @@ jobs:
         type: string
 
     macos:
-      xcode: "12.2.0"
+      xcode: "13.2.0"
 
     environment:
       HOMEBREW_NO_AUTO_UPDATE: 1
@@ -72,27 +75,42 @@ jobs:
             brew install pyenv
 
       - restore_cache: &restore-cache-pyenv
-          key: v1-pyenv-{{ .Environment.CIRCLE_JOB }}-xcode-12.2.0
+          key: v1-pyenv-{{ .Environment.CIRCLE_JOB }}-xcode-13.2.0
+
+      - when:
+          # see https://github.com/pyenv/pyenv/issues/1643. We use an intermediate
+          # file so we can use the --skip-existing without raising errors from curl
+          condition:
+            equal: [3.6.8, << parameters.python-version >>]
+          steps:
+            - run:
+                name: Install Python 3.6 with a patch
+                command: |
+                  curl -sSL https://github.com/python/cpython/commit/8ea6353.patch > tmp.txt
+                  pyenv install -s --patch 3.6.8 < tmp.txt
 
       - run:
           name: Install python
           command: |
             pyenv install << parameters.python-version>> -s
 
-      - run:
-          name: Set system python
-          command: |
-            pyenv global << parameters.python-version >>
-            echo 'eval "$(pyenv init -)"' >> ~/.bash_profile
-
       - save_cache: &save-cache-pyenv
-          key: v1-pyenv-{{ .Environment.CIRCLE_JOB }}-xcode-12.2.0
+          key: v1-pyenv-{{ .Environment.CIRCLE_JOB }}-xcode-13.2.0
           paths:
             - ~/.pyenv
 
       - restore_cache: *restore-cache-env
 
-      - run: *create-venv-install-deps
+      - run:
+          name: Create virtualenv and install dependencies
+          command: |
+            eval "$(pyenv init --path)"
+            pyenv local << parameters.python-version >>
+            python -m venv env
+            . env/bin/activate
+            python --version
+            pip install pip --upgrade
+            pip install -r requirements.txt -r tests/requirements.txt
 
       - save_cache: *save-cache-env
 
@@ -207,8 +225,9 @@ workflows:
       - test-linux:
           matrix:
             parameters:
-              python-version: &python-versions [3.6.8, 3.7.9, 3.8.9, 3.9.4]
-              dimod-version: [==0.8.0, <0.9, <0.10, <0.11]
+              python-version: &python-versions [3.6.8, 3.7.9, 3.8.9, 3.9.4, 3.10.0]
+              dimod-version: [==0.10.8, ~=0.10.0]
+              networkx-version: [==2.4, <3.0]
       - test-osx:
           matrix:
             parameters:
