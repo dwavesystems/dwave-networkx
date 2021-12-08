@@ -29,8 +29,9 @@ packages = ['dwave_networkx',
             'dwave_networkx.generators',
             ]
 
-install_requires = ['networkx>=2.0,<3.0',
-                    'dimod>=0.8.0,!=0.10.0,!=0.10.1,!=0.10.2,!=0.10.3,!=0.10.4',
+install_requires = ['networkx>=2.4,<3.0',
+                    'dimod>=0.10.8,<0.11.0',
+                    'dwave-preprocessing>=0.3.2,<0.4.0'
                     ]
 
 python_requires = ">=3.6"
@@ -43,6 +44,7 @@ classifiers = [
     'Programming Language :: Python :: 3.7',
     'Programming Language :: Python :: 3.8',
     'Programming Language :: Python :: 3.9',
+    'Programming Language :: Python :: 3.10',
 ]
 
 setup(
