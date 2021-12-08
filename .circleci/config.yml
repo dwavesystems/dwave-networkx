@@ -20,7 +20,7 @@ jobs:
       - checkout
 
       - restore_cache: &restore-cache-env
-          key: v1-dependencies-{{ checksum "requirements.txt" }}-{{ checksum "tests/requirements.txt" }}-{{ .Environment.CIRCLE_JOB }}
+          key: pip-{{ checksum "requirements.txt" }}-{{ checksum "tests/requirements.txt" }}-{{ .Environment.CIRCLE_JOB }}
 
       - run: &create-venv-install-deps
           name: Create virtual environment and install dependencies
@@ -39,9 +39,9 @@ jobs:
             pip install --upgrade 'networkx<< parameters.networkx-version >>'
 
       - save_cache: &save-cache-env
-          key: v1-dependencies-{{ checksum "requirements.txt" }}-{{ checksum "tests/requirements.txt" }}-{{ .Environment.CIRCLE_JOB }}
+          key: pip-{{ checksum "requirements.txt" }}-{{ checksum "tests/requirements.txt" }}-{{ .Environment.CIRCLE_JOB }}
           paths:
-            - env
+            - ~/.cache/pip
 
       - run: &run-tests
           name: Run unittests
