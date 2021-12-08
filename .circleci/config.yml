@@ -78,11 +78,16 @@ jobs:
           key: v1-pyenv-{{ .Environment.CIRCLE_JOB }}-xcode-13.2.0
 
       - when:
-          # see https://github.com/pyenv/pyenv/issues/1643
+          # see https://github.com/pyenv/pyenv/issues/1643. We use an intermediate
+          # file so we can use the --skip-existing without raising errors from curl
           condition:
             equal: [3.6.8, << parameters.python-version >>]
           steps:
-            - run: pyenv install --patch 3.6.8 < <(curl -sSL https://github.com/python/cpython/commit/8ea6353.patch)
+            - run:
+                name: Install Python 3.6 with a patch
+                command: |
+                  curl -sSL https://github.com/python/cpython/commit/8ea6353.patch > tmp.txt
+                  pyenv install -s --patch 3.6.8 < tmp.txt
 
       - run:
           name: Install python
