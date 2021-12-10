@@ -78,7 +78,8 @@ def pegasus_layout(G, scale=1., center=None, dim=2, crosses=False):
     if G.graph.get('labels') == 'nice':
         m = 3*(G.graph['rows']-1)
         c_coords = chimera_node_placer_2d(m, m, 4, scale=scale, center=center, dim=dim)
-        def xy_coords(t, y, x, u, k): return c_coords(3*y+2-t, 3*x+t, u, k)
+        def xy_coords(t, y, x, u, k):
+            return c_coords(3*y+2-t, 3*x+t, u, k)
         pos = {v: xy_coords(*v) for v in G.nodes()}
     else:
         xy_coords = pegasus_node_placer_2d(G, scale, center, dim, crosses=crosses)
@@ -312,12 +313,13 @@ def draw_pegasus_yield(G, **kwargs):
         m = G.graph['columns']
         offset_lists = (G.graph['vertical_offsets'], G.graph['horizontal_offsets'])
         coordinates = G.graph["labels"] == "coordinate"
+        nice = G.graph["labels"] == "nice"
         # Can't interpret fabric_only from graph attributes
     except:
         raise ValueError("Target pegasus graph needs to have columns, rows, \
         tile, and label attributes to be able to identify faulty qubits.")
 
 
-    perfect_graph = pegasus_graph(m, offset_lists=offset_lists, coordinates=coordinates)
+    perfect_graph = pegasus_graph(m, offset_lists=offset_lists, coordinates=coordinates, nice_coordinates=nice)
 
     draw_yield(G, pegasus_layout(perfect_graph), perfect_graph, **kwargs)
