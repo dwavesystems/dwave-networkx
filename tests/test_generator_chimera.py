@@ -225,3 +225,60 @@ class TestChimeraGraph(unittest.TestCase):
 
             E = nx.relabel_nodes(H, coords.linear_to_chimera, copy=True)
             self.assertEqual(set(map(frozenset, E.edges)), set(map(frozenset, G.edges)))
+
+
+    def test_graph_relabeling(self):
+        def graph_equal(g, h):
+            self.assertEqual(set(g), set(h))
+            self.assertEqual(
+                set(map(tuple, map(sorted, g.edges))),
+                set(map(tuple, map(sorted, g.edges)))
+            )
+            for v, d in g.nodes(data=True):
+                self.assertEqual(h.nodes[v], d)
+
+        coords = dnx.chimera_coordinates(3)
+        for data in True, False:
+            c3l = dnx.chimera_graph(3, data=data)
+            c3c = dnx.chimera_graph(3, data=data, coordinates=True)
+
+            graph_equal(c3l, coords.graph_to_linear(c3c))
+            graph_equal(c3l, coords.graph_to_linear(c3l))
+            graph_equal(c3c, coords.graph_to_chimera(c3l))
+            graph_equal(c3c, coords.graph_to_chimera(c3c))
+
+        h = dnx.chimera_graph(2)
+        del h.graph['labels']
+        with self.assertRaises(ValueError):
+            coords.graph_to_linear(h)
+        with self.assertRaises(ValueError):
+            coords.graph_to_chimera(h)
+
+
+    def test_sublattice_mappings(self):
+        def check_subgraph_mapping(f, g, h):
+            for v in g:
+                if not h.has_node(f(v)):
+                    raise RuntimeError(f"node {v} mapped to {f(v)} is not in {h.graph['name']} ({h.graph['labels']})")
+            for u, v in g.edges:
+                if not h.has_edge(f(u), f(v)):
+                    raise RuntimeError(f"edge {(u, v)} mapped to {(f(u), f(v))} not present in {h.graph['name']} ({h.graph['labels']})")
+
+        c2l = dnx.chimera_graph(2)
+        c2c = dnx.chimera_graph(2, coordinates=True)
+        c32l = dnx.chimera_graph(3, 2)
+        c23c = dnx.chimera_graph(2, 3, coordinates=True)
+
+        c5l = dnx.chimera_graph(5)
+        c5c = dnx.chimera_graph(5, coordinates=True)
+        c54l = dnx.chimera_graph(5, 4)
+        c45c = dnx.chimera_graph(4, 5, coordinates=True)
+
+        for target in c5l, c5c, c54l, c45c:
+            for source in c2l, c2c, c32l, c23c, target:
+                covered = set()
+                for f in dnx.chimera_sublattice_mappings(source, target):
+                    check_subgraph_mapping(f, source, target)
+                    covered.update(map(f, source))
+                self.assertEqual(covered, set(target))
+

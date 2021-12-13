@@ -88,11 +88,24 @@ class TestPegasusCoordinates(unittest.TestCase):
                 pg = (t,) + p
                 qg = (t,) + q
                 self.assertTrue(G.has_edge(pg, qg))
-        n2p = dnx.pegasus_coordinates.nice_to_pegasus
-        p2n = dnx.pegasus_coordinates.pegasus_to_nice
+        coords = dnx.pegasus_coordinates(4)
+        n2p = coords.nice_to_pegasus
+        p2n = coords.pegasus_to_nice
+        n2l = coords.nice_to_linear
+        l2n = coords.linear_to_nice
         for p in G.nodes():
             self.assertEqual(p2n(n2p(p)), p)
+            self.assertEqual(l2n(n2l(p)), p)
             self.assertTrue(H.has_node(p[1:]))
+
+        G = dnx.pegasus_graph(4)
+        for p in G.nodes():
+            self.assertEqual(n2l(l2n(p)), p)
+
+        G = dnx.pegasus_graph(4, coordinates=True)
+        for p in G.nodes():
+            self.assertEqual(n2p(p2n(p)), p)
+
 
     def test_consistent_linear_nice_pegasus(self):
         P4 = dnx.pegasus_graph(4, nice_coordinates=True)
@@ -189,6 +202,92 @@ class TestPegasusCoordinates(unittest.TestCase):
 
         self.assertEqual(EG, sorted(map(sorted, coords.iter_pegasus_to_linear_pairs(Hn.edges()))))
         self.assertEqual(EH, sorted(map(sorted, coords.iter_linear_to_pegasus_pairs(Gn.edges()))))
+
+    def test_graph_relabeling(self):
+        def graph_equal(g, h):
+            self.assertEqual(set(g), set(h))
+            self.assertEqual(
+                set(map(tuple, map(sorted, g.edges))),
+                set(map(tuple, map(sorted, g.edges)))
+            )
+            for v, d in g.nodes(data=True):
+                self.assertEqual(h.nodes[v], d)
+
+        coords = dnx.pegasus_coordinates(3)
+        nodes_nice = dnx.pegasus_graph(3, nice_coordinates=True)
+        nodes_linear = list(coords.iter_nice_to_linear(nodes_nice))
+        nodes_pegasus = list(coords.iter_nice_to_pegasus(nodes_nice))
+        
+        for data in True, False:
+            p3l = dnx.pegasus_graph(3, data=data).subgraph(nodes_linear)
+            p3p = dnx.pegasus_graph(3, data=data, coordinates=True).subgraph(nodes_pegasus)
+            p3n = dnx.pegasus_graph(3, data=data, nice_coordinates=True)
+
+            graph_equal(p3l, coords.graph_to_linear(p3l))
+            graph_equal(p3l, coords.graph_to_linear(p3p))
+            graph_equal(p3l, coords.graph_to_linear(p3n))
+            
+            graph_equal(p3p, coords.graph_to_pegasus(p3l))
+            graph_equal(p3p, coords.graph_to_pegasus(p3p))
+            graph_equal(p3p, coords.graph_to_pegasus(p3n))
+
+            graph_equal(p3n, coords.graph_to_nice(p3l))
+            graph_equal(p3n, coords.graph_to_nice(p3p))
+            graph_equal(p3n, coords.graph_to_nice(p3n))
+
+        h = dnx.pegasus_graph(2)
+        del h.graph['labels']
+        with self.assertRaises(ValueError):
+            coords.graph_to_nice(h)
+        with self.assertRaises(ValueError):
+            coords.graph_to_linear(h)
+        with self.assertRaises(ValueError):
+            coords.graph_to_pegasus(h)
+
+    def test_sublattice_mappings(self):
+        def check_subgraph_mapping(f, g, h):
+            for v in g:
+                if not h.has_node(f(v)):
+                    raise RuntimeError(f"node {v} mapped to {f(v)} is not in {h.graph['name']} ({h.graph['labels']})")
+            for u, v in g.edges:
+                if not h.has_edge(f(u), f(v)):
+                    raise RuntimeError(f"edge {(u, v)} mapped to {(f(u), f(v))} not present in {h.graph['name']} ({h.graph['labels']})")
+
+        coords5 = dnx.pegasus_coordinates(5)
+        coords3 = dnx.pegasus_coordinates(3)
+
+        p3l = dnx.pegasus_graph(3)
+        p3c = dnx.pegasus_graph(3, coordinates=True)
+        p3n = coords3.graph_to_nice(p3c)
+
+        p5l = dnx.pegasus_graph(5)
+        p5c = dnx.pegasus_graph(5, coordinates=True)
+        p5n = coords5.graph_to_nice(p5c)
+
+        for target in p5l, p5c, p5n:
+            for source in p3l, p3c, p3n:
+                covered = set()
+                for f in dnx.pegasus_sublattice_mappings(source, target):
+                    check_subgraph_mapping(f, source, target)
+                    covered.update(map(f, source))
+                self.assertEqual(covered, set(target))
+
+        c2l = dnx.chimera_graph(2)
+        c2c = dnx.chimera_graph(2, coordinates=True)
+        c23l = dnx.chimera_graph(2, 3)
+        c32c = dnx.chimera_graph(3, 2, coordinates=True)
+
+        p5n = dnx.pegasus_graph(5, nice_coordinates=True)
+        p5l = coords5.graph_to_linear(p5n)
+        p5c = coords5.graph_to_pegasus(p5n)
+
+        for target in p5l, p5c, p5n:
+            for source in c2l, c2c, c23l, c32c, target:
+                covered = set()
+                for f in dnx.pegasus_sublattice_mappings(source, target):
+                    check_subgraph_mapping(f, source, target)
+                    covered.update(map(f, source))
+                self.assertEqual(covered, set(target))
 
 
 class TestTupleFragmentation(unittest.TestCase):

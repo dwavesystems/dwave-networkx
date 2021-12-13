@@ -13,11 +13,8 @@
 #    limitations under the License.
 
 import dimod
-try:
-    from dwave.preprocessing import FixVariablesComposite
-except ImportError:
-    # fall back on dimod (<0.10) if dwave.preprocessing not installed
-    from dimod import FixedVariableComposite as FixVariablesComposite
+
+from dwave.preprocessing import FixVariablesComposite
 
 from dwave_networkx.utils import binary_quadratic_model_sampler
 

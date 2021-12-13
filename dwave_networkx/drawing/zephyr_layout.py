@@ -274,7 +274,6 @@ def draw_zephyr_yield(G, **kwargs):
         m = G.graph['columns']
         t = G.graph['tile']
         coordinates = G.graph["labels"] == "coordinate"
-        # Can't interpret fabric_only from graph attributes
     except:
         raise ValueError("Target zephyr graph needs to have columns, rows, \
         tile, and label attributes to be able to identify faulty qubits.")

@@ -22,8 +22,12 @@ import networkx as nx
 from dwave_networkx.exceptions import DWaveNetworkXException
 import warnings
 
+from itertools import product
+from .chimera import _chimera_coordinates_cache
+
 __all__ = ['pegasus_graph',
            'pegasus_coordinates',
+           'pegasus_sublattice_mappings',
            ]
 
 
@@ -192,14 +196,16 @@ def pegasus_graph(m, create_using=None, node_list=None, edge_list=None, data=Tru
         if offsets_index != 0:
             raise NotImplementedError("nice coordinate system is only implemented for offsets_index 0")
         labels = 'nice'
-        p2n = pegasus_coordinates.pegasus_to_nice
-        c2i = lambda *q: p2n(q)
+        pegasus_to_nice = pegasus_coordinates.pegasus_to_nice
+        nice_to_pegasus = pegasus_coordinates.nice_to_pegasus
+        label = lambda *q: pegasus_to_nice(q)
     elif coordinates:
-        c2i = lambda *q: q
+        label = lambda *q: q
         labels = 'coordinate'
     else:
         labels = 'int'
-        def c2i(u, w, k, z): return u * 12 * m * m1 + w * 12 * m1 + k * m1 + z
+        def label(u, w, k, z):
+            return u * 12 * m * m1 + w * 12 * m1 + k * m1 + z
 
     construction = (("family", "pegasus"), ("rows", m), ("columns", m),
                     ("tile", 12), ("vertical_offsets", offset_lists[0]),
@@ -220,13 +226,13 @@ def pegasus_graph(m, create_using=None, node_list=None, edge_list=None, data=Tru
         else:
             fabric_end = fabric_start = 0, 0
 
-        G.add_edges_from((c2i(u, w, k, z), c2i(u, w, k, z + 1))
+        G.add_edges_from((label(u, w, k, z), label(u, w, k, z + 1))
                          for u in (0, 1)
                          for w in range(m)
                          for k in range(fabric_start[u] if w == 0 else 0, 12 - (fabric_end[u] if w == m1 else 0))
                          for z in range(m1 - 1))
 
-        G.add_edges_from((c2i(u, w, k, z), c2i(u, w, k + 1, z))
+        G.add_edges_from((label(u, w, k, z), label(u, w, k + 1, z))
                          for u in (0, 1)
                          for w in range(m)
                          for k in range(fabric_start[u] if w == 0 else 0, 12 - (fabric_end[u] if w == m1 else 0), 2)
@@ -244,7 +250,7 @@ def pegasus_graph(m, create_using=None, node_list=None, edge_list=None, data=Tru
                          for kk in range(12)
                          for k in range(0 if w else off1[kk], 12 if w < m1 else off1[kk])
                          for z in range(m1))
-        G.add_edges_from((c2i(*e[0]), c2i(*e[1])) for e in internal_couplers if efilter(e))
+        G.add_edges_from((label(*e[0]), label(*e[1])) for e in internal_couplers if efilter(e))
 
     else:
         G.add_edges_from(edge_list)
@@ -256,22 +262,30 @@ def pegasus_graph(m, create_using=None, node_list=None, edge_list=None, data=Tru
 
     if data:
         v = 0
+        if nice_coordinates:
+            def fill_data():
+                q = (u, w, k, z)
+                d = get_node_data(pegasus_to_nice(q))
+                if d is not None:
+                    d['linear_index'] = v
+                    d['pegasus_index'] = q
+        elif coordinates:
+            def fill_data():
+                d = get_node_data((u, w, k, z))
+                if d is not None:
+                    d['linear_index'] = v
+        else:
+            def fill_data():
+                d = get_node_data(v)
+                if d is not None:
+                    d['pegasus_index'] = (u, w, k, z)
+
+        get_node_data = G.nodes.get
         for u in range(2):
             for w in range(m):
                 for k in range(12):
                     for z in range(m1):
-                        q = u, w, k, z
-                        if nice_coordinates:
-                            p = c2i(*q)
-                            if p in G:
-                                G.nodes[p]['linear_index'] = v
-                                G.nodes[p]['pegasus_index'] = q
-                        elif coordinates:
-                            if q in G:
-                                G.nodes[q]['linear_index'] = v
-                        else:
-                            if v in G:
-                                G.nodes[v]['pegasus_index'] = q
+                        fill_data()
                         v += 1
 
     return G
@@ -487,6 +501,7 @@ def fragmented_edges(pegasus_graph):
                 yield ((fw0, fw1, u0, k0&1), (fw0, fw1, u1, k1&1))
             else:
                 yield ((fw1, fw0, u0, k0&1), (fw1, fw0, u1, k1&1))
+
 
 # Developer note: we could implement a function that creates the iter_*_to_* and
 # iter_*_to_*_pairs methods just-in-time, but there are a small enough number
@@ -744,6 +759,86 @@ class pegasus_coordinates(object):
         """
         return self._pair_repack(self.iter_nice_to_linear, nlist)
 
+    def graph_to_linear(self, g):
+        """Return a copy of the graph g relabeled to have linear indices"""
+        labels = g.graph.get('labels')
+        if labels == 'int':
+            return g.copy()
+        elif labels == 'coordinate':
+            nodes = self.iter_pegasus_to_linear(g)
+            edges = self.iter_pegasus_to_linear_pairs(g.edges)
+        elif labels == 'nice':
+            nodes = self.iter_nice_to_linear(g)
+            edges = self.iter_nice_to_linear_pairs(g.edges)
+        else:
+            raise ValueError(
+                f"Node labeling {labels} not recognized.  Input must be generated by dwave_networkx.pegasus_graph."
+            )
+
+        return pegasus_graph(
+            g.graph['rows'],
+            node_list=nodes,
+            edge_list=edges,
+            data=g.graph['data'],
+            offset_lists=(
+                g.graph["vertical_offsets"],
+                g.graph["horizontal_offsets"],
+            ),
+        )
+
+    def graph_to_pegasus(self, g):
+        """Return a copy of the graph g relabeled to have pegasus coordinates"""
+        labels = g.graph.get('labels')
+        if labels == 'int':
+            nodes = self.iter_linear_to_pegasus(g)
+            edges = self.iter_linear_to_pegasus_pairs(g.edges)
+        elif labels == 'coordinate':
+            return g.copy()
+        elif labels == 'nice':
+            nodes = self.iter_nice_to_pegasus(g)
+            edges = self.iter_nice_to_pegasus_pairs(g.edges)
+        else:
+            raise ValueError(
+                f"Node labeling {labels} not recognized.  Input must be generated by dwave_networkx.pegasus_graph."
+            )
+
+        return pegasus_graph(
+            g.graph['rows'],
+            node_list=nodes,
+            edge_list=edges,
+            data=g.graph['data'],
+            coordinates=True,
+            offset_lists=(
+                g.graph["vertical_offsets"],
+                g.graph["horizontal_offsets"],
+            ),
+        )
+
+    def graph_to_nice(self, g):
+        """Return a copy of the graph p relabeled to have nice coordinates"""
+        labels = g.graph.get('labels')
+        if labels == 'int':
+            nodes = self.iter_linear_to_nice(g)
+            edges = self.iter_linear_to_nice_pairs(g.edges)
+        elif labels == 'coordinate':
+            nodes = self.iter_pegasus_to_nice(g)
+            edges = self.iter_pegasus_to_nice_pairs(g.edges)
+        elif labels == 'nice':
+            return g.copy()
+        else:
+            raise ValueError(
+                f"Node labeling {labels} not recognized.  Input must be generated by dwave_networkx.pegasus_graph."
+            )
+
+        return pegasus_graph(
+            g.graph['rows'],
+            node_list=nodes,
+            edge_list=edges,
+            data=g.graph['data'],
+            nice_coordinates=True,
+            offsets_index = 0,
+        )
+
     def int(self, q):
         """Deprecated alias of `pegasus_to_linear`."""
         msg = ('pegasus_coordinates.int is deprecated and will be removed in '
@@ -849,3 +944,209 @@ def get_nice_to_pegasus_fn(*args, **kwargs):
     warnings.warn(msg, DeprecationWarning)
 
     return lambda *args: pegasus_coordinates.nice_to_pegasus(args)
+
+
+def _chimera_pegasus_sublattice_mapping(source_to_chimera, nice_to_target, offset):
+    """Constructs a mapping from a Chimera graph to a Pegasus graph, via an offset.
+    This function is used by pegasus_sublattice_mappings, and serves to 
+    construct a closure that is stable under iteration therein.
+
+    Parameters
+    ----------
+        source_to_chimera : function
+            A function mapping a source node to a chimera coordinate
+        nice_to_target: function
+            A function mapping a pegasus nice-coordinate to a target node
+        offset : tuple (int, int, int)
+            A triplet of ints representing the t-, y- and x-offset of the
+            sublattice.
+
+    Returns
+    -------
+        mapping : function
+            The function implementing the mapping from the source Chimera
+            graph to the target Pegasus graph.  We store ``offset`` in the
+            attribute ``mapping.offset`` for later reconstruction.
+        
+    """
+    t_offset, y_offset, x_offset = offset
+
+    def mapping(q):
+        y, x, u, k = source_to_chimera(q)
+        return nice_to_target((t_offset, y + y_offset, x + x_offset, u, k))
+
+    #store the offset in the mapping, so the user can reconstruct it
+    mapping.offset = offset
+
+    return mapping
+
+
+class __pegasus_coordinates_cache_dict(dict):
+    """An internal-use cached factory for `pegasus_coordinates` objects"""
+    def __missing__(self, key):
+        self[key] = val = pegasus_coordinates(key)
+        return val
+
+_pegasus_coordinates_cache = __pegasus_coordinates_cache_dict()
+
+# a set of manually-computed values to speed up the generation of sublattice
+# mappings, used in _pegasus_pegasus_sublattice_mapping
+_sublattice_delta_list = (
+    ((0, 0, 0), (1, 0, 0), (2, 0, 0)),
+    ((1, 1, 0), (2, 1, 0), (0, 0, 1)),
+    ((2, 1, 0), (0, 0, 1), (1, 0, 1)),
+)
+
+def _pegasus_pegasus_sublattice_mapping(source_to_nice, nice_to_target, offset):
+    """Constructs a mapping from a Pegasus graph to a Pegasus graph, via an offset.
+    This function is used by pegasus_sublattice_mappings, and serves to 
+    construct a closure that is stable under iteration therein.
+
+    Parameters
+    ----------
+        source_to_nice : function
+            A function mapping a source node to a pegasus nice-coordinate
+        nice_to_target: function
+            A function mapping a pegasus nice-coordinate to a target node.
+        offset : tuple (int, int, int)
+            A triplet of ints representing the t-, y- and x-offset of the
+            sublattice.
+
+    Returns
+    -------
+        mapping : function
+            The function implementing the mapping from the source Pegasus
+            graph to the target Pegasus graph.  We store ``offset`` in the
+            attribute ``mapping.offset`` for later reconstruction.
+        
+    """
+    t_offset, y_offset, x_offset = offset
+    delta = _sublattice_delta_list[t_offset]
+    def mapping(q):
+        T, Y, X, u, k = source_to_nice(q)
+        t, dy, dx = delta[T]
+        return nice_to_target((t, Y + dy + y_offset, X + dx + x_offset, u, k))
+
+    #store the offset in the mapping, so the user can reconstruct it
+    mapping.offset = offset
+
+    return mapping
+
+
+def pegasus_sublattice_mappings(source, target, offset_list=None):
+    """Yields mappings from a Chimera or Pegasus graph into a Pegasus graph.
+    
+    A sublattice mapping is a function from nodes of a ``pegasus_graph(m_s)`` or
+    ``chimera_graph(m_c, n_c, 4)`` to nodes of a ``pegasus_graph(m_t)`` with
+    ``m_s <= m_t`` or ``m_c <= m_t - 1`` and ``n_c <= m_t - 1``.  This is used
+    to identify subgraphs of the target Pegasus graphs which are isomorphic to
+    the source graph.  However, if the target graph is not of perfect yield,
+    these functions do not generally produce isomorphisms (for example, if a 
+    node is missing in the target graph, it may still appear in the image of the
+    source graph).
+    
+    Note that we require the tile parameter of Chimera graphs to be 4, and the
+    mappings produced are not exhaustive.  The mappings take the form
+    
+        ``(y, x, u, k) -> (t_offset, y+y_offset, x+x_offset, u, k)``
+        
+    when the source is a Chimera graph, or
+    
+        ``(t, y, x, u, k) -> ((t + t_offset)%3, y+y_offset, x+x_offset, u, k)``
+    
+    when the source is a Pegasus graph; preserving the orientation and tile
+    index of nodes.  We use the notation of Chimera coordinates and Pegasus nice 
+    coordinates above, but the mapping produced will respect the labelings of
+    the source and target graph.  Note, the notation above for Pegasus->Pegasus
+    mappings is only suggestive. See _pegasus_pegasus_sublattice_mapping for a
+    precise formula.
+    
+    Academic note: the full group of isomorphisms of a Chimera graph includes 
+    mappings which permute tile indices on a per-row and per-column basis, in
+    addition to reflections and rotations of the grid of unit cells where 
+    rotations by 90 and 270 degrees induce a change in orientation.  The
+    isomorphisms of Pegasus graphs permit the swapping across rows and columns
+    of odd couplers, as well as a reflection about the main antidiagonal which
+    induces a change in orientation.  The full set of sublattice mappings would
+    take those isomorphisms into account; we do not undertake that complexity
+    here.
+
+    Parameters
+    ----------
+        source : NetworkX Graph
+            The Chimera or Pegasus graph that nodes are input from
+        target : NetworkX Graph
+            The Pegasus graph that nodes are output to
+        offset_list : iterable (tuple), optional (default None)
+            An iterable of offsets.  This can be used to reconstruct a set of
+            mappings, as the offset used to generate a single mapping is stored
+            in the ``offset`` attribute of that mapping.
+            
+    Yields
+    ------
+        mapping : function
+            A function from nodes of the source graph, to nodes of the target
+            graph.  The offset used to generate this mapping is stored in
+            ``mapping.offset`` -- these can be collected and passed into 
+            ``offset_list`` in a later session.
+        
+    """
+    if target.graph.get('family') != 'pegasus':
+        raise ValueError("source graphs must a Pegasus graph constructed by dwave_networkx.pegasus_graph")
+
+    m_t = target.graph['rows']
+    labels_t = target.graph['labels']
+    if labels_t == 'int':
+        nice_to_target = _pegasus_coordinates_cache[m_t].nice_to_linear
+    elif labels_t == 'coordinate':
+        nice_to_target = _pegasus_coordinates_cache[m_t].nice_to_pegasus
+    elif labels_t == 'nice':
+        def nice_to_target(q):
+            return q
+    else:
+        raise ValueError(f"Pegasus node labeling {labels_t} not recognized")
+
+    labels_s = source.graph['labels']    
+    if source.graph.get('family') == 'chimera':
+        if source.graph['tile'] != 4:
+            raise ValueError("Cannot construct sublattice mappings from Chimera to Pegasus unless the Chimera tile parameter is 4")
+
+        m_s = source.graph['rows']
+        n_s = source.graph['columns']
+        if offset_list is None:
+            offset_list = product([0, 1, 2], range(m_t - m_s), range(m_t - n_s))
+        if labels_s == 'coordinate':
+            def source_to_inner(q):
+                return q
+        elif labels_s == 'int':
+            source_to_inner = _chimera_coordinates_cache[m_s, n_s, 4].linear_to_chimera
+        else:
+            raise ValueError(f"Chimera node labeling {labels_s} not recognized")
+
+        make_mapping = _chimera_pegasus_sublattice_mapping
+
+    elif source.graph.get('family') == 'pegasus':
+        m_s = source.graph['rows']
+        if offset_list is None:
+            ranges = range(m_t - m_s + 1), range(m_t - m_s), range(m_t - m_s)
+            offset_list = ((t, y, x) for t in range(3) for y in ranges[t] for x in ranges[t])
+
+        labels_s = source.graph['labels']
+        if labels_s == 'int':
+            source_to_inner = _pegasus_coordinates_cache[m_s].linear_to_nice
+        elif labels_s == 'coordinate':
+            source_to_inner = _pegasus_coordinates_cache[m_s].pegasus_to_nice
+        elif labels_s == 'nice':
+            def source_to_inner(q):
+                return q
+        else:
+            raise ValueError(f"Pegasus node labeling {labels_s} not recognized")
+
+        make_mapping = _pegasus_pegasus_sublattice_mapping
+
+    else:
+        raise ValueError("source graph must be a Chimera graph or Pegasus graph constructed by dwave_networkx.chimera_graph or dwave_networkx.pegasus_graph respectively")
+
+    for offset in offset_list:
+        yield make_mapping(source_to_inner, nice_to_target, offset)
+
