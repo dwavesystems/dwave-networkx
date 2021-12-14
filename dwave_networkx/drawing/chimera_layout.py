@@ -27,7 +27,7 @@ from dwave_networkx.generators.chimera import chimera_graph, find_chimera_indice
 __all__ = ['chimera_layout', 'draw_chimera', 'draw_chimera_embedding', 'draw_chimera_yield']
 
 
-def chimera_layout(G, scale=1., center=None, dim=2, normalize_kwargs = None):
+def chimera_layout(G, scale=1., center=None, dim=2, plot_kwargs=None):
     """Positions the nodes of graph G in a Chimera cross topology.
 
     NumPy (https://scipy.org) is required for this function.
@@ -51,10 +51,12 @@ def chimera_layout(G, scale=1., center=None, dim=2, normalize_kwargs = None):
         Number of dimensions. When dim > 2, all extra dimensions are
         set to 0.
 
-    normalize_kwargs : None or dict (default None)
-        A dict of keyword arguments to be used in a plotting function.  If not
-        None, we will populate the "ax" keyword with matplotlib axes, and the
-        "node_size" and "width" keywords with defaults if they are not set.
+    plot_kwargs : None or dict (default None)
+        A dict of keyword arguments to be used in a plotting function (see
+        :func:`networkx.draw` and :func:`draw_lineplot`), to scale node and edge
+        sizes appropriately to the graph `G`.  Optional keys in ``plot_kwargs``
+        are set to default values by the :func:`normalize_size_and_aspect`
+        function. Do nothing if ``plot_kwargs`` is None.
 
     Returns
     -------
@@ -80,7 +82,7 @@ def chimera_layout(G, scale=1., center=None, dim=2, normalize_kwargs = None):
         n = G.graph['columns']
         t = G.graph['tile']
         # get a node placement function
-        xy_coords = chimera_node_placer_2d(m, n, t, scale, center, dim, normalize_kwargs = normalize_kwargs)
+        xy_coords = chimera_node_placer_2d(m, n, t, scale, center, dim, plot_kwargs=plot_kwargs)
 
         if G.graph['labels'] == 'coordinate':
             pos = {v: xy_coords(*v) for v in G.nodes()}
@@ -102,7 +104,7 @@ def chimera_layout(G, scale=1., center=None, dim=2, normalize_kwargs = None):
         m = max(idx[0] for idx in chimera_indices.values()) + 1
         n = max(idx[1] for idx in chimera_indices.values()) + 1
         t = max(idx[3] for idx in chimera_indices.values()) + 1
-        xy_coords = chimera_node_placer_2d(m, n, t, scale, center, dim, normalize_kwargs = normalize_kwargs)
+        xy_coords = chimera_node_placer_2d(m, n, t, scale, center, dim, plot_kwargs=plot_kwargs)
 
         # compute our coordinates
         pos = {v: xy_coords(i, j, u, k) for v, (i, j, u, k) in chimera_indices.items()}
@@ -110,7 +112,7 @@ def chimera_layout(G, scale=1., center=None, dim=2, normalize_kwargs = None):
     return pos
 
 
-def chimera_node_placer_2d(m, n, t, scale=1., center=None, dim=2, normalize_kwargs = None):
+def chimera_node_placer_2d(m, n, t, scale=1., center=None, dim=2, plot_kwargs=None):
     """Generates a function that converts Chimera indices to x, y
     coordinates for a plot.
 
@@ -135,11 +137,13 @@ def chimera_node_placer_2d(m, n, t, scale=1., center=None, dim=2, normalize_kwar
     dim : int (default 2)
         Number of dimensions. When dim > 2, all extra dimensions are
         set to 0.
-        
-    normalize_kwargs : None or dict (default None)
-        A dict of keyword arguments to be used in a plotting function.  If not
-        None, we will populate the "ax" keyword with matplotlib axes, and the
-        "node_size" and "width" keywords with defaults if they are not set.
+
+    plot_kwargs : None or dict (default None)
+        A dict of keyword arguments to be used in a plotting function (see
+        :func:`networkx.draw` and :func:`draw_lineplot`), to scale node and edge
+        sizes appropriately to the graph `G`.  Optional keys in ``plot_kwargs``
+        are set to default values by the :func:`normalize_size_and_aspect`
+        function.  Do nothing if ``plot_kwargs`` is None.
 
     Returns
     -------
@@ -151,19 +155,20 @@ def chimera_node_placer_2d(m, n, t, scale=1., center=None, dim=2, normalize_kwar
     """
     import numpy as np
 
-    line_plot = False if normalize_kwargs is None else normalize_kwargs.get('line_plot')
+    line_plot = False if plot_kwargs is None else plot_kwargs.get('line_plot')
 
     center_pad = 0 if line_plot else 1
+    border_pad = 2
 
     tile_center = t // 2
-    tile_length = t + 2 + center_pad  # 2 for spacing between tiles
+    tile_length = t + border_pad + center_pad
 
     # want the enter plot to fill in [0, 1] when scale=1
-    fabric_scale = max(m, n) * tile_length - 2 - center_pad
+    fabric_scale = max(m, n) * tile_length - border_pad - center_pad
     scale /= fabric_scale
 
-    if normalize_kwargs is not None:
-        normalize_size_and_aspect(fabric_scale, 200, normalize_kwargs)
+    if plot_kwargs is not None:
+        normalize_size_and_aspect(fabric_scale, 200, plot_kwargs)
 
     grid_offsets = {}
 
@@ -175,6 +180,7 @@ def chimera_node_placer_2d(m, n, t, scale=1., center=None, dim=2, normalize_kwar
     if dim < 2:
         raise ValueError("layout must have at least two dimensions")
 
+    # pad the dimensions beyond the second with zeros
     paddims = np.zeros(dim - 2, dtype='float')
 
     if len(center) != dim:
@@ -241,12 +247,12 @@ def draw_chimera(G, **kwargs):
         edges (i.e., :math:`i=j`) are treated as linear biases.
 
     line_plot : boolean (optional, default False)
-        If line_plot is True, then qubits are drawn as line segments, and edges
-        are drawn either as line segments between qubits, or as circles where
-        two qubits overlap.  In this drawing style, the interpretation the width
-        and node_size parameters (provided in kwargs) determines the area of the
-        circles, and line widths, respectively.  For more information, see
-        :func:`dwave_networkx.qubit_layout.draw_lineplot`.
+        If ``line_plot`` is True, then qubits are drawn as line segments, and
+        edges are drawn either as line segments between qubits, or as circles
+        where two qubits overlap.  In this drawing style, the interpretation of
+        the ``width`` and ``node_size`` parameters (provided in ``kwargs``)
+        determine the area of the circles and line widths respectively.  See
+        :func:`dwave_networkx.qubit_layout.draw_lineplot` for more information.
 
     kwargs : optional keywords
        See networkx.draw_networkx() for a description of optional keywords,
@@ -265,7 +271,7 @@ def draw_chimera(G, **kwargs):
     >>> plt.show()  # doctest: +SKIP
 
     """
-    layout = chimera_layout(G, normalize_kwargs = kwargs)
+    layout = chimera_layout(G, plot_kwargs=kwargs)
     draw_qubit_graph(G, layout, **kwargs)
 
 def draw_chimera_embedding(G, *args, **kwargs):
@@ -314,12 +320,12 @@ def draw_chimera_embedding(G, *args, **kwargs):
         concentric circles.
 
     line_plot : boolean (optional, default False)
-        If line_plot is True, then qubits are drawn as line segments, and edges
-        are drawn either as line segments between qubits, or as circles where
-        two qubits overlap.  In this drawing style, the interpretation the width
-        and node_size parameters (provided in kwargs) determines the area of the
-        circles, and line widths, respectively.  For more information, see
-        :func:`dwave_networkx.qubit_layout.draw_lineplot`.
+        If ``line_plot`` is True, then qubits are drawn as line segments, and
+        edges are drawn either as line segments between qubits, or as circles
+        where two qubits overlap.  In this drawing style, the interpretation of
+        the ``width`` and ``node_size`` parameters (provided in ``kwargs``)
+        determine the area of the circles and line widths respectively.  See
+        :func:`dwave_networkx.qubit_layout.draw_lineplot` for more information.
 
     kwargs : optional keywords
        See networkx.draw_networkx() for a description of optional keywords,
@@ -327,7 +333,7 @@ def draw_chimera_embedding(G, *args, **kwargs):
        function. If `linear_biases` or `quadratic_biases` are provided,
        any provided `node_color` or `edge_color` arguments are ignored.
     """
-    layout = chimera_layout(G, normalize_kwargs = kwargs)
+    layout = chimera_layout(G, plot_kwargs=kwargs)
     draw_embedding(G, layout, *args, **kwargs)
 
 
@@ -358,12 +364,12 @@ def draw_chimera_yield(G, **kwargs):
         Edge fault line style (solid|dashed|dotted|dashdot)
 
     line_plot : boolean (optional, default False)
-        If line_plot is True, then qubits are drawn as line segments, and edges
-        are drawn either as line segments between qubits, or as circles where
-        two qubits overlap.  In this drawing style, the interpretation the width
-        and node_size parameters (provided in kwargs) determines the area of the
-        circles, and line widths, respectively.  For more information, see
-        :func:`dwave_networkx.qubit_layout.draw_lineplot`.
+        If ``line_plot`` is True, then qubits are drawn as line segments, and
+        edges are drawn either as line segments between qubits, or as circles
+        where two qubits overlap.  In this drawing style, the interpretation of
+        the ``width`` and ``node_size`` parameters (provided in ``kwargs``)
+        determine the area of the circles and line widths respectively.  See
+        :func:`dwave_networkx.qubit_layout.draw_lineplot` for more information.
 
     kwargs : optional keywords
        See networkx.draw_networkx() for a description of optional keywords,
@@ -382,5 +388,5 @@ def draw_chimera_yield(G, **kwargs):
         tile, and label attributes to be able to identify faulty qubits.")
 
     perfect_graph = chimera_graph(m,n,t, coordinates=coordinates)
-    layout = chimera_layout(perfect_graph, normalize_kwargs = kwargs)
+    layout = chimera_layout(perfect_graph, plot_kwargs=kwargs)
     draw_yield(G, layout, perfect_graph, **kwargs)

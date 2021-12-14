@@ -526,7 +526,7 @@ def draw_yield(G, layout, perfect_graph, unused_color=(0.9,0.9,0.9,1.0),
         import matplotlib.pyplot as plt
         import matplotlib as mpl
     except ImportError:
-        raise ImportError("Matplotlib and numpy required for draw_yield()")
+        raise ImportError("Matplotlib required for draw_yield()")
 
     edgeset = lambda E: set(map(lambda e: tuple(sorted(e)), E))
     nodelist = G.nodes()
@@ -569,6 +569,35 @@ def draw_yield(G, layout, perfect_graph, unused_color=(0.9,0.9,0.9,1.0),
 
 
 def normalize_size_and_aspect(scale, node_scale, kwargs):
+    """Sets default values for the "ax", "node_size" and "width" keys.
+    
+    If the `"ax"` is not set, then we create an axis from the current
+    `matplotlib` figure (:func:`matplotlib.pyplot.gcf()`).  Then, the the axis
+    (either the one we created, or the pre-existing one) is set to have an
+    aspect ratio of 1 and the drawing of axes is turned off.
+    
+    Then, if `"node_size"` and `"width"` are not set, we compute default values
+    for them based on the scale of the current figure and the scale parameters
+    as appropriate.
+    
+    Note, if `kwargs["line_plot"]` is True, then the interpretation of the 
+    `"width"` and `"node_size"` parameters determine the area of edge-circles
+    and line widths (used for both nodes and edges) respectively.  See 
+    :func:`dwave_networkx.qubit_layout.draw_lineplot` for more information.
+
+    Parameters
+    ----------
+    scale : float
+        A geometric size of a figure to be drawn.  This is roughly the number
+        of qubits in any given row or column of the graph.
+        
+    node_scale : float
+        A magic number used to scale node circles -- ignored and replaced with
+        the number 50 when `kwargs["line_plot"]` is True.
+    
+    kwargs : dict
+        A dictionary to populate with default values.    
+    """
     ax = kwargs.get('ax')
     if ax is None:
         try:
@@ -606,7 +635,7 @@ def draw_lineplot(G, layout, *, ax, node_size, width, nodelist=None,
                   edgelist=None, node_color='blue', edge_color='black',
                   cmap=None, vmin=None, vmax=None, edge_cmap=None,
                   edge_vmin=None, edge_vmax=None, z_offset=0):
-    """Draws the graph G with line segments representing nodes
+    """Draws the graph G with line segments representing nodes.
 
     This function is meant to be a drop-in replacement for :func:`networkx.draw`
     where nodes are associated with line segments (specified as 2x2 matrices
@@ -617,22 +646,22 @@ def draw_lineplot(G, layout, *, ax, node_size, width, nodelist=None,
     have three classes of edges:
 
         * internal edges between qubits whose line segments are perpendicular
-            and intersect at a point, which we draw with a circle located at the
-            point of intersection,
-        * external edges between qubits whose line segments are colinear, which
-            we draw as a line segment between the nearest endpoints, and
+            and intersect at a point, drawn as a circle located at the point of
+            intersection,
+        * external edges between qubits whose line segments are colinear, drawn
+            as a line segment between the nearest endpoints, and
         * odd edges between parallel qubits whose line segments are parallel and
-          overlap in a perpendicular projection, which we draw as a line segment
-          between the midpoints of the respective perpendicular projections
+          overlap in a perpendicular projection, drawn as a line segment between
+          the midpoints of the respective perpendicular projections.
 
     Parameters
     ----------
 
     G : networkx.Graph
-        A graph constructed by :func:`chimera_layout`, :func:`pegasus_layout, or
-        :func:`zephyr_layout`
+        A graph constructed by :func:`chimera_layout`, :func:`pegasus_layout`,
+        or :func:`zephyr_layout`.
 
-    pos : dict
+    layout : dict
         A dictionary with nodes as keys and 2x2 matrices [[x0, y0], [x1, y1]]
         representing the line segments of nodes.
 
@@ -650,9 +679,9 @@ def draw_lineplot(G, layout, *, ax, node_size, width, nodelist=None,
         The set of nodes to draw.  If None, all nodes from G are drawn.
 
     edgelist : iterable or None (default=None)
-        The set of edges to draw.  If both nodelist and edgelist are None, all
-        edges of G are drawn.  If edgelist is None, all edges from the subgraph
-        ``G.subgraph(nodelist)`` are drawn.
+        The set of edges to draw.  If both nodelist and ``edgelist`` are None,
+        all edges of G are drawn.  If ``edgelist`` is None, all edges from the
+        subgraph ``G.subgraph(nodelist)`` are drawn.
 
     node_color : iterable or string (default='blue')
         The sequence of colors to use in drawing nodes of G.  If node_color is
@@ -661,18 +690,20 @@ def draw_lineplot(G, layout, *, ax, node_size, width, nodelist=None,
 
     edge_color : iterable or string (default='black')
         The sequence of colors to use in drawing edges of G.  If edge_color is
-        not a string, the colors are taken in the same order as edgelist, and
-        each color is either a float, a 3-tuple or 4-tuple of floats.
+        not a string, the colors are taken in the same order as ``edgelist``,
+        and each color is either a float, a 3-tuple or 4-tuple of floats.
 
     cmap : string or matplotlib.ColorMap or None (default=None)
         A colormap to color nodes with.  Presumes that node_color is a sequence
         of floats.
 
     vmin : float or None (default=None)
-        Minimum value to use to use when normalizing node colors through cmap.
+        Minimum value to use to use when normalizing node colors through
+        ``cmap``.
 
     vmax : float or None (default=None)
-        Maximum value to use to use when normalizing node colors through cmap.
+        Maximum value to use to use when normalizing node colors through
+        ``cmap``.
 
     edge_cmap : string or matplotlib.ColorMap or None (default=None)
         A colormap to color edges with.  Presumes that edge_color is a sequence
@@ -680,23 +711,25 @@ def draw_lineplot(G, layout, *, ax, node_size, width, nodelist=None,
 
     edge_vmin : float or None (default=None)
         Minimum value to use to use when normalizing edge colors through
-        edge_cmap
+        ``edge_cmap``.
 
     edge_vmax : float or None (default=None)
         Maximum value to use to use when normalizing edge colors through
-        edge_cmap
+        ``edge_cmap``.
     
     z_offset : int (default=0)
-        An offset to the zorder that various elements are drawn in.  Edge lines
-        are drawn with zorder=z_offset; horizontal node lines are drawn with
-        zorder=zoffset+1; vertical node lines are drawn with zorder=zoffset+2,
-        and edge circles are drawn with zorder=zoffset+3.  This parameter can be
-        used to layer line plots over or under eachother.
+        An offset to the "zorder: that various elements are drawn in.  Edge
+        lines are drawn with `zorder=z_offset`; horizontal node lines are drawn
+        with `zorder=zoffset+1`; vertical node lines are drawn with
+        `zorder=zoffset+2`, and edge circles are drawn with `zorder=zoffset+3`.
+        This parameter can be used to layer line plots over or under each other.
     """
-
-    from networkx.drawing.nx_pylab import apply_alpha
-    import numpy as np
-    from matplotlib.collections import LineCollection, CircleCollection
+    try:
+        from networkx.drawing.nx_pylab import apply_alpha
+        import numpy as np
+        from matplotlib.collections import LineCollection, CircleCollection
+    except ImportError:
+        raise ImportError("Matplotlib and NumPy required for draw_lineplot()")
 
     if not isinstance(node_size, Number) or not isinstance(width, Number):
         raise NotImplementedError("Varying node size and edge width per element in line plots is not implemented")
