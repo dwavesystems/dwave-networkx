@@ -60,6 +60,7 @@ def partition(G, num_partitions=2, sampler=None, **sampler_args):
     `dimod <https://github.com/dwavesystems/dimod>`_ to find a 2-partition
     for a graph of a Chimera unit cell created using the `chimera_graph()`
     function.
+    
     >>> import dimod
     >>> sampler = dimod.ExactCQMSolver()
     >>> G = dnx.chimera_graph(1, 1, 4)
