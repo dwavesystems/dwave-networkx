@@ -21,5 +21,6 @@ binary quadratic model samplers.
    matching
    max_cut
    packing
+   partition
    social
    tsp
