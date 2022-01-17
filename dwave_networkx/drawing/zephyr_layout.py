@@ -201,14 +201,14 @@ def draw_zephyr_embedding(G, *args, **kwargs):
         the :func:`dwave_networkx.zephyr_graph` function.
 
     emb : dict
-        Chains, as a dict of form {qubit: chain, ...}, where qubits are
-        nodes in G and chains are iterables of qubit labels.
+        Minor-embedding as a dict of form {node: chain, ...}, where ``node`` are
+        nodes in G and ``chain`` are iterables of qubit labels.
 
     embedded_graph : NetworkX graph (optional, default None)
         A graph that contains all keys of ``emb`` as nodes.  If specified,
         edges of G are considered interactions if and only if (1) they
         exist between two chains of ``emb`` and (2) the keys of the
-        corresponding chains are connected by an edge in embedded_graph.
+        corresponding chains are connected by an edge in  the given graph.
         If given, only couplers between chains based on this graph are displayed.
 
     interaction_edges : list (optional, default None)
@@ -234,10 +234,11 @@ def draw_zephyr_embedding(G, *args, **kwargs):
         in G), and these overlaps are displayed as concentric circles.
 
     kwargs : optional keywords
-       See networkx.draw_networkx() for a description of optional keywords,
-       with the exception of the ``pos`` parameter, which is not used by this
-       function. If ``linear_biases`` or ``quadratic_biases`` are provided,
-       any provided ``node_color`` or ``edge_color`` arguments are ignored.
+       See :func:`~networkx.drawing.nx_pylab.draw_networkx` for a description of
+       optional keywords, with the exception of the ``pos`` parameter, which is
+       unsupported. If the ``linear_biases`` or ``quadratic_biases`` parameters
+       are provided, any provided ``node_color`` or ``edge_color`` arguments are
+       ignored.
     """
     draw_embedding(G, zephyr_layout(G), *args, **kwargs)
 
@@ -258,17 +259,20 @@ def draw_zephyr_yield(G, **kwargs):
         length-4 tuples of floats between 0 and 1 inclusive.
 
     fault_shape : string, optional (default='x')
-        The shape of the fault nodes. Specification is as matplotlib.scatter
-        marker, one of 'so^>v<dph8'.
+        The shape of the fault nodes. Specification is as for
+        `Matplotlib's markers <https://matplotlib.org/stable/api/markers_api.html#module-matplotlib.markers>`_;
+        for example "o" (circle), "^" (triangle)", "s" (square) and many more
+        options.
 
     fault_style : string, optional (default='dashed')
         Edge fault line style (solid|dashed|dotted|dashdot)
 
     kwargs : optional keywords
-       See networkx.draw_networkx() for a description of optional keywords,
-       with the exception of the `pos` parameter which is not used by this
-       function. If `linear_biases` or `quadratic_biases` are provided,
-       any provided `node_color` or `edge_color` arguments are ignored.
+       See :func:`~networkx.drawing.nx_pylab.draw_networkx` for a description of
+       optional keywords, with the exception of the ``pos`` parameter, which is
+       unsupported. If the ``linear_biases`` or ``quadratic_biases`` parameters
+       are provided, any provided ``node_color`` or ``edge_color`` arguments are
+       ignored.
     """
     try:
         assert(G.graph["family"] == "zephyr")
