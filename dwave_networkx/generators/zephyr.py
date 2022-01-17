@@ -34,7 +34,9 @@ __all__ = ['zephyr_graph',
 def zephyr_graph(m, t=4, create_using=None, node_list=None, edge_list=None,
                    data=True, coordinates=False):
     """
-    Creates a Zephyr graph [brk]_ with grid parameter ``m`` and tile parameter ``t``.
+    Creates a Zephyr graph with grid parameter ``m`` and tile parameter ``t``.
+
+    The Zephyr topology is described in [brk]_.
 
     Parameters
     ----------
@@ -49,16 +51,16 @@ def zephyr_graph(m, t=4, create_using=None, node_list=None, edge_list=None,
         Iterable of nodes in the graph. If None, calculated from ``m``.
         Note that this list is used to remove nodes, so only specified nodes
         that belong to the base node set (described in the ``coordinates``
-        parameter below) will be added.
+        parameter) are added.
     edge_list : iterable, optional (default None)
         Iterable of edges in the graph. If None, edges are generated as
         described below. The nodes in each edge must be labeled according to the
-        ``coordinates`` parameter, described below.
+        ``coordinates`` parameter.
     data : bool, optional (default True)
         If True, adds to each node an attribute with a format that depends on
-        the ``coordinates`` parameter:
-            a 5-tuple ``'zephyr_index'`` if ``coordinates`` is False
-            an integer ``'linear_index'`` if ``coordinates`` is True
+        the ``coordinates`` parameter: a 5-tuple ``'zephyr_index'`` if
+        ``coordinates`` is False and an integer ``'linear_index'`` if ``coordinates``
+        is True.
     coordinates : bool, optional (default False)
         If True, node labels are 5-tuple Zephyr indices.
 
@@ -66,6 +68,7 @@ def zephyr_graph(m, t=4, create_using=None, node_list=None, edge_list=None,
     -------
     G : NetworkX Graph
         A Zephyr lattice for grid parameter ``m`` and tile parameter ``t``.
+
 
     The maximum degree of this graph is :math:`4t+4`. The number of nodes is
     given by
@@ -77,7 +80,7 @@ def zephyr_graph(m, t=4, create_using=None, node_list=None, edge_list=None,
         * ``zephyr_graph(1, t)``: :math:`2t(8t+3)`
         * ``zephyr_graph(m, t)``: :math:`2t((8t+8)m^2-2m-3)`  if m > 1
 
-    A Zephyr lattice is a graph minor of a lattice similar to Chimera, where 
+    A Zephyr lattice is a graph minor of a lattice similar to Chimera, where
     unit tiles have odd couplers similar to Pegasus graphs. In its most
     general definition, prelattice :math:`Q(2m+1)` contains nodes of the form
 
@@ -93,8 +96,8 @@ def zephyr_graph(m, t=4, create_using=None, node_list=None, edge_list=None,
     The minor---a Zephyr lattice---is constructed by contracting pairs of
     external edges::
 
-        ``I(0, w, k, j, z) = [(2*z+j, w, 0, 2*k+j), (2*z+1+j, w, 0, 2*k+j)]``
-        ``I(1, w, k, j, z) = [(w, 2*z+j, 1, 2*k+j), (w, 2*z+1+j, 1, 2*k+j)]``
+        I(0, w, k, j, z) = [(2*z+j, w, 0, 2*k+j), (2*z+1+j, w, 0, 2*k+j)]
+        I(1, w, k, j, z) = [(w, 2*z+j, 1, 2*k+j), (w, 2*z+1+j, 1, 2*k+j)]
 
     and deleting the prelattice nodes of any pair not fully contained in
     :math:`Q(2m+1)`.
@@ -123,7 +126,7 @@ def zephyr_graph(m, t=4, create_using=None, node_list=None, edge_list=None,
 
     Linear indices are computed from Zephyr indices by the formula::
 
-        ``q = (((u * (2 * m + 1) + w) * t + k) * 2 + j) * m + z``
+        q = (((u * (2 * m + 1) + w) * t + k) * 2 + j) * m + z
 
 
     Examples
@@ -377,7 +380,7 @@ def _zephyr_zephyr_sublattice_mapping(source_to_zephyr, zephyr_to_target, offset
 
     The mappings implemented by this function interpret offsets in the grid of
     the Chimera(2m+1, 2m+1, 2*t) graphs underlying the source and tartget Zephyr
-    graphs.  The formulas (see implementation) are somewhat complex, because 
+    graphs.  The formulas (see implementation) are somewhat complex, because
 
         * a shift by a y-unit induces a reversal of the orthogonal minor offset
             (j index) of vertical qubits,
@@ -402,7 +405,7 @@ def _zephyr_zephyr_sublattice_mapping(source_to_zephyr, zephyr_to_target, offset
             The function implementing the mapping from the source Zephyr
             graph to the target Zephyr graph.  We store ``offset`` in the
             attribute ``mapping.offset`` for later reconstruction.
-        
+
     """
     y_offset, x_offset = offset
 
@@ -428,18 +431,18 @@ def _single_chimera_zephyr_sublattice_mapping(source_to_chimera, zephyr_to_targe
 
     The mappings implemented by this function view a ``chimera(2*m, 2*m, t)`` as
     a subgraph of ``zephyr_graph(m, t)`` through the mapping
-    
+
         (2*y+j, x, 0, k) -> (0, x, k, j, y)
         (y, 2*x+j, 1, k) -> (1, y, k, j, x)
-        
+
     which interprets odd couplers of Zephyr as external couplers of Chimera.
     The above is a slight simplification of matters; it is the simplest of a
     family of :math:`(t+1)^2` offsets (see how ``k_offset0`` and ``k_offset``
     are used in the implementation).
-    
+
     Additionally, the sublattice represented  by the source graph can have x-
     and y-offsets into the chimera graph above, as with ordinary Chimera
-    subgraph mappings.    
+    subgraph mappings.
 
     Parameters
     ----------
@@ -457,7 +460,7 @@ def _single_chimera_zephyr_sublattice_mapping(source_to_chimera, zephyr_to_targe
             The function implementing the mapping from the source Zephyr
             graph to the target Zephyr graph.  We store ``offset`` in the
             attribute ``mapping.offset`` for later reconstruction.
-        
+
     """
     t, y_offset, x_offset, k_offset0, k_offset1 = offset
 
@@ -476,7 +479,7 @@ def _single_chimera_zephyr_sublattice_mapping(source_to_chimera, zephyr_to_targe
     mapping.offset = offset
 
     return mapping
-    
+
 def _double_chimera_zephyr_sublattice_mapping(source_to_chimera, zephyr_to_target, offset):
     """Constructs a mapping from a Chimera graph to a Zephyr graph, via an offset.
     This function is used by zephyr_sublattice_mappings, and serves to construct
@@ -484,13 +487,13 @@ def _double_chimera_zephyr_sublattice_mapping(source_to_chimera, zephyr_to_targe
 
     The mappings implemented by this function view a ``chimera(m, m, 2*t)`` as
     a subgraph of ``zephyr_graph(m, t)`` through the mappings
-    
+
         (y, x, 0, k) -> (0, x, k, j0, y)
         (y, x, 1, k) -> (1, y, k, j1, x)
-        
-    where j0 and j1 are each 0 or 1.  Additionally, the sublattice represented 
+
+    where j0 and j1 are each 0 or 1.  Additionally, the sublattice represented
     by the source graph can have x- and y-offsets into the chimera graph above,
-    as with ordinary Chimera subgraph mappings.    
+    as with ordinary Chimera subgraph mappings.
 
     Parameters
     ----------
@@ -508,7 +511,7 @@ def _double_chimera_zephyr_sublattice_mapping(source_to_chimera, zephyr_to_targe
             The function implementing the mapping from the source Zephyr
             graph to the target Zephyr graph.  We store ``offset`` in the
             attribute ``mapping.offset`` for later reconstruction.
-        
+
     """
     t, y_offset, x_offset, j0, j1 = offset
     def mapping(q):
@@ -518,7 +521,7 @@ def _double_chimera_zephyr_sublattice_mapping(source_to_chimera, zephyr_to_targe
             return zephyr_to_target((u, 2 * (y + y_offset) + j0 + wz, kz, j1, x + x_offset))
         else:
             return zephyr_to_target((u, 2 * (x + x_offset) + j1 + wz, kz, j0, y + y_offset))
-            
+
     #store the offset in the mapping, so the user can reconstruct it
     mapping.offset = offset
 
@@ -527,7 +530,7 @@ def _double_chimera_zephyr_sublattice_mapping(source_to_chimera, zephyr_to_targe
 
 def zephyr_sublattice_mappings(source, target, offset_list=None):
     """Yields mappings from a Chimera or Zephyr graph into a Zephyr graph.
-    
+
     A sublattice mapping is a function from nodes of
         * a ``zephyr_graph(m_s, t)`` to nodes of a ``zephyr_graph(m_t, t)``
             where ``m_s <= m_t``,
@@ -536,27 +539,27 @@ def zephyr_sublattice_mappings(source, target, offset_list=None):
         * a ``chimera_graph(m_s, n_s, 2*t)`` to nodes of a ``zephyr_graph(m_t, t)``
             where ``m_s <= m_t`` and ``n_s <= m_t``, or
 
-    This is used to identify subgraphs of the target Zephyr graphs which are 
+    This is used to identify subgraphs of the target Zephyr graphs which are
     isomorphic to the source graph.  However, if the target graph is not of
     perfect yield, these functions do not generally produce isomorphisms (for
     example, if a node is missing in the target graph, it may still appear in
     the image of the source graph).
-    
+
     Note that we require the tile parameter of Chimera graphs to be either the
     same our double that of the target Zephyr graphs; or if both graphs are
     Zephyr graphs, we require the tile parameters to be the same.  The mappings
-    we produce preserve the linear ordering of tile indices; see 
+    we produce preserve the linear ordering of tile indices; see
     ``_zephyr_zephyr_sublattice_mapping``,
     ``_double_chimera_zephyr_sublattice_mapping``, and
     ``_single_chimera_zephyr_sublattice_mapping`` for more details.
-    
-    Academic note: the full group of isomorphisms of a Chimera graph includes 
+
+    Academic note: the full group of isomorphisms of a Chimera graph includes
     mappings which permute tile indices on a per-row and per-column basis, in
-    addition to reflections and rotations of the grid of unit cells where 
+    addition to reflections and rotations of the grid of unit cells where
     rotations by 90 and 270 degrees induce a change in orientation.  The
-    isomorphisms of Zephyr graphs permit permutations of major tile indices on a 
+    isomorphisms of Zephyr graphs permit permutations of major tile indices on a
     per-row and per-column basis, in addition to reflections of the grid which
-    induce inversion of orthogonal minor offsets, and rotations which induce 
+    induce inversion of orthogonal minor offsets, and rotations which induce
     inversions of minor offsets and/or orientation. The full set of sublattice
     mappings would take those isomorphisms into account; we do not undertake
     that complexity here.
@@ -571,15 +574,15 @@ def zephyr_sublattice_mappings(source, target, offset_list=None):
             An iterable of offsets.  This can be used to reconstruct a set of
             mappings, as the offset used to generate a single mapping is stored
             in the ``offset`` attribute of that mapping.
-            
+
     Yields
     ------
         mapping : function
             A function from nodes of the source graph, to nodes of the target
             graph.  The offset used to generate this mapping is stored in
-            ``mapping.offset`` -- these can be collected and passed into 
+            ``mapping.offset`` -- these can be collected and passed into
             ``offset_list`` in a later session.
-        
+
     """
     if target.graph.get('family') != 'zephyr':
         raise ValueError("source graphs must a Zephyr graph constructed by dwave_networkx.zephyr_graph")
@@ -595,7 +598,7 @@ def zephyr_sublattice_mappings(source, target, offset_list=None):
     else:
         raise ValueError(f"Zephyr node labeling {labels_t} not recognized")
 
-    labels_s = source.graph['labels']    
+    labels_s = source.graph['labels']
     if source.graph.get('family') == 'chimera':
         t_t = source.graph['tile']
         m_s = source.graph['rows']
@@ -648,4 +651,3 @@ def zephyr_sublattice_mappings(source, target, offset_list=None):
 
     for offset in offset_list:
         yield make_mapping(source_to_inner, zephyr_to_target, offset)
-
