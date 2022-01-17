@@ -169,14 +169,15 @@ def draw_zephyr(G, **kwargs):
         edges (i.e., :math:`i=j`) are treated as linear biases.
 
     kwargs : optional keywords
-       See networkx.draw_networkx() for a description of optional keywords,
-       with the exception of the ``pos`` parameter, which is not used by this
-       function. If ``linear_biases`` or ``quadratic_biases`` are provided,
-       any provided ``node_color`` or ``edge_color`` arguments are ignored.
+       See :func:`~networkx.drawing.nx_pylab.draw_networkx` for a description of
+       optional keywords, with the exception of the ``pos`` parameter, which is
+       unsupported. If the ``linear_biases`` or ``quadratic_biases`` parameters
+       are provided, any provided ``node_color`` or ``edge_color`` arguments are
+       ignored.
 
     Examples
     --------
-        This example plots a Zephyr graph with size parameter 2.
+    This example plots a Zephyr graph with size parameter 2.
 
     >>> import networkx as nx
     >>> import dwave_networkx as dnx
