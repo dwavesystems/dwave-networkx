@@ -532,26 +532,28 @@ def zephyr_sublattice_mappings(source, target, offset_list=None):
     """Yields mappings from a Chimera or Zephyr graph into a Zephyr graph.
 
     A sublattice mapping is a function from nodes of
+
         * a ``zephyr_graph(m_s, t)`` to nodes of a ``zephyr_graph(m_t, t)``
-            where ``m_s <= m_t``,
+          where ``m_s <= m_t``,
         * a ``chimera_graph(m_s, n_s, t)`` to nodes of a ``zephyr_graph(m_t, t)``
-            where ``m_s <= 2*m_t`` and ``n_s <= 2*m_t``, or
+          where ``m_s <= 2*m_t`` and ``n_s <= 2*m_t``, or
         * a ``chimera_graph(m_s, n_s, 2*t)`` to nodes of a ``zephyr_graph(m_t, t)``
-            where ``m_s <= m_t`` and ``n_s <= m_t``, or
+          where ``m_s <= m_t`` and ``n_s <= m_t``, or
 
     This is used to identify subgraphs of the target Zephyr graphs which are
-    isomorphic to the source graph.  However, if the target graph is not of
+    isomorphic to the source graph. However, if the target graph is not of
     perfect yield, these functions do not generally produce isomorphisms (for
     example, if a node is missing in the target graph, it may still appear in
     the image of the source graph).
 
-    Note that we require the tile parameter of Chimera graphs to be either the
-    same our double that of the target Zephyr graphs; or if both graphs are
-    Zephyr graphs, we require the tile parameters to be the same.  The mappings
-    we produce preserve the linear ordering of tile indices; see
+    Note that the tile parameter of Chimera graphs must be either the
+    same or double that of the target Zephyr graphs; if both graphs are
+    Zephyr graphs, the tile parameters must be the same. The mappings
+    produced preserve the linear ordering of tile indices; see the
     ``_zephyr_zephyr_sublattice_mapping``,
     ``_double_chimera_zephyr_sublattice_mapping``, and
-    ``_single_chimera_zephyr_sublattice_mapping`` for more details.
+    ``_single_chimera_zephyr_sublattice_mapping`` internal functions for more
+    details.
 
     Academic note: the full group of isomorphisms of a Chimera graph includes
     mappings which permute tile indices on a per-row and per-column basis, in
@@ -567,11 +569,11 @@ def zephyr_sublattice_mappings(source, target, offset_list=None):
     Parameters
     ----------
         source : NetworkX Graph
-            The Chimera or Zephyr graph that nodes are input from
+            The Chimera or Zephyr graph that nodes are input from.
         target : NetworkX Graph
-            The Zephyr graph that nodes are output to
+            The Zephyr graph that nodes are output to.
         offset_list : iterable (tuple), optional (default None)
-            An iterable of offsets.  This can be used to reconstruct a set of
+            An iterable of offsets. This can be used to reconstruct a set of
             mappings, as the offset used to generate a single mapping is stored
             in the ``offset`` attribute of that mapping.
 
