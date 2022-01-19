@@ -1,5 +1,6 @@
 .. _drawing:
 
+*******
 Drawing
 *******
 
@@ -22,7 +23,7 @@ Chimera Graph Functions
    draw_chimera
 
 Example
----------
+~~~~~~~
 
 This example uses the :func:`.chimera_layout()` function to show the positions
 of nodes of a simple 5-node NetworkX graph in a Chimera lattice. It then uses the
@@ -74,7 +75,7 @@ Pegasus Graph Functions
 	 pegasus_node_placer_2d
 
 Example
----------
+~~~~~~~
 
 This example uses the :func:`.draw_pegasus()` function to show the positions
 of nodes of a simple 5-node graph on a small Pegasus lattice.
@@ -101,3 +102,42 @@ of nodes of a simple 5-node graph on a small Pegasus lattice.
 	:alt: Graph H overlaid on a Pegasus lattice size 2.
 
 	Graph H (blue) overlaid on a small Pegasus lattice(yellow nodes and black edges).
+
+Zephyr Graph Functions
+----------------------
+
+.. automodule:: dwave_networkx.drawing.zephyr_layout
+
+.. autosummary::
+   :toctree: generated/
+
+   draw_zephyr
+	 draw_zephyr_embedding
+	 draw_zephyr_yield
+	 zephyr_layout
+
+Example
+~~~~~~~
+
+This example uses the :func:`.draw_zephyr_embedding` function to show the positions
+of a five-node clique on a small Zephyr graph.
+
+.. code-block:: python
+
+   >>> import dwave_networkx as dnx
+   >>> import matplotlib.pyplot as plt
+   >>> import networkx as nx
+   ...
+   >>> G = dnx.zephyr_graph(1)
+   >>> embedding = {"N1": [13, 44], "N2": [11], "N3": [41], "N4": [40], "N5": [9, 37]}
+   ...
+   >>> plt.ion()
+   >>> dnx.draw_zephyr_embedding(G, embedding, show_labels=True)
+
+.. figure:: ../_images/zephyr_embedding_5clique.png
+	:align: center
+	:name: zephyr_embedding_5clique.png
+	:scale: 60 %
+	:alt: Five-node clique embedded in a small Zephyr graph.
+
+	Five-node clique embedded in a small Zephyr graph.

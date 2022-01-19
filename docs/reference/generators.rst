@@ -15,6 +15,7 @@ D-Wave Systems
 
    chimera_graph
    pegasus_graph
+   zephyr_graph
 
 Example
 ~~~~~~~

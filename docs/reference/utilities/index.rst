@@ -8,3 +8,5 @@ Coordinates Conversion
 .. autoclass:: chimera_coordinates
 
 .. autoclass:: pegasus_coordinates
+
+.. autoclass:: zephyr_coordinates
