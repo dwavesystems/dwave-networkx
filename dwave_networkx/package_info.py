@@ -12,7 +12,7 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
-__version__ = '0.8.10'
+__version__ = '0.8.11'
 __author__ = 'D-Wave Systems Inc.'
 __authoremail__ = 'acondello@dwavesys.com'
 __description__ = 'A NetworkX extension providing graphs and algorithms relevent to working with the D-Wave System'
