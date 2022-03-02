@@ -1,3 +1,2 @@
 networkx==2.4
 dimod==0.10.8
-dwave-preprocessing==0.3.2
