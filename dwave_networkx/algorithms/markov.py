@@ -14,8 +14,6 @@
 
 import dimod
 
-from dwave.preprocessing import FixVariablesComposite
-
 from dwave_networkx.utils import binary_quadratic_model_sampler
 
 __all__ = ['sample_markov_network', 'markov_network_bqm']
@@ -141,10 +139,15 @@ def sample_markov_network(MN, sampler=None, fixed_variables=None,
 
     bqm = markov_network_bqm(MN)
 
-    fv_sampler = FixVariablesComposite(sampler)
+    if fixed_variables:
+        # we can modify in-place since we just made it
+        bqm.fix_variables(fixed_variables)
 
-    sampleset = fv_sampler.sample(bqm, fixed_variables=fixed_variables,
-                                  **sampler_args)
+    sampleset = sampler.sample(bqm, **sampler_args)
+
+    if fixed_variables:
+        # add the variables back in
+        sampleset = dimod.append_variables(sampleset, fixed_variables)
 
     if return_sampleset:
         return sampleset
