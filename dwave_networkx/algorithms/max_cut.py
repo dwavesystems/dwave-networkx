@@ -85,6 +85,7 @@ def maximum_cut(G, sampler=None, **sampler_args):
     return set(v for v in G if sample[v] >= 0)
 
 
+@binary_quadratic_model_sampler(1)
 def weighted_maximum_cut(G, sampler=None, **sampler_args):
     """Returns an approximate weighted maximum cut.
 
