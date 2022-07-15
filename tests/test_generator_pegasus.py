@@ -289,26 +289,6 @@ class TestPegasusCoordinates(unittest.TestCase):
                     covered.update(map(f, source))
                 self.assertEqual(covered, set(target))
 
-
-    def test_edge_list(self):
-        m=4
-        G = dnx.pegasus_graph(m)
-        edge_list = list(G.edges)
-        #Valid (default) edge_list
-        G = dnx.pegasus_graph(m, edge_list=edge_list,
-                              check_edge_list=True)
-
-        #Valid edge_list in coordinate system
-        edge_list = [((0,0,0,0),(0,0,1,0))]
-        G = dnx.pegasus_graph(m, edge_list=edge_list,
-                              check_node_list=True, coordinates=True)
-        
-        with self.assertRaises(ValueError):
-            #Invalid edge_list.
-            edge_list = [(0,2)] #Vertical next nearest, no edge.
-            G = dnx.pegasus_graph(m, edge_list=edge_list, fabric_only=False,
-                                  check_edge_list=True)
-            
     def test_node_list(self):
         m=4
         G = dnx.pegasus_graph(m)
@@ -316,6 +296,7 @@ class TestPegasusCoordinates(unittest.TestCase):
         node_list = list(G.nodes)
         G = dnx.pegasus_graph(m, node_list=node_list,
                               check_node_list=True)
+        self.assertEqual(G.number_of_nodes(), len(node_list))
         
         with self.assertRaises(ValueError):
             #invalid node_list on any shape m pegasus graph
@@ -339,13 +320,40 @@ class TestPegasusCoordinates(unittest.TestCase):
         node_list = [(0,0,0,0)]
         G = dnx.pegasus_graph(m, node_list=node_list, fabric_only=False,
                               check_node_list=True, coordinates=True)
+        self.assertEqual(G.number_of_nodes(), len(node_list))
         with self.assertRaises(ValueError):
             #Incompatible coordinate presentation:
             node_list = [0]
             G = dnx.pegasus_graph(m, node_list=node_list, fabric_only=False,
                                   check_node_list=True, coordinates=True)
-    
 
+    def test_edge_list(self):
+        m=4
+        G = dnx.pegasus_graph(m)
+        edge_list = list(G.edges)
+        #Valid (default) edge_list
+        G = dnx.pegasus_graph(m, edge_list=edge_list,
+                              check_edge_list=True)
+        self.assertEqual(G.number_of_edges(),len(edge_list))
+        #Valid edge_list in coordinate system
+        edge_list = [((0, 0, 2, 0), (0, 0, 2, 1))]
+        G = dnx.pegasus_graph(m, edge_list=edge_list,
+                              check_edge_list=True, coordinates=True)
+        self.assertEqual(G.number_of_edges(),len(edge_list))
+        
+        #Valid edge, but absent from node_list, hence dropped:
+        G = dnx.pegasus_graph(m, fabric_only=False)
+        edge_list = [(0,1)]
+        node_list = [0,2]
+        G = dnx.pegasus_graph(m, edge_list=edge_list, node_list = node_list,
+                              check_edge_list=True,fabric_only=False)
+        self.assertEqual(G.number_of_edges(),0)
+        
+        with self.assertRaises(ValueError):
+            #Invalid edge_list.
+            edge_list = [(0,2)] #Vertical next nearest, no edge.
+            G = dnx.pegasus_graph(m, edge_list=edge_list, fabric_only=False,
+                                  check_edge_list=True)
             
 class TestTupleFragmentation(unittest.TestCase):
 

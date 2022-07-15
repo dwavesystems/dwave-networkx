@@ -64,12 +64,11 @@ def zephyr_graph(m, t=4, create_using=None, node_list=None, edge_list=None,
         the requested topology are accepted by default.
     edge_list : iterable (optional, default None)
         Iterable of edges in the graph. If None, calculated
-        from (``m``, ``t``) and ``coordinates`` as described below. 
+        from the ``node_list`` as described below. 
         Edges should be 2-tuples of nodes that match the 
-        requested coordinate system and topology bounds. Edges incompatible
-        with the requested topology are accepted by default. Nodes 
-        present in the ``edge_list``, but absent in the ``node_list`` are 
-        removed.
+        requested coordinate system and topology bounds.  Edges are accepted by 
+        default, provided component nodes are contained in the ``node_list``, 
+        otherwise they are ignored.
     data : bool, optional (default True)
         If True, adds to each node an attribute with a format that depends on
         the ``coordinates`` parameter: a 5-tuple ``'zephyr_index'`` if

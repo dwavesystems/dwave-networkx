@@ -68,12 +68,11 @@ def chimera_graph(m, n=None, t=None, create_using=None, node_list=None, edge_lis
         with the requested topology are accepted by default.
     edge_list : iterable (optional, default None)
         Iterable of edges in the graph. If None, calculated
-        from (``m``, ``n``, ``t``) and ``coordinates`` as described below. 
+        from the ``node_list`` as described below. 
         Edges should be 2-tuples of nodes that match the 
-        requested coordinate system and topology bounds. Edges incompatible
-        with the requested topology are accepted by default. Nodes 
-        present in the ``edge_list``, but absent in the ``node_list`` are 
-        removed.
+        requested coordinate system and topology bounds. Edges are accepted by 
+        default, provided component nodes are contained in the ``node_list``, 
+        otherwise they are ignored.
     data : bool (optional, default True)
         If True, each node has a
         `chimera_index attribute`. The attribute is a 4-tuple Chimera index

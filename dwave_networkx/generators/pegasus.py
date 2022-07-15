@@ -56,19 +56,18 @@ def pegasus_graph(m, create_using=None, node_list=None, edge_list=None, data=Tru
         with the new graph. Usually used to set the type of the graph.
     node_list : iterable (optional, default None)
         Iterable of nodes in the graph. If None, calculated
-        from ``m``,``fabric_only``, ``nice_coordinates`` and
+        from ``m``, ``fabric_only``, ``nice_coordinates`` and
         ``coordinates`` as described below. The nodes should be compatible
         with the requested coordinate system and topology bounds; by
         default integer-labeled in :code:`range(m * (m-1) * 24)`. Nodes
         incompatible with the requested topology are accepted by default.
     edge_list : iterable (optional, default None)
-        Iterable of edges in the graph. If None, calculated from ``m``,
-        ``fabric_only``, ``nice_coordinates`` and ``coordinates`` as described below.
+        Iterable of edges in the graph. If None, calculated from the 
+        ``node_list`` as described below.
         Edges should be 2-tuples of nodes that match the
-        requested coordinate system and topology bounds. Edges incompatible
-        with the requested topology are accepted by default. Nodes
-        present in the ``edge_list``, but absent in the ``node_list`` are
-        removed.
+        requested coordinate system and topology bounds. Edges are accepted by 
+        default, provided component nodes are contained in the ``node_list``, 
+        otherwise they are ignored.
     data : bool, optional (default True)
         If True, each node has a pegasus_index attribute. The attribute
         is a 4-tuple Pegasus index as defined below. If the `coordinates` parameter
