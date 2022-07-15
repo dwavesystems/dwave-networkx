@@ -45,7 +45,8 @@ def _add_compatible_edges(G, edge_list):
             G.remove_edges_from(list(G.edges))
             G.add_edges_from(edge_list)
 
-def chimera_graph(m, n=None, t=None, create_using=None, node_list=None, edge_list=None, data=True, coordinates=False, check_node_list=False, check_edge_list=False):
+def chimera_graph(m, n=None, t=None, create_using=None, node_list=None, edge_list=None,
+                  data=True, coordinates=False, check_node_list=False, check_edge_list=False):
     """Creates a Chimera lattice of size (m, n, t).
 
     Parameters
@@ -60,18 +61,18 @@ def chimera_graph(m, n=None, t=None, create_using=None, node_list=None, edge_lis
         If provided, this graph is cleared of nodes and edges and filled
         with the new graph. Usually used to set the type of the graph.
     node_list : iterable (optional, default None)
-        Iterable of nodes in the graph. If None, calculated
-        from (``m``, ``n``, ``t``). The node_list should match the requested 
-        coordinate system and topology bounds; by default values should 
-        be integer-labeled in ``range(m * n * t * 2)``. Nodes incompatible
-        with the requested topology are accepted by defaulted.
+        Iterable of nodes in the graph. If None, calculated from (``m``, ``n``, ``t``) 
+        and ``coordinates``. The nodes should be compatible with the requested 
+        coordinate system and topology bounds; by default integer-labeled
+        in :code:`range(m * n * t * 2)`. Nodes incompatible
+        with the requested topology are accepted by default.
     edge_list : iterable (optional, default None)
         Iterable of edges in the graph. If None, calculated
-        from (``m``, ``n``, ``t``) as described below. The edge_list should 
-        consist of 2-tuples of nodes that match the requested 
-        coordinate system and topology bounds. Edges incompatible
+        from (``m``, ``n``, ``t``) and ``coordinates`` as described below. 
+        Edges should be 2-tuples of nodes that match the 
+        requested coordinate system and topology bounds. Edges incompatible
         with the requested topology are accepted by default. Nodes 
-        present in the edge_list, but absent in the node_list are 
+        present in the ``edge_list``, but absent in the ``node_list`` are 
         removed.
     data : bool (optional, default True)
         If True, each node has a

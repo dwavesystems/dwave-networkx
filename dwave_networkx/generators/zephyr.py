@@ -30,9 +30,18 @@ __all__ = ['zephyr_graph',
            'zephyr_sublattice_mappings',
            ]
 
+def _add_compatible_edges(G, edge_list):
+    # Slow when edge_list is large, but clear (non-defaulted behaviour, so fine):
+    if edge_list is not None:
+        if not all([G.has_edge(*e) for e in edge_list]):
+            raise ValueError("edge_list contains edges incompatible with a "
+                             "fully yielded graph of the requested topology")
+        if len(edge_list) < G.number_of_edges():
+            G.remove_edges_from(list(G.edges))
+            G.add_edges_from(edge_list)
 
 def zephyr_graph(m, t=4, create_using=None, node_list=None, edge_list=None,
-                   data=True, coordinates=False):
+                 data=True, coordinates=False, check_node_list=False, check_edge_list=False):
     """
     Creates a Zephyr graph with grid parameter ``m`` and tile parameter ``t``.
 
@@ -47,15 +56,20 @@ def zephyr_graph(m, t=4, create_using=None, node_list=None, edge_list=None,
     create_using : Graph, optional (default None)
         If provided, this graph is cleared of nodes and edges and filled
         with the new graph. Usually used to set the type of the graph.
-    node_list : iterable, optional (default None)
-        Iterable of nodes in the graph. If None, calculated from ``m``.
-        Note that this list is used to remove nodes, so only specified nodes
-        that belong to the base node set (described in the ``coordinates``
-        parameter) are added.
-    edge_list : iterable, optional (default None)
-        Iterable of edges in the graph. If None, edges are generated as
-        described below. The nodes in each edge must be labeled according to the
-        ``coordinates`` parameter.
+    node_list : iterable (optional, default None)
+        Iterable of nodes in the graph. If None, calculated from (``m``, ``t``)
+        and ``coordinates``. The nodes should be compatible with the requested
+        coordinate system and topology bounds; by default integer-labeled
+        in :code:`range(4 * t * m * (2 * m + 1))`. Nodes incompatible with
+        the requested topology are accepted by default.
+    edge_list : iterable (optional, default None)
+        Iterable of edges in the graph. If None, calculated
+        from (``m``, ``t``) and ``coordinates`` as described below. 
+        Edges should be 2-tuples of nodes that match the 
+        requested coordinate system and topology bounds. Edges incompatible
+        with the requested topology are accepted by default. Nodes 
+        present in the ``edge_list``, but absent in the ``node_list`` are 
+        removed.
     data : bool, optional (default True)
         If True, adds to each node an attribute with a format that depends on
         the ``coordinates`` parameter: a 5-tuple ``'zephyr_index'`` if
@@ -163,7 +177,7 @@ def zephyr_graph(m, t=4, create_using=None, node_list=None, edge_list=None,
 
     G.graph.update(construction)
 
-    if edge_list is None:
+    if edge_list is None or check_edge_list is True:
         #external edges
         G.add_edges_from((label(u, w, k, j, z), label(u, w, k, j, z + 1))
                          for u, w, k, j, z in product(
@@ -182,14 +196,22 @@ def zephyr_graph(m, t=4, create_using=None, node_list=None, edge_list=None,
                          for w, z, h, k, i, j, a, b in product(
                             range(m), range(m), range(t), range(t), (0, 1), (0, 1), (0, 1), (0, 1)
                          ))
-
+        if edge_list is not None:
+            _add_compatible_edges(G, edge_list)
     else:
         G.add_edges_from(edge_list)
 
     if node_list is not None:
         nodes = set(node_list)
         G.remove_nodes_from(set(G) - nodes)
-        G.add_nodes_from(nodes)  # for singleton nodes
+        if check_node_list:
+            if G.number_of_nodes() != len(nodes):
+                raise ValueError("node_list contains nodes incompatible with "
+                                 "the specified topology and node-labeling "
+                                 "convention.")
+
+        else:
+            G.add_nodes_from(nodes)  # for singleton nodes
 
     if data:
         if coordinates:

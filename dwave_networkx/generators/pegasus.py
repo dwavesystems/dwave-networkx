@@ -31,9 +31,19 @@ __all__ = ['pegasus_graph',
            ]
 
 
+def _add_compatible_edges(G, edge_list):
+    # Slow when edge_list is large, but clear (non-defaulted behaviour, so fine):
+    if edge_list is not None:
+        if not all([G.has_edge(*e) for e in edge_list]):
+            raise ValueError("edge_list contains edges incompatible with a "
+                             "fully yielded graph of the requested topology")
+        if len(edge_list) < G.number_of_edges():
+            G.remove_edges_from(list(G.edges))
+            G.add_edges_from(edge_list)
+
 def pegasus_graph(m, create_using=None, node_list=None, edge_list=None, data=True,
                   offset_lists=None, offsets_index=None, coordinates=False, fabric_only=True,
-                  nice_coordinates=False):
+                  nice_coordinates=False, check_node_list=False, check_edge_list=False):
     """
     Creates a Pegasus graph with size parameter `m`.
 
@@ -44,14 +54,21 @@ def pegasus_graph(m, create_using=None, node_list=None, edge_list=None, data=Tru
     create_using : Graph, optional (default None)
         If provided, this graph is cleared of nodes and edges and filled
         with the new graph. Usually used to set the type of the graph.
-    node_list : iterable, optional (default None)
-        Iterable of nodes in the graph. If None, calculated from `m`.
-        Note that this list is used to remove nodes, so any nodes specified
-        not in ``range(24 * m * (m-1))`` are not added.
-    edge_list : iterable, optional (default None)
-        Iterable of edges in the graph. If None, edges are generated as
-        described below. The nodes in each edge must be integer-labeled in
-        ``range(24 * m * (m-1))``.
+    node_list : iterable (optional, default None)
+        Iterable of nodes in the graph. If None, calculated
+        from ``m``,``fabric_only``, ``nice_coordinates`` and
+        ``coordinates`` as described below. The nodes should be compatible
+        with the requested coordinate system and topology bounds; by
+        default integer-labeled in :code:`range(m * (m-1) * 24)`. Nodes
+        incompatible with the requested topology are accepted by default.
+    edge_list : iterable (optional, default None)
+        Iterable of edges in the graph. If None, calculated from ``m``,
+        ``fabric_only``, ``nice_coordinates`` and ``coordinates`` as described below.
+        Edges should be 2-tuples of nodes that match the
+        requested coordinate system and topology bounds. Edges incompatible
+        with the requested topology are accepted by default. Nodes
+        present in the ``edge_list``, but absent in the ``node_list`` are
+        removed.
     data : bool, optional (default True)
         If True, each node has a pegasus_index attribute. The attribute
         is a 4-tuple Pegasus index as defined below. If the `coordinates` parameter
@@ -83,6 +100,16 @@ def pegasus_graph(m, create_using=None, node_list=None, edge_list=None, data=Tru
         For any given :math:`0 <= t0 < 3`, the subgraph of nodes with :math:`t = t0`
         has the structure of `chimera(M-1, M-1, 4)` with the addition of odd couplers.
         Supercedes both the `fabric_only` and `coordinates` parameters.
+    check_node_list : bool (optional, default False)
+        If True, the node_list elements are checked for compatibility with
+        the graph topology and node labeling conventions, an error is thrown
+        if any node is incompatible. In other words, only node_lists that
+        specify subgraphs of the default (full yield) graph are permitted.
+    check_edge_list : bool (optional, default False)
+        If True, the edge_list elements are checked for compatibility with
+        the graph topology and node labeling conventions, an error is thrown
+        if any edge is incompatible. In other words, only edge_lists that
+        specify subgraphs of the default (full yield) graph are permitted.
 
     Returns
     -------
@@ -216,7 +243,7 @@ def pegasus_graph(m, create_using=None, node_list=None, edge_list=None, data=Tru
 
     max_size = m * (m - 1) * 24  # max number of nodes G can have
 
-    if edge_list is None:
+    if edge_list is None or check_edge_list is True:
         if nice_coordinates:
             fabric_start = 4,8
             fabric_end = 8, 4
@@ -252,13 +279,22 @@ def pegasus_graph(m, create_using=None, node_list=None, edge_list=None, data=Tru
                          for z in range(m1))
         G.add_edges_from((label(*e[0]), label(*e[1])) for e in internal_couplers if efilter(e))
 
+        if edge_list is not None:
+            _add_compatible_edges(G, edge_list)
     else:
         G.add_edges_from(edge_list)
 
     if node_list is not None:
         nodes = set(node_list)
         G.remove_nodes_from(set(G) - nodes)
-        G.add_nodes_from(nodes)  # for singleton nodes
+        if check_node_list:
+            if G.number_of_nodes() != len(nodes):
+                raise ValueError("node_list contains nodes incompatible with "
+                                 "the specified topology and node-labeling "
+                                 "convention.")
+
+        else:
+            G.add_nodes_from(nodes)  # for singleton nodes
 
     if data:
         v = 0
