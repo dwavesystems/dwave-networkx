@@ -35,7 +35,17 @@ __all__ = ['chimera_graph',
            ]
 
 
-def chimera_graph(m, n=None, t=None, create_using=None, node_list=None, edge_list=None, data=True, coordinates=False):
+def _add_compatible_edges(G, edge_list):
+    # Slow when edge_list is large, but clear (non-defaulted behaviour, so fine):
+    if edge_list is not None:
+        if not all([G.has_edge(*e) for e in edge_list]):
+            raise ValueError("edge_list contains edges incompatible with a "
+                             "fully yielded graph of the requested topology")
+        if len(edge_list) < G.number_of_edges():
+            G.remove_edges_from(list(G.edges))
+            G.add_edges_from(edge_list)
+
+def chimera_graph(m, n=None, t=None, create_using=None, node_list=None, edge_list=None, data=True, coordinates=False, check_node_list=False, check_edge_list=False):
     """Creates a Chimera lattice of size (m, n, t).
 
     Parameters
@@ -51,12 +61,18 @@ def chimera_graph(m, n=None, t=None, create_using=None, node_list=None, edge_lis
         with the new graph. Usually used to set the type of the graph.
     node_list : iterable (optional, default None)
         Iterable of nodes in the graph. If None, calculated
-        from (m, n, t). Note that this list is used to remove nodes,
-        so any nodes specified not in ``range(m * n * 2 * t)`` are not added.
+        from (``m``, ``n``, ``t``). The node_list should match the requested 
+        coordinate system and topology bounds; by default values should 
+        be integer-labeled in ``range(m * n * t * 2)``. Nodes incompatible
+        with the requested topology are accepted by defaulted.
     edge_list : iterable (optional, default None)
-        Iterable of edges in the graph. If None, edges are
-        generated as described below. The nodes in each edge must be
-        integer-labeled in ``range(m * n * t * 2)``.
+        Iterable of edges in the graph. If None, calculated
+        from (``m``, ``n``, ``t``) as described below. The edge_list should 
+        consist of 2-tuples of nodes that match the requested 
+        coordinate system and topology bounds. Edges incompatible
+        with the requested topology are accepted by default. Nodes 
+        present in the edge_list, but absent in the node_list are 
+        removed.
     data : bool (optional, default True)
         If True, each node has a
         `chimera_index attribute`. The attribute is a 4-tuple Chimera index
@@ -65,6 +81,16 @@ def chimera_graph(m, n=None, t=None, create_using=None, node_list=None, edge_lis
         If True, node labels are 4-tuples, equivalent to the chimera_index
         attribute as below.  In this case, the `data` parameter controls the
         existence of a `linear_index attribute`, which is an int.
+    check_node_list : bool (optional, default False)
+        If True, the node_list elements are checked for compatibility with
+        the graph topology and node labeling conventions, an error is thrown
+        if any node is incompatible. In other words, only node_lists that
+        specify subgraphs of the default (full yield) graph are permitted.
+    check_edge_list : bool (optional, default False)
+        If True, the edge_list elements are checked for compatibility with
+        the graph topology and node labeling conventions, an error is thrown
+        if any edge is incompatible. In other words, only edge_lists that
+        specify subgraphs of the default (full yield) graph are permitted.
 
     Returns
     -------
@@ -139,7 +165,7 @@ def chimera_graph(m, n=None, t=None, create_using=None, node_list=None, edge_lis
 
     max_size = m * n * 2 * t  # max number of nodes G can have
 
-    if edge_list is None:
+    if edge_list is None or check_edge_list is True:
         if coordinates:
             # tile edges
             G.add_edges_from(((i, j, 0, k0), (i, j, 1, k1))
@@ -180,13 +206,23 @@ def chimera_graph(m, n=None, t=None, create_using=None, node_list=None, edge_lis
                              for i in range(t)
                              for j in range(i, ni, hoff)
                              for k in range(j, mi - voff, voff))
+        if edge_list is not None:
+            _add_compatible_edges(G, edge_list)
+            
     else:
         G.add_edges_from(edge_list)
 
     if node_list is not None:
         nodes = set(node_list)
         G.remove_nodes_from(set(G) - nodes)
-        G.add_nodes_from(nodes)  # for singleton nodes
+        if check_node_list:
+            if G.number_of_nodes() != len(nodes):
+                raise ValueError("node_list contains nodes incompatible with "
+                                 "the specified topology and node-labeling "
+                                 "convention.")
+
+        else:
+            G.add_nodes_from(nodes)  # for singleton nodes
 
     if data:
         if coordinates:
