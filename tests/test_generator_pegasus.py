@@ -290,71 +290,82 @@ class TestPegasusCoordinates(unittest.TestCase):
                 self.assertEqual(covered, set(target))
 
     def test_node_list(self):
-        m=4
+        m = 4
         G = dnx.pegasus_graph(m)
-        #Valid (default) node_list
+        # Valid (default) node_list
         node_list = list(G.nodes)
         G = dnx.pegasus_graph(m, node_list=node_list,
                               check_node_list=True)
         self.assertEqual(G.number_of_nodes(), len(node_list))
         
         with self.assertRaises(ValueError):
-            #invalid node_list on any shape m pegasus graph
+            # Invalid node_list on any shape m pegasus graph
             node_list = [0,m*(m-1)*24]
             G = dnx.pegasus_graph(m, node_list=node_list, fabric_only=False,
                                   check_node_list=True)
-    
-        
-        #Invalid node_list (fabric_only and nice only):
-        node_list = [0]
         with self.assertRaises(ValueError):
+            # Invalid node_list due to duplicates
+            node_list = [0, 0]
+            G = dnx.pegasus_graph(m, node_list=node_list, fabric_only=False,
+                                  check_node_list=True)
+        
+        with self.assertRaises(ValueError):
+            # Invalid node_list (fabric_only)
+            node_list = [0]
             G = dnx.pegasus_graph(m, node_list=node_list, fabric_only=True,
                                   check_node_list=True)
         with self.assertRaises(ValueError):
+            # Invalid node_list (nice_coordinates)
             node_list = [dnx.pegasus_coordinates(m).linear_to_nice(0)]
             G = dnx.pegasus_graph(m, node_list=node_list, nice_coordinates=True,
                                   check_node_list=True)
 
             
-        #Valid coordinate presentation:
+        # Valid coordinate presentation:
         node_list = [(0,0,0,0)]
         G = dnx.pegasus_graph(m, node_list=node_list, fabric_only=False,
                               check_node_list=True, coordinates=True)
         self.assertEqual(G.number_of_nodes(), len(node_list))
         with self.assertRaises(ValueError):
-            #Incompatible coordinate presentation:
+            # Incompatible coordinate presentation:
             node_list = [0]
             G = dnx.pegasus_graph(m, node_list=node_list, fabric_only=False,
                                   check_node_list=True, coordinates=True)
 
     def test_edge_list(self):
-        m=4
+        m = 4
         G = dnx.pegasus_graph(m)
         edge_list = list(G.edges)
-        #Valid (default) edge_list
+        # Valid (default) edge_list
         G = dnx.pegasus_graph(m, edge_list=edge_list,
                               check_edge_list=True)
         self.assertEqual(G.number_of_edges(),len(edge_list))
-        #Valid edge_list in coordinate system
+        # Valid edge_list in coordinate system
         edge_list = [((0, 0, 2, 0), (0, 0, 2, 1))]
         G = dnx.pegasus_graph(m, edge_list=edge_list,
                               check_edge_list=True, coordinates=True)
-        self.assertEqual(G.number_of_edges(),len(edge_list))
+        self.assertEqual(G.number_of_edges(), len(edge_list))
         
-        #Valid edge, but absent from node_list, hence dropped:
+        # Valid edge, but absent from node_list, hence dropped:
         G = dnx.pegasus_graph(m, fabric_only=False)
         edge_list = [(0,1)]
         node_list = [0,2]
         G = dnx.pegasus_graph(m, edge_list=edge_list, node_list = node_list,
-                              check_edge_list=True,fabric_only=False)
+                              fabric_only=False, check_edge_list=True)
         self.assertEqual(G.number_of_edges(),0)
         
         with self.assertRaises(ValueError):
-            #Invalid edge_list.
+            # Invalid edge_list.
             edge_list = [(0,2)] #Vertical next nearest, no edge.
             G = dnx.pegasus_graph(m, edge_list=edge_list, fabric_only=False,
                                   check_edge_list=True)
-            
+                    
+        with self.assertRaises(ValueError):
+            # Edge list has duplicates
+            edge_list = [(0, 1), (0, 1)]
+            G = dnx.pegasus_graph(m, edge_list=edge_list, fabric_only=False,
+                                  check_edge_list=True)
+
 class TestTupleFragmentation(unittest.TestCase):
 
     def test_empty_list(self):

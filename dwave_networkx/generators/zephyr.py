@@ -25,20 +25,12 @@ from dwave_networkx.exceptions import DWaveNetworkXException
 
 from .chimera import _chimera_coordinates_cache
 
+from .common import _add_compatible_edges
+
 __all__ = ['zephyr_graph',
            'zephyr_coordinates',
            'zephyr_sublattice_mappings',
            ]
-
-def _add_compatible_edges(G, edge_list):
-    # Slow when edge_list is large, but clear (non-defaulted behaviour, so fine):
-    if edge_list is not None:
-        if not all([G.has_edge(*e) for e in edge_list]):
-            raise ValueError("edge_list contains edges incompatible with a "
-                             "fully yielded graph of the requested topology")
-        if len(edge_list) < G.number_of_edges():
-            G.remove_edges_from(list(G.edges))
-            G.add_edges_from(edge_list)
 
 def zephyr_graph(m, t=4, create_using=None, node_list=None, edge_list=None,
                  data=True, coordinates=False, check_node_list=False, check_edge_list=False):
@@ -76,6 +68,18 @@ def zephyr_graph(m, t=4, create_using=None, node_list=None, edge_list=None,
         is True.
     coordinates : bool, optional (default False)
         If True, node labels are 5-tuple Zephyr indices.
+    check_node_list : bool (optional, default False)
+        If True, the node_list elements are checked for compatibility with
+        the graph topology and node labeling conventions, an error is thrown
+        if any node is incompatible or duplicates exist. 
+        In other words, only node_lists that specify subgraphs of the default 
+        (full yield) graph are permitted.
+    check_edge_list : bool (optional, default False)
+        If True, the edge_list elements are checked for compatibility with
+        the graph topology and node labeling conventions, an error is thrown
+        if any edge is incompatible or duplicates exist. 
+        In other words, only edge_lists that specify subgraphs of the default 
+        (full yield) graph are permitted.
 
     Returns
     -------
@@ -204,10 +208,11 @@ def zephyr_graph(m, t=4, create_using=None, node_list=None, edge_list=None,
         nodes = set(node_list)
         G.remove_nodes_from(set(G) - nodes)
         if check_node_list:
-            if G.number_of_nodes() != len(nodes):
+            if G.number_of_nodes() != len(node_list):
                 raise ValueError("node_list contains nodes incompatible with "
                                  "the specified topology and node-labeling "
-                                 "convention.")
+                                 "convention, or duplicates")
+    
 
         else:
             G.add_nodes_from(nodes)  # for singleton nodes

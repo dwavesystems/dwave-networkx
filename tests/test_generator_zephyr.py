@@ -192,24 +192,31 @@ class TestZephyrGraph(unittest.TestCase):
     def test_node_list(self):
         m=4
         t=2
+        N = 4 * t * m * (2 * m + 1)
         G = dnx.chimera_graph(m,t)
-        #Valid (full) node_list
+        # Valid (full) node_list
         node_list = list(G.nodes)
         G = dnx.zephyr_graph(m, t, node_list=node_list,
                               check_node_list=True)
         self.assertEqual(G.number_of_nodes(), len(node_list))
-        #Valid node_list in coordinate system
+        # Valid node_list in coordinate system
         node_list = [(0, 0, 0, 0, 0)]
         G = dnx.zephyr_graph(m, t, node_list=node_list,
                               check_node_list=True, coordinates=True)
         self.assertEqual(G.number_of_nodes(), len(node_list))
         with self.assertRaises(ValueError):
-            #Invalid node_list
-            node_list = [0, 4 * t * m * (2 * m + 1)]
+            # Invalid node
+            node_list = [0, N]
             G = dnx.zephyr_graph(m, t, node_list=node_list,
                                   check_node_list=True)
         with self.assertRaises(ValueError):
-            #node is valid, but not in the requested coordinate system
+            # Duplicates
+            node_list = [0, 0]
+            G = dnx.zephyr_graph(m, node_list=node_list,
+                                 check_node_list=True)
+    
+        with self.assertRaises(ValueError):
+            # Not in the requested coordinate system
             node_list = [0]
             G = dnx.zephyr_graph(m, t, node_list=node_list,
                                   check_node_list=True, coordinates=True)
@@ -218,21 +225,22 @@ class TestZephyrGraph(unittest.TestCase):
     def test_edge_list(self):
         m=2
         t=4
+        N = 4 * t * m * (2 * m + 1)
         G = dnx.zephyr_graph(m, t)
         edge_list = list(G.edges)
-        #Valid (full) edge_list
+        # Valid (full) edge_list
         G = dnx.zephyr_graph(m, t, edge_list=edge_list,
                               check_edge_list=True)
         self.assertEqual(G.number_of_edges(),len(edge_list))
 
-        #Valid edge_list in coordinate system
+        # Valid edge_list in coordinate system
         edge_list = [((0, 0, 0, 0, 0), (0, 0, 0, 0, 1))]
         G = dnx.zephyr_graph(m, t, edge_list=edge_list,
                               check_edge_list=True, coordinates=True)
         
         self.assertEqual(G.number_of_edges(),len(edge_list))
 
-        #Valid edge, but absent from node_list, hence dropped:
+        # Valid edge, but absent from node_list, hence dropped:
         edge_list = [(0,1)]
         node_list = [0,2]
         G = dnx.zephyr_graph(m, t, edge_list=edge_list, node_list = node_list,
@@ -240,8 +248,13 @@ class TestZephyrGraph(unittest.TestCase):
         self.assertEqual(G.number_of_edges(), 0)
         
         with self.assertRaises(ValueError):
-            #Invalid edge_list (0,1) is a vertical-vertical coupler.
-            edge_list = [(0, t), (0, 1)]
+            # Invalid edge_list (0,N-1).
+            edge_list = [(0, N-1), (0, 1)]
             G = dnx.zephyr_graph(m, t, edge_list=edge_list,
                                   check_edge_list=True)
-            
+        
+        with self.assertRaises(ValueError):
+            # Edge list has duplicates
+            edge_list = [(0, 1), (0, 1)]
+            G = dnx.zephyr_graph(m, t, edge_list=edge_list,
+                                  check_edge_list=True)

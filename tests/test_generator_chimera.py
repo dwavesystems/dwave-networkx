@@ -284,9 +284,10 @@ class TestChimeraGraph(unittest.TestCase):
 
 
     def test_node_list(self):
-        m=4
-        n=3
-        t=2
+        m = 4
+        n = 3
+        t = 2
+        N = m*n*t*2
         G = dnx.chimera_graph(m,n,t)
         #Valid (full) node_list
         node_list = list(G.nodes)
@@ -300,9 +301,15 @@ class TestChimeraGraph(unittest.TestCase):
         self.assertEqual(G.number_of_nodes(), len(node_list))
         with self.assertRaises(ValueError):
             #Invalid node_list
-            node_list = [0,m*n*t*2]
+            node_list = [0, N]
             G = dnx.chimera_graph(m, n, t, node_list=node_list,
                                   check_node_list=True)
+        with self.assertRaises(ValueError):
+            # Invalid node_list due to duplicates
+            node_list = [0, 0]
+            G = dnx.chimera_graph(m, node_list=node_list,
+                                  check_node_list=True)
+        
         with self.assertRaises(ValueError):
             #node is valid, but not in the requested coordinate system
             node_list = [0]
@@ -311,22 +318,22 @@ class TestChimeraGraph(unittest.TestCase):
     
 
     def test_edge_list(self):
-        m=2
-        n=3
-        t=4
+        m = 2
+        n = 3
+        t = 4
         G = dnx.chimera_graph(m, n, t)
         edge_list = list(G.edges)
-        #Valid (full) edge_list
+        # Valid (full) edge_list
         G = dnx.chimera_graph(m, n, t, edge_list=edge_list,
                               check_edge_list=True)
         self.assertEqual(G.number_of_edges(),len(edge_list))
-        #Valid edge_list in coordinate system
+        # Valid edge_list in coordinate system
         edge_list = [((0,0,0,0),(0,0,1,0))]
         G = dnx.chimera_graph(m, n, t, edge_list=edge_list,
                               check_edge_list=True, coordinates=True)
         self.assertEqual(G.number_of_edges(),len(edge_list))
         
-        #Valid edge, but absent from node_list, hence dropped:
+        # Valid edge, but absent from node_list, hence dropped:
         edge_list = [(0,t)]
         node_list = list(range(t))
         G = dnx.chimera_graph(m, n, t, edge_list=edge_list, node_list = node_list,
@@ -334,8 +341,13 @@ class TestChimeraGraph(unittest.TestCase):
         self.assertEqual(G.number_of_edges(),0)
         
         with self.assertRaises(ValueError):
-            #Invalid edge_list (0,1) is a vertical-vertical coupler.
+            # Invalid edge_list (0,1) is a vertical-vertical coupler.
             edge_list = [(0,t),(0,1)]
             G = dnx.chimera_graph(m, n, t, edge_list=edge_list,
                                   check_edge_list=True)
             
+        with self.assertRaises(ValueError):
+            # Edge list has duplicates
+            edge_list = [(0, t), (0, t)]
+            G = dnx.chimera_graph(m, edge_list=edge_list,
+                                  check_edge_list=True)
