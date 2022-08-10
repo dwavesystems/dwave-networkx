@@ -61,7 +61,7 @@ def chimera_graph(m, n=None, t=None, create_using=None, node_list=None, edge_lis
         nodes are included.
     edge_list : iterable (optional, default None)
         Iterable of edges in the graph. Edges must be 2-tuples of the nodes 
-        specified in node_list, or calculated from (``m``, ``n``, ``t``) and 
+        specified in ``node_list``, or calculated from (``m``, ``n``, ``t``) and 
         ``coordinates`` per the topology description below; incompatible edges 
         are ignored unless you set :code:`check_edge_list=True`. If not 
         specified, all edges compatible with the ``node_list`` and topology 
