@@ -72,7 +72,7 @@ def chimera_graph(m, n=None, t=None, create_using=None, node_list=None, edge_lis
     coordinates : bool (optional, default :code:`False`)
         If :code:`True`, node labels are 4-tuples, equivalent to the chimera_index
         attribute as below.  In this case, the ``data`` parameter controls the
-        existence of a `linear_index attribute`, which is an int.
+        existence of a `linear_index attribute`, which is an integer.
     check_node_list : bool (optional, default :code:`False`)
         If :code:`True`, the ``node_list`` elements are checked for compatibility with
         the graph topology and node labeling conventions, and an error is thrown
