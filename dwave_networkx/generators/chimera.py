@@ -54,8 +54,8 @@ def chimera_graph(m, n=None, t=None, create_using=None, node_list=None, edge_lis
         with the new graph. Usually used to set the type of the graph.
     node_list : iterable (optional, default None)
         Iterable of nodes in the graph. The nodes should typically be 
-        compatible with the requested lattice shape parameters and coordinate 
-        system, incompatible nodes are accepted unless you set :code:`check_node_list=True`. 
+        compatible with the requested lattice-shape parameters and coordinate 
+        system; incompatible nodes are accepted unless you set :code:`check_node_list=True`. 
         If not specified, calculated from (``m``, ``n``, ``t``) and 
         ``coordinates`` per the topology description below; all :math:`2 t m n`
         nodes are included.
