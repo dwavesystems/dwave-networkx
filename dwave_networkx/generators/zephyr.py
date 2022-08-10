@@ -33,7 +33,8 @@ __all__ = ['zephyr_graph',
            ]
 
 def zephyr_graph(m, t=4, create_using=None, node_list=None, edge_list=None,
-                 data=True, coordinates=False, check_node_list=False, check_edge_list=False):
+                 data=True, coordinates=False, check_node_list=False,
+                 check_edge_list=False):
     """
     Creates a Zephyr graph with grid parameter ``m`` and tile parameter ``t``.
 
@@ -49,33 +50,33 @@ def zephyr_graph(m, t=4, create_using=None, node_list=None, edge_list=None,
         If provided, this graph is cleared of nodes and edges and filled
         with the new graph. Usually used to set the type of the graph.
     node_list : iterable (optional, default None)
-        Iterable of nodes in the graph. If None, calculated from (``m``, ``t``)
-        and ``coordinates``. The nodes should be compatible with the requested
-        coordinate system and topology bounds; by default integer-labeled
-        in :code:`range(4 * t * m * (2 * m + 1))`. Nodes incompatible with
-        the requested topology are accepted by default.
+        Iterable of nodes in the graph. If not specified, calculated from (``m``, ``t``)
+        and ``coordinates``. The nodes should typically be compatible with the 
+        requested lattice shape parameters and coordinate system, incompatible 
+        nodes are accepted unless you set :code:`check_node_list=True`. If not 
+        specified, all :math:`4 t m (2 m + 1)` nodes compatible with the 
+        topology description are included.
     edge_list : iterable (optional, default None)
-        Iterable of edges in the graph. If None, calculated
-        from the ``node_list`` as described below. 
-        Edges should be 2-tuples of nodes that match the 
-        requested coordinate system and topology bounds.  Edges are accepted by 
-        default, provided component nodes are contained in the ``node_list``, 
-        otherwise they are ignored.
-    data : bool, optional (default True)
-        If True, adds to each node an attribute with a format that depends on
+        Iterable of edges in the graph. Edges must be 2-tuples of the nodes 
+        specified in node_list, or calculated from (``m``, ``t``) and ``coordinates`` 
+        per the topology description below; incompatible edges are ignored 
+        unless you set :code:`check_edge_list=True`. If not specified, all edges
+        compatible with the ``node_list`` and topology description are included.
+    data : bool, optional (default :code:`True`)
+        If :code:`True`, adds to each node an attribute with a format that depends on
         the ``coordinates`` parameter: a 5-tuple ``'zephyr_index'`` if
-        ``coordinates`` is False and an integer ``'linear_index'`` if ``coordinates``
-        is True.
-    coordinates : bool, optional (default False)
-        If True, node labels are 5-tuple Zephyr indices.
-    check_node_list : bool (optional, default False)
-        If True, the node_list elements are checked for compatibility with
+        :code:`coordinates=False` and an integer ``'linear_index'`` if ``coordinates``
+        is :code:`True`.
+    coordinates : bool, optional (default :code:`False`)
+        If :code:`True`, node labels are 5-tuple Zephyr indices.
+    check_node_list : bool (optional, default :code:`False`)
+        If :code:`True`, the ``node_list`` elements are checked for compatibility with
         the graph topology and node labeling conventions, an error is thrown
         if any node is incompatible or duplicates exist. 
         In other words, only node_lists that specify subgraphs of the default 
         (full yield) graph are permitted.
-    check_edge_list : bool (optional, default False)
-        If True, the edge_list elements are checked for compatibility with
+    check_edge_list : bool (optional, default :code:`False`)
+        If :code:`True`, the edge_list elements are checked for compatibility with
         the graph topology and node labeling conventions, an error is thrown
         if any edge is incompatible or duplicates exist. 
         In other words, only edge_lists that specify subgraphs of the default 

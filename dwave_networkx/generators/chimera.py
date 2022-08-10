@@ -53,38 +53,38 @@ def chimera_graph(m, n=None, t=None, create_using=None, node_list=None, edge_lis
         If provided, this graph is cleared of nodes and edges and filled
         with the new graph. Usually used to set the type of the graph.
     node_list : iterable (optional, default None)
-        Iterable of nodes in the graph. If None, calculated from (``m``, ``n``, ``t``) 
-        and ``coordinates``. The nodes should be compatible with the requested 
-        coordinate system and topology bounds; by default integer-labeled
-        in :code:`range(m * n * t * 2)`. Nodes incompatible
-        with the requested topology are accepted by default.
+        Iterable of nodes in the graph. The nodes should typically be 
+        compatible with the requested lattice shape parameters and coordinate 
+        system, incompatible nodes are accepted unless you set :code:`check_node_list=True`. 
+        If not specified, calculated from (``m``, ``n``, ``t``) and 
+        ``coordinates`` per the topology description below; all :math:`2 t m n`
+        nodes are included.
     edge_list : iterable (optional, default None)
-        Iterable of edges in the graph. If None, calculated
-        from the ``node_list`` as described below. 
-        Edges should be 2-tuples of nodes that match the 
-        requested coordinate system and topology bounds. Edges are accepted by 
-        default, provided component nodes are contained in the ``node_list``, 
-        otherwise they are ignored.
-    data : bool (optional, default True)
-        If True, each node has a
-        `chimera_index attribute`. The attribute is a 4-tuple Chimera index
-        as defined below.
-    coordinates : bool (optional, default False)
-        If True, node labels are 4-tuples, equivalent to the chimera_index
+        Iterable of edges in the graph. Edges must be 2-tuples of the nodes 
+        specified in node_list, or calculated from (``m``, ``n``, ``t``) and 
+        ``coordinates`` per the topology description below; incompatible edges 
+        are ignored unless you set :code:`check_edge_list=True`. If not 
+        specified, all edges compatible with the ``node_list`` and topology 
+        description are included.
+    data : bool (optional, default :code:`True`)
+        If :code:`True`, each node has a `chimera_index attribute`. The 
+        attribute is a 4-tuple Chimera index as defined below.
+    coordinates : bool (optional, default :code:`False`)
+        If :code:`True`, node labels are 4-tuples, equivalent to the chimera_index
         attribute as below.  In this case, the `data` parameter controls the
         existence of a `linear_index attribute`, which is an int.
-    check_node_list : bool (optional, default False)
-        If True, the node_list elements are checked for compatibility with
-        the graph topology and node labeling conventions, an error is thrown
+    check_node_list : bool (optional, default :code:`False`)
+        If :code:`True`, the ``node_list`` elements are checked for compatibility with
+        the graph topology and node labeling conventions, and an error is thrown
         if any node is incompatible or duplicates exist. 
-        In other words, only node_lists that specify subgraphs of the default 
-        (full yield) graph are permitted.
-    check_edge_list : bool (optional, default False)
-        If True, the edge_list elements are checked for compatibility with
+        In other words, the ``node_list`` must specify a subgraph of the 
+        full-yield graph described below.
+    check_edge_list : bool (optional, default :code:`False`)
+        If :code:`True`, the edge_list elements are checked for compatibility with
         the graph topology and node labeling conventions, an error is thrown
         if any edge is incompatible or duplicates exist. 
-        In other words, only edge_lists that specify subgraphs of the default 
-        (full yield) graph are permitted.
+        In other words, the ``edge_list`` must specify a subgraph of the 
+        full-yield graph described below.
 
     Returns
     -------

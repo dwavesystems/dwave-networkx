@@ -462,7 +462,7 @@ def elimination_order_width(G, order):
 def treewidth_branch_and_bound(G, elimination_order=None, treewidth_upperbound=None):
     """Computes the treewidth of graph G and a corresponding perfect elimination ordering.
 
-    Alogorithm based on [GD]_.
+    Algorithm based on [GD]_.
 
     Parameters
     ----------
