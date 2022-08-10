@@ -71,7 +71,7 @@ def zephyr_graph(m, t=4, create_using=None, node_list=None, edge_list=None,
         If :code:`True`, node labels are 5-tuple Zephyr indices.
     check_node_list : bool (optional, default :code:`False`)
         If :code:`True`, the ``node_list`` elements are checked for compatibility with
-        the graph topology and node labeling conventions, an error is thrown
+        the graph topology and node labeling conventions, and an error is thrown
         if any node is incompatible or duplicates exist. 
         In other words, only node_lists that specify subgraphs of the default 
         (full yield) graph are permitted.
