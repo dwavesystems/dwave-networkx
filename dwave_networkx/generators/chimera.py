@@ -80,7 +80,7 @@ def chimera_graph(m, n=None, t=None, create_using=None, node_list=None, edge_lis
         In other words, the ``node_list`` must specify a subgraph of the 
         full-yield graph described below.
     check_edge_list : bool (optional, default :code:`False`)
-        If :code:`True`, the edge_list elements are checked for compatibility with
+        If :code:`True`, the ``edge_list`` elements are checked for compatibility with
         the graph topology and node labeling conventions, an error is thrown
         if any edge is incompatible or duplicates exist. 
         In other words, the ``edge_list`` must specify a subgraph of the 
