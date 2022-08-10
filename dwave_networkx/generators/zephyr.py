@@ -79,8 +79,8 @@ def zephyr_graph(m, t=4, create_using=None, node_list=None, edge_list=None,
         If :code:`True`, ``edge_list`` elements are checked for compatibility with
         the graph topology and node labeling conventions, and an error is thrown
         if any edge is incompatible or duplicates exist. 
-        In other words, only edge_lists that specify subgraphs of the default 
-        (full yield) graph are permitted.
+        In other words, ``edge_list`` must specify a subgraph of the default 
+        (full yield) graph described below.
 
     Returns
     -------
