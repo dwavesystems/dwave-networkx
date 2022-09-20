@@ -25,14 +25,16 @@ from dwave_networkx.exceptions import DWaveNetworkXException
 
 from .chimera import _chimera_coordinates_cache
 
+from .common import _add_compatible_edges
+
 __all__ = ['zephyr_graph',
            'zephyr_coordinates',
            'zephyr_sublattice_mappings',
            ]
 
-
 def zephyr_graph(m, t=4, create_using=None, node_list=None, edge_list=None,
-                   data=True, coordinates=False):
+                 data=True, coordinates=False, check_node_list=False,
+                 check_edge_list=False):
     """
     Creates a Zephyr graph with grid parameter ``m`` and tile parameter ``t``.
 
@@ -47,22 +49,38 @@ def zephyr_graph(m, t=4, create_using=None, node_list=None, edge_list=None,
     create_using : Graph, optional (default None)
         If provided, this graph is cleared of nodes and edges and filled
         with the new graph. Usually used to set the type of the graph.
-    node_list : iterable, optional (default None)
-        Iterable of nodes in the graph. If None, calculated from ``m``.
-        Note that this list is used to remove nodes, so only specified nodes
-        that belong to the base node set (described in the ``coordinates``
-        parameter) are added.
-    edge_list : iterable, optional (default None)
-        Iterable of edges in the graph. If None, edges are generated as
-        described below. The nodes in each edge must be labeled according to the
-        ``coordinates`` parameter.
-    data : bool, optional (default True)
-        If True, adds to each node an attribute with a format that depends on
+    node_list : iterable (optional, default None)
+        Iterable of nodes in the graph. If not specified, calculated from (``m``, ``t``)
+        and ``coordinates``. The nodes should typically be compatible with the 
+        requested lattice shape parameters and coordinate system, incompatible 
+        nodes are accepted unless you set :code:`check_node_list=True`. If not 
+        specified, all :math:`4 t m (2 m + 1)` nodes compatible with the 
+        topology description are included.
+    edge_list : iterable (optional, default None)
+        Iterable of edges in the graph. Edges must be 2-tuples of the nodes 
+        specified in node_list, or calculated from (``m``, ``t``) and ``coordinates`` 
+        per the topology description below; incompatible edges are ignored 
+        unless you set :code:`check_edge_list=True`. If not specified, all edges
+        compatible with the ``node_list`` and topology description are included.
+    data : bool, optional (default :code:`True`)
+        If :code:`True`, adds to each node an attribute with a format that depends on
         the ``coordinates`` parameter: a 5-tuple ``'zephyr_index'`` if
-        ``coordinates`` is False and an integer ``'linear_index'`` if ``coordinates``
-        is True.
-    coordinates : bool, optional (default False)
-        If True, node labels are 5-tuple Zephyr indices.
+        :code:`coordinates=False` and an integer ``'linear_index'`` if ``coordinates``
+        is :code:`True`.
+    coordinates : bool, optional (default :code:`False`)
+        If :code:`True`, node labels are 5-tuple Zephyr indices.
+    check_node_list : bool (optional, default :code:`False`)
+        If :code:`True`, the ``node_list`` elements are checked for compatibility with
+        the graph topology and node labeling conventions, and an error is thrown
+        if any node is incompatible or duplicates exist. 
+        In other words, ``node_lists`` must specify a subgraph of the default 
+        (full yield) graph described below.
+    check_edge_list : bool (optional, default :code:`False`)
+        If :code:`True`, ``edge_list`` elements are checked for compatibility with
+        the graph topology and node labeling conventions, and an error is thrown
+        if any edge is incompatible or duplicates exist. 
+        In other words, ``edge_list`` must specify a subgraph of the default 
+        (full yield) graph described below.
 
     Returns
     -------
@@ -163,7 +181,7 @@ def zephyr_graph(m, t=4, create_using=None, node_list=None, edge_list=None,
 
     G.graph.update(construction)
 
-    if edge_list is None:
+    if edge_list is None or check_edge_list is True:
         #external edges
         G.add_edges_from((label(u, w, k, j, z), label(u, w, k, j, z + 1))
                          for u, w, k, j, z in product(
@@ -182,14 +200,23 @@ def zephyr_graph(m, t=4, create_using=None, node_list=None, edge_list=None,
                          for w, z, h, k, i, j, a, b in product(
                             range(m), range(m), range(t), range(t), (0, 1), (0, 1), (0, 1), (0, 1)
                          ))
-
+        if edge_list is not None:
+            _add_compatible_edges(G, edge_list)
     else:
         G.add_edges_from(edge_list)
 
     if node_list is not None:
         nodes = set(node_list)
         G.remove_nodes_from(set(G) - nodes)
-        G.add_nodes_from(nodes)  # for singleton nodes
+        if check_node_list:
+            if G.number_of_nodes() != len(node_list):
+                raise ValueError("node_list contains nodes incompatible with "
+                                 "the specified topology and node-labeling "
+                                 "convention, or duplicates")
+    
+
+        else:
+            G.add_nodes_from(nodes)  # for singleton nodes
 
     if data:
         if coordinates:

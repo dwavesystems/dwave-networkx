@@ -26,6 +26,8 @@ from dwave_networkx.exceptions import DWaveNetworkXException
 
 from itertools import product
 
+from .common import _add_compatible_edges
+
 __all__ = ['chimera_graph',
            'chimera_coordinates',
            'find_chimera_indices',
@@ -35,7 +37,8 @@ __all__ = ['chimera_graph',
            ]
 
 
-def chimera_graph(m, n=None, t=None, create_using=None, node_list=None, edge_list=None, data=True, coordinates=False):
+def chimera_graph(m, n=None, t=None, create_using=None, node_list=None, edge_list=None,
+                  data=True, coordinates=False, check_node_list=False, check_edge_list=False):
     """Creates a Chimera lattice of size (m, n, t).
 
     Parameters
@@ -50,21 +53,38 @@ def chimera_graph(m, n=None, t=None, create_using=None, node_list=None, edge_lis
         If provided, this graph is cleared of nodes and edges and filled
         with the new graph. Usually used to set the type of the graph.
     node_list : iterable (optional, default None)
-        Iterable of nodes in the graph. If None, calculated
-        from (m, n, t). Note that this list is used to remove nodes,
-        so any nodes specified not in ``range(m * n * 2 * t)`` are not added.
+        Iterable of nodes in the graph. The nodes should typically be 
+        compatible with the requested lattice-shape parameters and coordinate 
+        system; incompatible nodes are accepted unless you set :code:`check_node_list=True`. 
+        If not specified, calculated from (``m``, ``n``, ``t``) and 
+        ``coordinates`` per the topology description below; all :math:`2 t m n`
+        nodes are included.
     edge_list : iterable (optional, default None)
-        Iterable of edges in the graph. If None, edges are
-        generated as described below. The nodes in each edge must be
-        integer-labeled in ``range(m * n * t * 2)``.
-    data : bool (optional, default True)
-        If True, each node has a
-        `chimera_index attribute`. The attribute is a 4-tuple Chimera index
-        as defined below.
-    coordinates : bool (optional, default False)
-        If True, node labels are 4-tuples, equivalent to the chimera_index
-        attribute as below.  In this case, the `data` parameter controls the
-        existence of a `linear_index attribute`, which is an int.
+        Iterable of edges in the graph. Edges must be 2-tuples of the nodes 
+        specified in ``node_list``, or calculated from (``m``, ``n``, ``t``) and 
+        ``coordinates`` per the topology description below; incompatible edges 
+        are ignored unless you set :code:`check_edge_list=True`. If not 
+        specified, all edges compatible with the ``node_list`` and topology 
+        description are included.
+    data : bool (optional, default :code:`True`)
+        If :code:`True`, each node has a `chimera_index attribute`. The 
+        attribute is a 4-tuple Chimera index as defined below.
+    coordinates : bool (optional, default :code:`False`)
+        If :code:`True`, node labels are 4-tuples, equivalent to the chimera_index
+        attribute as below.  In this case, the ``data`` parameter controls the
+        existence of a `linear_index attribute`, which is an integer.
+    check_node_list : bool (optional, default :code:`False`)
+        If :code:`True`, the ``node_list`` elements are checked for compatibility with
+        the graph topology and node labeling conventions, and an error is thrown
+        if any node is incompatible or duplicates exist. 
+        In other words, the ``node_list`` must specify a subgraph of the 
+        full-yield graph described below.
+    check_edge_list : bool (optional, default :code:`False`)
+        If :code:`True`, the ``edge_list`` elements are checked for compatibility with
+        the graph topology and node labeling conventions, an error is thrown
+        if any edge is incompatible or duplicates exist. 
+        In other words, the ``edge_list`` must specify a subgraph of the 
+        full-yield graph described below.
 
     Returns
     -------
@@ -139,7 +159,7 @@ def chimera_graph(m, n=None, t=None, create_using=None, node_list=None, edge_lis
 
     max_size = m * n * 2 * t  # max number of nodes G can have
 
-    if edge_list is None:
+    if edge_list is None or check_edge_list is True:
         if coordinates:
             # tile edges
             G.add_edges_from(((i, j, 0, k0), (i, j, 1, k1))
@@ -180,13 +200,23 @@ def chimera_graph(m, n=None, t=None, create_using=None, node_list=None, edge_lis
                              for i in range(t)
                              for j in range(i, ni, hoff)
                              for k in range(j, mi - voff, voff))
+        if edge_list is not None:
+            _add_compatible_edges(G, edge_list)
+            
     else:
         G.add_edges_from(edge_list)
 
     if node_list is not None:
         nodes = set(node_list)
         G.remove_nodes_from(set(G) - nodes)
-        G.add_nodes_from(nodes)  # for singleton nodes
+        if check_node_list:
+            if G.number_of_nodes() != len(node_list):
+                raise ValueError("node_list contains nodes incompatible with "
+                                 "the specified topology and node-labeling "
+                                 "convention.")
+
+        else:
+            G.add_nodes_from(nodes)  # for singleton nodes
 
     if data:
         if coordinates:
