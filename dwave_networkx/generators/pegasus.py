@@ -284,7 +284,8 @@ def pegasus_graph(m, create_using=None, node_list=None, edge_list=None, data=Tru
                 raise ValueError("node_list contains nodes incompatible with "
                                  "the specified topology and node-labeling "
                                  "convention, or duplicates")
-
+            if check_edge_list and edge_list is not None and G.number_of_edges() != len(edge_list):
+                raise ValueError("edge_list contains nodes incompatible with node_list")
         else:
             G.add_nodes_from(nodes)  # for singleton nodes
 
