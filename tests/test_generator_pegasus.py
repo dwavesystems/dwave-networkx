@@ -331,7 +331,22 @@ class TestPegasusCoordinates(unittest.TestCase):
             node_list = [0]
             G = dnx.pegasus_graph(m, node_list=node_list, fabric_only=False,
                                   check_node_list=True, coordinates=True)
-
+        # Edges are not checked, but node_list is, the edge is deleted:
+        edge_list = [(-1,0)]
+        node_list = [0]
+        G = dnx.pegasus_graph(m, node_list=node_list, edge_list=edge_list, fabric_only=False,
+                              check_node_list=True, coordinates=True)
+        self.assertEqual(G.number_of_edges(), 0)
+        self.assertEqual(G.number_of_nodes(), 1)
+        # Edges are not checked, but node_list is, the invalid node (-1) is permitted
+        # because it is specified in edge_list:
+        edge_list = [(-1,0)]
+        node_list = [-1,0]
+        G = dnx.pegasus_graph(m, node_list=node_list, edge_list=edge_list, fabric_only=False,
+                              check_node_list=True, coordinates=True)
+        self.assertEqual(G.number_of_edges(), 1)
+        self.assertEqual(G.number_of_nodes(), 2)
+        
     def test_edge_list(self):
         m = 4
         G = dnx.pegasus_graph(m)

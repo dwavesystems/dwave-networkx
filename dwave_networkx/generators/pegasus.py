@@ -24,7 +24,7 @@ import warnings
 
 from itertools import product
 from .chimera import _chimera_coordinates_cache
-from .common import _add_compatible_edges
+from .common import _add_compatible_edges, _add_compatible_nodes
 
 __all__ = ['pegasus_graph',
            'pegasus_coordinates',
@@ -93,9 +93,10 @@ def pegasus_graph(m, create_using=None, node_list=None, edge_list=None, data=Tru
     check_node_list : bool (optional, default :code:`False`)
         If :code:`True`, the ``node_list`` elements are checked for compatibility with
         the graph topology and node labeling conventions, an error is thrown
-        if any node is incompatible or duplicates exist. 
+        if any node is incompatible or duplicates exist.
         In other words, only node_lists that specify subgraphs of the default 
-        (full yield) graph are permitted.
+        (full yield) graph are permitted. An exception is allowed if 
+        ``check_edge_list=False``, any node in edge_list will also be treated as valid.
     check_edge_list : bool (optional, default :code:`False`)
         If :code:`True`, the edge_list elements are checked for compatibility with
         the graph topology and node labeling conventions, an error is thrown
@@ -274,19 +275,19 @@ def pegasus_graph(m, create_using=None, node_list=None, edge_list=None, data=Tru
         if edge_list is not None:
             _add_compatible_edges(G, edge_list)
     else:
+        if check_node_list:
+            G.add_nodes_from(label((u, w, k, z)) for u in range(2)
+                                  for w in range(m)
+                                  for k in range(12)
+                                  for z in range(m-1))
         G.add_edges_from(edge_list)
 
     if node_list is not None:
-        nodes = set(node_list)
-        G.remove_nodes_from(set(G) - nodes)
         if check_node_list:
-            if G.number_of_nodes() != len(node_list):
-                raise ValueError("node_list contains nodes incompatible with "
-                                 "the specified topology and node-labeling "
-                                 "convention, or duplicates")
-            if check_edge_list and edge_list is not None and G.number_of_edges() != len(edge_list):
-                raise ValueError("edge_list contains nodes incompatible with node_list")
+            _add_compatible_nodes(G, node_list)
         else:
+            nodes = set(node_list)
+            G.remove_nodes_from(set(G) - nodes)
             G.add_nodes_from(nodes)  # for singleton nodes
 
     if data:

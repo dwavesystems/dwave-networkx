@@ -289,18 +289,18 @@ class TestChimeraGraph(unittest.TestCase):
         t = 2
         N = m*n*t*2
         G = dnx.chimera_graph(m,n,t)
-        #Valid (full) node_list
+        # Valid (full) node_list
         node_list = list(G.nodes)
         G = dnx.chimera_graph(m, n, t, node_list=node_list,
                               check_node_list=True)
         self.assertEqual(G.number_of_nodes(), len(node_list))
-        #Valid node_list in coordinate system
+        # Valid node_list in coordinate system
         node_list = [(0,0,0,0)]
         G = dnx.chimera_graph(m, n, t, node_list=node_list,
                               check_node_list=True, coordinates=True)
         self.assertEqual(G.number_of_nodes(), len(node_list))
         with self.assertRaises(ValueError):
-            #Invalid node_list
+            # Invalid node_list
             node_list = [0, N]
             G = dnx.chimera_graph(m, n, t, node_list=node_list,
                                   check_node_list=True)
@@ -311,12 +311,28 @@ class TestChimeraGraph(unittest.TestCase):
                                   check_node_list=True)
         
         with self.assertRaises(ValueError):
-            #node is valid, but not in the requested coordinate system
+            # Node is valid, but not in the requested coordinate system
             node_list = [0]
             G = dnx.chimera_graph(m, n, t, node_list=node_list,
                                   check_node_list=True, coordinates=True)
     
-
+        edge_list = [(-1,0)]
+        node_list = [0]
+        # Edges are not checked, but node_list is, the edge is deleted:
+        G = dnx.chimera_graph(m, n, t, node_list=node_list, edge_list=edge_list,
+                              check_node_list=True, coordinates=True)
+        self.assertEqual(G.number_of_edges(), 0)
+        self.assertEqual(G.number_of_nodes(), 1)
+        edge_list = [(-1,0)]
+        node_list = [-1,0]
+        # Edges are not checked, but node_list is, the invalid node (-1) is permitted
+        # because it is specified in edge_list:
+        G = dnx.chimera_graph(m, n, t, node_list=node_list, edge_list=edge_list,
+                              check_node_list=True, coordinates=True)
+        self.assertEqual(G.number_of_edges(), 1)
+        self.assertEqual(G.number_of_nodes(), 2)
+        
+            
     def test_edge_list(self):
         m = 2
         n = 3
