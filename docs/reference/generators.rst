@@ -55,3 +55,6 @@ Other Graphs
    :toctree: generated/
 
    markov_network
+   chimera_torus
+   pegasus_torus
+   zephyr_torus

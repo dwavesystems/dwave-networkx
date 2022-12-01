@@ -1224,7 +1224,7 @@ def pegasus_torus(m, node_list=None, edge_list=None,
     A pegasus torus is a generalization of the standard pegaus graph
     whereby bulk connectivity properties are maintained, but the boundary
     condition is modified to enforce an additional translational 
-    invariance symmetry _[#R22]. Local connectivity in the pegasus torus
+    invariance symmetry [RH]_. Local connectivity in the pegasus torus
     is identical to connectivity for pegasus graph nodes away from the boundary.
     A tile consists of 24 nodes, and the torus has m-1 by m-1 tiles. 
     Tile displacement modulo m-1 defines an automorphism.
@@ -1239,7 +1239,6 @@ def pegasus_torus(m, node_list=None, edge_list=None,
     >>> any([len(list(G.neighbors(n))) != 15 for n in G.nodes])
     False
 
-    .. [#R22] Raymond et al., "Hybrid quantum annealing for larger-than-QPU lattice-structured problems" , arXiv:2202.03044.
     """
     # It is useful to inherit properties, attributes and methods of G:
     G = pegasus_graph(m=m, node_list=None, edge_list=None, data=True,
