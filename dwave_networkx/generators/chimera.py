@@ -1,11 +1,11 @@
 # Copyright 2018 D-Wave Systems Inc.
-#
+# 
 #    Licensed under the Apache License, Version 2.0 (the "License");
 #    you may not use this file except in compliance with the License.
 #    You may obtain a copy of the License at
-#
+# 
 #        http://www.apache.org/licenses/LICENSE-2.0
-#
+# 
 #    Unless required by applicable law or agreed to in writing, software
 #    distributed under the License is distributed on an "AS IS" BASIS,
 #    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -646,7 +646,7 @@ def _chimera_sublattice_mapping(source_to_chimera, chimera_to_target, offset):
         y, x, u, k = source_to_chimera(q)
         return chimera_to_target((y + y_offset, x + x_offset, u, k))
 
-    #store the offset in the mapping, so the user can reconstruct it
+    # store the offset in the mapping, so the user can reconstruct it
     mapping.offset = offset
 
     return mapping
@@ -772,7 +772,8 @@ def chimera_torus(m, n=None, t=None, node_list=None, edge_list=None):
     G : NetworkX Graph
         A Chimera torus with shape (m, n, t), with Chimera coordinate node labels.
 
-    A chimera torus is a generalization of the standard chimera graph
+
+    A Chimera torus is a generalization of the standard chimera graph
     whereby bulk connectivity properties are maintained, but the boundary
     condition is modified to enforce an additional translational 
     invariance symmetry. Local connectivity in the chimera_torus
@@ -784,7 +785,6 @@ def chimera_torus(m, n=None, t=None, node_list=None, edge_list=None):
     defines an automorphism.
 
     See ``chimera_graph()`` for additional information.
-
 
     Examples
     ========
@@ -805,7 +805,7 @@ def chimera_torus(m, n=None, t=None, node_list=None, edge_list=None):
 
     # With modification of the boundary condition
     if m>2:
-        # wrapped around row external-coupler edges:
+        # Wrapped around row external-coupler edges:
         additional_edges = [((m-1,j,0,k),(0,j,0,k))
                             for j in range(n)
                             for k in range(t)]
@@ -813,7 +813,7 @@ def chimera_torus(m, n=None, t=None, node_list=None, edge_list=None):
         additional_edges = []
     
     if n>2:
-        # wrapped around columns external-coupler edges:
+        # Wrapped around columns external-coupler edges:
         additional_edges += [((i,n-1,1,k),(i,0,1,k))
                              for i in range(m)
                              for k in range(t)]

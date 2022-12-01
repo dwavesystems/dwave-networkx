@@ -1,11 +1,11 @@
 # Copyright 2021 D-Wave Systems Inc.
-#
+# 
 #    Licensed under the Apache License, Version 2.0 (the "License");
 #    you may not use this file except in compliance with the License.
 #    You may obtain a copy of the License at
-#
+# 
 #        http://www.apache.org/licenses/LICENSE-2.0
-#
+# 
 #    Unless required by applicable law or agreed to in writing, software
 #    distributed under the License is distributed on an "AS IS" BASIS,
 #    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -189,20 +189,20 @@ def zephyr_graph(m, t=4, create_using=None, node_list=None, edge_list=None,
         check_node_list = False
     
     if edge_list is None or check_edge_list is True:
-        #external edges
+        # external edges
         G.add_edges_from((label(u, w, k, j, z), label(u, w, k, j, z + 1))
                          for u, w, k, j, z in product(
                             (0, 1), range(M), range(t), (0, 1), range(m-1)
                          ))
 
-        #odd edges
+        # odd edges
         G.add_edges_from((label(u, w, k, 0, z), label(u, w, k, 1, z-a))
                          for u, w, k, a in product(
                             (0, 1), range(M), range(t), (0, 1)
                          )
                          for z in range(a, m))
 
-        #internal edges
+        # internal edges
         G.add_edges_from((label(0, 2*w+1+a*(2*i-1), k, j, z), label(1, 2*z+1+b*(2*j-1), h, i, w))
                          for w, z, h, k, i, j, a, b in product(
                             range(m), range(m), range(t), range(t), (0, 1), (0, 1), (0, 1), (0, 1)
@@ -454,7 +454,7 @@ def _zephyr_zephyr_sublattice_mapping(source_to_zephyr, zephyr_to_target, offset
         dj, dw, dz = delta[u]
         return zephyr_to_target((u, w + dw, k, j ^ dj, z + (dz + j) // 2))
 
-    #store the offset in the mapping, so the user can reconstruct it
+    # store the offset in the mapping, so the user can reconstruct it
     mapping.offset = offset
 
     return mapping
@@ -510,7 +510,7 @@ def _single_chimera_zephyr_sublattice_mapping(source_to_chimera, zephyr_to_targe
             z, j = divmod(y + y_offset, 2)
             return zephyr_to_target((u, x + x_offset + dw, k, j, z))
 
-    #store the offset in the mapping, so the user can reconstruct it
+    # store the offset in the mapping, so the user can reconstruct it
     mapping.offset = offset
 
     return mapping
@@ -557,7 +557,7 @@ def _double_chimera_zephyr_sublattice_mapping(source_to_chimera, zephyr_to_targe
         else:
             return zephyr_to_target((u, 2 * (x + x_offset) + j1 + wz, kz, j0, y + y_offset))
 
-    #store the offset in the mapping, so the user can reconstruct it
+    # store the offset in the mapping, so the user can reconstruct it
     mapping.offset = offset
 
     return mapping
@@ -720,7 +720,8 @@ def zephyr_torus(m, t=4, node_list=None, edge_list=None):
         A Zephyr torus with grid parameter ``m`` and tile parameter ``t``,
         with Zephyr coordinate node labels.
 
-    A zephyr torus is a generalization of the standard zephyr graph
+
+    A Zephyr torus is a generalization of the standard zephyr graph
     whereby bulk connectivity properties are maintained, but the boundary
     condition is modified to enforce an additional translational 
     invariance symmetry. Local connectivity in the zephyr torus
