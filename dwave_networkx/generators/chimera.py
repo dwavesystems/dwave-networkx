@@ -34,6 +34,7 @@ __all__ = ['chimera_graph',
            'chimera_to_linear',
            'linear_to_chimera',
            'chimera_sublattice_mappings',
+           'chimera_torus',
            ]
 
 
@@ -160,6 +161,11 @@ def chimera_graph(m, n=None, t=None, create_using=None, node_list=None, edge_lis
 
     max_size = m * n * 2 * t  # max number of nodes G can have
 
+    if edge_list is None:
+        check_edge_list = False
+    if node_list is None:
+        check_node_list = False
+    
     if edge_list is None or check_edge_list is True:
         if coordinates:
             # tile edges
@@ -205,7 +211,7 @@ def chimera_graph(m, n=None, t=None, create_using=None, node_list=None, edge_lis
             _add_compatible_edges(G, edge_list)
             
     else:
-        if check_node_list:
+        if check_node_list or node_list is None:
             if coordinates:
                 G.add_nodes_from((i,j,u,k) for i in range(m)
                                   for j in range(n)
@@ -732,3 +738,91 @@ def chimera_sublattice_mappings(source, target, offset_list=None):
     for offset in offset_list:
         yield _chimera_sublattice_mapping(source_to_chimera, chimera_to_target, offset)
 
+def chimera_torus(m, n=None, t=None, node_list=None, edge_list=None):
+    """Creates a defect-free Chimera lattice of size (m, n, t) subject to periodic boundary conditions
+
+
+    Parameters
+    ----------
+    m : int
+        Number of rows in the Chimera torus lattice.
+        If m<3 translational invariance already applies in the rows. If 
+        m>=3 additional external couplers, establishing translational invariance.
+        Connectivity of all horizontal qubits is :math:`min(m-1,2)+2t`.
+    n : int (optional, default m)
+        Number of columns in the Chimera torus lattice.
+        If n<3 translational invariance already applies in the columns. If 
+        n>=3 additional external couplers, establishing translational invaraince.
+        Connectivity of all vertical qubits is :math:`min(n-1,2)+2t`.
+    t : int (optional, default 4)
+        Size of the shore within each Chimera tile.
+    node_list : iterable (optional, default None)
+        Iterable of nodes in the graph. If None, nodes are
+        generated as described below. If values incompatible with
+        the integer (or coordinates, as appropriate) labeling are proposed 
+        a warning is issued and the values are ignored.
+    edge_list : iterable (optional, default None)
+        Iterable of edges in the graph. If None, edges are
+        generated as described below. If values incompatible with 
+        the integer (or coordinates, as appropriate) labeling are proposed 
+        a warning is issued and the values are ignored.
+
+    Returns
+    -------
+    G : NetworkX Graph
+        A Chimera torus with shape (m, n, t), with Chimera coordinate node labels.
+
+    A chimera torus is a generalization of the standard chimera graph
+    whereby bulk connectivity properties are maintained, but the boundary
+    condition is modified to enforce an additional translational 
+    invariance symmetry. Local connectivity in the chimera_torus
+    is identical to connectivity for chimera graph nodes away from the boundary.
+    The graph has :code:`V=8*m*n` nodes, and :code:`min(6,4+m)V//2 + 
+    min(6,4+n)V/2` edges. With the standard :math:`K_{t,t}` Chimera tile definition, 
+    any (x rows,y columns) tile displacement modulo (m,n)
+    :code:`(i,j,u,k)` -> :code:`((i+x)%m,(i+y)%n,u,k)`
+    defines an automorphism.
+
+    See ``chimera_graph()`` for additional information.
+
+
+    Examples
+    ========
+    >>> G = dnx.chimera_torus(3, 3, 4)  # a 3x3 tile chimera graph (connectivity 6)
+    >>> len(G)
+    72
+    >>> any([len(list(G.neighbors(n))) != 6 for n in G.nodes])
+    False
+
+    """
+    # Graph properties are by and large inherited from chimera_graph
+    G = chimera_graph(m=m, n=n, t=t, node_list=None, edge_list=None, data=True, coordinates=True)
+    if n is None:
+        n = G.graph['columns']         
+    if t is None:
+        t = G.graph['tile']
+    
+
+    # With modification of the boundary condition
+    if m>2:
+        # wrapped around row external-coupler edges:
+        additional_edges = [((m-1,j,0,k),(0,j,0,k))
+                            for j in range(n)
+                            for k in range(t)]
+    else:
+        additional_edges = []
+    
+    if n>2:
+        # wrapped around columns external-coupler edges:
+        additional_edges += [((i,n-1,1,k),(i,0,1,k))
+                             for i in range(m)
+                             for k in range(t)]
+
+    if len(additional_edges)>0:
+        G.add_edges_from(additional_edges)
+
+    _add_compatible_terms(G, node_list, edge_list)
+
+    G.graph['boundary_condition'] = 'torus'
+    
+    return G

@@ -19,6 +19,7 @@ from random import sample
 
 import networkx as nx
 import dwave_networkx as dnx
+import numpy as np
 
 from dwave_networkx.generators.pegasus import (
     fragmented_edges,
@@ -49,6 +50,27 @@ class TestPegasusGraph(unittest.TestCase):
             self.assertLessEqual(len(w), 13)
             self.assertGreaterEqual(len(w), 12)
 
+class TestPegasusTorus(unittest.TestCase):
+    def test(self):
+        for m in [4]:
+            print(m)
+            g = dnx.pegasus_torus(m)
+
+            num_var = 24*(m-1)*(m-1)
+            self.assertEqual(g.number_of_nodes(),num_var)
+            num_edges = (num_var*(13 + (m>2) + (m>3)))//2
+            self.assertEqual(g.number_of_edges(),num_edges)
+            #(u,w,k,z) -> (u, [w + u dx + (1-u)dy]%(L-1)), k, [z + (1-u) dx + u dy]%(L-1))
+            L=m-1 #Cell dimension
+            if L>1:
+                dx = 1 + np.random.randint(m-1)
+                dy = 1 + np.random.randint(m-1)
+                relabel = lambda tup: (tup[0],(tup[1] + tup[0]*dx + (1-tup[0])*dy)%L,tup[2],(tup[3] + tup[0]*dy + (1-tup[0])*dx)%L)
+                g_translated = nx.relabel_nodes(g,relabel,copy=True)
+                g.remove_edges_from(g_translated.edges())
+                self.assertEqual(g.number_of_edges(),0)
+                g.remove_nodes_from(g_translated.nodes())
+                self.assertEqual(g.number_of_nodes(),0)
 
 class TestPegasusCoordinates(unittest.TestCase):
 
@@ -540,3 +562,28 @@ class TestFragmentedEdges(unittest.TestCase):
         #couplers, which aren't included in the chimera graph -- odd couplers make a perfect
         #matching, so thats 1/2 an edge per node.
         self.assertEqual(p.number_of_edges() + 9 * p.number_of_nodes()//2, num_edges)
+
+    def tests_list(self):
+        #Test correct handling of nodes and edges:
+        m=4
+        num_var = (m-1)*(m-1)*24
+        to_coord = dnx.pegasus_coordinates(m).linear_to_pegasus
+        node_list_lin = [0, 2, -1]
+        node_list = [to_coord(i) for i in node_list_lin]
+        G = dnx.pegasus_torus(m=m, node_list = [node_list[i] for i in range(2) ])
+        self.assertEqual(G.number_of_edges(),1)
+        self.assertEqual(G.number_of_nodes(),2)
+        with self.assertRaises(ValueError):
+            #Invalid node
+            G = dnx.pegasus_torus(m=m, node_list=node_list)
+        edge_list_lin = [(0, 1), (m-1, m), (2, 3)] 
+        edge_list = [(to_coord(n1), to_coord(n2)) for n1, n2 in edge_list_lin]
+        
+        G = dnx.pegasus_torus(m=m, edge_list = [edge_list[i] for i in range(2) ])
+        
+        self.assertEqual(G.number_of_edges(),2)
+        self.assertEqual(G.number_of_nodes(),num_var) #No deletions
+        
+        with self.assertRaises(ValueError):
+            #2 invalid, 1 valid
+            G = dnx.pegasus_torus(m=m, edge_list = edge_list)

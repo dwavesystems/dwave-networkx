@@ -29,6 +29,7 @@ from .common import _add_compatible_edges, _add_compatible_nodes
 __all__ = ['pegasus_graph',
            'pegasus_coordinates',
            'pegasus_sublattice_mappings',
+           'pegasus_torus',
            ]
 
 def pegasus_graph(m, create_using=None, node_list=None, edge_list=None, data=True,
@@ -236,6 +237,11 @@ def pegasus_graph(m, create_using=None, node_list=None, edge_list=None, data=Tru
 
     max_size = m * (m - 1) * 24  # max number of nodes G can have
 
+    if edge_list is None:
+        check_edge_list = False
+    if node_list is None:
+        check_node_list = False
+    
     if edge_list is None or check_edge_list is True:
         if nice_coordinates:
             fabric_start = 4,8
@@ -275,8 +281,8 @@ def pegasus_graph(m, create_using=None, node_list=None, edge_list=None, data=Tru
         if edge_list is not None:
             _add_compatible_edges(G, edge_list)
     else:
-        if check_node_list:
-            G.add_nodes_from(label((u, w, k, z)) for u in range(2)
+        if check_node_list or node_list==None:
+            G.add_nodes_from(label(u, w, k, z) for u in range(2)
                                   for w in range(m)
                                   for k in range(12)
                                   for z in range(m-1))
@@ -1093,7 +1099,7 @@ def pegasus_sublattice_mappings(source, target, offset_list=None):
     
     Academic note: the full group of isomorphisms of a Chimera graph includes 
     mappings which permute tile indices on a per-row and per-column basis, in
-    addition to reflections and rotations of the grid of unit cells where 
+    addition to reflections and rotations of the grid of unit tiles where 
     rotations by 90 and 270 degrees induce a change in orientation.  The
     isomorphisms of Pegasus graphs permit the swapping across rows and columns
     of odd couplers, as well as a reflection about the main antidiagonal which
@@ -1180,3 +1186,91 @@ def pegasus_sublattice_mappings(source, target, offset_list=None):
     for offset in offset_list:
         yield make_mapping(source_to_inner, nice_to_target, offset)
 
+
+        
+def pegasus_torus(m, node_list=None, edge_list=None, 
+                  offset_lists=None, offsets_index=None):
+    """
+    Creates a Pegasus graph modified to allow for periodic boundary conditions and translational invariance.
+
+    Parameters
+    ----------
+    m : int
+        Size parameter for the Pegasus lattice.
+        Connectivity of all nodes is :math:`13+min(m-1,2)`
+    node_list : iterable, optional (default None)
+        Iterable of nodes in the graph. If None, calculated from `m`.
+        Note that this list is used to remove nodes, so any nodes specified
+        not in ``range(24 * m * (m-1))`` are not added.
+    edge_list : iterable, optional (default None)
+        Iterable of edges in the graph. If None, edges are generated as
+        described below. The nodes in each edge must be integer-labeled in
+        ``range(24 * m * (m-1))``.
+    offset_lists : pair of lists, optional (default None)
+        Directly controls the offsets. Each list in the pair must have length 12
+        and contain even ints.  If `offset_lists` is not None, the `offsets_index`
+        parameter must be None.
+    offsets_index : int, optional (default None)
+        A number between 0 and 7, inclusive, that selects a preconfigured
+        set of topological parameters. If both the `offsets_index` and
+        `offset_lists` parameters are None, the `offsets_index` parameters is set
+        to zero. At least one of these two parameters must be None.
+
+    Returns
+    -------
+    G : NetworkX Graph
+        A Pegasus torus for size parameter `m` using the coordinate labeling system.
+
+    A pegasus torus is a generalization of the standard pegaus graph
+    whereby bulk connectivity properties are maintained, but the boundary
+    condition is modified to enforce an additional translational 
+    invariance symmetry. Local connectivity in the pegasus torus
+    is identical to connectivity for pegasus graph nodes away from the boundary.
+    A tile consists of 24 nodes, and the torus has m-1 by m-1 tiles. 
+    Tile displacement modulo m-1 defines an automorphism.
+    
+    See ``pegasus_graph()`` for additional information.
+
+    Examples
+    ========
+    >>> G = dnx.pegasus_torus(4)  # a 3x3 tile pegasus torus (connectivity 15)
+    >>> len(G) # 3*3*24
+    216
+    >>> any([len(list(G.neighbors(n))) != 15 for n in G.nodes])
+    False
+
+
+    """
+    # It is useful to inherit properties, attributes and methods of G:
+    G = pegasus_graph(m=m, node_list=None, edge_list=None, data=True,
+                      coordinates=True,
+                      offset_lists=offset_lists, offsets_index=offsets_index)
+    if m<2:
+        raise ValueError("m>=2 to define a non-empty lattice")
+    # Create the graph minor by contraction of boundary variables
+    # (u,m-1,k,z) to (u,0,k,z) and match boundary coupling to the
+    # bulk with addition of supplementary external couplers 
+    relabel = lambda u, w, k, z: (u, w%(m-1), k, z)
+
+    # Contract internal couplers spanning the boundary:
+    G.add_edges_from([(relabel(*edge[0]),relabel(*edge[1]))
+                      for edge in G.edges() if edge[0][1]==m-1 or edge[1][1]==m-1])
+    if m>3:
+        # Add missing external couplers  (u,w,k,-1) and (u,w,k,0). 
+        G.add_edges_from([((u,w,k,m-2),(u,w,k,0))
+                          for u in range(2)
+                          for w in range(m-1)
+                          for k in range(12)])
+    else:
+        # 2-tile wide lattices do not allow for boundary spanning
+        # edges.
+        pass
+    # Delete variables contracted at the boundary:
+    G.remove_nodes_from([(u, (m-1), k, z)
+                         for u in range(2) for k in range(12) for z in range(m-1)])
+    _add_compatible_edges(G, edge_list)
+    _add_compatible_nodes(G, node_list)
+
+    G.graph['boundary_condition'] = 'torus'
+    
+    return G

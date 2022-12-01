@@ -30,6 +30,7 @@ from .common import _add_compatible_edges, _add_compatible_nodes
 __all__ = ['zephyr_graph',
            'zephyr_coordinates',
            'zephyr_sublattice_mappings',
+           'zephyr_torus'
            ]
 
 def zephyr_graph(m, t=4, create_using=None, node_list=None, edge_list=None,
@@ -181,7 +182,12 @@ def zephyr_graph(m, t=4, create_using=None, node_list=None, edge_list=None,
                     ("tile", t), ("data", data), ("labels", labels))
 
     G.graph.update(construction)
-
+    
+    if edge_list is None:
+        check_edge_list = False
+    if node_list is None:
+        check_node_list = False
+    
     if edge_list is None or check_edge_list is True:
         #external edges
         G.add_edges_from((label(u, w, k, j, z), label(u, w, k, j, z + 1))
@@ -204,8 +210,8 @@ def zephyr_graph(m, t=4, create_using=None, node_list=None, edge_list=None,
         if edge_list is not None:
             _add_compatible_edges(G, edge_list)
     else:
-        if check_node_list:
-            G.add_nodes_from(label((u, w, k, j, z)) for u in range(2)
+        if check_node_list or node_list is None:
+            G.add_nodes_from(label(u, w, k, j, z) for u in range(2)
                              for w in range(2*m+1)
                              for k in range(t)
                              for j in range(2)
@@ -586,7 +592,7 @@ def zephyr_sublattice_mappings(source, target, offset_list=None):
 
     Academic note: the full group of isomorphisms of a Chimera graph includes
     mappings which permute tile indices on a per-row and per-column basis, in
-    addition to reflections and rotations of the grid of unit cells where
+    addition to reflections and rotations of the grid of unit tiles where
     rotations by 90 and 270 degrees induce a change in orientation.  The
     isomorphisms of Zephyr graphs permit permutations of major tile indices on a
     per-row and per-column basis, in addition to reflections of the grid which
@@ -682,3 +688,86 @@ def zephyr_sublattice_mappings(source, target, offset_list=None):
 
     for offset in offset_list:
         yield make_mapping(source_to_inner, zephyr_to_target, offset)
+
+def zephyr_torus(m, t=4, node_list=None, edge_list=None):
+    """
+    Creates a Zephyr graph modified to allow for periodic boundary conditions and translational invariance.
+    
+    The graph matches the local connectivity properties of a standard zephyr graph,
+    but with modified periodic boundary condition. Tiles of 8t qubits are arranged
+    on an m by m torus. 
+
+    Parameters
+    ----------
+    m : int
+        Grid parameter for the Zephyr lattice.
+        Connectivity of all nodes is :math:`4t+min(2m-1,4)`
+    t : int
+        Tile parameter for the Zephyr lattice.
+    node_list : iterable, optional (default None)
+        Iterable of nodes in the graph. If None, calculated from ``m``.
+        Note that this list is used to remove nodes, so only specified nodes
+        that belong to the base node set (described in the ``coordinates``
+        parameter) are added.
+    edge_list : iterable, optional (default None)
+        Iterable of edges in the graph. If None, edges are generated as
+        described below. The nodes in each edge must be labeled according to the
+        ``coordinates`` parameter.    coordinates : bool, optional (default False)
+
+    Returns
+    -------
+    G : NetworkX Graph
+        A Zephyr torus with grid parameter ``m`` and tile parameter ``t``,
+        with Zephyr coordinate node labels.
+
+    A zephyr torus is a generalization of the standard zephyr graph
+    whereby bulk connectivity properties are maintained, but the boundary
+    condition is modified to enforce an additional translational 
+    invariance symmetry. Local connectivity in the zephyr torus
+    is identical to connectivity for zephyr graph nodes away from the boundary.
+    A tile consists of 8t nodes, and the torus has m by m tiles. 
+    Tile displacement modulo m defines an automorphism.
+    
+    See ``zephyr_graph()`` for additional information.
+
+    Examples
+    --------
+    >>> G = dnx.zephyr_torus(3)  # a 3x3 tile pegasus torus (connectivity 15)
+    >>> len(G) # 3*3*24
+    288
+    >>> any([len(list(G.neighbors(n))) != 20 for n in G.nodes])
+    False
+
+
+    """
+    G = zephyr_graph(m=m, t=t, node_list=None, edge_list=None,
+                         data=True, coordinates=True)
+    
+    relabel = lambda u, w, k, j, z: (u, w%(2*m), k, j, z)
+    
+    # Contract internal couplers spanning the boundary:
+    G.add_edges_from([(relabel(*edge[0]),relabel(*edge[1]))
+                      for edge in G.edges() if edge[0][1]==2*m or edge[1][1]==2*m])
+    
+    if m>1:
+        # Add boundary spanning external couplers:
+        G.add_edges_from([((u,w,k,1,m-1),(u,w,k,0,0))
+                          for u in range(2)
+                          for w in range(2*m)
+                          for k in range(t)])
+        G.add_edges_from([((u,w,k,j,m-1),(u,w,k,j,0))
+                          for u in range(2)
+                          for w in range(2*m)
+                          for k in range(t)
+                          for j in range(2)])
+        
+    # Delete variables contracted at the boundary:
+    G.remove_nodes_from([(u, 2*m, k, j, z)
+                         for u in range(2) for k in range(t) for j in range(2) for z in range(m)])
+    
+    _add_compatible_edges(G, edge_list)
+    _add_compatible_nodes(G, node_list)
+    
+    G.graph['boundary_condition'] = 'torus'
+
+    return G
