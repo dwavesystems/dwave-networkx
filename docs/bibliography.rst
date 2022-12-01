@@ -11,14 +11,9 @@ Bibliography
 
 .. [DWMP] Dahl, E., "Programming the D-Wave: Map Coloring Problem", https://www.dwavesys.com/media/htfgw5bk/map-coloring-wp2.pdf
 
-.. [BBRR] Boothby, K., P. Bunky, J. Raymond, A. Roy. Next-Generation Topology
-	  of D-Wave Quantum Processors. Technical Report, Februrary 2019.
-	  https://www.dwavesys.com/resources/publications?type=white
+.. [BBRR] Boothby, K., P. Bunky, J. Raymond, A. Roy, (2019). Next-Generation Topology of D-Wave Quantum Processors. https://arxiv.org/abs/2003.00133
 	  
-.. [BRK] Boothby, Raymond, King, Zephyr Topology of D-Wave Quantum
-         Processors, October 2021.
-         https://dwavesys.com/media/fawfas04/14-1056a-a_zephyr_topology_of_d-wave_quantum_processors.pdf
+.. [BRK] Boothby, Raymond, King (2021). Zephyr Topology of D-Wave Quantum
+         Processors. https://dwavesys.com/media/fawfas04/14-1056a-a_zephyr_topology_of_d-wave_quantum_processors.pdf
 	 
-.. [RH] Jack Raymond, Radomir Stevanovic, William Bernoudy, Kelly Boothby,
-	Catherine McGeoch, Andrew J. Berkley, Pau Farré, Andrew D. King (2021)
-	Hybrid quantum annealing for larger-than-QPU lattice-structured problems, https://arxiv.org/abs/2202.03044
+.. [RH] Jack Raymond, Radomir Stevanovic, William Bernoudy, Kelly Boothby, Catherine McGeoch, Andrew J. Berkley, Pau Farré, Andrew D. King (2021). Hybrid quantum annealing for larger-than-QPU lattice-structured problems. https://arxiv.org/abs/2202.03044
