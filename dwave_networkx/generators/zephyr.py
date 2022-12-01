@@ -724,7 +724,7 @@ def zephyr_torus(m, t=4, node_list=None, edge_list=None):
     A Zephyr torus is a generalization of the standard zephyr graph
     whereby bulk connectivity properties are maintained, but the boundary
     condition is modified to enforce an additional translational 
-    invariance symmetry. Local connectivity in the zephyr torus
+    invariance symmetry _[#R22]. Local connectivity in the zephyr torus
     is identical to connectivity for zephyr graph nodes away from the boundary.
     A tile consists of 8t nodes, and the torus has m by m tiles. 
     Tile displacement modulo m defines an automorphism.
@@ -739,7 +739,7 @@ def zephyr_torus(m, t=4, node_list=None, edge_list=None):
     >>> any([len(list(G.neighbors(n))) != 20 for n in G.nodes])
     False
 
-
+    .. [#R22] Raymond et al., "Hybrid quantum annealing for larger-than-QPU lattice-structured problems" , arXiv:2202.03044.
     """
     G = zephyr_graph(m=m, t=t, node_list=None, edge_list=None,
                          data=True, coordinates=True)

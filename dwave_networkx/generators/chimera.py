@@ -776,7 +776,7 @@ def chimera_torus(m, n=None, t=None, node_list=None, edge_list=None):
     A Chimera torus is a generalization of the standard chimera graph
     whereby bulk connectivity properties are maintained, but the boundary
     condition is modified to enforce an additional translational 
-    invariance symmetry. Local connectivity in the chimera_torus
+    invariance symmetry _[#R22]. Local connectivity in the chimera_torus
     is identical to connectivity for chimera graph nodes away from the boundary.
     The graph has :code:`V=8*m*n` nodes, and :code:`min(6,4+m)V//2 + 
     min(6,4+n)V/2` edges. With the standard :math:`K_{t,t}` Chimera tile definition, 
@@ -794,6 +794,8 @@ def chimera_torus(m, n=None, t=None, node_list=None, edge_list=None):
     >>> any([len(list(G.neighbors(n))) != 6 for n in G.nodes])
     False
 
+    .. [#R22] Raymond et al., "Hybrid quantum annealing for larger-than-QPU lattice-structured problems" , arXiv:2202.03044.
+    
     """
     # Graph properties are by and large inherited from chimera_graph
     G = chimera_graph(m=m, n=n, t=t, node_list=None, edge_list=None, data=True, coordinates=True)
