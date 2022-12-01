@@ -11,7 +11,6 @@ Bibliography
 
 .. [DWMP] Dahl, E., "Programming the D-Wave: Map Coloring Problem", https://www.dwavesys.com/media/htfgw5bk/map-coloring-wp2.pdf
 
-
 .. [BBRR] Boothby, K., P. Bunky, J. Raymond, A. Roy. Next-Generation Topology
 	  of D-Wave Quantum Processors. Technical Report, Februrary 2019.
 	  https://www.dwavesys.com/resources/publications?type=white

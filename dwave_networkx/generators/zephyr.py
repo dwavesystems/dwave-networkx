@@ -1,11 +1,11 @@
 # Copyright 2021 D-Wave Systems Inc.
-# 
+#
 #    Licensed under the Apache License, Version 2.0 (the "License");
 #    you may not use this file except in compliance with the License.
 #    You may obtain a copy of the License at
-# 
+#
 #        http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 #    Unless required by applicable law or agreed to in writing, software
 #    distributed under the License is distributed on an "AS IS" BASIS,
 #    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -25,7 +25,7 @@ from dwave_networkx.exceptions import DWaveNetworkXException
 
 from .chimera import _chimera_coordinates_cache
 
-from .common import _add_compatible_edges, _add_compatible_nodes
+from .common import _add_compatible_edges, _add_compatible_nodes, _add_compatible_terms
 
 __all__ = ['zephyr_graph',
            'zephyr_coordinates',
@@ -765,8 +765,7 @@ def zephyr_torus(m, t=4, node_list=None, edge_list=None):
     G.remove_nodes_from([(u, 2*m, k, j, z)
                          for u in range(2) for k in range(t) for j in range(2) for z in range(m)])
     
-    _add_compatible_edges(G, edge_list)
-    _add_compatible_nodes(G, node_list)
+    _add_compatible_terms(G, node_list, edge_list)
     
     G.graph['boundary_condition'] = 'torus'
 

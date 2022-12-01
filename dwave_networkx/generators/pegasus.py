@@ -1,11 +1,11 @@
 # Copyright 2018 D-Wave Systems Inc.
-# 
+#
 #    Licensed under the Apache License, Version 2.0 (the "License");
 #    you may not use this file except in compliance with the License.
 #    You may obtain a copy of the License at
-# 
+#
 #        http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 #    Unless required by applicable law or agreed to in writing, software
 #    distributed under the License is distributed on an "AS IS" BASIS,
 #    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -24,7 +24,7 @@ import warnings
 
 from itertools import product
 from .chimera import _chimera_coordinates_cache
-from .common import _add_compatible_edges, _add_compatible_nodes
+from .common import _add_compatible_edges, _add_compatible_nodes, _add_compatible_terms
 
 __all__ = ['pegasus_graph',
            'pegasus_coordinates',
@@ -1267,8 +1267,7 @@ def pegasus_torus(m, node_list=None, edge_list=None,
     # Delete variables contracted at the boundary:
     G.remove_nodes_from([(u, (m-1), k, z)
                          for u in range(2) for k in range(12) for z in range(m-1)])
-    _add_compatible_edges(G, edge_list)
-    _add_compatible_nodes(G, node_list)
+    _add_compatible_terms(G, node_list, edge_list)
 
     G.graph['boundary_condition'] = 'torus'
     
