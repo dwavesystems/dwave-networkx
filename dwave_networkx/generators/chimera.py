@@ -80,7 +80,7 @@ def chimera_graph(m, n=None, t=None, create_using=None, node_list=None, edge_lis
         if any node is incompatible or duplicates exist. 
         In other words, the ``node_list`` must specify a subgraph of the 
         full-yield graph described below. An exception is allowed if 
-        ``check_edge_list=False``, any node in edge_list will also be treated as valid.
+        ``check_edge_list=False``, in which case any node in ``edge_list`` is treated as valid.
     check_edge_list : bool (optional, default :code:`False`)
         If :code:`True`, the ``edge_list`` elements are checked for compatibility with
         the graph topology and node labeling conventions, an error is thrown
@@ -739,32 +739,32 @@ def chimera_sublattice_mappings(source, target, offset_list=None):
         yield _chimera_sublattice_mapping(source_to_chimera, chimera_to_target, offset)
 
 def chimera_torus(m, n=None, t=None, node_list=None, edge_list=None):
-    """Creates a defect-free Chimera lattice of size (m, n, t) subject to periodic boundary conditions
+    """Creates a defect-free Chimera lattice of size :math:`(m, n, t)` subject to periodic boundary conditions.
 
 
     Parameters
     ----------
     m : int
         Number of rows in the Chimera torus lattice.
-        If m<3 translational invariance already applies in the rows. If 
+        If :math:`m<3` translational invariance already applies in the rows. If 
         m>=3 additional external couplers, establishing translational invariance.
         Connectivity of all horizontal qubits is :math:`min(m-1,2)+2t`.
     n : int (optional, default m)
         Number of columns in the Chimera torus lattice.
-        If n<3 translational invariance already applies in the columns. If 
+        If :math:`n<3` translational invariance already applies in the columns. If 
         n>=3 additional external couplers, establishing translational invaraince.
         Connectivity of all vertical qubits is :math:`min(n-1,2)+2t`.
     t : int (optional, default 4)
         Size of the shore within each Chimera tile.
     node_list : iterable (optional, default None)
         Iterable of nodes in the graph. If None, nodes are
-        generated as described below. If values incompatible with
-        the integer (or coordinates, as appropriate) labeling are proposed 
+        generated as described for :func:`.chimera_graph`. If values are incompatible with
+        the labeling  (integer or coordinates, as appropriate) are proposed, 
         a warning is issued and the values are ignored.
     edge_list : iterable (optional, default None)
         Iterable of edges in the graph. If None, edges are
-        generated as described below. If values incompatible with 
-        the integer (or coordinates, as appropriate) labeling are proposed 
+        generated as described for :func:`.chimera_graph`. If values are incompatible with 
+        the labeling  (integer or coordinates, as appropriate) are proposed, 
         a warning is issued and the values are ignored.
 
     Returns
@@ -774,17 +774,17 @@ def chimera_torus(m, n=None, t=None, node_list=None, edge_list=None):
 
 
     A Chimera torus is a generalization of the standard chimera graph
-    whereby bulk connectivity properties are maintained, but the boundary
-    condition is modified to enforce an additional translational 
-    invariance symmetry [RH]_. Local connectivity in the chimera_torus
+    whereby degree-six connectivity is maintained, but the boundary
+    condition is modified to enforce an additional translational-invariance 
+    symmetry [RH]_. Local connectivity in the Chimera torus
     is identical to connectivity for chimera graph nodes away from the boundary.
     The graph has :code:`V=8*m*n` nodes, and :code:`min(6,4+m)V//2 + 
     min(6,4+n)V/2` edges. With the standard :math:`K_{t,t}` Chimera tile definition, 
-    any (x rows,y columns) tile displacement modulo (m,n)
-    :code:`(i,j,u,k)` -> :code:`((i+x)%m,(i+y)%n,u,k)`
+    any tile displacement :math:`(x, y)`  modulo :math:`(m,n)`, rows and columns respectively,
+    that is, :code:`(i,j,u,k)` -> :code:`((i+x)%m,(i+y)%n,u,k)`,
     defines an automorphism.
 
-    See ``chimera_graph()`` for additional information.
+    See :func:`.chimera_graph` for additional information.
 
     Examples
     ========
