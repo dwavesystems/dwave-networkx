@@ -53,7 +53,6 @@ class TestPegasusGraph(unittest.TestCase):
 class TestPegasusTorus(unittest.TestCase):
     def test(self):
         for m in [4]:
-            print(m)
             g = dnx.pegasus_torus(m)
 
             num_var = 24*(m-1)*(m-1)

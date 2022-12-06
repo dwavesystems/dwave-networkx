@@ -1196,15 +1196,15 @@ def pegasus_torus(m, node_list=None, edge_list=None,
     ----------
     m : int
         Size parameter for the Pegasus lattice.
-        Connectivity of all nodes is :math:`13+min(m-1,2)`
+        Connectivity of all nodes is :math:`13 + min(m - 1, 2)`
     node_list : iterable, optional (default None)
         Iterable of nodes in the graph. If None, calculated from :math:``m`.
         Note that this list is used to remove nodes, so any nodes specified
-        not in ``range(24 * m * (m-1))`` are not added.
+        not in ``range(24 * m * (m - 1))`` are not added.
     edge_list : iterable, optional (default None)
         Iterable of edges in the graph. If None, edges are generated as
         described in :func:`.pegasus_graph`. The nodes in each edge must be integer-labeled in
-        ``range(24 * m * (m-1))``.
+        ``range(24 * m * (m - 1))``.
     offset_lists : pair of lists, optional (default None)
         Directly controls the offsets. Each list in the pair must have length 12
         and contain even integers.  If ``offset_lists`` is not None, the ``offsets_index``
@@ -1226,8 +1226,8 @@ def pegasus_torus(m, node_list=None, edge_list=None,
     condition is modified to enforce an additional translational-invariance 
     symmetry [RH]_. Local connectivity in the Pegasus torus
     is identical to connectivity for Pegasus graph nodes away from the boundary.
-    A tile consists of 24 nodes, and the torus has :math:`m-1` by :math:`m-1` tiles. 
-    Tile displacement modulo :math:`m-1` defines an automorphism.
+    A tile consists of 24 nodes, and the torus has :math:`m - 1` by :math:`m - 1` tiles. 
+    Tile displacement modulo :math:`m - 1` defines an automorphism.
     
     See :func:`.pegasus_graph` for additional information.
 
@@ -1241,32 +1241,33 @@ def pegasus_torus(m, node_list=None, edge_list=None,
 
     """
     # It is useful to inherit properties, attributes and methods of G:
-    G = pegasus_graph(m=m, node_list=None, edge_list=None, data=True,
-                      coordinates=True,
+    G = pegasus_graph(m=m, node_list=None, edge_list=None, data=True, 
+                      coordinates=True, 
                       offset_lists=offset_lists, offsets_index=offsets_index)
     if m<2:
         raise ValueError("m>=2 to define a non-empty lattice")
     # Create the graph minor by contraction of boundary variables
-    # (u,m-1,k,z) to (u,0,k,z) and match boundary coupling to the
+    # (u, m - 1, k, z) to (u, 0, k, z) and match boundary coupling to the
     # bulk with addition of supplementary external couplers 
-    relabel = lambda u, w, k, z: (u, w%(m-1), k, z)
+    def relabel(u,w,k,z):
+        return (u, w%(m - 1), k, z)
 
     # Contract internal couplers spanning the boundary:
-    G.add_edges_from([(relabel(*edge[0]),relabel(*edge[1]))
-                      for edge in G.edges() if edge[0][1]==m-1 or edge[1][1]==m-1])
+    G.add_edges_from([(relabel(*edge[0]), relabel(*edge[1]))
+                      for edge in G.edges() if edge[0][1]==m - 1 or edge[1][1]==m - 1])
     if m>3:
-        # Add missing external couplers  (u,w,k,-1) and (u,w,k,0). 
-        G.add_edges_from([((u,w,k,m-2),(u,w,k,0))
+        # Add missing external couplers  (u, w, k, -1) and (u, w, k, 0). 
+        G.add_edges_from([((u, w, k, m - 2), (u, w, k, 0))
                           for u in range(2)
-                          for w in range(m-1)
+                          for w in range(m - 1)
                           for k in range(12)])
     else:
         # 2-tile wide lattices do not allow for boundary spanning
         # edges.
         pass
     # Delete variables contracted at the boundary:
-    G.remove_nodes_from([(u, (m-1), k, z)
-                         for u in range(2) for k in range(12) for z in range(m-1)])
+    G.remove_nodes_from([(u, m - 1, k, z)
+                         for u in range(2) for k in range(12) for z in range(m - 1)])
     _add_compatible_terms(G, node_list, edge_list)
 
     G.graph['boundary_condition'] = 'torus'

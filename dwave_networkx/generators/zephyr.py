@@ -701,7 +701,7 @@ def zephyr_torus(m, t=4, node_list=None, edge_list=None):
     ----------
     m : int
         Grid parameter for the Zephyr lattice.
-        Connectivity of all nodes is :math:`4t+min(2m-1,4)`.
+        Connectivity of all nodes is :math:`4t + min(2m - 1, 4)`.
     t : int
         Tile parameter for the Zephyr lattice.
     node_list : iterable, optional (default None)
@@ -744,19 +744,20 @@ coordinates : bool, optional (default False)
     G = zephyr_graph(m=m, t=t, node_list=None, edge_list=None,
                          data=True, coordinates=True)
     
-    relabel = lambda u, w, k, j, z: (u, w%(2*m), k, j, z)
+    def relabel(u, w, k, j, z):
+        return (u, w%(2*m), k, j, z)
     
     # Contract internal couplers spanning the boundary:
-    G.add_edges_from([(relabel(*edge[0]),relabel(*edge[1]))
+    G.add_edges_from([(relabel(*edge[0]), relabel(*edge[1]))
                       for edge in G.edges() if edge[0][1]==2*m or edge[1][1]==2*m])
     
     if m>1:
         # Add boundary spanning external couplers:
-        G.add_edges_from([((u,w,k,1,m-1),(u,w,k,0,0))
+        G.add_edges_from([((u, w, k, 1, m - 1), (u, w, k, 0, 0))
                           for u in range(2)
                           for w in range(2*m)
                           for k in range(t)])
-        G.add_edges_from([((u,w,k,j,m-1),(u,w,k,j,0))
+        G.add_edges_from([((u, w, k, j, m - 1), (u, w, k, j, 0))
                           for u in range(2)
                           for w in range(2*m)
                           for k in range(t)

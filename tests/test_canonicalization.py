@@ -104,7 +104,7 @@ class TestCanonicalChimeraLabeling(unittest.TestCase):
         self.assertEqual(bqm, bqm2)
 
     def test_reversed(self):
-        C33 = nx.OrderedGraph()
+        C33 = nx.Graph() #Ordering is guaranteed Python>=3.7, OrderedGraph is deprecated
         C33.add_nodes_from(reversed(range(3*3*4)))
         C33.add_edges_from(dnx.chimera_graph(3, 3, 4).edges)
         coord = dnx.chimera_coordinates(3, 3, 4)
