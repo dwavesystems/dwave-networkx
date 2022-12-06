@@ -747,12 +747,14 @@ def chimera_torus(m, n=None, t=None, node_list=None, edge_list=None):
     m : int
         Number of rows in the Chimera torus lattice.
         If m<3 translational invariance already applies in the rows. If 
-        m>=3 additional external couplers, establishing translational invariance.
+        m>=3 additional external couplers are added, reestablishing 
+        translational invariance.
         Connectivity of all horizontal qubits is :math:`min(m-1,2)+2t`.
     n : int (optional, default m)
         Number of columns in the Chimera torus lattice.
         If n<3 translational invariance already applies in the columns. If 
-        n>=3 additional external couplers, establishing translational invaraince.
+        n>=3 additional external couplers are added, reestablishing 
+        translational invariance.
         Connectivity of all vertical qubits is :math:`min(n-1,2)+2t`.
     t : int (optional, default 4)
         Size of the shore within each Chimera tile.

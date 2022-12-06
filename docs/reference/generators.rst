@@ -17,6 +17,8 @@ D-Wave Systems
    pegasus_graph
    zephyr_graph
 
+
+	     
 Example
 ~~~~~~~
 
@@ -48,6 +50,16 @@ the `find_chimera()` function to determine the Chimera indices.
 
 	Indices of a Chimera unit cell found by creating a lattice of size (1, 1, 4).
 
+Toruses
+-------
+
+.. autosummary::
+   :toctree: generated/
+
+   chimera_torus
+   pegasus_torus
+   zephyr_torus
+   
 Other Graphs
 ------------
 
@@ -55,6 +67,3 @@ Other Graphs
    :toctree: generated/
 
    markov_network
-   chimera_torus
-   pegasus_torus
-   zephyr_torus
