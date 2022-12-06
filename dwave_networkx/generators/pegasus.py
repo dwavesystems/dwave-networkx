@@ -95,9 +95,9 @@ def pegasus_graph(m, create_using=None, node_list=None, edge_list=None, data=Tru
         If :code:`True`, the ``node_list`` elements are checked for compatibility with
         the graph topology and node labeling conventions, an error is thrown
         if any node is incompatible or duplicates exist.
-        In other words, only node_lists that specify subgraphs of the default 
+        In other words, only node lists that specify subgraphs of the default 
         (full yield) graph are permitted. An exception is allowed if 
-        ``check_edge_list=False``, any node in edge_list will also be treated as valid.
+        ``check_edge_list=False``, in which case any node in ``edge_list`` is treated as valid.
     check_edge_list : bool (optional, default :code:`False`)
         If :code:`True`, the edge_list elements are checked for compatibility with
         the graph topology and node labeling conventions, an error is thrown
@@ -1198,38 +1198,38 @@ def pegasus_torus(m, node_list=None, edge_list=None,
         Size parameter for the Pegasus lattice.
         Connectivity of all nodes is :math:`13+min(m-1,2)`
     node_list : iterable, optional (default None)
-        Iterable of nodes in the graph. If None, calculated from `m`.
+        Iterable of nodes in the graph. If None, calculated from :math:``m`.
         Note that this list is used to remove nodes, so any nodes specified
         not in ``range(24 * m * (m-1))`` are not added.
     edge_list : iterable, optional (default None)
         Iterable of edges in the graph. If None, edges are generated as
-        described below. The nodes in each edge must be integer-labeled in
+        described in :func:`.pegasus_graph`. The nodes in each edge must be integer-labeled in
         ``range(24 * m * (m-1))``.
     offset_lists : pair of lists, optional (default None)
         Directly controls the offsets. Each list in the pair must have length 12
-        and contain even ints.  If `offset_lists` is not None, the `offsets_index`
+        and contain even integers.  If ``offset_lists`` is not None, the ``offsets_index``
         parameter must be None.
     offsets_index : int, optional (default None)
         A number between 0 and 7, inclusive, that selects a preconfigured
-        set of topological parameters. If both the `offsets_index` and
-        `offset_lists` parameters are None, the `offsets_index` parameters is set
+        set of topological parameters. If both the ``offsets_index`` and
+        ``offset_lists`` parameters are None, the ``offsets_index`` parameters is set
         to zero. At least one of these two parameters must be None.
 
     Returns
     -------
     G : NetworkX Graph
-        A Pegasus torus for size parameter `m` using the coordinate labeling system.
+        A Pegasus torus for size parameter :math:`m` using the coordinate labeling system.
 
 
-    A pegasus torus is a generalization of the standard pegaus graph
-    whereby bulk connectivity properties are maintained, but the boundary
-    condition is modified to enforce an additional translational 
-    invariance symmetry [RH]_. Local connectivity in the pegasus torus
-    is identical to connectivity for pegasus graph nodes away from the boundary.
-    A tile consists of 24 nodes, and the torus has m-1 by m-1 tiles. 
-    Tile displacement modulo m-1 defines an automorphism.
+    A Pegasus torus is a generalization of the standard Pegasus graph
+    whereby degree-fifteen connectivity is maintained, but the boundary
+    condition is modified to enforce an additional translational-invariance 
+    symmetry [RH]_. Local connectivity in the Pegasus torus
+    is identical to connectivity for Pegasus graph nodes away from the boundary.
+    A tile consists of 24 nodes, and the torus has :math:`m-1` by :math:`m-1` tiles. 
+    Tile displacement modulo :math:`m-1` defines an automorphism.
     
-    See ``pegasus_graph()`` for additional information.
+    See :func:`.pegasus_graph` for additional information.
 
     Examples
     ========

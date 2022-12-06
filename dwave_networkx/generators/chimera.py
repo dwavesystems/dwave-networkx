@@ -26,7 +26,7 @@ from dwave_networkx.exceptions import DWaveNetworkXException
 
 from itertools import product
 
-from .common import _add_compatible_nodes, _add_compatible_edges,_add_compatible_terms
+from .common import _add_compatible_nodes, _add_compatible_edges, _add_compatible_terms
 
 __all__ = ['chimera_graph',
            'chimera_coordinates',
@@ -80,7 +80,7 @@ def chimera_graph(m, n=None, t=None, create_using=None, node_list=None, edge_lis
         if any node is incompatible or duplicates exist. 
         In other words, the ``node_list`` must specify a subgraph of the 
         full-yield graph described below. An exception is allowed if 
-        ``check_edge_list=False``, any node in edge_list will also be treated as valid.
+        ``check_edge_list=False``, in which case any node in ``edge_list`` is treated as valid.
     check_edge_list : bool (optional, default :code:`False`)
         If :code:`True`, the ``edge_list`` elements are checked for compatibility with
         the graph topology and node labeling conventions, an error is thrown
@@ -97,14 +97,14 @@ def chimera_graph(m, n=None, t=None, create_using=None, node_list=None, edge_lis
     A Chimera lattice is an m-by-n grid of Chimera tiles. Each Chimera
     tile is itself a bipartite graph with shores of size t. The
     connection in a Chimera lattice can be expressed using a node-indexing
-    notation (i,j,u,k) for each node.
+    notation (i, j, u, k) for each node.
 
-    * (i,j) indexes the (row, column) of the Chimera tile. i must be
-      between 0 and m-1, inclusive, and j must be between 0 and
-      n-1, inclusive.
+    * (i, j) indexes the (row, column) of the Chimera tile. i must be
+      between 0 and m - 1, inclusive, and j must be between 0 and
+      n - 1, inclusive.
     * u=0 indicates the left-hand nodes in the tile, and u=1 indicates
       the right-hand nodes.
-    * k=0,1,...,t-1 indexes nodes within either the left- or
+    * k=0, 1, ..., t - 1 indexes nodes within either the left- or
       right-hand shores of a tile.
 
     In this notation, two nodes (i, j, u, k) and (i', j', u', k') are
@@ -176,13 +176,13 @@ def chimera_graph(m, n=None, t=None, create_using=None, node_list=None, edge_lis
                              for k1 in range(t))
 
             # horizontal edges
-            G.add_edges_from(((i, j, 1, k), (i, j+1, 1, k))
+            G.add_edges_from(((i, j, 1, k), (i, j + 1, 1, k))
                              for i in range(m)
-                             for j in range(n-1)
+                             for j in range(n - 1)
                              for k in range(t))
             # vertical edges
-            G.add_edges_from(((i, j, 0, k), (i+1, j, 0, k))
-                             for i in range(m-1)
+            G.add_edges_from(((i, j, 0, k), (i + 1, j, 0, k))
+                             for i in range(m - 1)
                              for j in range(n)
                              for k in range(t))
         else:
@@ -213,7 +213,7 @@ def chimera_graph(m, n=None, t=None, create_using=None, node_list=None, edge_lis
     else:
         if check_node_list or node_list is None:
             if coordinates:
-                G.add_nodes_from((i,j,u,k) for i in range(m)
+                G.add_nodes_from((i, j, u, k) for i in range(m)
                                   for j in range(n)
                                   for u in range(2)
                                   for k in range(t))
@@ -668,7 +668,7 @@ def chimera_sublattice_mappings(source, target, offset_list=None):
     tile parameters, and the mappings produced are not exhaustive.  The mappings
     take the form
     
-        ``(y, x, u, k) -> (y+y_offset, x+x_offset, u, k)``
+        ``(y, x, u, k) -> (y + y_offset, x + x_offset, u, k)``
         
     preserving the orientation and tile index of nodes.  We use the notation of
     Chimera coordinates above, but either or both of the target graph may have
@@ -739,34 +739,34 @@ def chimera_sublattice_mappings(source, target, offset_list=None):
         yield _chimera_sublattice_mapping(source_to_chimera, chimera_to_target, offset)
 
 def chimera_torus(m, n=None, t=None, node_list=None, edge_list=None):
-    """Creates a defect-free Chimera lattice of size (m, n, t) subject to periodic boundary conditions
+    """Creates a defect-free Chimera lattice of size :math:`(m, n, t)` subject to periodic boundary conditions.
 
 
     Parameters
     ----------
     m : int
         Number of rows in the Chimera torus lattice.
-        If m<3 translational invariance already applies in the rows. If 
-        m>=3 additional external couplers are added, reestablishing 
+        If :math:`m<3` translational invariance already applies in the rows. If 
+        :math:`m>=3` additional external couplers are added, reestablishing 
         translational invariance.
-        Connectivity of all horizontal qubits is :math:`min(m-1,2)+2t`.
+        Connectivity of all horizontal qubits is :math:`min(m - 1, 2) + 2t`.
     n : int (optional, default m)
         Number of columns in the Chimera torus lattice.
-        If n<3 translational invariance already applies in the columns. If 
-        n>=3 additional external couplers are added, reestablishing 
+        If :math:`n<3` translational invariance already applies in the columns. If 
+        :math:`n>=3` additional external couplers are added, reestablishing 
         translational invariance.
-        Connectivity of all vertical qubits is :math:`min(n-1,2)+2t`.
+        Connectivity of all vertical qubits is :math:`min(n - 1, 2) + 2t`.
     t : int (optional, default 4)
         Size of the shore within each Chimera tile.
     node_list : iterable (optional, default None)
         Iterable of nodes in the graph. If None, nodes are
-        generated as described below. If values incompatible with
-        the integer (or coordinates, as appropriate) labeling are proposed 
+        generated as described for :func:`.chimera_graph`. If values are incompatible with
+        the labeling  (integer or coordinates, as appropriate) are proposed,
         a warning is issued and the values are ignored.
     edge_list : iterable (optional, default None)
         Iterable of edges in the graph. If None, edges are
-        generated as described below. If values incompatible with 
-        the integer (or coordinates, as appropriate) labeling are proposed 
+        generated as described for :func:`.chimera_graph`. If values are incompatible with 
+        the labeling  (integer or coordinates, as appropriate) are proposed,
         a warning is issued and the values are ignored.
 
     Returns
@@ -776,17 +776,17 @@ def chimera_torus(m, n=None, t=None, node_list=None, edge_list=None):
 
 
     A Chimera torus is a generalization of the standard chimera graph
-    whereby bulk connectivity properties are maintained, but the boundary
-    condition is modified to enforce an additional translational 
-    invariance symmetry [RH]_. Local connectivity in the chimera_torus
+    whereby degree-six connectivity is maintained, but the boundary
+    condition is modified to enforce an additional translational-invariance 
+    symmetry [RH]_. Local connectivity in the Chimera torus
     is identical to connectivity for chimera graph nodes away from the boundary.
-    The graph has :code:`V=8*m*n` nodes, and :code:`min(6,4+m)V//2 + 
-    min(6,4+n)V/2` edges. With the standard :math:`K_{t,t}` Chimera tile definition, 
-    any (x rows,y columns) tile displacement modulo (m,n)
-    :code:`(i,j,u,k)` -> :code:`((i+x)%m,(i+y)%n,u,k)`
+    The graph has :code:`V=8*m*n` nodes, and :code:`min(6, 4 + m)V//2 + 
+    min(6, 4 + n)V/2` edges. With the standard :math:`K_{t, t}` Chimera tile definition,
+    any tile displacement :math:`(x, y)`  modulo :math:`(m, n)`, rows and columns respectively,
+    that is, :code:`(i, j, u, k)` -> :code:`((i + x)%m, (i + y)%n, u, k)`,
     defines an automorphism.
 
-    See ``chimera_graph()`` for additional information.
+    See :func:`.chimera_graph` for additional information.
 
     Examples
     ========
@@ -808,7 +808,7 @@ def chimera_torus(m, n=None, t=None, node_list=None, edge_list=None):
     # With modification of the boundary condition
     if m>2:
         # Wrapped around row external-coupler edges:
-        additional_edges = [((m-1,j,0,k),(0,j,0,k))
+        additional_edges = [((m - 1, j, 0, k), (0, j, 0, k))
                             for j in range(n)
                             for k in range(t)]
     else:
@@ -816,7 +816,7 @@ def chimera_torus(m, n=None, t=None, node_list=None, edge_list=None):
     
     if n>2:
         # Wrapped around columns external-coupler edges:
-        additional_edges += [((i,n-1,1,k),(i,0,1,k))
+        additional_edges += [((i, n - 1, 1, k), (i, 0, 1, k))
                              for i in range(m)
                              for k in range(t)]
 

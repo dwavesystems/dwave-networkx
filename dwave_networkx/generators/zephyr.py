@@ -693,26 +693,27 @@ def zephyr_torus(m, t=4, node_list=None, edge_list=None):
     """
     Creates a Zephyr graph modified to allow for periodic boundary conditions and translational invariance.
     
-    The graph matches the local connectivity properties of a standard zephyr graph,
-    but with modified periodic boundary condition. Tiles of 8t qubits are arranged
-    on an m by m torus. 
+    The graph matches the local connectivity properties of a standard Zephyr graph,
+    but with modified periodic boundary condition. Tiles of :math:`8t` nodes are arranged
+    on an :math:`m` by :math:`m` torus. 
 
     Parameters
     ----------
     m : int
         Grid parameter for the Zephyr lattice.
-        Connectivity of all nodes is :math:`4t+min(2m-1,4)`
+        Connectivity of all nodes is :math:`4t+min(2m-1,4)`.
     t : int
         Tile parameter for the Zephyr lattice.
     node_list : iterable, optional (default None)
         Iterable of nodes in the graph. If None, calculated from ``m``.
         Note that this list is used to remove nodes, so only specified nodes
         that belong to the base node set (described in the ``coordinates``
-        parameter) are added.
+        parameter of :func:`.zephyr_graph`) are added.
     edge_list : iterable, optional (default None)
         Iterable of edges in the graph. If None, edges are generated as
         described below. The nodes in each edge must be labeled according to the
-        ``coordinates`` parameter.    coordinates : bool, optional (default False)
+        ``coordinates`` parameter.    
+coordinates : bool, optional (default False)
 
     Returns
     -------
@@ -721,15 +722,15 @@ def zephyr_torus(m, t=4, node_list=None, edge_list=None):
         with Zephyr coordinate node labels.
 
 
-    A Zephyr torus is a generalization of the standard zephyr graph
-    whereby bulk connectivity properties are maintained, but the boundary
-    condition is modified to enforce an additional translational 
-    invariance symmetry [RH]_. Local connectivity in the zephyr torus
-    is identical to connectivity for zephyr graph nodes away from the boundary.
-    A tile consists of 8t nodes, and the torus has m by m tiles. 
-    Tile displacement modulo m defines an automorphism.
+    A Zephyr torus is a generalization of the standard Zephyr graph
+    whereby degree-twenty connectivity is maintained, but the boundary
+    condition is modified to enforce an additional translational-invariance 
+    symmetry [RH]_. Local connectivity in the Zephyr torus
+    is identical to connectivity for Zephyr graph nodes away from the boundary.
+    A tile consists of :math:`8t` nodes, and the torus has :math:`m` by :math:`m` tiles. 
+    Tile displacement modulo :math:`m` defines an automorphism.
     
-    See ``zephyr_graph()`` for additional information.
+    See :func:`.zephyr_graph` for additional information.
 
     Examples
     --------
