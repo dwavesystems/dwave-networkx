@@ -1197,14 +1197,17 @@ def pegasus_torus(m, node_list=None, edge_list=None,
     m : int
         Size parameter for the Pegasus lattice.
         Connectivity of all nodes is :math:`13 + min(m - 1, 2)`
-    node_list : iterable, optional (default None)
-        Iterable of nodes in the graph. If None, calculated from :math:``m`.
-        Note that this list is used to remove nodes, so any nodes specified
-        not in ``range(24 * m * (m - 1))`` are not added.
-    edge_list : iterable, optional (default None)
-        Iterable of edges in the graph. If None, edges are generated as
-        described in :func:`.pegasus_graph`. The nodes in each edge must be integer-labeled in
-        ``range(24 * m * (m - 1))``.
+    node_list : iterable (optional, default None)
+        Iterable of nodes in the graph. If None, nodes are generated 
+        for an undiluted torus calculated from ``m``
+        as described below. The node list must describe a subset
+        of the torus nodes to be maintained in the graph 
+        using the coordinate node labeling scheme.
+    edge_list : iterable (optional, default None)
+        Iterable of edges in the graph. If None, edges are generated
+        for an undiluted torus calculated from ``m``
+        as described below. The edge list must describe 
+        a subgraph of the torus, using the coordinate node labeling scheme.
     offset_lists : pair of lists, optional (default None)
         Directly controls the offsets. Each list in the pair must have length 12
         and contain even integers.  If ``offset_lists`` is not None, the ``offsets_index``

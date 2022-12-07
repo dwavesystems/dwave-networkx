@@ -759,15 +759,16 @@ def chimera_torus(m, n=None, t=None, node_list=None, edge_list=None):
     t : int (optional, default 4)
         Size of the shore within each Chimera tile.
     node_list : iterable (optional, default None)
-        Iterable of nodes in the graph. If None, nodes are
-        generated as described for :func:`.chimera_graph`. If values are incompatible with
-        the labeling  (integer or coordinates, as appropriate) are proposed,
-        a warning is issued and the values are ignored.
+        Iterable of nodes in the graph. If None, nodes are generated 
+        for an undiluted torus calculated from ``m``, ``n`` and ``t``
+        as described below. The node list must describe a subset
+        of the torus nodes to be maintained in the graph 
+        using the coordinate node labeling scheme.
     edge_list : iterable (optional, default None)
-        Iterable of edges in the graph. If None, edges are
-        generated as described for :func:`.chimera_graph`. If values are incompatible with 
-        the labeling  (integer or coordinates, as appropriate) are proposed,
-        a warning is issued and the values are ignored.
+        Iterable of edges in the graph. If None, edges are generated
+        for an undiluted torus calculated from ``m``, ``n`` and ``t``
+        as described below. The edge list must describe 
+        a subgraph of the torus, using the coordinate node labeling scheme.
 
     Returns
     -------

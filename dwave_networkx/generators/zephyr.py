@@ -704,16 +704,17 @@ def zephyr_torus(m, t=4, node_list=None, edge_list=None):
         Connectivity of all nodes is :math:`4t + min(2m - 1, 4)`.
     t : int
         Tile parameter for the Zephyr lattice.
-    node_list : iterable, optional (default None)
-        Iterable of nodes in the graph. If None, calculated from ``m``.
-        Note that this list is used to remove nodes, so only specified nodes
-        that belong to the base node set (described in the ``coordinates``
-        parameter of :func:`.zephyr_graph`) are added.
-    edge_list : iterable, optional (default None)
-        Iterable of edges in the graph. If None, edges are generated as
-        described below. The nodes in each edge must be labeled according to the
-        ``coordinates`` parameter.    
-coordinates : bool, optional (default False)
+    node_list : iterable (optional, default None)
+        Iterable of nodes in the graph. If None, nodes are generated 
+        for an undiluted torus calculated from ``m`` and ``t``
+        as described below. The node list must describe a subset
+        of the torus nodes to be maintained in the graph 
+        using the coordinate node labeling scheme.
+    edge_list : iterable (optional, default None)
+        Iterable of edges in the graph. If None, edges are generated
+        for an undiluted torus calculated from ``m`` and ``t``
+        as described below. The edge list must describe 
+        a subgraph of the torus, using the coordinate node labeling scheme.
 
     Returns
     -------
