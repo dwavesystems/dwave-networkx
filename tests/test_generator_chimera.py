@@ -16,6 +16,7 @@ import unittest
 
 import networkx as nx
 import dwave_networkx as dnx
+import numpy as np
 
 alpha_map = dict(enumerate('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'))
 
@@ -289,18 +290,18 @@ class TestChimeraGraph(unittest.TestCase):
         t = 2
         N = m*n*t*2
         G = dnx.chimera_graph(m,n,t)
-        #Valid (full) node_list
+        # Valid (full) node_list
         node_list = list(G.nodes)
         G = dnx.chimera_graph(m, n, t, node_list=node_list,
                               check_node_list=True)
         self.assertEqual(G.number_of_nodes(), len(node_list))
-        #Valid node_list in coordinate system
+        # Valid node_list in coordinate system
         node_list = [(0,0,0,0)]
         G = dnx.chimera_graph(m, n, t, node_list=node_list,
                               check_node_list=True, coordinates=True)
         self.assertEqual(G.number_of_nodes(), len(node_list))
         with self.assertRaises(ValueError):
-            #Invalid node_list
+            # Invalid node_list
             node_list = [0, N]
             G = dnx.chimera_graph(m, n, t, node_list=node_list,
                                   check_node_list=True)
@@ -311,16 +312,33 @@ class TestChimeraGraph(unittest.TestCase):
                                   check_node_list=True)
         
         with self.assertRaises(ValueError):
-            #node is valid, but not in the requested coordinate system
+            # Node is valid, but not in the requested coordinate system
             node_list = [0]
             G = dnx.chimera_graph(m, n, t, node_list=node_list,
                                   check_node_list=True, coordinates=True)
     
-
+        edge_list = [(-1,0)]
+        node_list = [0]
+        # Edges are not checked, but node_list is, the edge is deleted:
+        G = dnx.chimera_graph(m, n, t, node_list=node_list, edge_list=edge_list,
+                              check_node_list=True, coordinates=True)
+        self.assertEqual(G.number_of_edges(), 0)
+        self.assertEqual(G.number_of_nodes(), 1)
+        edge_list = [(-1,0)]
+        node_list = [-1,0]
+        # Edges are not checked, but node_list is, the invalid node (-1) is permitted
+        # because it is specified in edge_list:
+        G = dnx.chimera_graph(m, n, t, node_list=node_list, edge_list=edge_list,
+                              check_node_list=True, coordinates=True)
+        self.assertEqual(G.number_of_edges(), 1)
+        self.assertEqual(G.number_of_nodes(), 2)
+        
+            
     def test_edge_list(self):
         m = 2
         n = 3
         t = 4
+        num_var = m*n*t*2
         G = dnx.chimera_graph(m, n, t)
         edge_list = list(G.edges)
         # Valid (full) edge_list
@@ -332,6 +350,7 @@ class TestChimeraGraph(unittest.TestCase):
         G = dnx.chimera_graph(m, n, t, edge_list=edge_list,
                               check_edge_list=True, coordinates=True)
         self.assertEqual(G.number_of_edges(),len(edge_list))
+        self.assertEqual(G.number_of_nodes(),num_var) #No node deletions specified
         
         # Valid edge, but absent from node_list, hence dropped:
         edge_list = [(0,t)]
@@ -351,3 +370,63 @@ class TestChimeraGraph(unittest.TestCase):
             edge_list = [(0, t), (0, t)]
             G = dnx.chimera_graph(m, edge_list=edge_list,
                                   check_edge_list=True)
+       
+class TestChimeraTorus(unittest.TestCase):
+    def test(self):
+        for m in range(1,4):
+            for n in range(1,4):
+                for t in [1,4]:
+                    conn_vert = min(2,m-1) + t
+                    conn_horiz = min(2,n-1) + t
+                    num_var = m*n*t*2
+                    num_edges = ((num_var//2)*(conn_vert + conn_horiz))//2
+                    g = dnx.chimera_torus(m=m,n=n,t=t)
+
+                    # Check bulk properties:
+                    self.assertEqual(g.number_of_nodes(),num_var) # Number nodes
+                    self.assertEqual(g.number_of_edges(),num_edges) # Number nodes
+                    
+                    # Check translational invariance:
+                    if m > 1:
+                        drow = 1+np.random.randint(m-1)
+                    else:
+                        drow = 0
+                    if n > 1:
+                        dcol = 1+np.random.randint(n-1)
+                    else:
+                        dcol = 0
+                    relabel = lambda tup: ((tup[0]+drow)%m,(tup[1]+dcol)%n,tup[2],tup[3])
+                    g_translated = nx.relabel_nodes(g,relabel,copy=True)
+                    #Check 1:1 correspondence of edges
+                    g.remove_edges_from(g_translated.edges())
+                    self.assertEqual(g.number_of_edges(),0)
+                    #Check 1:1 correspondence of nodes
+                    g.remove_nodes_from(g_translated.nodes())
+                    self.assertEqual(g.number_of_nodes(),0)
+                    
+    def tests_list(self):
+        #Test correct handling of nodes and edges:
+        m=3
+        n=3
+        t=2
+        num_var = m*n*t*2
+        to_coord = dnx.chimera_coordinates(m,n,t).linear_to_chimera
+        node_list_lin = [0, t-1, num_var]
+        node_list = [to_coord(i) for i in node_list_lin]
+        G = dnx.chimera_torus(m=m, n=n, t=t, node_list = [node_list[i] for i in range(2) ])
+        self.assertEqual(G.number_of_edges(),0)
+        self.assertEqual(G.number_of_nodes(),2)
+        with self.assertRaises(ValueError):
+            # 1 invalid node
+            G = dnx.chimera_torus(m=m, n=n, t=t, node_list=node_list)
+        edge_list_lin = [(0, t), (0, t+1), (0, 1)]
+        edge_list = [(to_coord(n1), to_coord(n2)) for n1, n2 in edge_list_lin]
+        G = dnx.chimera_torus(m=m, n=n, t=t, edge_list = [edge_list[i] for i in range(2) ])
+        
+        self.assertEqual(G.number_of_edges(),2)
+        self.assertEqual(G.number_of_nodes(),num_var) #No deletions
+        
+        with self.assertRaises(ValueError):
+            # 1 invalid edge
+            G = dnx.chimera_torus(m=m, n=n, t=t, edge_list = edge_list)
+            

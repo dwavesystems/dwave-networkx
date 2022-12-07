@@ -24,11 +24,12 @@ import warnings
 
 from itertools import product
 from .chimera import _chimera_coordinates_cache
-from .common import _add_compatible_edges
+from .common import _add_compatible_edges, _add_compatible_nodes, _add_compatible_terms
 
 __all__ = ['pegasus_graph',
            'pegasus_coordinates',
            'pegasus_sublattice_mappings',
+           'pegasus_torus',
            ]
 
 def pegasus_graph(m, create_using=None, node_list=None, edge_list=None, data=True,
@@ -93,9 +94,10 @@ def pegasus_graph(m, create_using=None, node_list=None, edge_list=None, data=Tru
     check_node_list : bool (optional, default :code:`False`)
         If :code:`True`, the ``node_list`` elements are checked for compatibility with
         the graph topology and node labeling conventions, an error is thrown
-        if any node is incompatible or duplicates exist. 
-        In other words, only node_lists that specify subgraphs of the default 
-        (full yield) graph are permitted.
+        if any node is incompatible or duplicates exist.
+        In other words, only node lists that specify subgraphs of the default 
+        (full yield) graph are permitted. An exception is allowed if 
+        ``check_edge_list=False``, in which case any node in ``edge_list`` is treated as valid.
     check_edge_list : bool (optional, default :code:`False`)
         If :code:`True`, the edge_list elements are checked for compatibility with
         the graph topology and node labeling conventions, an error is thrown
@@ -235,6 +237,11 @@ def pegasus_graph(m, create_using=None, node_list=None, edge_list=None, data=Tru
 
     max_size = m * (m - 1) * 24  # max number of nodes G can have
 
+    if edge_list is None:
+        check_edge_list = False
+    if node_list is None:
+        check_node_list = False
+    
     if edge_list is None or check_edge_list is True:
         if nice_coordinates:
             fabric_start = 4,8
@@ -274,18 +281,19 @@ def pegasus_graph(m, create_using=None, node_list=None, edge_list=None, data=Tru
         if edge_list is not None:
             _add_compatible_edges(G, edge_list)
     else:
+        if check_node_list or node_list is None:
+            G.add_nodes_from(label(u, w, k, z) for u in range(2)
+                                  for w in range(m)
+                                  for k in range(12)
+                                  for z in range(m-1))
         G.add_edges_from(edge_list)
 
     if node_list is not None:
-        nodes = set(node_list)
-        G.remove_nodes_from(set(G) - nodes)
         if check_node_list:
-            if G.number_of_nodes() != len(node_list):
-                raise ValueError("node_list contains nodes incompatible with "
-                                 "the specified topology and node-labeling "
-                                 "convention, or duplicates")
-
+            _add_compatible_nodes(G, node_list)
         else:
+            nodes = set(node_list)
+            G.remove_nodes_from(set(G) - nodes)
             G.add_nodes_from(nodes)  # for singleton nodes
 
     if data:
@@ -366,9 +374,9 @@ def get_tuple_fragmentation_fn(pegasus_graph):
             offset = offset[k]
 
             # Find the base (i.e. zeroth) Chimera fragment of this pegasus coordinate
-            fz0 = (z*12 + offset) // 2 #first fragment's z-coordinate
-            fw = (w*12 + k) // 2 #fragment w-coordinate
-            fk = k&1 #fragment k-index
+            fz0 = (z*12 + offset) // 2 # first fragment's z-coordinate
+            fw = (w*12 + k) // 2 # fragment w-coordinate
+            fk = k&1 # fragment k-index
             base = [fw, 0, u, fk] if u else [0, fw, u, fk]
 
             # Generate the six fragments associated with this pegasus coordinate
@@ -478,13 +486,13 @@ def fragmented_edges(pegasus_graph):
     else:
         coords = lambda z: z
 
-    #first, we generate the edges internal to the fragments corresponding to a node
+    # first, we generate the edges internal to the fragments corresponding to a node
     for q in pegasus_graph.nodes():
         u, w, k, z = coords(q)
-        #copied from get_tuple_fragmentation_fn and slightly optimized
+        # copied from get_tuple_fragmentation_fn and slightly optimized
         offset = offsets[u, k]
-        fz0 = (z*12 + offset) // 2 #first fragment z-coordinate
-        fw = (w*12 + k) // 2 #fragment w-coordinate
+        fz0 = (z*12 + offset) // 2 # first fragment z-coordinate
+        fw = (w*12 + k) // 2 # fragment w-coordinate
         base = [fw, fz0, u, k&1] if u else [fz0, fw, u, k&1]
         prev = tuple(base)
         for fz in range(fz0+1, fz0+6):
@@ -493,36 +501,36 @@ def fragmented_edges(pegasus_graph):
             yield (prev, curr)
             prev = curr
 
-    #now for the thinky part: for each Pegasus edge, generate the corresponding Chimera edge
-    #we skip the "odd-coupler" edges because they don't exist in Chimera
+    # now for the thinky part: for each Pegasus edge, generate the corresponding Chimera edge
+    # we skip the "odd-coupler" edges because they don't exist in Chimera
     for q0, q1 in pegasus_graph.edges():
         u0, w0, k0, z0 = coords(q0)
         u1, w1, k1, z1 = coords(q1)
         if u0 == u1:
             if k0 == k1:
-                #this is an external edge -- we could probably do some hijinks to fold this in
-                #with the nodes loop, but cost/benefit doesn't support it right now
+                # this is an external edge -- we could probably do some hijinks to fold this in
+                # with the nodes loop, but cost/benefit doesn't support it right now
                 offset = offsets[u0, k0]
-                fz = (min(z0, z1)*12 + offset) // 2 #first fragment z-coordinate in the pair
-                fw = (w0*12 + k0) // 2 #fragment w-coordinate for both qubits
-                fk = k0&1 #fragment k-index
+                fz = (min(z0, z1)*12 + offset) // 2 # first fragment z-coordinate in the pair
+                fw = (w0*12 + k0) // 2 # fragment w-coordinate for both qubits
+                fk = k0&1 # fragment k-index
                 if u0:
                     yield ((fw, fz+5, u0, fk), (fw, fz+6, u0, fk))
                 else:
                     yield ((fz+5, fw, u0, fk), (fz+6, fw, u0, fk))
 
-            #else: this is an odd edge; yield nothing
+            # else: this is an odd edge; yield nothing
         else:
-            #this may look a little magical -- we're looking for an edge of the form
+            # this may look a little magical -- we're looking for an edge of the form
             # (fy, fx, u0, fk0), (fy, fx, u1, fk1)
-            #where (fy, fx) are the first two coordinates of both the fragments of (u0, w0, k0,z0),
+            # where (fy, fx) are the first two coordinates of both the fragments of (u0, w0, k0,z0),
             # (fy, fx) in [(fz0+0, fw0), (fz0+1, fw0), ..., (fz0+5, fw0)]
-            #and also the the fragments of (u1, w1, k1, z1):
+            # and also the the fragments of (u1, w1, k1, z1):
             # (fy, fx) in [(fw1, fz1+0), (fw1, fz1+1), ..., (fw1, fz1+5)]
-            #(see get_tuple_fragmentation_fn to see the fragment generator)
-            #with the assumption that an intersection exists: it can only be located at (fw0, fw1)
-            #since those coordinates are constant in the respective intervals.  Thus, we get to
-            #skip looking up the offsets.  Magic?  No, Math!
+            # (see get_tuple_fragmentation_fn to see the fragment generator)
+            # with the assumption that an intersection exists: it can only be located at (fw0, fw1)
+            # since those coordinates are constant in the respective intervals.  Thus, we get to
+            # skip looking up the offsets.  Magic?  No, Math!
             fw0 = (w0*12 + k0) // 2
             fw1 = (w1*12 + k1) // 2
             if u0:
@@ -1003,7 +1011,7 @@ def _chimera_pegasus_sublattice_mapping(source_to_chimera, nice_to_target, offse
         y, x, u, k = source_to_chimera(q)
         return nice_to_target((t_offset, y + y_offset, x + x_offset, u, k))
 
-    #store the offset in the mapping, so the user can reconstruct it
+    # store the offset in the mapping, so the user can reconstruct it
     mapping.offset = offset
 
     return mapping
@@ -1055,7 +1063,7 @@ def _pegasus_pegasus_sublattice_mapping(source_to_nice, nice_to_target, offset):
         t, dy, dx = delta[T]
         return nice_to_target((t, Y + dy + y_offset, X + dx + x_offset, u, k))
 
-    #store the offset in the mapping, so the user can reconstruct it
+    # store the offset in the mapping, so the user can reconstruct it
     mapping.offset = offset
 
     return mapping
@@ -1091,7 +1099,7 @@ def pegasus_sublattice_mappings(source, target, offset_list=None):
     
     Academic note: the full group of isomorphisms of a Chimera graph includes 
     mappings which permute tile indices on a per-row and per-column basis, in
-    addition to reflections and rotations of the grid of unit cells where 
+    addition to reflections and rotations of the grid of unit tiles where 
     rotations by 90 and 270 degrees induce a change in orientation.  The
     isomorphisms of Pegasus graphs permit the swapping across rows and columns
     of odd couplers, as well as a reflection about the main antidiagonal which
@@ -1178,3 +1186,93 @@ def pegasus_sublattice_mappings(source, target, offset_list=None):
     for offset in offset_list:
         yield make_mapping(source_to_inner, nice_to_target, offset)
 
+
+def pegasus_torus(m, node_list=None, edge_list=None, 
+                  offset_lists=None, offsets_index=None):
+    """
+    Creates a Pegasus graph modified to allow for periodic boundary conditions and translational invariance.
+
+    Parameters
+    ----------
+    m : int
+        Size parameter for the Pegasus lattice.
+        Connectivity of all nodes is :math:`13 + min(m - 1, 2)`
+    node_list : iterable (optional, default None)
+        Iterable of nodes in the graph. If None, nodes are generated 
+        for an undiluted torus calculated from ``m``
+        as described below. The node list must describe a subset
+        of the torus nodes to be maintained in the graph 
+        using the coordinate node labeling scheme.
+    edge_list : iterable (optional, default None)
+        Iterable of edges in the graph. If None, edges are generated
+        for an undiluted torus calculated from ``m``
+        as described below. The edge list must describe 
+        a subgraph of the torus, using the coordinate node labeling scheme.
+    offset_lists : pair of lists, optional (default None)
+        Directly controls the offsets. Each list in the pair must have length 12
+        and contain even integers.  If ``offset_lists`` is not None, the ``offsets_index``
+        parameter must be None.
+    offsets_index : int, optional (default None)
+        A number between 0 and 7, inclusive, that selects a preconfigured
+        set of topological parameters. If both the ``offsets_index`` and
+        ``offset_lists`` parameters are None, the ``offsets_index`` parameters is set
+        to zero. At least one of these two parameters must be None.
+
+    Returns
+    -------
+    G : NetworkX Graph
+        A Pegasus torus for size parameter :math:`m` using the coordinate labeling system.
+
+
+    A Pegasus torus is a generalization of the standard Pegasus graph
+    whereby degree-fifteen connectivity is maintained, but the boundary
+    condition is modified to enforce an additional translational-invariance 
+    symmetry [RH]_. Local connectivity in the Pegasus torus
+    is identical to connectivity for Pegasus graph nodes away from the boundary.
+    A tile consists of 24 nodes, and the torus has :math:`m - 1` by :math:`m - 1` tiles. 
+    Tile displacement modulo :math:`m - 1` defines an automorphism.
+    
+    See :func:`.pegasus_graph` for additional information.
+
+    Examples
+    ========
+    >>> G = dnx.pegasus_torus(4)  # a 3x3 tile pegasus torus (connectivity 15)
+    >>> len(G) # 3*3*24
+    216
+    >>> any([len(list(G.neighbors(n))) != 15 for n in G.nodes])
+    False
+
+    """
+    # It is useful to inherit properties, attributes and methods of G:
+    G = pegasus_graph(m=m, node_list=None, edge_list=None, data=True, 
+                      coordinates=True, 
+                      offset_lists=offset_lists, offsets_index=offsets_index)
+    if m<2:
+        raise ValueError("m>=2 to define a non-empty lattice")
+    # Create the graph minor by contraction of boundary variables
+    # (u, m - 1, k, z) to (u, 0, k, z) and match boundary coupling to the
+    # bulk with addition of supplementary external couplers 
+    def relabel(u,w,k,z):
+        return (u, w%(m - 1), k, z)
+
+    # Contract internal couplers spanning the boundary:
+    G.add_edges_from([(relabel(*edge[0]), relabel(*edge[1]))
+                      for edge in G.edges() if edge[0][1]==m - 1 or edge[1][1]==m - 1])
+    if m>3:
+        # Add missing external couplers  (u, w, k, -1) and (u, w, k, 0). 
+        G.add_edges_from([((u, w, k, m - 2), (u, w, k, 0))
+                          for u in range(2)
+                          for w in range(m - 1)
+                          for k in range(12)])
+    else:
+        # 2-tile wide lattices do not allow for boundary spanning
+        # edges.
+        pass
+    # Delete variables contracted at the boundary:
+    G.remove_nodes_from([(u, m - 1, k, z)
+                         for u in range(2) for k in range(12) for z in range(m - 1)])
+    _add_compatible_terms(G, node_list, edge_list)
+
+    G.graph['boundary_condition'] = 'torus'
+    
+    return G

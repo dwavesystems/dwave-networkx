@@ -497,9 +497,7 @@ def treewidth_branch_and_bound(G, elimination_order=None, treewidth_upperbound=N
 
     References
     ----------
-    .. [GD] Gogate & Dechter, "A Complete Anytime Algorithm for Treewidth",
-       https://arxiv.org/abs/1207.4109
-
+    Based on the algorithm presented in [GD]_
     """
     # empty graphs have treewidth 0 and the nodes can be eliminated in
     # any order
@@ -875,7 +873,7 @@ def pegasus_elimination_order(n, coordinates=False):
     """Provides a variable elimination order for the Pegasus graph.
 
     The treewidth of a Pegasus graph ``pegasus_graph(n)`` is lower-bounded by 
-    :math:`12n-11` and upper bounded by :math:`12n-4` [bbrr]_ .
+    :math:`12n-11` and upper bounded by :math:`12n-4` [BBRR]_ .
 
     Simple pegasus variable elimination order rules:
 
@@ -896,11 +894,6 @@ def pegasus_elimination_order(n, coordinates=False):
     -------
     order : list
         An elimination order that provides an upper bound on the treewidth.
-
-
-    .. [bbrr] Boothby, K., P. Bunky, J. Raymond, A. Roy. Next-Generation Topology
-       of D-Wave Quantum Processors. Technical Report, Februrary 2019.
-       https://www.dwavesys.com/resources/publications?type=white
 
     """
     m = n
@@ -932,7 +925,7 @@ def zephyr_elimination_order(m, t=4, coordinates=False):
     """Provides a variable elimination order for the zephyr graph.
 
     The treewidth of a Zephyr graph ``zephyr_graph(m,t)`` is upper-bounded by 
-    :math:`4tm+2t` and lower-bounded by :math:`4tm` [brk]_ .
+    :math:`4tm+2t` and lower-bounded by :math:`4tm` [BRK]_ .
     
     Simple zephyr variable elimination rules:
        - eliminate vertical qubits, one column at a time
@@ -952,13 +945,6 @@ def zephyr_elimination_order(m, t=4, coordinates=False):
     -------
     order : list
         An elimination order that achieves an upper bound on the treewidth.
-
-
-    References
-    ----------
-    .. [brk] Boothby, Raymond, King, Zephyr Topology of D-Wave Quantum
-        Processors, October 2021.
-        https://dwavesys.com/media/fawfas04/14-1056a-a_zephyr_topology_of_d-wave_quantum_processors.pdf
 
     """
     order = ([(0,w,k,j,z) for w in range(2*m+1) for k in range(t) for z in range(m) for j in range(2)]

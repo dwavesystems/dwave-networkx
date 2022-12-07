@@ -25,11 +25,12 @@ from dwave_networkx.exceptions import DWaveNetworkXException
 
 from .chimera import _chimera_coordinates_cache
 
-from .common import _add_compatible_edges
+from .common import _add_compatible_edges, _add_compatible_nodes, _add_compatible_terms
 
 __all__ = ['zephyr_graph',
            'zephyr_coordinates',
            'zephyr_sublattice_mappings',
+           'zephyr_torus'
            ]
 
 def zephyr_graph(m, t=4, create_using=None, node_list=None, edge_list=None,
@@ -38,7 +39,7 @@ def zephyr_graph(m, t=4, create_using=None, node_list=None, edge_list=None,
     """
     Creates a Zephyr graph with grid parameter ``m`` and tile parameter ``t``.
 
-    The Zephyr topology is described in [brk]_.
+    The Zephyr topology is described in [BRK]_.
 
     Parameters
     ----------
@@ -74,7 +75,8 @@ def zephyr_graph(m, t=4, create_using=None, node_list=None, edge_list=None,
         the graph topology and node labeling conventions, and an error is thrown
         if any node is incompatible or duplicates exist. 
         In other words, ``node_lists`` must specify a subgraph of the default 
-        (full yield) graph described below.
+        (full yield) graph described below. An exception is allowed if 
+        ``check_edge_list=False``, any node in edge_list will also be treated as valid.
     check_edge_list : bool (optional, default :code:`False`)
         If :code:`True`, ``edge_list`` elements are checked for compatibility with
         the graph topology and node labeling conventions, and an error is thrown
@@ -155,7 +157,7 @@ def zephyr_graph(m, t=4, create_using=None, node_list=None, edge_list=None,
 
     References
     ----------
-    .. [brk] Boothby, Raymond, King, Zephyr Topology of D-Wave Quantum
+    .. [BRK] Boothby, Raymond, King, Zephyr Topology of D-Wave Quantum
         Processors, October 2021.
         https://dwavesys.com/media/fawfas04/14-1056a-a_zephyr_topology_of_d-wave_quantum_processors.pdf
     """
@@ -180,22 +182,27 @@ def zephyr_graph(m, t=4, create_using=None, node_list=None, edge_list=None,
                     ("tile", t), ("data", data), ("labels", labels))
 
     G.graph.update(construction)
-
+    
+    if edge_list is None:
+        check_edge_list = False
+    if node_list is None:
+        check_node_list = False
+    
     if edge_list is None or check_edge_list is True:
-        #external edges
+        # external edges
         G.add_edges_from((label(u, w, k, j, z), label(u, w, k, j, z + 1))
                          for u, w, k, j, z in product(
                             (0, 1), range(M), range(t), (0, 1), range(m-1)
                          ))
 
-        #odd edges
+        # odd edges
         G.add_edges_from((label(u, w, k, 0, z), label(u, w, k, 1, z-a))
                          for u, w, k, a in product(
                             (0, 1), range(M), range(t), (0, 1)
                          )
                          for z in range(a, m))
 
-        #internal edges
+        # internal edges
         G.add_edges_from((label(0, 2*w+1+a*(2*i-1), k, j, z), label(1, 2*z+1+b*(2*j-1), h, i, w))
                          for w, z, h, k, i, j, a, b in product(
                             range(m), range(m), range(t), range(t), (0, 1), (0, 1), (0, 1), (0, 1)
@@ -203,19 +210,20 @@ def zephyr_graph(m, t=4, create_using=None, node_list=None, edge_list=None,
         if edge_list is not None:
             _add_compatible_edges(G, edge_list)
     else:
+        if check_node_list or node_list is None:
+            G.add_nodes_from(label(u, w, k, j, z) for u in range(2)
+                             for w in range(2*m+1)
+                             for k in range(t)
+                             for j in range(2)
+                             for z in range(m))
         G.add_edges_from(edge_list)
 
     if node_list is not None:
-        nodes = set(node_list)
-        G.remove_nodes_from(set(G) - nodes)
         if check_node_list:
-            if G.number_of_nodes() != len(node_list):
-                raise ValueError("node_list contains nodes incompatible with "
-                                 "the specified topology and node-labeling "
-                                 "convention, or duplicates")
-    
-
+            _add_compatible_nodes(G, node_list)
         else:
+            nodes = set(node_list)
+            G.remove_nodes_from(set(G) - nodes)
             G.add_nodes_from(nodes)  # for singleton nodes
 
     if data:
@@ -446,7 +454,7 @@ def _zephyr_zephyr_sublattice_mapping(source_to_zephyr, zephyr_to_target, offset
         dj, dw, dz = delta[u]
         return zephyr_to_target((u, w + dw, k, j ^ dj, z + (dz + j) // 2))
 
-    #store the offset in the mapping, so the user can reconstruct it
+    # store the offset in the mapping, so the user can reconstruct it
     mapping.offset = offset
 
     return mapping
@@ -502,7 +510,7 @@ def _single_chimera_zephyr_sublattice_mapping(source_to_chimera, zephyr_to_targe
             z, j = divmod(y + y_offset, 2)
             return zephyr_to_target((u, x + x_offset + dw, k, j, z))
 
-    #store the offset in the mapping, so the user can reconstruct it
+    # store the offset in the mapping, so the user can reconstruct it
     mapping.offset = offset
 
     return mapping
@@ -549,7 +557,7 @@ def _double_chimera_zephyr_sublattice_mapping(source_to_chimera, zephyr_to_targe
         else:
             return zephyr_to_target((u, 2 * (x + x_offset) + j1 + wz, kz, j0, y + y_offset))
 
-    #store the offset in the mapping, so the user can reconstruct it
+    # store the offset in the mapping, so the user can reconstruct it
     mapping.offset = offset
 
     return mapping
@@ -584,7 +592,7 @@ def zephyr_sublattice_mappings(source, target, offset_list=None):
 
     Academic note: the full group of isomorphisms of a Chimera graph includes
     mappings which permute tile indices on a per-row and per-column basis, in
-    addition to reflections and rotations of the grid of unit cells where
+    addition to reflections and rotations of the grid of unit tiles where
     rotations by 90 and 270 degrees induce a change in orientation.  The
     isomorphisms of Zephyr graphs permit permutations of major tile indices on a
     per-row and per-column basis, in addition to reflections of the grid which
@@ -680,3 +688,88 @@ def zephyr_sublattice_mappings(source, target, offset_list=None):
 
     for offset in offset_list:
         yield make_mapping(source_to_inner, zephyr_to_target, offset)
+
+def zephyr_torus(m, t=4, node_list=None, edge_list=None):
+    """
+    Creates a Zephyr graph modified to allow for periodic boundary conditions and translational invariance.
+    
+    The graph matches the local connectivity properties of a standard Zephyr graph,
+    but with modified periodic boundary condition. Tiles of :math:`8t` nodes are arranged
+    on an :math:`m` by :math:`m` torus. 
+
+    Parameters
+    ----------
+    m : int
+        Grid parameter for the Zephyr lattice.
+        Connectivity of all nodes is :math:`4t + min(2m - 1, 4)`.
+    t : int
+        Tile parameter for the Zephyr lattice.
+    node_list : iterable (optional, default None)
+        Iterable of nodes in the graph. If None, nodes are generated 
+        for an undiluted torus calculated from ``m`` and ``t``
+        as described below. The node list must describe a subset
+        of the torus nodes to be maintained in the graph 
+        using the coordinate node labeling scheme.
+    edge_list : iterable (optional, default None)
+        Iterable of edges in the graph. If None, edges are generated
+        for an undiluted torus calculated from ``m`` and ``t``
+        as described below. The edge list must describe 
+        a subgraph of the torus, using the coordinate node labeling scheme.
+
+    Returns
+    -------
+    G : NetworkX Graph
+        A Zephyr torus with grid parameter ``m`` and tile parameter ``t``,
+        with Zephyr coordinate node labels.
+
+
+    A Zephyr torus is a generalization of the standard Zephyr graph
+    whereby degree-twenty connectivity is maintained, but the boundary
+    condition is modified to enforce an additional translational-invariance 
+    symmetry [RH]_. Local connectivity in the Zephyr torus
+    is identical to connectivity for Zephyr graph nodes away from the boundary.
+    A tile consists of :math:`8t` nodes, and the torus has :math:`m` by :math:`m` tiles. 
+    Tile displacement modulo :math:`m` defines an automorphism.
+    
+    See :func:`.zephyr_graph` for additional information.
+
+    Examples
+    --------
+    >>> G = dnx.zephyr_torus(3)  # a 3x3 tile pegasus torus (connectivity 15)
+    >>> len(G) # 3*3*24
+    288
+    >>> any([len(list(G.neighbors(n))) != 20 for n in G.nodes])
+    False
+
+    """
+    G = zephyr_graph(m=m, t=t, node_list=None, edge_list=None,
+                         data=True, coordinates=True)
+    
+    def relabel(u, w, k, j, z):
+        return (u, w%(2*m), k, j, z)
+    
+    # Contract internal couplers spanning the boundary:
+    G.add_edges_from([(relabel(*edge[0]), relabel(*edge[1]))
+                      for edge in G.edges() if edge[0][1]==2*m or edge[1][1]==2*m])
+    
+    if m>1:
+        # Add boundary spanning external couplers:
+        G.add_edges_from([((u, w, k, 1, m - 1), (u, w, k, 0, 0))
+                          for u in range(2)
+                          for w in range(2*m)
+                          for k in range(t)])
+        G.add_edges_from([((u, w, k, j, m - 1), (u, w, k, j, 0))
+                          for u in range(2)
+                          for w in range(2*m)
+                          for k in range(t)
+                          for j in range(2)])
+        
+    # Delete variables contracted at the boundary:
+    G.remove_nodes_from([(u, 2*m, k, j, z)
+                         for u in range(2) for k in range(t) for j in range(2) for z in range(m)])
+    
+    _add_compatible_terms(G, node_list, edge_list)
+    
+    G.graph['boundary_condition'] = 'torus'
+
+    return G

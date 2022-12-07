@@ -171,7 +171,8 @@ def _chromatic_number_upper_bound(G):
             # be the largest eigenvalue of A. Then chi <= theta_1 + 1 with
             # equality iff G is complete or an odd cycle.
             # this is strictly better than brooks theorem
-            bound = math.ceil(max(np.linalg.eigvals(nx.to_numpy_array(G))))
+            # G is real symmetric, use eigvalsh for real valued output.
+            bound = math.ceil(max(np.linalg.eigvalsh(nx.to_numpy_array(G))))
     else:
         # we know it's connected
         bound = n_nodes

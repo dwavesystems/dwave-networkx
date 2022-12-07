@@ -16,6 +16,7 @@ import unittest
 
 import networkx as nx
 import dwave_networkx as dnx
+import numpy as np
 
 class TestZephyrGraph(unittest.TestCase):
     def test_single_tile(self):
@@ -219,8 +220,22 @@ class TestZephyrGraph(unittest.TestCase):
             # Not in the requested coordinate system
             node_list = [0]
             G = dnx.zephyr_graph(m, t, node_list=node_list,
-                                  check_node_list=True, coordinates=True)
-    
+                                 check_node_list=True, coordinates=True)
+        # Edges are not checked, but node_list is, the edge is deleted:
+        edge_list = [(-1,0)]
+        node_list = [0]
+        G = dnx.zephyr_graph(m, t, node_list=node_list, edge_list=edge_list,
+                              check_node_list=True, coordinates=True)
+        self.assertEqual(G.number_of_edges(), 0)
+        self.assertEqual(G.number_of_nodes(), 1)
+        # Edges are not checked, but node_list is, the invalid node (-1) is permitted
+        # because it is specified in edge_list:
+        edge_list = [(-1,0)]
+        node_list = [-1,0]
+        G = dnx.zephyr_graph(m, t, node_list=node_list, edge_list=edge_list,
+                              check_node_list=True, coordinates=True)
+        self.assertEqual(G.number_of_edges(), 1)
+        self.assertEqual(G.number_of_nodes(), 2)
 
     def test_edge_list(self):
         m=2
@@ -258,3 +273,61 @@ class TestZephyrGraph(unittest.TestCase):
             edge_list = [(0, 1), (0, 1)]
             G = dnx.zephyr_graph(m, t, edge_list=edge_list,
                                   check_edge_list=True)
+
+            
+class TestZephyrTorus(unittest.TestCase):
+    def test(self):
+        for m in [2,3,4]:
+            for t in [1,4]:
+                G = dnx.zephyr_torus(m=m, t=t)
+                # Test bulk properties:
+                
+                num_nodes = (8*t)*m*m
+                self.assertEqual(G.number_of_nodes(), num_nodes)
+                if m==1:
+                    conn = 1 + t*4;
+                    self.assertEqual(G.number_of_edges(),(num_nodes*conn)//2)
+                elif m==2:
+                    conn = 3 + t*4 
+                    self.assertEqual(G.number_of_edges(),(num_nodes*conn)//2)
+                else:
+                    conn = 4 + t*4;
+                    self.assertEqual(G.number_of_edges(),(num_nodes*conn)//2)
+
+                    # Check translational invariance (identical edges, identical nodes):
+                    # (u,w,k,j,z) -> (u, [w + u (2*dx) + (1-u)*(2*dy)]%(m-1)), k, j, [z + (1-u) dx + u dy]%(m-1))
+                    dx = 1 + np.random.randint(m-2)
+                    dy = np.random.randint(m-1)
+                    relabel = lambda tup: (tup[0],(tup[1] + tup[0]*(2*dx) + (1-tup[0])*(2*dy))%(2*m),tup[2],tup[3],(tup[4] + tup[0]*dy + (1-tup[0])*dx)%m)
+                    G_translated = nx.relabel_nodes(G,relabel,copy=True)
+                    G.remove_edges_from(G_translated.edges())
+                    self.assertEqual(G.number_of_edges(),0) #At t=1, m=2 (n=32), 8 left over edges. 8 edges collapsed to the same place?
+                    G.remove_nodes_from(G_translated.nodes())
+                    self.assertEqual(G.number_of_nodes(),0)
+                    
+                    
+    def tests_list(self):
+        # Test correct handling of nodes and edges:
+        m=3
+        t=4
+        num_var = m*m*t*8
+        to_coord = dnx.zephyr_coordinates(m,t).linear_to_zephyr
+        node_list_lin = [0, 1, -1]
+        node_list = [to_coord(i) for i in node_list_lin]
+        G = dnx.zephyr_torus(m=m, t=t, node_list = [node_list[i] for i in range(2) ])
+        self.assertEqual(G.number_of_edges(),1)
+        self.assertEqual(G.number_of_nodes(),2)
+        with self.assertRaises(ValueError):
+            # 1 invalid node
+            G = dnx.zephyr_torus(m=m, t=t, node_list=node_list)
+        edge_list_lin = [(0, 1), (m, m+1), (0, m+1)]
+        edge_list = [(to_coord(n1), to_coord(n2)) for n1, n2 in edge_list_lin]
+        G = dnx.zephyr_torus(m=m, t=t, edge_list = [edge_list[i] for i in range(2) ])
+        
+        self.assertEqual(G.number_of_edges(),2)
+        self.assertEqual(G.number_of_nodes(),num_var) # No deletions
+        
+        with self.assertRaises(ValueError):
+            # 1 invalid edge
+            G = dnx.zephyr_torus(m=m, t=t, edge_list = edge_list)
+            
