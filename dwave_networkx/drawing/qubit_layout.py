@@ -27,7 +27,7 @@ from itertools import repeat, chain
 
 from numbers import Number
 
-__all__ = ['draw_qubit_graph']
+__all__ = ['draw_qubit_graph', 'draw_embedding', 'draw_yield', 'normalize_size_and_aspect', 'draw_lineplot']
 
 
 def draw_qubit_graph(G, layout, linear_biases={}, quadratic_biases={},
@@ -637,7 +637,7 @@ def draw_lineplot(G, layout, *, ax, node_size, width, nodelist=None,
                   edge_vmin=None, edge_vmax=None, z_offset=0):
     """Draws the graph G with line segments representing nodes.
 
-    This function is meant to be a drop-in replacement for :func:`networkx.draw`
+    This function is meant to be a drop-in replacement for :func:`networkx.drawing.nx_pylab.draw`
     where nodes are associated with line segments (specified as 2x2 matrices
     [[x0, y0], [x1, y1]]).  This function makes significant assumptions about
     the edges of the graph G, that hold when G is a Chimera, Pegasus, or Zephyr

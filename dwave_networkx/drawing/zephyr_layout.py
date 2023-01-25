@@ -54,9 +54,9 @@ def zephyr_layout(G, scale=1., center=None, dim=2, plot_kwargs=None):
 
     plot_kwargs : None or dict (default None)
         A dict of keyword arguments to be used in a plotting function (see
-        :func:`networkx.draw` and :func:`draw_lineplot`), to scale node and edge
+        :func:`networkx.drawing.nx_pylab.draw` and :func:`draw_lineplot`), to scale node and edge
         sizes appropriately to the graph `G`.  Optional keys in ``plot_kwargs``
-        are set to default values by the :func:`normalize_size_and_aspect`
+        are set to default values by the :func:`~dwave_networkx.drawing.qubit_layout.normalize_size_and_aspect`
         function.  Do nothing if ``plot_kwargs`` is None.
 
     Returns
@@ -113,9 +113,9 @@ def zephyr_node_placer_2d(G, scale=1., center=None, dim=2, plot_kwargs=None):
 
     plot_kwargs : None or dict (default None)
         A dict of keyword arguments to be used in a plotting function (see
-        :func:`networkx.draw` and :func:`draw_lineplot`), to scale node and edge
+        :func:`networkx.drawing.nx_pylab.draw` and :func:`draw_lineplot`), to scale node and edge
         sizes appropriately to the graph `G`.  Optional keys in ``plot_kwargs``
-        are set to default values by the :func:`normalize_size_and_aspect`
+        are set to default values by the :func:`~dwave_networkx.drawing.qubit_layout.normalize_size_and_aspect`
         function.  Do nothing if ``plot_kwargs`` is None.
 
     Returns
