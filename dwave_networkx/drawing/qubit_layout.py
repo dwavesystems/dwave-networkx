@@ -609,10 +609,10 @@ def normalize_size_and_aspect(scale, node_scale, kwargs):
         cf = ax.get_figure()
     cf.set_facecolor("w")
     if ax is None:
-        if cf._axstack() is None:
-            ax = cf.add_axes((0, 0, 1, 1))
-        else:
+        if cf.axes:
             ax = cf.gca()
+        else:
+            ax = cf.add_axes((0, 0, 1, 1))
     kwargs['ax'] = ax
     ax.set_aspect(1)
     fig_scale = min(cf.get_figheight(), cf.get_figwidth())
