@@ -102,3 +102,15 @@ class TestDrawing(unittest.TestCase):
         emb = {0: [12, 35], 1: [12, 31], 2: [32], 3: [14]}
         dnx.draw_pegasus_embedding(C, emb, overlapped_embedding=True)
         dnx.draw_pegasus_embedding(C, emb, overlapped_embedding=True, show_labels=True)
+
+    def test_layout_bounds(self):
+        for P in [dnx.pegasus_graph(2, fabric_only=False), dnx.pegasus_graph(3, fabric_only=False), dnx.pegasus_graph(4, fabric_only=False)]:
+            pos = dnx.pegasus_layout(P)
+            minx = min(x for x, y in pos.values())
+            miny = min(y for x, y in pos.values())
+            maxx = max(x for x, y in pos.values())
+            maxy = max(y for x, y in pos.values())
+            self.assertAlmostEqual(minx, 0)
+            self.assertAlmostEqual(maxx, 1)
+            self.assertAlmostEqual(miny, -1)
+            self.assertAlmostEqual(maxy, 0)

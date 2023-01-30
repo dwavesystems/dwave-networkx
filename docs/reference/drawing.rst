@@ -21,6 +21,7 @@ Chimera Graph Functions
 
    chimera_layout
    draw_chimera
+   chimera_node_placer_2d
 
 Example
 ~~~~~~~
@@ -89,8 +90,6 @@ of nodes of a simple 5-node graph on a small Pegasus lattice.
 	             edge_list=[(4, 40), (4, 41), (4, 42), (4, 43)])
    >>> # Show graph H on a small Pegasus lattice
    >>> plt.ion()
-   >>> # Show graph H on a small Pegasus lattice
-   >>> plt.ion()
    >>> dnx.draw_pegasus(G, with_labels=True, crosses=True, node_color="Yellow")
    >>> dnx.draw_pegasus(H, crosses=True, node_color='b', style='dashed',
 	         edge_color='b', width=3)
@@ -141,3 +140,18 @@ of a five-node clique on a small Zephyr graph.
 	:alt: Five-node clique embedded in a small Zephyr graph.
 
 	Five-node clique embedded in a small Zephyr graph.
+
+
+Generic Plotting Functions
+--------------------------
+
+.. automodule:: dwave_networkx.drawing.qubit_layout
+
+.. autosummary::
+   :toctree: generated/
+
+   draw_qubit_graph
+   draw_embedding
+   draw_yield
+   normalize_size_and_aspect
+   draw_lineplot

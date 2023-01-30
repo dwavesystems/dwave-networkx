@@ -23,13 +23,16 @@ import networkx as nx
 from networkx import draw
 
 from dwave_networkx.drawing.distinguishable_colors import distinguishable_color_map
+from itertools import repeat, chain
 
-__all__ = ['draw_qubit_graph']
+from numbers import Number
+
+__all__ = ['draw_qubit_graph', 'draw_embedding', 'draw_yield', 'normalize_size_and_aspect', 'draw_lineplot']
 
 
 def draw_qubit_graph(G, layout, linear_biases={}, quadratic_biases={},
                      nodelist=None, edgelist=None, cmap=None, edge_cmap=None, vmin=None, vmax=None,
-                     edge_vmin=None, edge_vmax=None, midpoint=None,
+                     edge_vmin=None, edge_vmax=None, midpoint=None, line_plot=False,
                      **kwargs):
     """Draws graph G according to layout.
 
@@ -59,6 +62,16 @@ def draw_qubit_graph(G, layout, linear_biases={}, quadratic_biases={},
         A float that specifies where the center of the colormap should
         be. If not provided, the colormap will default to the middle of
         min/max values provided.
+
+    line_plot : boolean (optional, default False)
+        If line_plot is True, then qubits are drawn as line segments, and edges
+        are drawn either as line segments between qubits, or as circles where
+        two qubits overlap.  In this drawing style, the interpretation the width
+        and node_size parameters (provided in kwargs) determines the area of the
+        circles, and line widths, respectively.  Qubit line segments are given
+        twice the width of edges.  Layout should be a dict of the form
+        {node: ((x0, y0), (y0, x0)), ...} -- instead of coordinates, the nodes
+        are associated with endpoints of n-dimensional line segments.
 
     kwargs : optional keywords
        See networkx.draw_networkx() for a description of optional keywords,
@@ -178,15 +191,21 @@ def draw_qubit_graph(G, layout, linear_biases={}, quadratic_biases={},
         if ax is None:
             ax = fig.add_axes([0.01, 0.01, 0.98, 0.98])
 
-    draw(G, layout, ax=ax, nodelist=nodelist, edgelist=edgelist,
-         cmap=cmap, edge_cmap=edge_cmap, vmin=vmin, vmax=vmax, edge_vmin=edge_vmin,
-         edge_vmax=edge_vmax,
-         **kwargs)
+    if line_plot:
+        draw_lineplot(G, layout, ax=ax, nodelist=nodelist, edgelist=edgelist,
+             cmap=cmap, edge_cmap=edge_cmap, vmin=vmin, vmax=vmax, edge_vmin=edge_vmin,
+             edge_vmax=edge_vmax,
+             **kwargs)
+    else:
+        draw(G, layout, ax=ax, nodelist=nodelist, edgelist=edgelist,
+             cmap=cmap, edge_cmap=edge_cmap, vmin=vmin, vmax=vmax, edge_vmin=edge_vmin,
+             edge_vmax=edge_vmax,
+             **kwargs)
 
 
 def draw_embedding(G, layout, emb, embedded_graph=None, interaction_edges=None,
                    chain_color=None, unused_color=(0.9,0.9,0.9,1.0), cmap=None,
-                   show_labels=False, overlapped_embedding=False, **kwargs):
+                   show_labels=False, overlapped_embedding=False, line_plot=False, **kwargs):
     """Draws an embedding onto the graph G, according to layout.
 
     If interaction_edges is not None, then only display the couplers in that
@@ -240,6 +259,16 @@ def draw_embedding(G, layout, emb, embedded_graph=None, interaction_edges=None,
         the same vertices in G), and the drawing will display these overlaps as
         concentric circles.
 
+    line_plot : boolean (optional, default False)
+        If line_plot is True, then qubits are drawn as line segments, and edges
+        are drawn either as line segments between qubits, or as circles where
+        two qubits overlap.  In this drawing style, the interpretation the width
+        and node_size parameters (provided in kwargs) determines the area of the
+        circles, and line widths, respectively.  Qubit line segments are given
+        twice the width of edges.  Layout should be a dict of the form
+        {node: ((x0, y0), (y0, x0)), ...} -- instead of coordinates, the nodes
+        are associated with endpoints of n-dimensional line segments.
+
     kwargs : optional keywords
        See networkx.draw_networkx() for a description of optional keywords,
        with the exception of the `pos` parameter which is not used by this
@@ -251,6 +280,12 @@ def draw_embedding(G, layout, emb, embedded_graph=None, interaction_edges=None,
         import matplotlib as mpl
     except ImportError:
         raise ImportError("Matplotlib and numpy required for draw_chimera()")
+
+    if line_plot and show_labels:
+        raise NotImplementedError("line_plot style drawings do not currently support node labels")
+    
+    if line_plot and overlapped_embedding:
+        raise NotImplementedError("line_plot style drawings do not currently support overlapped embeddings")
 
     if nx.utils.is_string_like(unused_color):
         from matplotlib.colors import colorConverter
@@ -371,15 +406,25 @@ def draw_embedding(G, layout, emb, embedded_graph=None, interaction_edges=None,
                 c = emb[v]
                 labels[list(c)[0]] = str(v)
 
-    # draw the background (unused) graph first
-    if unused_color is not None:
-        draw(G, layout, nodelist=nodelist, edgelist=background_edgelist,
-             node_color=node_color, edge_color=background_edge_color,
-             **kwargs)
+    if line_plot:
+        if unused_color is not None:
+            draw_lineplot(G, layout, nodelist=nodelist, edgelist=background_edgelist,
+                 node_color=node_color, edge_color=background_edge_color,
+                 **kwargs)
 
-    draw(G, layout, nodelist=nodelist, edgelist=edgelist,
-         node_color=node_color, edge_color=edge_color, labels=labels,
-         **kwargs)
+        draw_lineplot(G, layout, nodelist=nodelist, edgelist=edgelist,
+             node_color=node_color, edge_color=edge_color, z_offset = 10,
+             **kwargs)    
+    else:
+        # draw the background (unused) graph first
+        if unused_color is not None:
+            draw(G, layout, nodelist=nodelist, edgelist=background_edgelist,
+                 node_color=node_color, edge_color=background_edge_color,
+                 **kwargs)
+
+        draw(G, layout, nodelist=nodelist, edgelist=edgelist,
+             node_color=node_color, edge_color=edge_color, labels=labels,
+             **kwargs)
 
 
 def compute_bags(C, emb):
@@ -424,9 +469,9 @@ def unoverlapped_embedding(G, emb, interaction_edges):
 
 
 def draw_yield(G, layout, perfect_graph, unused_color=(0.9,0.9,0.9,1.0),
-                    fault_color=(1.0,0.0,0.0,1.0), fault_shape='x',
-                    fault_style='dashed', **kwargs):
-
+               fault_color=(1.0,0.0,0.0,1.0), fault_shape='o',
+               fault_style='dashed', incident_fault_color=(1.0,0.8,0.8,1.0),
+               line_plot = False, **kwargs):
     """Draws the given graph G with highlighted faults, according to layout.
 
     Parameters
@@ -442,21 +487,34 @@ def draw_yield(G, layout, perfect_graph, unused_color=(0.9,0.9,0.9,1.0),
     perfect_graph : NetworkX graph
         The graph to be drawn with highlighted faults
 
-
     unused_color : tuple or color string (optional, default (0.9,0.9,0.9,1.0))
         The color to use for nodes and edges of G which are not faults.
         If unused_color is None, these nodes and edges will not be shown at all.
 
     fault_color : tuple or color string (optional, default (1.0,0.0,0.0,1.0))
-        A color to represent nodes absent from the graph G. Colors should be
+        A color to represent nodes absent from the graph G, and edges absent
+        from the graph G which are not incident to faulty nodes. 
+
+    incident_fault_color : tuple or color string (optional, default (1.0,0.8,0.8,1.0))
+        A color to represent edges incident to faulty nodes.  Colors should be
         length-4 tuples of floats between 0 and 1 inclusive.
 
-    fault_shape : string, optional (default='x')
+    fault_shape : string, optional (default='o')
         The shape of the fault nodes. Specification is as matplotlib.scatter
         marker, one of 'so^>v<dph8'.
 
     fault_style : string, optional (default='dashed')
         Edge fault line style (solid|dashed|dotted,dashdot)
+
+    line_plot : boolean (optional, default False)
+        If line_plot is True, then qubits are drawn as line segments, and edges
+        are drawn either as line segments between qubits, or as circles where
+        two qubits overlap.  In this drawing style, the interpretation the width
+        and node_size parameters (provided in kwargs) determines the area of the
+        circles, and line widths, respectively.  Qubit line segments are given
+        twice the width of edges.  Layout should be a dict of the form
+        {node: ((x0, y0), (y0, x0)), ...} -- instead of coordinates, the nodes
+        are associated with endpoints of n-dimensional line segments.
 
     kwargs : optional keywords
        See networkx.draw_networkx() for a description of optional keywords,
@@ -468,34 +526,270 @@ def draw_yield(G, layout, perfect_graph, unused_color=(0.9,0.9,0.9,1.0),
         import matplotlib.pyplot as plt
         import matplotlib as mpl
     except ImportError:
-        raise ImportError("Matplotlib and numpy required for draw_chimera()")
+        raise ImportError("Matplotlib required for draw_yield()")
 
+    edgeset = lambda E: set(map(lambda e: tuple(sorted(e)), E))
     nodelist = G.nodes()
     edgelist = G.edges()
+    
     faults_nodelist = perfect_graph.nodes() - nodelist
-    faults_edgelist = perfect_graph.edges() - edgelist
+    incident_edgelist = edgeset(perfect_graph.edges) - edgeset(perfect_graph.subgraph(nodelist).edges)
+    faults_edgelist = edgeset(perfect_graph.subgraph(nodelist).edges) - edgeset(G.edges)
 
-    # To avoid matplotlib.pyplot.scatter warnings for single tuples, create
-    # lists of colors from given colors.
-    faults_node_color = [fault_color for v in faults_nodelist]
-    faults_edge_color = [fault_color for v in faults_edgelist]
+    if line_plot:
+        if unused_color is not None:
+            node_color = [fault_color if v in faults_nodelist else unused_color for v in perfect_graph]
+            long_edgelist = list(edgeset(perfect_graph.edges) - incident_edgelist - faults_edgelist)
+        else:
+            node_color = []
+            long_edgelist = []
+        edge_color = [unused_color]*len(long_edgelist)
+        long_edgelist.extend(incident_edgelist)
+        edge_color.extend([incident_fault_color]*len(incident_edgelist))
+        long_edgelist.extend(faults_edgelist)
+        edge_color.extend([fault_color]*len(faults_edgelist))
+        draw_lineplot(perfect_graph, layout, edgelist=long_edgelist, node_color=node_color, edge_color=edge_color, **kwargs)
+    else:
+        faults_node_color = [fault_color for v in faults_nodelist]
+        faults_edge_color = [fault_color for e in faults_edgelist]
+        incident_edge_color = [incident_fault_color for e in incident_edgelist]
 
-    # Draw faults with different style and shape
-    draw(perfect_graph, layout, nodelist=faults_nodelist, edgelist=faults_edgelist,
-        node_color=faults_node_color, edge_color=faults_edge_color,
-        style=fault_style, node_shape=fault_shape,
-        **kwargs )
+        # Draw edges first, in the order (unused, incident, faults)
+        if unused_color is not None:
+            unused_edge_color = [unused_color for e in G.edges()]
+            nx.draw_networkx_edges(G, layout, edge_color=unused_edge_color, **kwargs)
+        nx.draw_networkx_edges(perfect_graph, layout, incident_edgelist, style=fault_style, edge_color=incident_edge_color, **kwargs)
+        nx.draw_networkx_edges(perfect_graph, layout, faults_edgelist, style=fault_style, edge_color=faults_edge_color, **kwargs)
 
-    # Draw rest of graph
-    if unused_color is not None:
-        if nodelist is None:
-            nodelist = G.nodes() - faults_nodelist
-        if edgelist is None:
-            edgelist = G.edges() - faults_edgelist
+        # Draw nodes second, in the order (unused, faults)
+        if unused_color is not None:
+            unused_node_color = [unused_color for e in G]
+            nx.draw_networkx_nodes(G, layout, node_color = unused_node_color, **kwargs)
+        nx.draw_networkx_nodes(perfect_graph, layout, faults_nodelist, node_shape=fault_shape, node_color=faults_node_color, **kwargs)
 
-        unused_node_color = [unused_color for v in nodelist]
-        unused_edge_color = [unused_color for v in edgelist]
 
-        draw(perfect_graph, layout, nodelist=nodelist, edgelist=edgelist,
-            node_color=unused_node_color, edge_color=unused_edge_color,
-            **kwargs)
+def normalize_size_and_aspect(scale, node_scale, kwargs):
+    """Sets default values for the "ax", "node_size" and "width" keys.
+    
+    If the `"ax"` is not set, then we create an axis from the current
+    `matplotlib` figure (:func:`matplotlib.pyplot.gcf()`).  Then, the the axis
+    (either the one we created, or the pre-existing one) is set to have an
+    aspect ratio of 1 and the drawing of axes is turned off.
+    
+    Then, if `"node_size"` and `"width"` are not set, we compute default values
+    for them based on the scale of the current figure and the scale parameters
+    as appropriate.
+    
+    Note, if `kwargs["line_plot"]` is True, then the interpretation of the 
+    `"width"` and `"node_size"` parameters determine the area of edge-circles
+    and line widths (used for both nodes and edges) respectively.  See 
+    :func:`dwave_networkx.qubit_layout.draw_lineplot` for more information.
+
+    Parameters
+    ----------
+    scale : float
+        A geometric size of a figure to be drawn.  This is roughly the number
+        of qubits in any given row or column of the graph.
+        
+    node_scale : float
+        A magic number used to scale node circles -- ignored and replaced with
+        the number 50 when `kwargs["line_plot"]` is True.
+    
+    kwargs : dict
+        A dictionary to populate with default values.    
+    """
+    ax = kwargs.get('ax')
+    if ax is None:
+        try:
+            import matplotlib.pyplot as plt
+        except ImportError:
+            raise ImportError("Matplotlib required for graph drawing")
+        cf = plt.gcf()
+    else:
+        cf = ax.get_figure()
+    cf.set_facecolor("w")
+    if ax is None:
+        if cf.axes:
+            ax = cf.gca()
+        else:
+            ax = cf.add_axes((0, 0, 1, 1))
+    kwargs['ax'] = ax
+    ax.set_aspect(1)
+    fig_scale = min(cf.get_figheight(), cf.get_figwidth())
+    ax.set_axis_off()
+
+    if kwargs.get('node_size') is None:
+        if kwargs.get("line_plot"):
+            kwargs['node_size'] = 50*(fig_scale/scale)**2
+        else:
+            kwargs['node_size'] = node_scale*(fig_scale/scale)**2
+
+    if kwargs.get('width') is None:
+        if kwargs.get("line_plot"):
+            kwargs['width'] = 5*(fig_scale / scale)
+        else:
+            kwargs['width'] = 2*(fig_scale / scale)
+
+
+def draw_lineplot(G, layout, *, ax, node_size, width, nodelist=None,
+                  edgelist=None, node_color='blue', edge_color='black',
+                  cmap=None, vmin=None, vmax=None, edge_cmap=None,
+                  edge_vmin=None, edge_vmax=None, z_offset=0):
+    """Draws the graph G with line segments representing nodes.
+
+    This function is meant to be a drop-in replacement for :func:`networkx.drawing.nx_pylab.draw`
+    where nodes are associated with line segments (specified as 2x2 matrices
+    [[x0, y0], [x1, y1]]).  This function makes significant assumptions about
+    the edges of the graph G, that hold when G is a Chimera, Pegasus, or Zephyr
+    graph and the line segments are provided by :func:`chimera_layout`,
+    :func:`pegasus_layout` and :func:`zephyr_layout` respectively.  These graphs
+    have three classes of edges:
+
+        * internal edges between qubits whose line segments are perpendicular
+            and intersect at a point, drawn as a circle located at the point of
+            intersection,
+        * external edges between qubits whose line segments are colinear, drawn
+            as a line segment between the nearest endpoints, and
+        * odd edges between parallel qubits whose line segments are parallel and
+          overlap in a perpendicular projection, drawn as a line segment between
+          the midpoints of the respective perpendicular projections.
+
+    Parameters
+    ----------
+
+    G : networkx.Graph
+        A graph constructed by :func:`chimera_layout`, :func:`pegasus_layout`,
+        or :func:`zephyr_layout`.
+
+    layout : dict
+        A dictionary with nodes as keys and 2x2 matrices [[x0, y0], [x1, y1]]
+        representing the line segments of nodes.
+
+    ax : matplotlib.Axis
+        The matplotlib Axis object to draw the graph on.
+
+    node_size : float
+        The size (in area) of the circles used to depict internal edges.
+
+    width : float
+        The width of line segments associated with edges, and half the width of
+        line segments associated with nodes.
+
+    nodelist : iterable or None (default=None)
+        The set of nodes to draw.  If None, all nodes from G are drawn.
+
+    edgelist : iterable or None (default=None)
+        The set of edges to draw.  If both nodelist and ``edgelist`` are None,
+        all edges of G are drawn.  If ``edgelist`` is None, all edges from the
+        subgraph ``G.subgraph(nodelist)`` are drawn.
+
+    node_color : iterable or string (default='blue')
+        The sequence of colors to use in drawing nodes of G.  If node_color is
+        not a string, the colors are taken in the same order as nodelist, and
+        each color is either a float, a 3-tuple or 4-tuple of floats.
+
+    edge_color : iterable or string (default='black')
+        The sequence of colors to use in drawing edges of G.  If edge_color is
+        not a string, the colors are taken in the same order as ``edgelist``,
+        and each color is either a float, a 3-tuple or 4-tuple of floats.
+
+    cmap : string or matplotlib.ColorMap or None (default=None)
+        A colormap to color nodes with.  Presumes that node_color is a sequence
+        of floats.
+
+    vmin : float or None (default=None)
+        Minimum value to use to use when normalizing node colors through
+        ``cmap``.
+
+    vmax : float or None (default=None)
+        Maximum value to use to use when normalizing node colors through
+        ``cmap``.
+
+    edge_cmap : string or matplotlib.ColorMap or None (default=None)
+        A colormap to color edges with.  Presumes that edge_color is a sequence
+        of floats.
+
+    edge_vmin : float or None (default=None)
+        Minimum value to use to use when normalizing edge colors through
+        ``edge_cmap``.
+
+    edge_vmax : float or None (default=None)
+        Maximum value to use to use when normalizing edge colors through
+        ``edge_cmap``.
+    
+    z_offset : int (default=0)
+        An offset to the "zorder: that various elements are drawn in.  Edge
+        lines are drawn with `zorder=z_offset`; horizontal node lines are drawn
+        with `zorder=zoffset+1`; vertical node lines are drawn with
+        `zorder=zoffset+2`, and edge circles are drawn with `zorder=zoffset+3`.
+        This parameter can be used to layer line plots over or under each other.
+    """
+    try:
+        from networkx.drawing.nx_pylab import apply_alpha
+        import numpy as np
+        from matplotlib.collections import LineCollection, CircleCollection
+    except ImportError:
+        raise ImportError("Matplotlib and NumPy required for draw_lineplot()")
+
+    if not isinstance(node_size, Number) or not isinstance(width, Number):
+        raise NotImplementedError("Varying node size and edge width per element in line plots is not implemented")
+
+    if edgelist is None:
+        if nodelist is not None:
+            edgelist = G.subgraph(nodelist).edges
+        else:
+            edgelist = G.edges
+    if nodelist is None:
+        nodelist = G
+
+    node_color = apply_alpha(node_color, 1, nodelist, cmap=cmap, vmin=vmin, vmax=vmax)
+    node_lines = np.array([layout[v] for v in nodelist], dtype='float')
+    vertical = np.array([abs(x0-x1) < abs(y0-y1) for (x0, y0), (x1, y1) in node_lines], dtype='bool')
+    if node_color.shape == (1, 4):
+        vcolor = hcolor = node_color
+    else:
+        vcolor = node_color[vertical]
+        hcolor = node_color[~vertical]
+    ax.add_collection(LineCollection(node_lines[~vertical], edgecolor=hcolor, linewidths=width, zorder=1+z_offset, capstyle='round'))
+    ax.add_collection(LineCollection(node_lines[vertical], edgecolor=vcolor, linewidths=width, zorder=2+z_offset, capstyle='round'))
+
+    if edge_color is not None and len(edgelist):
+        vertical = dict(zip(nodelist, map(int, vertical)))
+        as_line = np.full(len(edgelist), False, dtype='bool')
+        edge_data = np.empty((len(edgelist), 2, 2), dtype='float')
+        for i, (u, v) in enumerate(edgelist):
+            u0, u1 = layout[u]
+            v0, v1 = layout[v]
+            orientation = vertical[u]
+            if orientation == vertical[v]:
+                as_line[i] = True
+                if u0[orientation] > v1[orientation]:
+                    # external; v1 < u0
+                    edge_data[i] = v1, u0
+                elif v0[orientation] > u1[orientation]:
+                    # external; u1 < v0
+                    edge_data[i] = u1, v0
+                elif orientation:
+                    # odd, vertical
+                    ymean = (u0[1] + u1[1] + v0[1] + v1[1])/4
+                    edge_data[i] = (u0[0], ymean), (v0[0], ymean)
+                else:
+                    # odd, horizontal
+                    xmean = (u0[0] + u1[0] + v0[0] + v1[0])/4
+                    edge_data[i] = (xmean, u0[1]), (xmean, v0[1])
+            elif orientation:
+                # internal, u is vertical and v is horizontal
+                edge_data[i, 0] = u0[0], v0[1]
+            else:
+                # internal, v is vertical and u is horizontal
+                edge_data[i, 0] = v0[0], u0[1]
+
+        edge_color = apply_alpha(edge_color, 1, edgelist, cmap=edge_cmap, vmin=edge_vmin, vmax=edge_vmax)
+        if edge_color.shape == (1, 4):
+            edge_line_color = edge_spot_color = edge_color
+        else:
+            edge_line_color = edge_color[as_line]
+            edge_spot_color = edge_color[~as_line]
+        ax.add_collection(LineCollection(edge_data[as_line], edgecolor=edge_line_color, linewidths=width/2, zorder=z_offset))
+        ax.scatter(*edge_data[~as_line, 0].T, c=edge_spot_color, zorder=3+z_offset, s=node_size)
+    ax.autoscale_view()

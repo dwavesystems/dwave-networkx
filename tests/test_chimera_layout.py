@@ -116,3 +116,15 @@ class TestDrawing(unittest.TestCase):
         emb = {0: [1, 5], 1: [5, 9, 13], 2: [25, 29], 3: [17, 21]}
         dnx.draw_chimera_embedding(C, emb, overlapped_embedding=True)
         dnx.draw_chimera_embedding(C, emb, overlapped_embedding=True, show_labels=True)
+
+    def test_layout_bounds(self):
+        for C in [dnx.chimera_graph(1, 1, 4), dnx.chimera_graph(2, 2, 2), dnx.chimera_graph(4, 4, 4), dnx.chimera_graph(2, 2, 8)]:
+            pos = dnx.chimera_layout(C)
+            minx = min(x for x, y in pos.values())
+            miny = min(y for x, y in pos.values())
+            maxx = max(x for x, y in pos.values())
+            maxy = max(y for x, y in pos.values())
+            self.assertAlmostEqual(minx, 0)
+            self.assertAlmostEqual(maxx, 1)
+            self.assertAlmostEqual(miny, -1)
+            self.assertAlmostEqual(maxy, 0)
