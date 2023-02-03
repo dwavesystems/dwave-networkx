@@ -4,7 +4,7 @@
 Drawing
 *******
 
-Tools to visualize topologies of D-Wave QPUs and weighted graph problems on them.
+Tools to visualize topologies of D-Wave QPUs and weighted :term:`graph` problems on them.
 
 .. currentmodule:: dwave_networkx
 
@@ -20,7 +20,10 @@ Chimera Graph Functions
    :toctree: generated/
 
    chimera_layout
+   chimera_node_placer_2d
    draw_chimera
+   draw_chimera_embedding
+   draw_chimera_yield
 
 Example
 ~~~~~~~
@@ -69,8 +72,9 @@ Pegasus Graph Functions
 .. autosummary::
    :toctree: generated/
 
-   draw_pegasus
+     draw_pegasus
 	 draw_pegasus_embedding
+     draw_pegasus_yield
 	 pegasus_layout
 	 pegasus_node_placer_2d
 
@@ -111,10 +115,11 @@ Zephyr Graph Functions
 .. autosummary::
    :toctree: generated/
 
-   draw_zephyr
+     draw_zephyr
 	 draw_zephyr_embedding
 	 draw_zephyr_yield
 	 zephyr_layout
+     zephyr_node_placer_2d
 
 Example
 ~~~~~~~

@@ -14,7 +14,7 @@
 #
 # ================================================================================================
 """
-Tools to visualize Chimera lattices and weighted graph problems on them.
+Tools to visualize :term:`Chimera` lattices and weighted :term:`graph` problems on them.
 """
 
 import networkx as nx
@@ -28,33 +28,34 @@ __all__ = ['chimera_layout', 'draw_chimera', 'draw_chimera_embedding', 'draw_chi
 
 
 def chimera_layout(G, scale=1., center=None, dim=2):
-    """Positions the nodes of graph G in a Chimera cross topology.
+    """Position the nodes of graph ``G`` in a Chimera cross topology.
 
     NumPy (https://scipy.org) is required for this function.
 
     Parameters
     ----------
     G : NetworkX graph
-        Should be a Chimera graph or a subgraph of a
-        Chimera graph. If every node in G has a `chimera_index`
-        attribute, those are used to place the nodes. Otherwise makes
-        a best-effort attempt to find positions.
+        :term:`Chimera` :term:`graph` or :term:`subgraph` of a
+        Chimera graph. If every node in ``G`` has a ``chimera_index``
+        attribute, the node position in the ``chimera_index``
+        attribute is used to place each node. Otherwise,
+        a best-effort attempt is made to find the node positions.
 
     scale : float (default 1.)
-        Scale factor. When scale = 1,  all positions fit within [0, 1]
+        Scale factor. If ``scale = 1``, then all positions fit within [0, 1]
         on the x-axis and [-1, 0] on the y-axis.
 
     center : None or array (default None)
         Coordinates of the top left corner.
 
     dim : int (default 2)
-        Number of dimensions. When dim > 2, all extra dimensions are
+        Number of dimensions. If ``dim > 2``, then all extra dimensions are
         set to 0.
 
     Returns
     -------
     pos : dict
-        A dictionary of positions keyed by node.
+        Dictionary of positions keyed by node.
 
     Examples
     --------
@@ -106,13 +107,13 @@ def chimera_layout(G, scale=1., center=None, dim=2):
 
 
 def chimera_node_placer_2d(m, n, t, scale=1., center=None, dim=2):
-    """Generates a function that converts Chimera indices to x, y
-    coordinates for a plot.
+    """Generate a function that converts Chimera indices to x- and
+    y-coordinates for a plot.
 
     Parameters
     ----------
     m : int
-        Number of rows in the Chimera lattice.
+        Number of rows in the :term:`Chimera` lattice.
 
     n : int
         Number of columns in the Chimera lattice.
@@ -121,22 +122,21 @@ def chimera_node_placer_2d(m, n, t, scale=1., center=None, dim=2):
         Size of the shore within each Chimera tile.
 
     scale : float (default 1.)
-        Scale factor. When scale = 1,  all positions fit within [0, 1]
+        Scale factor. If ``scale = 1``, then all positions fit within [0, 1]
         on the x-axis and [-1, 0] on the y-axis.
 
     center : None or array (default None)
         Coordinates of the top left corner.
 
     dim : int (default 2)
-        Number of dimensions. When dim > 2, all extra dimensions are
+        Number of dimensions. If ``dim > 2``, then all extra dimensions are
         set to 0.
 
     Returns
     -------
     xy_coords : function
-        A function that maps a Chimera index (i, j, u, k) in an
-        (m, n, t) Chimera lattice to x,y coordinates such as
-        used by a plot.
+        Function that maps a Chimera index ``(i, j, u, k)`` in an
+        ``(m, n, t)`` Chimera lattice to x- and y-coordinates.
 
     """
     import numpy as np
@@ -190,30 +190,30 @@ def chimera_node_placer_2d(m, n, t, scale=1., center=None, dim=2):
 
 
 def draw_chimera(G, **kwargs):
-    """Draws graph G in a Chimera cross topology.
+    """Draw graph ``G`` in a Chimera cross topology.
 
-    If `linear_biases` and/or `quadratic_biases` are provided, these
-    are visualized on the plot.
+    Linear and quadratic biases are visualized on the plot as specified
+    in the ``linear_biases`` and ``quadratic_biases`` parameters.
 
     Parameters
     ----------
     G : NetworkX graph
-        Should be a Chimera graph or a subgraph of a Chimera graph.
+        :term:`Chimera` :term:`graph` or a :term:`subgraph` of a Chimera graph.
 
     linear_biases : dict (optional, default {})
-        A dict of biases associated with each node in G. Should be of
-        form {node: bias, ...}. Each bias should be numeric.
+        A dict of biases associated with each node in ``G`` and of
+        the form ``{node: bias, ...}``. Each bias is numeric.
 
     quadratic_biases : dict (optional, default {})
-        A dict of biases associated with each edge in G. Should be of
-        form {edge: bias, ...}. Each bias should be numeric. Self-loop
+        A dict of biases associated with each edge in ``G`` and of
+        the form ``{edge: bias, ...}``. Each bias is numeric. Self-loop
         edges (i.e., :math:`i=j`) are treated as linear biases.
 
     kwargs : optional keywords
-       See networkx.draw_networkx() for a description of optional keywords,
-       with the exception of the `pos` parameter which is not used by this
-       function. If `linear_biases` or `quadratic_biases` are provided,
-       any provided `node_color` or `edge_color` arguments are ignored.
+       Parameters in :func:`~networkx.drawing.nx_pylab.draw_networkx`, except for the ``pos`` parameter.
+       If the ``linear_biases`` or ``quadratic_biases`` parameters are specified,
+       then the :func:`~networkx.drawing.nx_pylab.draw_networkx` ``node_color``
+       or ``edge_color`` parameters are ignored.
 
     Examples
     --------
@@ -230,87 +230,88 @@ def draw_chimera(G, **kwargs):
 
 
 def draw_chimera_embedding(G, *args, **kwargs):
-    """Draws an embedding onto the chimera graph G, according to layout.
+    """Draw an embedding onto the chimera graph ``G``, according to the Chimera layout.
 
-    If interaction_edges is not None, then only display the couplers in that
-    list.  If embedded_graph is not None, the only display the couplers between
-    chains with intended couplings according to embedded_graph.
+    If the ``interaction_edges`` parameter is not None, then only display the couplers in that
+    list. If the ``embedded_graph`` parameter is not None, then only display the couplers between
+    chains with intended couplings according to the ``embedded_graph`` parameter.
 
     Parameters
     ----------
     G : NetworkX graph
-        Should be a Chimera graph or a subgraph of a Chimera graph.
+        :term:`Chimera` :term:`graph` or a :term:`subgraph` of a Chimera graph.
 
     emb : dict
-        A dict of chains associated with each node in G.  Should be
-        of the form {node: chain, ...}.  Chains should be iterables
-        of qubit labels (qubits are nodes in G).
+        A dict of chains associated with each node in ``G`` and
+        of the form ``{node: chain, ...}``. Chains are iterables
+        of qubit labels (qubits are nodes in ``G``).
 
     embedded_graph : NetworkX graph (optional, default None)
-        A graph which contains all keys of emb as nodes.  If specified,
-        edges of G will be considered interactions if and only if they
-        exist between two chains of emb if their keys are connected by
-        an edge in embedded_graph
+        Graph which contains all keys of the ``emb`` parameter as nodes. If specified, then
+        the edges of ``G`` will be considered interactions if and only if they
+        exist between two chains of the ``emb`` parameter and if their keys are connected by
+        an edge in the ``embedded_graph`` parameter.
 
     interaction_edges : list (optional, default None)
-        A list of edges which will be used as interactions.
+        List of edges which will be used as interactions.
 
     show_labels: boolean (optional, default False)
-        If show_labels is True, then each chain in emb is labelled with its key.
+        If True, then each chain in the ``emb`` parameter is labelled with its key.
 
     chain_color : dict (optional, default None)
-        A dict of colors associated with each key in emb.  Should be
-        of the form {node: rgba_color, ...}.  Colors should be length-4
-        tuples of floats between 0 and 1 inclusive. If chain_color is None,
-        each chain will be assigned a different color.
+        A dict of colors associated with each key in the ``emb`` parameter and
+        of the form ``{node: rgba_color, ...}``. Colors must be length-4
+        tuples of floats between 0 and 1, inclusive. If None,
+        then each chain will be assigned a different color.
 
     unused_color : tuple (optional, default (0.9,0.9,0.9,1.0))
-        The color to use for nodes and edges of G which are not involved
-        in chains, and edges which are neither chain edges nor interactions.
-        If unused_color is None, these nodes and edges will not be shown at all.
+        Color to use for graph ``G``'s nodes that are not part of
+        chains and edges that are neither chain edges nor interactions.
+        If None, then these nodes and edges will not be shown.
 
     overlapped_embedding: boolean (optional, default False)
-        If overlapped_embedding is True, then chains in emb may overlap (contain
-        the same vertices in G), and the drawing will display these overlaps as
+        If True, then chains in the ``emb`` parameter may overlap (contain
+        the same vertices in ``G``), and the drawing will display these overlaps as
         concentric circles.
 
     kwargs : optional keywords
-       See networkx.draw_networkx() for a description of optional keywords,
-       with the exception of the `pos` parameter which is not used by this
-       function. If `linear_biases` or `quadratic_biases` are provided,
-       any provided `node_color` or `edge_color` arguments are ignored.
+       Parameters in :func:`~networkx.drawing.nx_pylab.draw_networkx`, except for the ``pos`` parameter.
+       If the ``linear_biases`` or ``quadratic_biases`` parameters are specified,
+       then the :func:`~networkx.drawing.nx_pylab.draw_networkx` ``node_color``
+       or ``edge_color`` parameters are ignored.
     """
     draw_embedding(G, chimera_layout(G), *args, **kwargs)
 
 
 def draw_chimera_yield(G, **kwargs):
-    """Draws the given graph G with highlighted faults, according to layout.
+    """Draw the given graph ``G`` with highlighted faults, according to the Chimera layout.
 
     Parameters
     ----------
     G : NetworkX graph
-        The graph to be parsed for faults
+        :term:`Graph` to be parsed for faults.
 
     unused_color : tuple or color string (optional, default (0.9,0.9,0.9,1.0))
-        The color to use for nodes and edges of G which are not faults.
-        If unused_color is None, these nodes and edges will not be shown at all.
+        Color to use for graph ``G``'s nodes and edges which are not faults.
+        If None, then these nodes and edges will not be shown.
 
     fault_color : tuple or color string (optional, default (1.0,0.0,0.0,1.0))
-        A color to represent nodes absent from the graph G. Colors should be
-        length-4 tuples of floats between 0 and 1 inclusive.
+        Color to represent nodes that are absent from graph ``G``. Colors must be
+        length-4 tuples of floats between 0 and 1, inclusive.
 
     fault_shape : string, optional (default='x')
-        The shape of the fault nodes. Specification is as matplotlib.scatter
-        marker, one of 'so^>v<dph8'.
+        Shape of the fault nodes. The shapes are the same as those specified for
+        `Matplotlib markers <https://matplotlib.org/stable/api/markers_api.html#module-matplotlib.markers>`_.
 
     fault_style : string, optional (default='dashed')
-        Edge fault line style (solid|dashed|dotted|dashdot)
+        Line style for fault edges. The line style can be any of the following values:
+        ``'solid'``, ``'dashed'``, ``'dotted'``, ``'dashdot'``.
 
     kwargs : optional keywords
-       See networkx.draw_networkx() for a description of optional keywords,
-       with the exception of the `pos` parameter which is not used by this
-       function. If `linear_biases` or `quadratic_biases` are provided,
-       any provided `node_color` or `edge_color` arguments are ignored.
+       Parameters in :func:`~networkx.drawing.nx_pylab.draw_networkx`, except for the ``pos`` parameter.
+       If the ``linear_biases`` or ``quadratic_biases`` parameters are specified,
+       then the :func:`~networkx.drawing.nx_pylab.draw_networkx` ``node_color``
+       or ``edge_color`` parameters are ignored.
     """
     try:
         assert(G.graph["family"] == "chimera")

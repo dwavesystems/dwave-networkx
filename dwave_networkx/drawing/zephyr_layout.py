@@ -13,7 +13,7 @@
 #    limitations under the License.
 
 """
-Tools to visualize Zephyr lattices and weighted graph problems on them.
+Tools to visualize :term:`Zephyr` lattices and weighted :term:`graph` problems on them.
 """
 
 import networkx as nx
@@ -31,25 +31,25 @@ __all__ = ['zephyr_layout',
 
 
 def zephyr_layout(G, scale=1., center=None, dim=2):
-    """Positions the nodes of graph G in a Zephyr topology.
+    """Position the nodes of graph ``G`` in a Zephyr topology.
 
     `NumPy <https://scipy.org>`_ is required for this function.
 
     Parameters
     ----------
     G : NetworkX graph
-        A Zephyr graph or a subgraph of a Zephyr graph, as produced by
+        :term:`Zephyr` :term:`graph` or a :term:`subgraph` of a Zephyr graph as produced by
         the :func:`dwave_networkx.zephyr_graph` function.
 
     scale : float (default 1.)
-        Scale factor. A setting of ``scale = 1`` fits all positions within
+        Scale factor. If ``scale = 1``, then all positions fit within
         [0, 1] on the x-axis and [-1, 0] on the y-axis.
 
     center : None or array (default None)
         Coordinates of the top left corner.
 
     dim : int (default 2)
-        Number of dimensions. When dim > 2, all extra dimensions are
+        Number of dimensions. If ``dim > 2``, then all extra dimensions are
         set to 0.
 
     Returns
@@ -85,30 +85,30 @@ def zephyr_layout(G, scale=1., center=None, dim=2):
 
 
 def zephyr_node_placer_2d(G, scale=1., center=None, dim=2):
-    """Generates a function to convert Zephyr indices to plottable coordinates.
+    """Generate a function to convert Zephyr indices to plottable coordinates.
 
     Parameters
     ----------
     G : NetworkX graph
-        A Zephyr graph or a subgraph of a Zephyr graph, as produced by
+        :term:`Zephyr` :term:`graph` or a :term:`subgraph` of a Zephyr graph as produced by
         the :func:`dwave_networkx.zephyr_graph` function.
 
     scale : float (default 1.)
-        Scale factor. A setting of ``scale = 1`` fits all positions within
+        Scale factor. If ``scale = 1``, then all positions fit within
         [0, 1] on the x-axis and [-1, 0] on the y-axis.
 
     center : None or array (default None)
         Coordinates of the top left corner.
 
     dim : int (default 2)
-        Number of dimensions. When dim > 2, all extra dimensions are
+        Number of dimensions. If ``dim > 2``, then all extra dimensions are
         set to 0.
 
     Returns
     -------
     xy_coords : function
-        A function that maps a Zephyr index (u, w, k, j, z) in a
-        Zephyr lattice to plottable x,y coordinates.
+        Function that maps a Zephyr index ``(u, w, k, j, z)`` in a
+        Zephyr lattice to plottable x- and y-coordinates.
 
     """
     import numpy as np
@@ -148,32 +148,31 @@ def zephyr_node_placer_2d(G, scale=1., center=None, dim=2):
 
 
 def draw_zephyr(G, **kwargs):
-    """Draws graph G in a Zephyr topology.
+    """Draw graph ``G`` in a Zephyr topology.
 
-    If ``linear_biases`` and/or ``quadratic_biases`` are provided, these
-    are visualized on the plot.
+    Linear and quadratic biases are visualized on the plot as specified
+    in the ``linear_biases`` and ``quadratic_biases`` parameters.
 
     Parameters
     ----------
     G : NetworkX graph
-        A Zephyr graph or a subgraph of a Zephyr graph, as produced by
+        :term:`Zephyr` :term:`graph` or a :term:`subgraph` of a Zephyr graph as produced by
         the :func:`dwave_networkx.zephyr_graph` function.
 
     linear_biases : dict (optional, default {})
-        Biases as a dict, of form {node: bias, ...}, where keys are
-        nodes in G and biases are numeric.
+        Biases as a dict of the form ``{node: bias, ...}``, where keys are
+        nodes in ``G`` and biases are numeric.
 
     quadratic_biases : dict (optional, default {})
-        Biases as a dict, of form {edge: bias, ...}, where keys are
-        edges in G and biases are numeric. Self-loop
+        Biases as a dict of the form ``{edge: bias, ...}``, where keys are
+        edges in ``G`` and biases are numeric. Self-loop
         edges (i.e., :math:`i=j`) are treated as linear biases.
 
     kwargs : optional keywords
-       See :func:`~networkx.drawing.nx_pylab.draw_networkx` for a description of
-       optional keywords, with the exception of the ``pos`` parameter, which is
-       unsupported. If the ``linear_biases`` or ``quadratic_biases`` parameters
-       are provided, any provided ``node_color`` or ``edge_color`` arguments are
-       ignored.
+       Parameters in :func:`~networkx.drawing.nx_pylab.draw_networkx`, except for the ``pos`` parameter.
+       If the ``linear_biases`` or ``quadratic_biases`` parameters are specified,
+       then the :func:`~networkx.drawing.nx_pylab.draw_networkx` ``node_color``
+       or ``edge_color`` parameters are ignored.
 
     Examples
     --------
@@ -192,87 +191,84 @@ def draw_zephyr(G, **kwargs):
 
 
 def draw_zephyr_embedding(G, *args, **kwargs):
-    """Draws an embedding onto Zephyr graph G.
+    """Draw an embedding onto a Zephyr graph ``G``.
 
     Parameters
     ----------
     G : NetworkX graph
-        A Zephyr graph or a subgraph of a Zephyr graph, as produced by
+        :term:`Zephyr` :term:`graph` or a :term:`subgraph` of a Zephyr graph as produced by
         the :func:`dwave_networkx.zephyr_graph` function.
 
     emb : dict
-        Minor-embedding as a dict of form {node: chain, ...}, where ``node`` are
-        nodes in G and ``chain`` are iterables of qubit labels.
+        Minor-embedding as a dict of the form ``{node: chain, ...}``, where ``node`` is
+        nodes in ``G`` and ``chain`` is iterables of qubit labels.
 
     embedded_graph : NetworkX graph (optional, default None)
-        A graph that contains all keys of ``emb`` as nodes.  If specified,
-        edges of G are considered interactions if and only if (1) they
-        exist between two chains of ``emb`` and (2) the keys of the
-        corresponding chains are connected by an edge in  the given graph.
-        If given, only couplers between chains based on this graph are displayed.
+        Graph that contains all keys of the ``emb`` parameter as nodes. If specified, then
+        the edges of ``G`` are considered interactions if and only if (1) they
+        exist between two chains of the ``emb`` parameter and (2) the keys of the
+        corresponding chains are connected by an edge in the given graph.
+        If given, then only the couplers between chains based on this graph are displayed.
 
     interaction_edges : list (optional, default None)
-        A list of edges used as interactions. If given,
-        only these couplers are displayed.
+        List of edges used as interactions. If specified,
+        then only these couplers are displayed.
 
     show_labels: boolean (optional, default False)
-        If True, each chain in ``emb`` is labelled with its key.
+        If True, then each chain in the ``emb`` parameter is labelled with its key.
 
     chain_color : dict (optional, default None)
-        Colors as a dict of form {node: rgba_color, ...} associated with
-        each key in ``emb``, where colors are length-4 tuples of floats
-        between 0 and 1 inclusive. If None, each chain is assigned a
+        Colors as a dict of the form ``{node: rgba_color, ...}`` associated with
+        each key in the ``emb`` parameter, where colors are length-4 tuples of floats
+        between 0 and 1, inclusive. If None, then each chain is assigned a
         different color.
 
     unused_color : tuple (optional, default (0.9,0.9,0.9,1.0))
-        Color for nodes of G that are not part of chains, and edges
-        that are neither chain edges nor interactions. If None, these
+        Color for graph ``G``'s nodes that are not part of chains and edges
+        that are neither chain edges nor interactions. If None, then these
         nodes and edges are not shown.
 
     overlapped_embedding: boolean (optional, default False)
-        If True, chains in ``emb`` may overlap (contain the same vertices
-        in G), and these overlaps are displayed as concentric circles.
+        If True, then chains in the ``emb`` parameter may overlap (contain the same vertices
+        in ``G``), and these overlaps are displayed as concentric circles.
 
     kwargs : optional keywords
-       See :func:`~networkx.drawing.nx_pylab.draw_networkx` for a description of
-       optional keywords, with the exception of the ``pos`` parameter, which is
-       unsupported. If the ``linear_biases`` or ``quadratic_biases`` parameters
-       are provided, any provided ``node_color`` or ``edge_color`` arguments are
-       ignored.
+       Parameters in :func:`~networkx.drawing.nx_pylab.draw_networkx`, except for the ``pos`` parameter.
+       If the ``linear_biases`` or ``quadratic_biases`` parameters are specified,
+       then the :func:`~networkx.drawing.nx_pylab.draw_networkx` ``node_color``
+       or ``edge_color`` parameters are ignored.
     """
     draw_embedding(G, zephyr_layout(G), *args, **kwargs)
 
 def draw_zephyr_yield(G, **kwargs):
-    """Draws the given graph G with highlighted faults, according to layout.
+    """Draw the given graph ``G`` with highlighted faults, according to the Zephyr layout.
 
     Parameters
     ----------
     G : NetworkX graph
-        Graph to be parsed for faults.
+        :term:`Graph` to be parsed for faults.
 
     unused_color : tuple or color string (optional, default (0.9,0.9,0.9,1.0))
-        The color to use for nodes and edges of G which are not faults.
-        If unused_color is None, these nodes and edges will not be shown at all.
+        Color to use for nodes and edges of ``G`` which are not faults.
+        If None, then these nodes and edges will not be shown.
 
     fault_color : tuple or color string (optional, default (1.0,0.0,0.0,1.0))
-        A color to represent nodes absent from the graph G. Colors should be
-        length-4 tuples of floats between 0 and 1 inclusive.
+        Color to represent nodes absent from the graph ``G``. Colors must be
+        length-4 tuples of floats between 0 and 1, inclusive.
 
     fault_shape : string, optional (default='x')
-        The shape of the fault nodes. Specification is as for
-        `Matplotlib's markers <https://matplotlib.org/stable/api/markers_api.html#module-matplotlib.markers>`_;
-        for example "o" (circle), "^" (triangle)", "s" (square) and many more
-        options.
+        Shape of the fault nodes. The shapes are the same as those specified for
+        `Matplotlib markers <https://matplotlib.org/stable/api/markers_api.html#module-matplotlib.markers>`_.
 
     fault_style : string, optional (default='dashed')
-        Edge fault line style (solid|dashed|dotted|dashdot)
+          Line style for fault edges. The line style can be any of the following values:
+        ``'solid'``, ``'dashed'``, ``'dotted'``, ``'dashdot'``.
 
     kwargs : optional keywords
-       See :func:`~networkx.drawing.nx_pylab.draw_networkx` for a description of
-       optional keywords, with the exception of the ``pos`` parameter, which is
-       unsupported. If the ``linear_biases`` or ``quadratic_biases`` parameters
-       are provided, any provided ``node_color`` or ``edge_color`` arguments are
-       ignored.
+       Parameters in :func:`~networkx.drawing.nx_pylab.draw_networkx`, except for the ``pos`` parameter.
+       If the ``linear_biases`` or ``quadratic_biases`` parameters are specified,
+       then the :func:`~networkx.drawing.nx_pylab.draw_networkx` ``node_color``
+       or ``edge_color`` parameters are ignored.
     """
     try:
         assert(G.graph["family"] == "zephyr")
