@@ -28,7 +28,9 @@ __all__ = ['chimera_layout', 'draw_chimera', 'draw_chimera_embedding', 'draw_chi
 
 
 def chimera_layout(G, scale=1., center=None, dim=2):
-    """Positions the nodes of graph ``G`` in a Chimera layout with unit cells as crosses.
+    """Positions the nodes of graph ``G`` in a Chimera layout.
+
+    Unit cells are rendered in a cross layout.
 
     NumPy (https://scipy.org) is required for this function.
 
@@ -134,7 +136,7 @@ def chimera_node_placer_2d(m, n, t, scale=1., center=None, dim=2):
 
     Returns
     -------
-    xy_coords : function
+    xy_coords : Function
         Function that maps a Chimera index ``(i, j, u, k)`` in an
         ``(m, n, t)`` Chimera lattice to x- and y-coordinates.
 
@@ -190,7 +192,9 @@ def chimera_node_placer_2d(m, n, t, scale=1., center=None, dim=2):
 
 
 def draw_chimera(G, **kwargs):
-    """Draws graph ``G`` in a Chimera layout with unit cells as crosses.
+    """Draws graph ``G`` in a Chimera layout.
+
+    Unit cells are rendered in a cross layout.
 
     Parameters
     ----------
@@ -229,7 +233,7 @@ def draw_chimera(G, **kwargs):
 
 
 def draw_chimera_embedding(G, *args, **kwargs):
-    """Draws an embedding onto the chimera graph ``G``.
+    """Draws an embedding onto the Chimera graph ``G``.
 
     Parameters
     ----------
@@ -237,16 +241,16 @@ def draw_chimera_embedding(G, *args, **kwargs):
         :term:`Chimera` :term:`graph` or a :term:`subgraph` of a Chimera graph.
 
     emb : dict
-        Embedding ``emb`` for all nodes of ``G`` as a dict of chains
+        Embedding for all nodes of ``G`` as a dict of chains
         of the form ``{node: chain, ...}``. where chains are iterables
         of qubit labels. Qubits are nodes in ``G``.
 
     embedded_graph : NetworkX graph (optional, default None)
         Graph which contains all keys of the ``emb`` parameter as nodes. If specified,
-        the edges of ``G`` will be considered interactions if and only if they
-        exist between two chains of the emb parameter and if their keys are connected by
-        an edge in the ``embedded_graph`` parameter; only the couplers between
-        chains with intended couplings are displayed.
+        the edges of ``G`` are considered to be interactions if and only if they
+        exist between two chains of the ``emb`` parameter and if their keys are connected by
+        an edge in the ``embedded_graph`` parameter; only the couplers for edges of ``G``
+        that are considered to be interactions are displayed.
 
     interaction_edges : list (optional, default None)
         Interactions as a list of edges.
@@ -259,16 +263,16 @@ def draw_chimera_embedding(G, *args, **kwargs):
         Chain colors associated with each key in the ``emb`` parameter as a dict
         of the form ``{node: rgba_color, ...}``, where colors must be length-4
         tuples of floats between 0 and 1, inclusive. If None,
-        each chain will be assigned a different color.
+        each chain is assigned a different color.
 
     unused_color : tuple (optional, default (0.9,0.9,0.9,1.0))
         Color to use for graph ``G``'s nodes and edges that are not part of
         chains, and edges that are neither chain edges nor interactions.
-        If None, these nodes and edges will not be shown.
+        If None, these nodes and edges are not shown.
 
     overlapped_embedding: boolean (optional, default False)
         If True, chains in the ``emb`` parameter may overlap (contain
-        the same vertices in ``G``), and the drawing will display these overlaps as
+        the same vertices in ``G``), and the drawing displays these overlaps as
         concentric circles.
 
     kwargs : optional keywords
@@ -281,7 +285,7 @@ def draw_chimera_embedding(G, *args, **kwargs):
 
 
 def draw_chimera_yield(G, **kwargs):
-    """Draws the given graph ``G`` with highlighted faults.
+    """Draws graph ``G`` with highlighted faults.
 
     Parameters
     ----------
@@ -290,7 +294,7 @@ def draw_chimera_yield(G, **kwargs):
 
     unused_color : tuple or color string (optional, default (0.9,0.9,0.9,1.0))
         Color to use for graph ``G``'s nodes and edges which are not faults.
-        If None, these nodes and edges will not be shown.
+        If None, these nodes and edges are not shown.
 
     fault_color : tuple or color string (optional, default (1.0,0.0,0.0,1.0))
         Color to represent nodes that are absent from graph ``G``. Colors must be

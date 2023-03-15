@@ -122,7 +122,7 @@ def pegasus_node_placer_2d(G, scale=1., center=None, dim=2, crosses=False):
 
     Returns
     -------
-    xy_coords : function
+    xy_coords : Function
         Function that maps a Pegasus index ``(u, w, k, z)`` in a
         Pegasus lattice to plottable x- and y-coordinates.
 
@@ -238,7 +238,7 @@ def draw_pegasus_embedding(G, *args, **kwargs):
     embedded_graph : NetworkX graph (optional, default None)
         Graph that contains all keys of the ``emb`` parameter as nodes. If specified,
         edges of ``G`` are considered interactions if and only if (1) they
-        exist between two chains of the emb parameter and (2) their keys are connected
+        exist between two chains of the ``emb`` parameter and (2) their keys are connected
         by an edge in this graph. If given, only the couplers between chains
         based on this graph are displayed.
 
@@ -279,7 +279,7 @@ def draw_pegasus_embedding(G, *args, **kwargs):
     draw_embedding(G, pegasus_layout(G, crosses=crosses), *args, **kwargs)
 
 def draw_pegasus_yield(G, **kwargs):
-    """Draws the given graph ``G`` with highlighted faults.
+    """Draws graph ``G`` with highlighted faults.
 
     Parameters
     ----------
@@ -288,7 +288,7 @@ def draw_pegasus_yield(G, **kwargs):
 
     unused_color : tuple or color string (optional, default (0.9,0.9,0.9,1.0))
         Color to use for graph ``G``'s nodes and edges which are not faults.
-        If None, these nodes and edges will not be shown.
+        If None, these nodes and edges are not shown.
 
     fault_color : tuple or color string (optional, default (1.0,0.0,0.0,1.0))
         Color to represent nodes absent from the graph ``G``. Colors must be

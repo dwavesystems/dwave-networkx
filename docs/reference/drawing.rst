@@ -61,7 +61,8 @@ positions on a Chimera unit cell.
     :scale: 60 %
     :alt: Graph H overlaid on a Chimera unit cell.
 
-    Graph H (blue) overlaid on a Chimera unit cell (red nodes and black edges).
+    Graph ``H`` (blue) overlaid on a Chimera unit cell (red nodes and black edges),
+    which is rendered in a cross layout.
 
 
 Pegasus Graph Functions
@@ -103,9 +104,10 @@ of nodes of a simple 5-node graph on a small Pegasus lattice.
     :align: center
     :name: pegasus_layout_h_on_g.png
     :scale: 60 %
-    :alt: Graph H overlaid on a Pegasus lattice size 2.
+    :alt: Graph ``H`` overlaid on a Pegasus lattice size 2.
 
-    Graph H (blue) overlaid on a small Pegasus lattice(yellow nodes and black edges).
+    Graph ``H`` (blue) overlaid on a small Pegasus lattice (yellow nodes and black edges),
+    which is rendered in a cross layout.
 
 Zephyr Graph Functions
 ----------------------
