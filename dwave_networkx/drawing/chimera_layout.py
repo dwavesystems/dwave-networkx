@@ -307,7 +307,7 @@ def draw_chimera_yield(G, **kwargs):
         ``'solid'``, ``'dashed'``, ``'dotted'``, ``'dashdot'``.
 
     kwargs : optional keywords
-       Parameters in :class:`.draw_networkx`, except for the ``pos`` parameter.
+       Parameters in :func:`~networkx.drawing.nx_pylab.draw_networkx`, except for the ``pos`` parameter.
        If the ``linear_biases`` or ``quadratic_biases`` parameters are specified,
        the :func:`~networkx.drawing.nx_pylab.draw_networkx` ``node_color``
        or ``edge_color`` parameters are ignored.
