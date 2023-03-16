@@ -32,8 +32,6 @@ def chimera_layout(G, scale=1., center=None, dim=2):
 
     Unit cells are rendered in a cross layout.
 
-    NumPy (https://scipy.org) is required for this function.
-
     Parameters
     ----------
     G : NetworkX graph

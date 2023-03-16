@@ -8,9 +8,6 @@ Tools to visualize topologies of D-Wave QPUs and weighted :term:`graph` problems
 
 .. currentmodule:: dwave_networkx
 
-.. note:: Some functionality requires `NumPy <https://scipy.org>`_ and/or
-     `Matplotlib <https://matplotlib.org>`_\ .
-
 Chimera Graph Functions
 -----------------------
 

@@ -33,8 +33,6 @@ __all__ = ['zephyr_layout',
 def zephyr_layout(G, scale=1., center=None, dim=2):
     """Positions the nodes of graph ``G`` in a Zephyr topology.
 
-    `NumPy <https://scipy.org>`_ is required for this function.
-
     Parameters
     ----------
     G : NetworkX graph
