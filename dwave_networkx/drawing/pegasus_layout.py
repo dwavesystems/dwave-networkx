@@ -13,7 +13,7 @@
 #    limitations under the License.
 
 """
-Tools to visualize Pegasus lattices and weighted graph problems on them.
+Tools to visualize :term:`Pegasus` lattices and weighted :term:`graph` problems on them.
 """
 
 import networkx as nx
@@ -32,31 +32,29 @@ __all__ = ['pegasus_layout',
 
 
 def pegasus_layout(G, scale=1., center=None, dim=2, crosses=False):
-    """Positions the nodes of graph G in a Pegasus topology.
-
-    `NumPy <https://scipy.org>`_ is required for this function.
+    """Positions the nodes of graph ``G`` in a Pegasus topology.
 
     Parameters
     ----------
     G : NetworkX graph
-        A Pegasus graph or a subgraph of a Pegasus graph, as produced by
+        :term:`Pegasus` :term:`graph` or a :term:`subgraph` of a Pegasus graph as produced by
         the :func:`dwave_networkx.pegasus_graph` function.
 
     scale : float (default 1.)
-        Scale factor. A setting of ``scale = 1`` fits all positions within
+        Scale factor. If ``scale`` = 1, all positions fit within
         [0, 1] on the x-axis and [-1, 0] on the y-axis.
 
     center : None or array (default None)
         Coordinates of the top left corner.
 
     dim : int (default 2)
-        Number of dimensions. When dim > 2, all extra dimensions are
+        Number of dimensions. If ``dim`` > 2, all extra dimensions are
         set to 0.
 
     crosses: boolean (optional, default False)
         If True, :math:`K_{4,4}` subgraphs are shown in a cross
-        rather than L configuration. Ignored if G is defined with
-        ``nice_coordinates=True``.
+        rather than an L configuration. If ``G`` is defined with
+        ``nice_coordinates=True``, this parameter is ignored.
 
     Returns
     -------
@@ -102,29 +100,29 @@ def pegasus_node_placer_2d(G, scale=1., center=None, dim=2, crosses=False):
     Parameters
     ----------
     G : NetworkX graph
-        A Pegasus graph or a subgraph of a Pegasus graph, as produced by
+        :term:`Pegasus` :term:`graph` or a :term:`subgraph` of a Pegasus graph as produced by
         the :func:`dwave_networkx.pegasus_graph` function.
 
     scale : float (default 1.)
-        Scale factor. A setting of ``scale = 1`` fits all positions within
+        Scale factor. If ``scale`` = 1, all positions fit within
         [0, 1] on the x-axis and [-1, 0] on the y-axis.
 
     center : None or array (default None)
         Coordinates of the top left corner.
 
     dim : int (default 2)
-        Number of dimensions. When dim > 2, all extra dimensions are
+        Number of dimensions. If ``dim`` > 2, all extra dimensions are
         set to 0.
 
     crosses: boolean (optional, default False)
         If True, :math:`K_{4,4}` subgraphs are shown in a cross
-        rather than L configuration.
+        rather than an L configuration.
 
     Returns
     -------
-    xy_coords : function
-        A function that maps a Pegasus index (u, w, k, z) in a
-        Pegasus lattice to plottable x,y coordinates.
+    xy_coords : Function
+        Function that maps a Pegasus index ``(u, w, k, z)`` in a
+        Pegasus lattice to plottable x- and y-coordinates.
 
     """
     import numpy as np
@@ -176,36 +174,35 @@ def pegasus_node_placer_2d(G, scale=1., center=None, dim=2, crosses=False):
 
 
 def draw_pegasus(G, crosses=False, **kwargs):
-    """Draws graph G in a Pegasus topology.
-
-    If ``linear_biases`` and/or ``quadratic_biases`` are provided, these
-    are visualized on the plot.
+    """Draws graph ``G`` in a Pegasus topology.
 
     Parameters
     ----------
     G : NetworkX graph
-        A Pegasus graph or a subgraph of a Pegasus graph, as produced by
+        :term:`Pegasus` :term:`graph` or a :term:`subgraph` of a Pegasus graph as produced by
         the :func:`dwave_networkx.pegasus_graph` function.
 
     linear_biases : dict (optional, default {})
-        Biases as a dict, of form {node: bias, ...}, where keys are
-        nodes in G and biases are numeric.
+        Linear biases as a dict of the form ``{node: bias, ...}``, where keys are
+        nodes in ``G`` and biases are numeric.
+        If specified, the linear biases are visualized on the plot.
 
     quadratic_biases : dict (optional, default {})
-        Biases as a dict, of form {edge: bias, ...}, where keys are
-        edges in G and biases are numeric. Self-loop
+        Quadratic biases as a dict of the form ``{edge: bias, ...}``, where keys are
+        edges in ``G`` and biases are numeric. Self-loop
         edges (i.e., :math:`i=j`) are treated as linear biases.
+        If specified, the quadratic biases are visualized on the plot.
 
     crosses: boolean (optional, default False)
         If True, :math:`K_{4,4}` subgraphs are shown in a cross
-        rather than L configuration. Ignored if G is defined with
-        ``nice_coordinates=True``.
+        rather than an L configuration. If ``G`` is defined with
+        ``nice_coordinates=True``, this parameter is ignored.
 
     kwargs : optional keywords
-       See networkx.draw_networkx() for a description of optional keywords,
-       with the exception of the ``pos`` parameter, which is not used by this
-       function. If ``linear_biases`` or ``quadratic_biases`` are provided,
-       any provided ``node_color`` or ``edge_color`` arguments are ignored.
+       Parameters in :func:`~networkx.drawing.nx_pylab.draw_networkx`, except for the ``pos`` parameter.
+       If the ``linear_biases`` or ``quadratic_biases`` parameters are specified,
+       the :func:`~networkx.drawing.nx_pylab.draw_networkx` ``node_color``
+       or ``edge_color`` parameters are ignored.
 
     Examples
     --------
@@ -224,89 +221,90 @@ def draw_pegasus(G, crosses=False, **kwargs):
 
 
 def draw_pegasus_embedding(G, *args, **kwargs):
-    """Draws an embedding onto Pegasus graph G.
+    """Draws an embedding onto Pegasus graph ``G``.
 
     Parameters
     ----------
     G : NetworkX graph
-        A Pegasus graph or a subgraph of a Pegasus graph, as produced by
+        :term:`Pegasus` :term:`graph` or a :term:`subgraph` of a Pegasus graph as produced by
         the :func:`dwave_networkx.pegasus_graph` function.
 
     emb : dict
-        Chains, as a dict of form {qubit: chain, ...}, where qubits are
-        nodes in G and chains are iterables of qubit labels.
+        Chains as a dict of the form ``{qubit: chain, ...}``, where qubits are
+        nodes in ``G`` and chains are iterables of qubit labels.
 
     embedded_graph : NetworkX graph (optional, default None)
-        A graph that contains all keys of ``emb`` as nodes.  If specified,
-        edges of G are considered interactions if and only if (1) they
-        exist between two chains of ``emb`` and (2) their keys are connected
-        by an edge in this graph. If given, only couplers between chains
+        Graph that contains all keys of the ``emb`` parameter as nodes. If specified,
+        edges of ``G`` are considered interactions if and only if (1) they
+        exist between two chains of the ``emb`` parameter and (2) their keys are connected
+        by an edge in this graph. If given, only the couplers between chains
         based on this graph are displayed.
 
     interaction_edges : list (optional, default None)
-        A list of edges used as interactions. If given,
+        Interactions as a list of edges. If specified,
         only these couplers are displayed.
 
     show_labels: boolean (optional, default False)
-        If True, each chain in ``emb`` is labelled with its key.
+        If True, each chain in the ``emb`` parameter is labelled with its key.
 
     chain_color : dict (optional, default None)
-        Colors as a dict of form {node: rgba_color, ...} associated with
-        each key in ``emb``, where colors are length-4 tuples of floats
-        between 0 and 1 inclusive. If None, each chain is assigned a
+        Colors as a dict of the form ``{node: rgba_color, ...}`` associated with
+        each key in the ``emb`` parameter, where colors are length-4 tuples of floats
+        between 0 and 1, inclusive. If None, each chain is assigned a
         different color.
 
     unused_color : tuple (optional, default (0.9,0.9,0.9,1.0))
-        Color for nodes of G that are not part of chains, and edges
-        that are neither chain edges nor interactions. If None, these
-        nodes and edges are not shown.
+        Color for graph ``G``'s nodes that are not part of chains, and edges
+        that are neither chain edges nor interactions. If None,
+        these nodes and edges are not shown.
 
     crosses: boolean (optional, default False)
         If True, :math:`K_{4,4}` subgraphs are shown in a cross
-        rather than L configuration. Ignored if G is defined with
+        rather than an L configuration. Ignored, if ``G`` is defined with
         ``nice_coordinates=True``.
 
     overlapped_embedding: boolean (optional, default False)
-        If True, chains in ``emb`` may overlap (contain the same vertices
-        in G), and these overlaps are displayed as concentric circles.
+        If True, chains in the ``emb`` parameter may overlap (contain the same vertices
+        in ``G``), and these overlaps are displayed as concentric circles.
 
     kwargs : optional keywords
-       See networkx.draw_networkx() for a description of optional keywords,
-       with the exception of the ``pos`` parameter, which is not used by this
-       function. If ``linear_biases`` or ``quadratic_biases`` are provided,
-       any provided ``node_color`` or ``edge_color`` arguments are ignored.
+       Parameters in :func:`~networkx.drawing.nx_pylab.draw_networkx`, except for the ``pos`` parameter.
+       If the ``linear_biases`` or ``quadratic_biases`` parameters are specified,
+       the :func:`~networkx.drawing.nx_pylab.draw_networkx` ``node_color``
+       or ``edge_color`` parameters are ignored.
     """
     crosses = kwargs.pop("crosses", False)
     draw_embedding(G, pegasus_layout(G, crosses=crosses), *args, **kwargs)
 
 def draw_pegasus_yield(G, **kwargs):
-    """Draws the given graph G with highlighted faults, according to layout.
+    """Draws graph ``G`` with highlighted faults.
 
     Parameters
     ----------
     G : NetworkX graph
-        Graph to be parsed for faults.
+        :term:`Graph` to be parsed for faults.
 
     unused_color : tuple or color string (optional, default (0.9,0.9,0.9,1.0))
-        The color to use for nodes and edges of G which are not faults.
-        If unused_color is None, these nodes and edges will not be shown at all.
+        Color to use for graph ``G``'s nodes and edges which are not faults.
+        If None, these nodes and edges are not shown.
 
     fault_color : tuple or color string (optional, default (1.0,0.0,0.0,1.0))
-        A color to represent nodes absent from the graph G. Colors should be
-        length-4 tuples of floats between 0 and 1 inclusive.
+        Color to represent nodes absent from the graph ``G``. Colors must be
+        length-4 tuples of floats between 0 and 1, inclusive.
 
     fault_shape : string, optional (default='x')
-        The shape of the fault nodes. Specification is as matplotlib.scatter
-        marker, one of 'so^>v<dph8'.
+        Shape of the fault nodes. The shapes are the same as those specified for
+        `Matplotlib markers <https://matplotlib.org/stable/api/markers_api.html#module-matplotlib.markers>`_.
 
     fault_style : string, optional (default='dashed')
-        Edge fault line style (solid|dashed|dotted|dashdot)
+          Line style for fault edges. The line style can be any of the following values:
+        ``'solid'``, ``'dashed'``, ``'dotted'``, ``'dashdot'``.
 
     kwargs : optional keywords
-       See networkx.draw_networkx() for a description of optional keywords,
-       with the exception of the `pos` parameter which is not used by this
-       function. If `linear_biases` or `quadratic_biases` are provided,
-       any provided `node_color` or `edge_color` arguments are ignored.
+       Parameters in :func:`~networkx.drawing.nx_pylab.draw_networkx`, except for the ``pos`` parameter.
+       If the ``linear_biases`` or ``quadratic_biases`` parameters are specified,
+       the :func:`~networkx.drawing.nx_pylab.draw_networkx` ``node_color``
+       or ``edge_color`` parameters are ignored.
     """
     try:
         assert(G.graph["family"] == "pegasus")
