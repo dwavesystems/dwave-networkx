@@ -252,7 +252,7 @@ def draw_embedding(G, layout, emb, embedded_graph=None, interaction_edges=None,
     except ImportError:
         raise ImportError("Matplotlib and numpy required for draw_chimera()")
 
-    if nx.utils.is_string_like(unused_color):
+    if isinstance(unused_color, str):
         from matplotlib.colors import colorConverter
         alpha = kwargs.get('alpha', 1.0)
         unused_color = colorConverter.to_rgba(unused_color, alpha)
