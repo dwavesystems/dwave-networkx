@@ -28,8 +28,7 @@ __all__ = ['draw_qubit_graph']
 
 
 def draw_qubit_graph(G, layout, linear_biases={}, quadratic_biases={},
-                     nodelist=None, edgelist=None, cmap=None, edge_cmap=None, vmin=None, vmax=None,
-                     edge_vmin=None, edge_vmax=None, midpoint=None,
+                     nodelist=None, edgelist=None, midpoint=None,
                      **kwargs):
     """Draws graph G according to layout.
 
@@ -102,6 +101,18 @@ def draw_qubit_graph(G, layout, linear_biases={}, quadratic_biases={},
 
         if edgelist is None:
             edgelist = G.edges()
+
+        # since we're applying the colormap here, matplotlib throws warnings if
+        # we provide these arguments and it doesn't use them.
+        if linear_biases:
+            cmap = kwargs.pop('cmap', None)
+            vmin = kwargs.pop('vmin', None)
+            vmax = kwargs.pop('vmax', None)
+
+        if quadratic_biases:
+            edge_cmap = kwargs.pop('edge_cmap', None)
+            edge_vmin = kwargs.pop('edge_vmin', None)
+            edge_vmax = kwargs.pop('edge_vmax', None)
 
         if cmap is None:
             cmap = plt.get_cmap('coolwarm')
@@ -178,10 +189,7 @@ def draw_qubit_graph(G, layout, linear_biases={}, quadratic_biases={},
         if ax is None:
             ax = fig.add_axes([0.01, 0.01, 0.98, 0.98])
 
-    draw(G, layout, ax=ax, nodelist=nodelist, edgelist=edgelist,
-         cmap=cmap, edge_cmap=edge_cmap, vmin=vmin, vmax=vmax, edge_vmin=edge_vmin,
-         edge_vmax=edge_vmax,
-         **kwargs)
+    draw(G, layout, ax=ax, nodelist=nodelist, edgelist=edgelist, **kwargs)
 
 
 def draw_embedding(G, layout, emb, embedded_graph=None, interaction_edges=None,
