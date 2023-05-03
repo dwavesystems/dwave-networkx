@@ -16,17 +16,17 @@ D-Wave NetworkX
 
 D-Wave NetworkX is an extension of `NetworkX <https://networkx.org>`_\ ---a
 Python language package for exploration and analysis of networks and network
-algorithms---for users of D-Wave Systems. It provides tools for working with
-Chimera graphs and implementations of graph-theory algorithms on the D-Wave
-system and other binary quadratic model samplers.
+algorithms---for users of D-Wave quantum computers. It provides tools for working 
+with Quantum Processing Unit (QPU) topology graphs, such as the Pegasus used on 
+the Advantage system, and implementations of graph-theory algorithms on D-Wave
+quantum computers and other binary quadratic model samplers.
 
-The example below generates a graph for a Chimera unit cell (eight nodes in a 4-by-2
-bipartite architecture).
+This example generates a Pegasus graph of the size used by the Advantage.
 
 .. code: python
 
 >>> import dwave_networkx as dnx
->>> graph = dnx.chimera_graph(1, 1, 4)
+>>> graph = dnx.pegasus_graph(16)
 
 See the documentation for more examples.
 
