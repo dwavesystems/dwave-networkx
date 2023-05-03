@@ -25,8 +25,6 @@ quantum computers and other binary quadratic model samplers.
 
 This example generates a Pegasus graph of the size used by Advantage QPUs.
 
-.. code: python
-
 >>> import dwave_networkx as dnx
 >>> graph = dnx.pegasus_graph(16)
 
