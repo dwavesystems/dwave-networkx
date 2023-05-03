@@ -18,10 +18,12 @@ D-Wave NetworkX is an extension of `NetworkX <https://networkx.org>`_\ ---a
 Python language package for exploration and analysis of networks and network
 algorithms---for users of D-Wave quantum computers. It provides tools for working 
 with Quantum Processing Unit (QPU) topology graphs, such as the Pegasus used on 
-the Advantage system, and implementations of graph-theory algorithms on D-Wave
+the Advantage\ |TM| system, and implementations of graph-theory algorithms on D-Wave
 quantum computers and other binary quadratic model samplers.
 
-This example generates a Pegasus graph of the size used by the Advantage.
+.. |TM| replace:: :sup:`TM`
+
+This example generates a Pegasus graph of the size used by Advantage QPUs.
 
 .. code: python
 
