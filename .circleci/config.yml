@@ -74,7 +74,7 @@ jobs:
             brew install pyenv
 
       - restore_cache: &restore-cache-pyenv
-          key: v1-pyenv-{{ .Environment.CIRCLE_JOB }}-xcode-13.2.0
+          key: v1-pyenv-{{ .Environment.CIRCLE_JOB }}-xcode-14.3.0
 
       - run:
           name: Install python
@@ -82,7 +82,7 @@ jobs:
             pyenv install << parameters.python-version>> -s
 
       - save_cache: &save-cache-pyenv
-          key: v1-pyenv-{{ .Environment.CIRCLE_JOB }}-xcode-13.2.0
+          key: v1-pyenv-{{ .Environment.CIRCLE_JOB }}-xcode-14.3.0
           paths:
             - ~/.pyenv
 
