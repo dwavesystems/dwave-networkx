@@ -6,15 +6,13 @@ orbs:
 jobs:
   test-linux:
     parameters:
-      dimod-version:
-        type: string
-      networkx-version:
+      dependency-versions:
         type: string
       python-version:
         type: string
 
     docker:
-      - image: circleci/python:<< parameters.python-version >>
+      - image: cimg/python:<< parameters.python-version >>
 
     steps:
       - checkout
@@ -35,8 +33,7 @@ jobs:
           name: Install dependencies
           command: |
             . env/bin/activate
-            pip install --upgrade 'dimod<< parameters.dimod-version >>'
-            pip install --upgrade 'networkx<< parameters.networkx-version >>'
+            pip install --upgrade << parameters.dependency-versions >>
 
       - save_cache: &save-cache-env
           key: pip-{{ checksum "requirements.txt" }}-{{ checksum "tests/requirements.txt" }}-{{ .Environment.CIRCLE_JOB }}
@@ -61,7 +58,7 @@ jobs:
         type: string
 
     macos:
-      xcode: "13.2.0"
+      xcode: "14.3.0"
 
     environment:
       HOMEBREW_NO_AUTO_UPDATE: 1
@@ -141,7 +138,7 @@ jobs:
 
   test-doctest:
     docker:
-      - image: circleci/python:3.7-stretch # as of march 2019 RTD uses 3.7
+      - image: cimg/python:3.9
 
     steps:
       - checkout
@@ -181,7 +178,7 @@ jobs:
 
   deploy:
     docker:
-      - image: circleci/python:3.7
+      - image: cimg/python:3.9
 
     steps:
       - checkout
@@ -213,9 +210,18 @@ workflows:
       - test-linux:
           matrix:
             parameters:
-              python-version: &python-versions [3.7.9, 3.8.9, 3.9.4, 3.10.0]
-              dimod-version: [==0.10.8, ==0.11.0rc0]
-              networkx-version: [==2.4, <3.0]
+              python-version: &python-versions [3.7.9, 3.8.9, 3.9.4, 3.10.0, 3.11.0]
+              dependency-versions: ["dimod==0.10.8 networkx==2.4 oldest-supported-numpy",  # oldest supported
+                                    "dimod networkx numpy",                                # latest
+                                    ]
+            exclude:
+              # dimod 0.10.8 doesn't support Python 3.11
+              - python-version: 3.11.0
+                dependency-versions: "dimod==0.10.8 networkx==2.4 oldest-supported-numpy"
+              
+              # dimod does not support the oldest-supported-numpy on Python 3.7
+              - python-version: 3.7.9
+                dependency-versions: "dimod==0.10.8 networkx==2.4 oldest-supported-numpy"
       - test-osx:
           matrix:
             parameters:
