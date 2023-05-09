@@ -46,10 +46,11 @@ positions on a Chimera unit cell.
     6: array([ 0.5 , -0.75]),
     7: array([ 0.5, -1. ])}
    >>> # Show graph H on a Chimera unit cell
-   >>> plt.ion()
+   >>> f, axes = plt.subplots(1, 1)
    >>> G=dnx.chimera_graph(1, 1, 4)  # Draw a Chimera unit cell
-   >>> dnx.draw_chimera(G)
-   >>> dnx.draw_chimera(H, node_color='b', node_shape='*', style='dashed', edge_color='b', width=3)
+   >>> dnx.draw_chimera(G, node_color='r', ax=axes)
+   >>> dnx.draw_chimera(H, node_color='b', node_shape='*', style='dashed', edge_color='b', width=3, ax=axes)
+   >>> plt.show()
    >>> # matplotlib commands to add labels to graphic not shown
 
 .. figure:: ../_images/chimera_layout_0-rightside.png
@@ -90,12 +91,11 @@ of nodes of a simple 5-node graph on a small Pegasus lattice.
    >>> H = dnx.pegasus_graph(2, node_list=[4, 40, 41, 42, 43],
                  edge_list=[(4, 40), (4, 41), (4, 42), (4, 43)])
    >>> # Show graph H on a small Pegasus lattice
-   >>> plt.ion()
-   >>> # Show graph H on a small Pegasus lattice
-   >>> plt.ion()
-   >>> dnx.draw_pegasus(G, with_labels=True, crosses=True, node_color="Yellow")
+   >>> f, axes = plt.subplots(1, 1)
+   >>> dnx.draw_pegasus(G, with_labels=True, crosses=True, node_color="Yellow", ax=axes)
    >>> dnx.draw_pegasus(H, crosses=True, node_color='b', style='dashed',
-             edge_color='b', width=3)
+             edge_color='b', width=3, ax=axes)
+   >>> plt.show()
 
 .. figure:: ../_images/pegasus_layout_h_on_g.png
     :align: center
