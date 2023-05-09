@@ -58,7 +58,7 @@ jobs:
         type: string
 
     macos:
-      xcode: "13.2.0"
+      xcode: "14.3.0"
 
     environment:
       HOMEBREW_NO_AUTO_UPDATE: 1
@@ -138,7 +138,7 @@ jobs:
 
   test-doctest:
     docker:
-      - image: cimg/python:3.9 # as of march 2019 RTD uses 3.7
+      - image: cimg/python:3.9
 
     steps:
       - checkout
