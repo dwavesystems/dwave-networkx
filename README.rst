@@ -1,9 +1,6 @@
 .. image:: https://img.shields.io/pypi/v/dwave-networkx.svg
     :target: https://pypi.org/project/dwave-networkx
 
-.. image:: https://readthedocs.com/projects/d-wave-systems-dwave-networkx/badge/?version=latest
-    :target: https://docs.ocean.dwavesys.com/projects/dwave-networkx/en/latest/?badge=latest
-
 .. image:: https://codecov.io/gh/dwavesystems/dwave-networkx/branch/main/graph/badge.svg
     :target: https://codecov.io/gh/dwavesystems/dwave-networkx
 
