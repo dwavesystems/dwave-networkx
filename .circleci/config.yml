@@ -57,6 +57,8 @@ jobs:
       python-version:
         type: string
 
+    resource_class: macos.x86.medium.gen2   
+    
     macos:
       xcode: "14.3.0"
 
