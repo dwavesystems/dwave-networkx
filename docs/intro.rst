@@ -2,20 +2,23 @@
 Introduction
 ============
 
-D-Wave NetworkX provides tools for working with :term:`Chimera` and :term:`Pegasus`
-graphs and implementations of graph-theory algorithms on the D-Wave system and other
-binary quadratic model :term:`sampler`\ s; for example, functions such as
-`draw_chimera()` provide easy visualization for Chimera graphs; functions such
-as `maximum_cut()` or `min_vertex_cover()` provide graph algorithms useful to
-optimization problems that fit well with the D-Wave system.
+D-Wave NetworkX provides tools for working with Quantum Processing Unit (QPU) 
+topology graphs, such as the :term:`Pegasus` used on the Advantage\ |TM| system,
+and implementations of graph-theory algorithms on D-Wave quantum computers and 
+other binary quadratic model :term:`sampler`\ s; for example, functions such as
+:func:`.draw_pegasus` provide easy visualization for Pegasus graphs; functions 
+such as :func:`~dwave_networkx.algorithms.max_cut.maximum_cut` or 
+:func:`~dwave_networkx.algorithms.cover.min_vertex_cover` provide graph algorithms 
+useful to optimization problems that fit well with D-Wave quantum computers.
 
-Like the D-Wave system, all other supported samplers must have
-`sample_qubo` and `sample_ising` methods for solving :term:`Ising` and :term:`QUBO`
-models and return an iterable of samples in order of increasing energy. You can set
-a default sampler using the `set_default_sampler()` function.
+Like D-Wave quantum computers, all other supported samplers must have
+``sample_qubo`` and ``sample_ising`` methods for solving :term:`Ising` and 
+:term:`QUBO` models and return an iterable of samples in order of increasing 
+energy. You can set a default sampler using the 
+:func:`~dwave_networkx.default_sampler.set_default_sampler` function.
 
 * For an introduction to quantum processing unit (QPU) topologies such as the
-  Chimera` and Pegasus graphs, see :std:doc:`Topology <oceandocs:concepts/topology>`.
+  Pegasus graph, see :std:doc:`Topology <oceandocs:concepts/topology>`.
 * For an introduction to binary quadratic models (BQMs), see
   :std:doc:`Binary Quadratic Models <oceandocs:concepts/bqm>`.
 * For an introduction to samplers, see
@@ -24,14 +27,15 @@ a default sampler using the `set_default_sampler()` function.
 Example
 =======
 
-Below you can see how to create Chimera graphs implemented in the D-Wave 2X and D-Wave 2000Q systems:
+This example creates a Pegasus graph (used by Advantage) and a small Zephyr graph 
+(used by the Advantage2\ |TM| prototype made available in Leap\ |TM| in June 2022):
 
-.. code:: python
+.. |TM| replace:: :sup:`TM`
 
-  import dwave_networkx as dnx
-
-  # D-Wave 2X
-  C = dnx.chimera_graph(12, 12, 4)
-
-  # D-Wave 2000Q
-  C = dnx.chimera_graph(16, 16, 4)
+>>> import dwave_networkx as dnx
+...
+>>> # Advantage
+>>> P16 = dnx.pegasus_graph(16)
+...
+>>> # Advantage2
+>>> Z4 = dnx.zephyr_graph(4)
