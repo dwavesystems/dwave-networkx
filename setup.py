@@ -29,9 +29,9 @@ packages = ['dwave_networkx',
             'dwave_networkx.generators',
             ]
 
-install_requires = ['networkx>=2.4,<3.0',
-                    'dimod>=0.10.8,<0.13.0',
-                    'numpy>=1.17.3,<2.0.0',
+install_requires = ['networkx>=2.4',
+                    'dimod>=0.10.8',
+                    'numpy>=1.17.3',
                     ]
 
 python_requires = ">=3.7"
