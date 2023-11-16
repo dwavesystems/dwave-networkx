@@ -102,24 +102,6 @@ def draw_qubit_graph(G, layout, linear_biases={}, quadratic_biases={},
         if edgelist is None:
             edgelist = G.edges()
 
-        # since we're applying the colormap here, matplotlib throws warnings if
-        # we provide these arguments and it doesn't use them.
-        if linear_biases:
-            cmap = kwargs.pop('cmap', None)
-            vmin = kwargs.pop('vmin', None)
-            vmax = kwargs.pop('vmax', None)
-
-        if quadratic_biases:
-            edge_cmap = kwargs.pop('edge_cmap', None)
-            edge_vmin = kwargs.pop('edge_vmin', None)
-            edge_vmax = kwargs.pop('edge_vmax', None)
-
-        if cmap is None:
-            cmap = plt.get_cmap('coolwarm')
-
-        if edge_cmap is None:
-            edge_cmap = plt.get_cmap('coolwarm')
-
         # any edges or nodes with an unspecified bias default to 0
         def edge_color(u, v):
             c = 0.
@@ -143,17 +125,16 @@ def draw_qubit_graph(G, layout, linear_biases={}, quadratic_biases={},
         # the range of the color map is shared for nodes/edges and is symmetric
         # around 0.
         vmag = max(max(abs(c) for c in node_color), max(abs(c) for c in edge_color))
-        if vmin is None:
-            vmin = -1 * vmag
 
-        if vmax is None:
-            vmax = vmag
+        # since we're applying the colormap here, matplotlib throws warnings if
+        # we provide these arguments and it doesn't use them.
+        cmap = kwargs.pop('cmap', plt.get_cmap('coolwarm'))
+        vmin = kwargs.pop('vmin', -1 * vmag)
+        vmax = kwargs.pop('vmax', vmag)
 
-        if edge_vmin is None:
-            edge_vmin = -1 * vmag
-
-        if edge_vmax is None:
-            edge_vmax = vmag
+        edge_cmap = kwargs.pop('edge_cmap', plt.get_cmap('coolwarm'))
+        edge_vmin = kwargs.pop('edge_vmin', -1 * vmag)
+        edge_vmax = kwargs.pop('edge_vmax', vmag)
 
         if linear_biases and quadratic_biases:
             global_vmin = min(edge_vmin, vmin)
@@ -189,6 +170,14 @@ def draw_qubit_graph(G, layout, linear_biases={}, quadratic_biases={},
         if ax is None:
             ax = fig.add_axes([0.01, 0.01, 0.98, 0.98])
 
+    if linear_biases and not quadratic_biases:
+        kwargs['edge_vmin'] = edge_vmin
+        kwargs['edge_vmax'] = edge_vmax
+        kwargs['edge_cmap'] = edge_cmap
+    if quadratic_biases and not linear_biases:
+        kwargs['vmin'] = vmin
+        kwargs['vmax'] = vmax
+        kwargs['cmap'] = cmap
     draw(G, layout, ax=ax, nodelist=nodelist, edgelist=edgelist, **kwargs)
 
 
