@@ -27,7 +27,7 @@ from dwave_networkx.drawing.distinguishable_colors import distinguishable_color_
 __all__ = ['draw_qubit_graph']
 
 
-def draw_qubit_graph(G, layout, linear_biases={}, quadratic_biases={},
+def draw_qubit_graph(G, layout, linear_biases=None, quadratic_biases=None,
                      nodelist=None, edgelist=None, midpoint=None,
                      **kwargs):
     """Draws graph G according to layout.
@@ -45,11 +45,11 @@ def draw_qubit_graph(G, layout, linear_biases={}, quadratic_biases={},
         be of the form {node: coordinate, ...}.  Coordinates will be
         treated as vectors, and should all have the same length.
 
-    linear_biases : dict (optional, default {})
+    linear_biases : dict (optional, None)
         A dict of biases associated with each node in G. Should be of
         form {node: bias, ...}. Each bias should be numeric.
 
-    quadratic_biases : dict (optional, default {})
+    quadratic_biases : dict (optional, None)
         A dict of biases associated with each edge in G. Should be of
         form {edge: bias, ...}. Each bias should be numeric. Self-loop
         edges (i.e., :math:`i=j`) are treated as linear biases.
@@ -78,6 +78,9 @@ def draw_qubit_graph(G, layout, linear_biases={}, quadratic_biases={},
         _mpl_toolkit_found = False
     else:
         _mpl_toolkit_found = True
+
+    linear_biases = linear_biases or dict()
+    quadratic_biases = quadratic_biases or dict()
 
     fig = plt.gcf()
     ax = kwargs.pop('ax', None)
