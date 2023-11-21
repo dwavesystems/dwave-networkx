@@ -131,61 +131,44 @@ def draw_qubit_graph(G, layout, linear_biases=None, quadratic_biases=None,
 
         # since we're applying the colormap here, matplotlib throws warnings if
         # we provide these arguments and it doesn't use them.
-        cmap = kwargs.pop('cmap', plt.get_cmap('coolwarm'))
-        vmin = kwargs.pop('vmin', -1 * vmag)
-        vmax = kwargs.pop('vmax', vmag)
+        cmap = kwargs.pop('cmap', None) or plt.get_cmap('coolwarm')
+        vmin = kwargs.pop('vmin', None) or -1 * vmag
+        vmax = kwargs.pop('vmax', None) or vmag
 
-        edge_cmap = kwargs.pop('edge_cmap', plt.get_cmap('coolwarm'))
-        edge_vmin = kwargs.pop('edge_vmin', -1 * vmag)
-        edge_vmax = kwargs.pop('edge_vmax', vmag)
+        edge_cmap = kwargs.pop('edge_cmap', None) or plt.get_cmap('coolwarm')
+        edge_vmin = kwargs.pop('edge_vmin', None) or -1 * vmag
+        edge_vmax = kwargs.pop('edge_vmax', None) or vmag
 
         if linear_biases and quadratic_biases:
-            global_vmin = min(edge_vmin, vmin)
-            global_vmax = max(edge_vmax, vmax)
+            final_vmin = min(edge_vmin, vmin)
+            final_vmax = max(edge_vmax, vmax)
+            mapper = cmap
 
-            if midpoint is None:
-                midpoint = (global_vmax + global_vmin) / 2.0
-            norm_map = mpl.colors.TwoSlopeNorm(midpoint, vmin=global_vmin, vmax=global_vmax)
-
-            node_color = [cmap(norm_map(node)) for node in node_color]
-            edge_color = [cmap(norm_map(edge)) for edge in edge_color]
-            mpl.colorbar.ColorbarBase(cax, cmap=cmap, norm=norm_map, orientation='vertical')
-
-        # if the biases are provided, then add a legend explaining the color map
         elif linear_biases:
-            if midpoint is None:
-                midpoint = (vmax + vmin) / 2.0
-            norm_map = mpl.colors.TwoSlopeNorm(midpoint, vmin=vmin, vmax=vmax)
-            node_color = [cmap(norm_map(node)) for node in node_color]
-            mpl.colorbar.ColorbarBase(cax, cmap=cmap, norm=norm_map, orientation='vertical')
+            final_vmin = vmin
+            final_vmax = vmax
+            mapper = cmap
 
         elif quadratic_biases:
-            if midpoint is None:
-                midpoint = (edge_vmax + edge_vmin) / 2.0
-            norm_map = mpl.colors.TwoSlopeNorm(midpoint, vmin=edge_vmin, vmax=edge_vmax)
-            edge_color = [edge_cmap(norm_map(edge)) for edge in edge_color]
-            mpl.colorbar.ColorbarBase(cax, cmap=edge_cmap, norm=norm_map, orientation='vertical')
+            final_vmin = edge_vmin
+            final_vmax = edge_vmax
+            mapper = edge_cmap
 
-        kwargs['edge_color'] = edge_color
-        kwargs['node_color'] = node_color
+        midpoint = midpoint or (final_vmax + final_vmin) / 2.0
+        norm_map = mpl.colors.TwoSlopeNorm(midpoint, vmin=final_vmin, vmax=final_vmax)
+        mpl.colorbar.ColorbarBase(cax, cmap=mapper, norm=norm_map, orientation='vertical')
+        kwargs['node_color'] = [mapper(norm_map(node)) for node in node_color]
+        kwargs['edge_color'] = [mapper(norm_map(edge)) for edge in edge_color]
 
     else:
         if ax is None:
             ax = fig.add_axes([0.01, 0.01, 0.98, 0.98])
 
-    if linear_biases and not quadratic_biases:
-        kwargs['edge_vmin'] = edge_vmin
-        kwargs['edge_vmax'] = edge_vmax
-        kwargs['edge_cmap'] = edge_cmap
-    if quadratic_biases and not linear_biases:
-        kwargs['vmin'] = vmin
-        kwargs['vmax'] = vmax
-        kwargs['cmap'] = cmap
     draw(G, layout, ax=ax, nodelist=nodelist, edgelist=edgelist, **kwargs)
 
 
 def draw_embedding(G, layout, emb, embedded_graph=None, interaction_edges=None,
-                   chain_color=None, unused_color=(0.9,0.9,0.9,1.0), cmap=None,
+                   chain_color=None, unused_color=(0.9, 0.9, 0.9, 1.0), cmap=None,
                    show_labels=False, overlapped_embedding=False, **kwargs):
     """Draws an embedding onto the graph G, according to layout.
 
@@ -423,10 +406,9 @@ def unoverlapped_embedding(G, emb, interaction_edges):
     return new_G, new_emb, new_interaction_edges
 
 
-def draw_yield(G, layout, perfect_graph, unused_color=(0.9,0.9,0.9,1.0),
-                    fault_color=(1.0,0.0,0.0,1.0), fault_shape='x',
-                    fault_style='dashed', **kwargs):
-
+def draw_yield(G, layout, perfect_graph, unused_color=(0.9, 0.9, 0.9, 1.0),
+               fault_color=(1.0, 0.0, 0.0, 1.0), fault_shape='x',
+               fault_style='dashed', **kwargs):
     """Draws the given graph G with highlighted faults, according to layout.
 
     Parameters
@@ -482,9 +464,9 @@ def draw_yield(G, layout, perfect_graph, unused_color=(0.9,0.9,0.9,1.0),
 
     # Draw faults with different style and shape
     draw(perfect_graph, layout, nodelist=faults_nodelist, edgelist=faults_edgelist,
-        node_color=faults_node_color, edge_color=faults_edge_color,
-        style=fault_style, node_shape=fault_shape,
-        **kwargs )
+         node_color=faults_node_color, edge_color=faults_edge_color,
+         style=fault_style, node_shape=fault_shape,
+         **kwargs)
 
     # Draw rest of graph
     if unused_color is not None:
@@ -497,5 +479,5 @@ def draw_yield(G, layout, perfect_graph, unused_color=(0.9,0.9,0.9,1.0),
         unused_edge_color = [unused_color for v in edgelist]
 
         draw(perfect_graph, layout, nodelist=nodelist, edgelist=edgelist,
-            node_color=unused_node_color, edge_color=unused_edge_color,
-            **kwargs)
+             node_color=unused_node_color, edge_color=unused_edge_color,
+             **kwargs)
