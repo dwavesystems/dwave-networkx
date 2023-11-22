@@ -51,9 +51,15 @@ class TestDrawing(unittest.TestCase):
         dnx.drawing.qubit_layout.draw_qubit_graph(G, pos, linear_biases, None)
         dnx.drawing.qubit_layout.draw_qubit_graph(G, pos, linear_biases, None, cmap=None)
         dnx.drawing.qubit_layout.draw_qubit_graph(G, pos, linear_biases, None, cmap=cm)
+        dnx.drawing.qubit_layout.draw_qubit_graph(G, pos, linear_biases, None, vmin=-0.1, vmax=0)
+        dnx.drawing.qubit_layout.draw_qubit_graph(G, pos, linear_biases, None, vmin=0.0, vmax=10)
 
         # Supply quadratic but not linear biases
         dnx.drawing.qubit_layout.draw_qubit_graph(G, pos, {}, quadratic_biases)
         dnx.drawing.qubit_layout.draw_qubit_graph(G, pos, None, quadratic_biases)
         dnx.drawing.qubit_layout.draw_qubit_graph(G, pos, None, quadratic_biases, edge_cmap=None)
         dnx.drawing.qubit_layout.draw_qubit_graph(G, pos, None, quadratic_biases, edge_cmap=cm)
+        dnx.drawing.qubit_layout.draw_qubit_graph(G, pos, None, quadratic_biases,
+                                                  edge_vmin=-0.1, edge_vmax=0)
+        dnx.drawing.qubit_layout.draw_qubit_graph(G, pos, None, quadratic_biases,
+                                                  edge_vmin=0.0, edge_vmax=10)
