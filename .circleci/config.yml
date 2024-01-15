@@ -118,11 +118,18 @@ jobs:
 
       - run:
           name: Install python and create virtualenv
+          shell: bash -eo pipefail
           command: |
-            nuget install python -Version << parameters.python-version >> -ExcludeVersion -OutputDirectory .
-            .\python\tools\python.exe --version
-            .\python\tools\python.exe -m pip install virtualenv
-            .\python\tools\python.exe -m virtualenv env
+            # resolve python MAJOR.MINOR version to latest MAJOR.MINOR.PATCH version available on NuGet
+            full_version=$(
+              curl -s 'https://azuresearch-usnc.nuget.org/query?q=python' \
+              | jq -r '.data[] | select(.id == "python") .versions[] | .version' \
+              | awk -F. -v ver='<< parameters.python-version >>' \
+                  'index($0, ver".") == 1 && $3 >= m { m = $3; v = $0 } END { print v }'
+            )
+            nuget install python -Version "$full_version" -ExcludeVersion
+            python/tools/python -V
+            python/tools/python -m venv env
 
       - run:
           name: Install dependencies
@@ -212,17 +219,15 @@ workflows:
       - test-linux:
           matrix:
             parameters:
-              python-version: &python-versions [3.7.9, 3.8.9, 3.9.4, 3.10.0, 3.11.0]
+              python-version: &python-versions ["3.8", "3.9", "3.10", "3.11", "3.12"]
               dependency-versions: ["dimod==0.10.8 networkx==2.4 oldest-supported-numpy",  # oldest supported
                                     "dimod networkx numpy",                                # latest
                                     ]
             exclude:
-              # dimod 0.10.8 doesn't support Python 3.11
-              - python-version: 3.11.0
+              # dimod 0.10.8 doesn't support Python 3.11+
+              - python-version: "3.11"
                 dependency-versions: "dimod==0.10.8 networkx==2.4 oldest-supported-numpy"
-              
-              # dimod does not support the oldest-supported-numpy on Python 3.7
-              - python-version: 3.7.9
+              - python-version: "3.12"
                 dependency-versions: "dimod==0.10.8 networkx==2.4 oldest-supported-numpy"
       - test-osx:
           matrix:

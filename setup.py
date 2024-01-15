@@ -34,17 +34,17 @@ install_requires = ['networkx>=2.4',
                     'numpy>=1.17.3',
                     ]
 
-python_requires = ">=3.7"
+python_requires = ">=3.8"
 
 classifiers = [
     'License :: OSI Approved :: Apache Software License',
     'Operating System :: OS Independent',
     'Programming Language :: Python :: 3 :: Only',
-    'Programming Language :: Python :: 3.7',
     'Programming Language :: Python :: 3.8',
     'Programming Language :: Python :: 3.9',
     'Programming Language :: Python :: 3.10',
     'Programming Language :: Python :: 3.11',
+    'Programming Language :: Python :: 3.12',
 ]
 
 setup(
