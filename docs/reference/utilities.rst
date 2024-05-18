@@ -35,21 +35,28 @@ Chimera
    :toctree: generated/
 
    chimera_coordinates.chimera_to_linear
+   chimera_coordinates.graph_to_chimera
+   chimera_coordinates.graph_to_linear
    chimera_coordinates.linear_to_chimera
+   chimera_sublattice_mappings
    find_chimera_indices
-
+   
 Pegasus
 ~~~~~~~
 
 .. autosummary::
    :toctree: generated/
 
+   pegasus_coordinates.graph_to_linear
+   pegasus_coordinates.graph_to_nice
+   pegasus_coordinates.graph_to_pegasus
    pegasus_coordinates.linear_to_nice
    pegasus_coordinates.linear_to_pegasus
    pegasus_coordinates.nice_to_linear
    pegasus_coordinates.nice_to_pegasus
    pegasus_coordinates.pegasus_to_linear
    pegasus_coordinates.pegasus_to_nice
+   pegasus_sublattice_mappings
 
 
 Zephyr
