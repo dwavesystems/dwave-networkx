@@ -297,13 +297,3 @@ def draw_zephyr_yield(G, **kwargs):
     perfect_graph = zephyr_graph(m, t, coordinates=coordinates)
 
     draw_yield(G, zephyr_layout(perfect_graph), perfect_graph, **kwargs)
-    
-    
-import dwave_networkx as dnx        
-G = dnx.zephyr_graph(2, 4)
-pos = zephyr_layout(G)
-x_coords = [val[0] for val in pos.values()]
-y_coords = [val[1] for val in pos.values()]
-min_x, max_x = min(x_coords), max(x_coords)
-min_y, max_y = min(y_coords), max(y_coords)
-print(min_x, max_x, min_y, max_y)
