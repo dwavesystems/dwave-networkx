@@ -18,6 +18,7 @@ Tools to visualize :term:`Zephyr` lattices and weighted :term:`graph` problems o
 
 import networkx as nx
 from networkx import draw
+import numpy as np
 
 from dwave_networkx.drawing.qubit_layout import draw_qubit_graph, draw_embedding, draw_yield
 from dwave_networkx.generators.zephyr import zephyr_graph, zephyr_coordinates
@@ -78,7 +79,11 @@ def zephyr_layout(G, scale=1., center=None, dim=2):
         t = G.graph.get('tile')
         coord = zephyr_coordinates(m, t)
         pos = {v: xy_coords(*coord.linear_to_zephyr(v)) for v in G.nodes()}
-    
+        
+    if center is None:
+        center = np.zeros(dim)
+    else:
+        center = np.asarray(center)
     pos_arr = np.array([(pos[v]-center)[:2] for v in G.nodes()])
     min_x, min_y = np.min(pos_arr, axis=0)
     max_x, max_y = np.max(pos_arr, axis=0)
@@ -291,3 +296,12 @@ def draw_zephyr_yield(G, **kwargs):
     perfect_graph = zephyr_graph(m, t, coordinates=coordinates)
 
     draw_yield(G, zephyr_layout(perfect_graph), perfect_graph, **kwargs)
+
+import dwave_networkx as dnx
+import unittest
+G = dnx.zephyr_graph(2, 4)
+pos = dnx.zephyr_layout(G, scale=10)
+y_coords = [val[1] for val in pos.values()]
+min_y, max_y = min(y_coords), max(y_coords)
+unittest.Testcase.assertAlmostEqual(min_y, -10, delta=1e-5, msg="min_y should be approximately -10")
+unittest.Testcase.assertAlmostEqual(max_y, 0, delta=1e-5, msg="max_y should be approximately 0")
