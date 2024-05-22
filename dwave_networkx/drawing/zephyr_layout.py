@@ -78,7 +78,19 @@ def zephyr_layout(G, scale=1., center=None, dim=2):
         t = G.graph.get('tile')
         coord = zephyr_coordinates(m, t)
         pos = {v: xy_coords(*coord.linear_to_zephyr(v)) for v in G.nodes()}
-
+    
+    pos_arr = np.array([(pos[v]-center)[:2] for v in G.nodes()])
+    min_x, min_y = np.min(pos_arr, axis=0)
+    max_x, max_y = np.max(pos_arr, axis=0)
+    scale_x = max_x - min_x
+    scale_y = max_y - min_y
+    pos_arr = pos_arr - np.array([min_x , max_y]) # shift to make (0, 0) the top left corner
+    pos_arr = pos_arr * np.array([1/scale_x, 1/scale_y]) # scale to make (1, -1) the bottom right corner
+    paddims = dim - 2
+    zeros = np.zeros((pos_arr.shape[0], paddims))
+    pos_arr = np.hstack((pos_arr*np.array([scale, scale]), zeros)) + center 
+    pos = {v: pos_arr[i] for i, v in enumerate(G.nodes())}
+    
     return pos
 
 
@@ -139,9 +151,8 @@ def zephyr_node_placer_2d(G, scale=1., center=None, dim=2):
         else:
             xy = np.array([W, -Z])
 
-
         return np.hstack((xy * scale, np.zeros(paddims))) + center
-
+  
     return _xy_coords
 
 
