@@ -796,7 +796,7 @@ class pegasus_coordinates(object):
         return self._pair_repack(self.iter_nice_to_linear, nlist)
 
     def graph_to_linear(self, g):
-        """Return a copy of the graph g relabeled to have linear indices"""
+        """Return a copy of the graph `g` relabeled to have linear indices."""
         labels = g.graph.get('labels')
         if labels == 'int':
             return g.copy()
@@ -823,7 +823,7 @@ class pegasus_coordinates(object):
         )
 
     def graph_to_pegasus(self, g):
-        """Return a copy of the graph g relabeled to have pegasus coordinates"""
+        """Return a copy of the graph `g` relabeled to have pegasus coordinates."""
         labels = g.graph.get('labels')
         if labels == 'int':
             nodes = self.iter_linear_to_pegasus(g)
@@ -851,7 +851,7 @@ class pegasus_coordinates(object):
         )
 
     def graph_to_nice(self, g):
-        """Return a copy of the graph p relabeled to have nice coordinates"""
+        """Return a copy of the graph `g` relabeled to have nice coordinates."""
         labels = g.graph.get('labels')
         if labels == 'int':
             nodes = self.iter_linear_to_nice(g)
@@ -1070,62 +1070,64 @@ def _pegasus_pegasus_sublattice_mapping(source_to_nice, nice_to_target, offset):
 
 
 def pegasus_sublattice_mappings(source, target, offset_list=None):
-    """Yields mappings from a Chimera or Pegasus graph into a Pegasus graph.
+    """Yield mappings from a Chimera or Pegasus graph into a Pegasus graph.
     
-    A sublattice mapping is a function from nodes of a ``pegasus_graph(m_s)`` or
-    ``chimera_graph(m_c, n_c, 4)`` to nodes of a ``pegasus_graph(m_t)`` with
-    ``m_s <= m_t`` or ``m_c <= m_t - 1`` and ``n_c <= m_t - 1``.  This is used
-    to identify subgraphs of the target Pegasus graphs which are isomorphic to
-    the source graph.  However, if the target graph is not of perfect yield,
-    these functions do not generally produce isomorphisms (for example, if a 
-    node is missing in the target graph, it may still appear in the image of the
-    source graph).
-    
-    Note that we require the tile parameter of Chimera graphs to be 4, and the
-    mappings produced are not exhaustive.  The mappings take the form
-    
-        ``(y, x, u, k) -> (t_offset, y+y_offset, x+x_offset, u, k)``
-        
-    when the source is a Chimera graph, or
-    
-        ``(t, y, x, u, k) -> ((t + t_offset)%3, y+y_offset, x+x_offset, u, k)``
-    
-    when the source is a Pegasus graph; preserving the orientation and tile
-    index of nodes.  We use the notation of Chimera coordinates and Pegasus nice 
-    coordinates above, but the mapping produced will respect the labelings of
-    the source and target graph.  Note, the notation above for Pegasus->Pegasus
-    mappings is only suggestive. See _pegasus_pegasus_sublattice_mapping for a
-    precise formula.
-    
-    Academic note: the full group of isomorphisms of a Chimera graph includes 
-    mappings which permute tile indices on a per-row and per-column basis, in
-    addition to reflections and rotations of the grid of unit tiles where 
-    rotations by 90 and 270 degrees induce a change in orientation.  The
-    isomorphisms of Pegasus graphs permit the swapping across rows and columns
-    of odd couplers, as well as a reflection about the main antidiagonal which
-    induces a change in orientation.  The full set of sublattice mappings would
-    take those isomorphisms into account; we do not undertake that complexity
-    here.
-
     Parameters
     ----------
         source : NetworkX Graph
-            The Chimera or Pegasus graph that nodes are input from
+            The Chimera or Pegasus graph that nodes are input from.
         target : NetworkX Graph
-            The Pegasus graph that nodes are output to
+            The Pegasus graph that nodes are output to.
         offset_list : iterable (tuple), optional (default None)
-            An iterable of offsets.  This can be used to reconstruct a set of
-            mappings, as the offset used to generate a single mapping is stored
+            An iterable of offsets that can be used to reconstruct a set of
+            mappings since the offset used to generate a single mapping is stored
             in the ``offset`` attribute of that mapping.
             
     Yields
     ------
         mapping : function
-            A function from nodes of the source graph, to nodes of the target
+            A function from the nodes of the source graph to the nodes of the target
             graph.  The offset used to generate this mapping is stored in
-            ``mapping.offset`` -- these can be collected and passed into 
+            ``mapping.offset``, which can be collected and passed into 
             ``offset_list`` in a later session.
+
+    Notes
+    -----
+    A sublattice mapping is a function from the nodes of a ``pegasus_graph(m_s)`` 
+    or ``chimera_graph(m_c, n_c, 4)`` to the nodes of a ``pegasus_graph(m_t)`` with
+    ``m_s <= m_t`` or ``m_c <= m_t - 1`` and ``n_c <= m_t - 1``.
+    This sublattice mapping is used to identify subgraphs of the target Pegasus 
+    graphs that are isomorphic to the source graph.  However, if the target graph 
+    is not of perfect yield, these functions do not generally produce isomorphisms; 
+    for example, if a node is missing in the target graph, it may still appear in 
+    the source graph's image.
+
+    Note that we require the tile parameter of Chimera graphs to be 4, and the
+    mappings produced are not exhaustive.  The mappings take the form
+
+        ``(y, x, u, k) -> (t_offset, y+y_offset, x+x_offset, u, k)``
         
+    when the source is a Chimera graph, or
+
+        ``(t, y, x, u, k) -> ((t + t_offset)%3, y+y_offset, x+x_offset, u, k)``
+    
+    when the source is a Pegasus graph, thus preserving the orientation and tile
+    index of nodes.  The notation of Chimera coordinates and Pegasus nice 
+    coordinates above is used, but the mapping produced will respect the labelings 
+    of the source and target graph.  Note, the notation above for 
+    Pegasus-to-Pegasus mappings is only suggestive; 
+    see `_pegasus_pegasus_sublattice_mapping` for a precise formula.
+    
+    **Academic Note:** The full group of isomorphisms of a Chimera graph includes 
+    mappings which permute tile indices on a per-row and per-column basis in
+    addition to reflections and rotations of the grid of unit tiles where 
+    rotations by 90 and 270 degrees induce a change in orientation.  The
+    isomorphisms of Pegasus graphs permit the swapping across rows and columns
+    of odd couplers as well as a reflection about the main antidiagonal which
+    induces a change in orientation. Although the full set of sublattice mappings 
+    would take those isomorphisms into account, we do not undertake that complexity
+    here.
+    
     """
     if target.graph.get('family') != 'pegasus':
         raise ValueError("source graphs must a Pegasus graph constructed by dwave_networkx.pegasus_graph")
