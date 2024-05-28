@@ -252,10 +252,10 @@ def chimera_graph(m, n=None, t=None, create_using=None, node_list=None, edge_lis
 
 
 def find_chimera_indices(G):
-    """Attempt to determine the Chimera indices of the nodes in graph G.
+    """Attempts to determine the Chimera indices of the nodes in graph ``G``.
 
-    See the :func:`~chimera_graph()` function for a definition of a Chimera graph and Chimera
-    indices.
+    See the :func:`~chimera_graph()` function for a definition of a Chimera graph 
+    and Chimera indices.
 
     Parameters
     ----------
@@ -378,7 +378,7 @@ class chimera_coordinates(object):
         return self.chimera_to_linear(q)
 
     def chimera_to_linear(self, q):
-        """Convert a 4-term Chimera coordinate to a linear index.
+        """Converts a 4-term Chimera coordinate to a linear index.
 
         Parameters
         ----------
@@ -404,7 +404,7 @@ class chimera_coordinates(object):
         return self.linear_to_chimera(r)
 
     def linear_to_chimera(self, r):
-        """Convert a linear index to a 4-term Chimera coordinate.
+        """Converts a linear index to a 4-term Chimera coordinate.
 
         Parameters
         ----------
@@ -431,7 +431,7 @@ class chimera_coordinates(object):
         return self.iter_chimera_to_linear(qlist)
 
     def iter_chimera_to_linear(self, qlist):
-        """Return an iterator converting a sequence of 4-term Chimera
+        """Returns an iterator converting a sequence of 4-term Chimera
         coordinates to linear indices.
         """
         m, n, t = self.args
@@ -447,7 +447,7 @@ class chimera_coordinates(object):
         return self.iter_linear_to_chimera(rlist)
 
     def iter_linear_to_chimera(self, rlist):
-        """Return an iterator converting a sequence of linear indices to 4-term
+        """Returns an iterator converting a sequence of linear indices to 4-term
         Chimera coordinates.
         """
         m, n, t = self.args
@@ -476,7 +476,7 @@ class chimera_coordinates(object):
         return self.iter_chimera_to_linear_pairs(plist)
 
     def iter_chimera_to_linear_pairs(self, plist):
-        """Return an iterator converting a sequence of pairs of 4-term Chimera
+        """Returns an iterator converting a sequence of pairs of 4-term Chimera
         coordinates to pairs of linear indices.
         """
         return self._pair_repack(self.iter_chimera_to_linear, plist)
@@ -490,13 +490,13 @@ class chimera_coordinates(object):
         return self.iter_linear_to_chimera_pairs(plist)
 
     def iter_linear_to_chimera_pairs(self, plist):
-        """Return an iterator converting a sequence of pairs of linear indices
+        """Returns an iterator converting a sequence of pairs of linear indices
         to pairs of 4-term Chimera coordinates.
         """
         return self._pair_repack(self.iter_linear_to_chimera, plist)
 
     def graph_to_linear(self, g):
-        """Return a copy of the graph `g` relabeled to have linear indices."""
+        """Returns a copy of the graph ``g`` relabeled to have linear indices."""
         labels = g.graph.get('labels')
         if labels == 'int':
             return g.copy()
@@ -515,7 +515,7 @@ class chimera_coordinates(object):
             )
 
     def graph_to_chimera(self, g):
-        """Return a copy of the graph `g` relabeled to have Chimera coordinates."""
+        """Returns a copy of the graph ``g`` relabeled to have Chimera coordinates."""
         labels = g.graph.get('labels')
         if labels == 'int':
             return chimera_graph(
@@ -545,7 +545,7 @@ class __chimera_coordinates_cache_dict(dict):
 _chimera_coordinates_cache = __chimera_coordinates_cache_dict()
 
 def linear_to_chimera(r, m, n=None, t=None):
-    """Convert the linear index `r` into a Chimera index.
+    """Converts the linear index ``r`` into a Chimera index.
 
     Parameters
     ----------
@@ -582,14 +582,14 @@ def linear_to_chimera(r, m, n=None, t=None):
 
 
 def chimera_to_linear(i, j, u, k, m, n=None, t=None):
-    """Convert the chimera index `(i, j, u, k)` into a linear index.
+    """Converts the Chimera index ``(i, j, u, k)`` into a linear index.
 
     Parameters
     ----------
     i : int
-        The column of the Chimera index's unit cell associated with `r`.
+        The column of the Chimera index's unit cell associated with ``r``.
     j : int
-        The row of the Chimera index's unit cell associated with `r`.
+        The row of the Chimera index's unit cell associated with ``r``.
     u : int
         Whether the index is even (0) or odd (1); the side of the bipartite
         graph of the Chimera unit cell.
@@ -606,7 +606,7 @@ def chimera_to_linear(i, j, u, k, m, n=None, t=None):
     Returns
     -------
     r : int
-        The linear index node label corresponding to `(i, j, u, k)`.
+        The linear index node label corresponding to ``(i, j, u, k)``.
 
     Examples
     --------
@@ -653,7 +653,26 @@ def _chimera_sublattice_mapping(source_to_chimera, chimera_to_target, offset):
 
 
 def chimera_sublattice_mappings(source, target, offset_list=None):
-    """Yield mappings from a Chimera graph into a larger Chimera graph.
+    """Yields mappings from a Chimera graph into a larger Chimera graph.
+
+    A sublattice mapping is a function from the nodes of a
+    ``chimera_graph(m_s, n_s, t)`` to the nodes of a ``chimera_graph(m_t, n_t, t)``
+    with ``m_s <= m_t`` and ``n_s <= n_t``.  This sublattice mapping is used 
+    to identify subgraphs of the target Chimera graphs that are isomorphic 
+    to the source Chimera graph.  However, if the target graph is not of perfect 
+    yield, these functions do not generally produce isomorphisms; for example, 
+    if a node is missing in the target graph, it may still appear in the 
+    source graph's image.
+
+    Note that we do not produce mappings between Chimera graphs of different
+    tile parameters, and the mappings produced are not exhaustive.  The mappings
+    take the form
+
+        ``(y, x, u, k) -> (y + y_offset, x + x_offset, u, k)``
+
+    preserving the orientation and tile index of nodes. Although the notation 
+    of above Chimera coordinates is used, either or both of the target graphs 
+    may have integer or coordinate labels.
 
     Parameters
     ----------
@@ -676,26 +695,7 @@ def chimera_sublattice_mappings(source, target, offset_list=None):
 
     Notes
     -----
-    A sublattice mapping is a function from the nodes of a
-    ``chimera_graph(m_s, n_s, t)`` to the nodes of a ``chimera_graph(m_t, n_t, t)``
-    with ``m_s <= m_t`` and ``n_s <= n_t``.  This sublattice mapping is used 
-    to identify subgraphs of the target Chimera graphs that are isomorphic 
-    to the source Chimera graph.  However, if the target graph is not of perfect 
-    yield, these functions do not generally produce isomorphisms; for example, 
-    if a node is missing in the target graph, it may still appear in the 
-    source graph's image.
-
-    Note that we do not produce mappings between Chimera graphs of different
-    tile parameters, and the mappings produced are not exhaustive.  The mappings
-    take the form
-
-        ``(y, x, u, k) -> (y + y_offset, x + x_offset, u, k)``
-
-    preserving the orientation and tile index of nodes. Although the notation 
-    of above Chimera coordinates is used, either or both of the target graphs 
-    may have integer or coordinate labels.
-
-    **Academic Note:** The full group of a Chimera graph's isomorphisms includes 
+    The full group of a Chimera graph's isomorphisms includes 
     mappings which permute tile indices on a per-row and per-column basis in
     addition to reflections and rotations of the grid of unit cells where 
     rotations by 90 and 270 degrees induce a change in orientation.  
@@ -741,7 +741,8 @@ def chimera_sublattice_mappings(source, target, offset_list=None):
         yield _chimera_sublattice_mapping(source_to_chimera, chimera_to_target, offset)
 
 def chimera_torus(m, n=None, t=None, node_list=None, edge_list=None):
-    """Creates a defect-free Chimera lattice of size :math:`(m, n, t)` subject to periodic boundary conditions.
+    """Creates a defect-free Chimera lattice of size :math:`(m, n, t)` 
+    subject to periodic boundary conditions.
 
 
     Parameters

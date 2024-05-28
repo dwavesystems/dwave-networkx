@@ -274,7 +274,7 @@ class zephyr_coordinates(object):
         self.args = m, 2 * m + 1, t
 
     def zephyr_to_linear(self, q):
-        """Convert a 5-term Zephyr coordinate into a linear index.
+        """Converts a 5-term Zephyr coordinate into a linear index.
 
         Parameters
         ----------
@@ -291,7 +291,7 @@ class zephyr_coordinates(object):
         return (((u * M + w) * t + k) * 2 + j) * m + z
 
     def linear_to_zephyr(self, r):
-        """Convert a linear index into a 5-term Zephyr coordinate.
+        """Converts a linear index into a 5-term Zephyr coordinate.
 
         Parameters
         ----------
@@ -312,7 +312,7 @@ class zephyr_coordinates(object):
         return u, w, k, j, z
 
     def iter_zephyr_to_linear(self, qlist):
-        """Return an iterator converting a sequence of 5-term Zephyr
+        """Returns an iterator converting a sequence of 5-term Zephyr
         coordinates to linear indices.
         """
         m, M, t = self.args
@@ -320,7 +320,7 @@ class zephyr_coordinates(object):
             yield (((u * M + w) * t + k) * 2 + j) * m + z
 
     def iter_linear_to_zephyr(self, rlist):
-        """Return an iterator converting a sequence of linear indices to 5-term
+        """Returns an iterator converting a sequence of linear indices to 5-term
         Zephyr coordinates.
         """
         m, M, t = self.args
@@ -333,7 +333,7 @@ class zephyr_coordinates(object):
 
     @staticmethod
     def _pair_repack(f, plist):
-        """Flattens a sequence of pairs to pass through `f`, and then
+        """Flattens a sequence of pairs to pass through ``f``, and then
         re-pairs the result.
         """
         ulist = f(u for p in plist for u in p)
@@ -342,19 +342,19 @@ class zephyr_coordinates(object):
             yield u, v
 
     def iter_zephyr_to_linear_pairs(self, plist):
-        """Return an iterator converting a sequence of pairs of 5-term Zephyr
+        """Returns an iterator converting a sequence of pairs of 5-term Zephyr
         coordinates to pairs of linear indices.
         """
         return self._pair_repack(self.iter_zephyr_to_linear, plist)
 
     def iter_linear_to_zephyr_pairs(self, plist):
-        """Return an iterator converting a sequence of pairs of linear indices
+        """Returns an iterator converting a sequence of pairs of linear indices
         to pairs of 5-term Zephyr coordinates.
         """
         return self._pair_repack(self.iter_linear_to_zephyr, plist)
 
     def graph_to_linear(self, g):
-        """Return a copy of the graph `g` relabeled to have linear indices."""
+        """Returns a copy of the graph ``g`` relabeled to have linear indices."""
         labels = g.graph.get('labels')
         if labels == 'int':
             return g.copy()
@@ -375,7 +375,7 @@ class zephyr_coordinates(object):
         )
 
     def graph_to_zephyr(self, g):
-        """Return a copy of the graph `g` relabeled to have zephyr coordinates."""
+        """Returns a copy of the graph ``g`` relabeled to have zephyr coordinates."""
         labels = g.graph.get('labels')
         if labels == 'int':
             nodes = self.iter_linear_to_zephyr(g)
@@ -564,29 +564,8 @@ def _double_chimera_zephyr_sublattice_mapping(source_to_chimera, zephyr_to_targe
 
 
 def zephyr_sublattice_mappings(source, target, offset_list=None):
-    """Yield mappings from a Chimera or Zephyr graph into a Zephyr graph.
+    """Yields mappings from a Chimera or Zephyr graph into a Zephyr graph.
 
-    Parameters
-    ----------
-        source : NetworkX Graph
-            The Chimera or Zephyr graph that nodes are input from.
-        target : NetworkX Graph
-            The Zephyr graph that nodes are output to.
-        offset_list : iterable (tuple), optional (default None)
-            An iterable of offsets that can be used to reconstruct a set of
-            mappings since the offset used to generate a single mapping is stored
-            in the ``offset`` attribute of that mapping.
-
-    Yields
-    ------
-        mapping : function
-            A function from nodes of the source graph to nodes of the target
-            graph.  The offset used to generate this mapping is stored in
-            ``mapping.offset``, which can be collected and passed into
-            ``offset_list`` in a later session.
-
-    Notes
-    -----
     A sublattice mapping is a function from nodes of
 
         * a ``zephyr_graph(m_s, t)`` to nodes of a ``zephyr_graph(m_t, t)``
@@ -609,8 +588,29 @@ def zephyr_sublattice_mappings(source, target, offset_list=None):
     ``_zephyr_zephyr_sublattice_mapping``,
     ``_double_chimera_zephyr_sublattice_mapping``, and
     ``_single_chimera_zephyr_sublattice_mapping`` internal functions.
+    
+    Parameters
+    ----------
+        source : NetworkX Graph
+            The Chimera or Zephyr graph that nodes are input from.
+        target : NetworkX Graph
+            The Zephyr graph that nodes are output to.
+        offset_list : iterable (tuple), optional (default None)
+            An iterable of offsets that can be used to reconstruct a set of
+            mappings since the offset used to generate a single mapping is stored
+            in the ``offset`` attribute of that mapping.
 
-    **Academic Note:** The full group of isomorphisms of a Chimera graph includes
+    Yields
+    ------
+        mapping : function
+            A function from nodes of the source graph to nodes of the target
+            graph.  The offset used to generate this mapping is stored in
+            ``mapping.offset``, which can be collected and passed into
+            ``offset_list`` in a later session.
+
+    Notes
+    -----
+    The full group of isomorphisms of a Chimera graph includes
     mappings which permute tile indices on a per-row and per-column basis in
     addition to reflections and rotations of the grid of unit tiles where
     rotations by 90 and 270 degrees induce a change in orientation.  The
