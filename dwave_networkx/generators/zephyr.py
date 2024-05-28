@@ -354,7 +354,13 @@ class zephyr_coordinates(object):
         return self._pair_repack(self.iter_linear_to_zephyr, plist)
 
     def graph_to_linear(self, g):
-        """Returns a copy of the graph ``g`` relabeled to have linear indices."""
+        """Returns a copy of the graph ``g`` relabeled to have linear indices.
+        
+        Parameters
+        ----------
+        g : NetworkX Graph
+            The Zephyr graph to be relabeled.        
+        """
         labels = g.graph.get('labels')
         if labels == 'int':
             return g.copy()
@@ -375,7 +381,13 @@ class zephyr_coordinates(object):
         )
 
     def graph_to_zephyr(self, g):
-        """Returns a copy of the graph ``g`` relabeled to have zephyr coordinates."""
+        """Returns a copy of the graph ``g`` relabeled to have zephyr coordinates.
+        
+        Parameters
+        ----------
+        g : NetworkX Graph
+            The Zephyr graph to be relabeled.        
+        """
         labels = g.graph.get('labels')
         if labels == 'int':
             nodes = self.iter_linear_to_zephyr(g)
