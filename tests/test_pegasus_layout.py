@@ -65,6 +65,38 @@ class TestDrawing(unittest.TestCase):
         with self.assertRaises(ValueError):
             pos = dnx.pegasus_layout(badG)
 
+    def test_pegasus_layout_xrange_typical(self):
+        G = dnx.pegasus_graph(2)
+        pos = dnx.pegasus_layout(G)
+        x_coords = [val[0] for val in pos.values()]
+        min_x, max_x = min(x_coords), max(x_coords)
+        self.assertAlmostEqual(min_x, 0, delta=1e-5, msg="min_x should be approximately 0")
+        self.assertAlmostEqual(max_x, 1, delta=1e-5, msg="max_x should be approximately 1")
+        
+    def test_pegasus_layout_yrange_typical(self):
+        G = dnx.pegasus_graph(2)
+        pos = dnx.pegasus_layout(G)
+        y_coords = [val[1] for val in pos.values()]
+        min_y, max_y = min(y_coords), max(y_coords)
+        self.assertAlmostEqual(min_y, -1, delta=1e-5, msg="min_y should be approximately -1")
+        self.assertAlmostEqual(max_y, 0, delta=1e-5, msg="max_y should be approximately 0")
+
+    def test_pegasus_layout_xrange(self):
+        G = dnx.pegasus_graph(2)
+        pos = dnx.pegasus_layout(G, scale=5)
+        x_coords = [val[0] for val in pos.values()]
+        min_x, max_x = min(x_coords), max(x_coords)
+        self.assertAlmostEqual(min_x, 0, delta=1e-5, msg="min_x should be approximately 0")
+        self.assertAlmostEqual(max_x, 5, delta=1e-5, msg="max_x should be approximately 5")
+        
+    def test_pegasus_layout_yrange(self):
+        G = dnx.pegasus_graph(2)
+        pos = dnx.pegasus_layout(G, scale=5)
+        y_coords = [val[1] for val in pos.values()]
+        min_y, max_y = min(y_coords), max(y_coords)
+        self.assertAlmostEqual(min_y, -5, delta=1e-5, msg="min_y should be approximately -5")
+        self.assertAlmostEqual(max_y, 0, delta=1e-5, msg="max_y should be approximately 0")
+
     @unittest.skipUnless(_display, " No display found")
     def test_draw_pegasus_yield(self):
         G = dnx.pegasus_graph(3, data=False)
