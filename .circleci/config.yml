@@ -57,8 +57,8 @@ jobs:
       python-version:
         type: string
 
-    resource_class: macos.x86.medium.gen2   
-    
+    resource_class: macos.m1.medium.gen1
+
     macos:
       xcode: "14.3.0"
 
@@ -74,7 +74,7 @@ jobs:
             brew install pyenv
 
       - restore_cache: &restore-cache-pyenv
-          key: v1-pyenv-{{ .Environment.CIRCLE_JOB }}-xcode-14.3.0
+          key: v2-pyenv-{{ .Environment.CIRCLE_JOB }}-xcode-14.3.0
 
       - run:
           name: Install python
@@ -82,7 +82,7 @@ jobs:
             pyenv install << parameters.python-version>> -s
 
       - save_cache: &save-cache-pyenv
-          key: v1-pyenv-{{ .Environment.CIRCLE_JOB }}-xcode-14.3.0
+          key: v2-pyenv-{{ .Environment.CIRCLE_JOB }}-xcode-14.3.0
           paths:
             - ~/.pyenv
 
