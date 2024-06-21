@@ -62,9 +62,6 @@ jobs:
     macos:
       xcode: "14.3.0"
 
-    environment:
-      HOMEBREW_NO_AUTO_UPDATE: 1
-
     steps:
       - checkout
 
