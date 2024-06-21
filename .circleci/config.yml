@@ -56,22 +56,25 @@ jobs:
     parameters:
       python-version:
         type: string
+      xcode:
+        type: string
+        default: "14.3.0"
 
     resource_class: macos.m1.medium.gen1
 
     macos:
-      xcode: "14.3.0"
+      xcode: << parameters.xcode >>
 
     steps:
       - checkout
+
+      - restore_cache: &restore-cache-pyenv
+          key: &brew-pyenv-cache-key v1-brew-pyenv-{{ .Environment.CIRCLE_JOB }}-xcode-<< parameters.xcode >>
 
       - run:
           name: Install pyenv
           command: |
             brew install pyenv
-
-      - restore_cache: &restore-cache-pyenv
-          key: v2-pyenv-{{ .Environment.CIRCLE_JOB }}-xcode-14.3.0
 
       - run:
           name: Install python
@@ -79,8 +82,10 @@ jobs:
             pyenv install << parameters.python-version>> -s
 
       - save_cache: &save-cache-pyenv
-          key: v2-pyenv-{{ .Environment.CIRCLE_JOB }}-xcode-14.3.0
+          key: *brew-pyenv-cache-key
           paths:
+            - /Users/distiller/Library/Caches/Homebrew
+            - /usr/local/Homebrew
             - ~/.pyenv
 
       - restore_cache: *restore-cache-env
