@@ -95,9 +95,9 @@ def structural_imbalance(S, sampler=None, **sampler_args):
 
     `Ising model on Wikipedia <https://en.wikipedia.org/wiki/Ising_model>`_
 
-    .. [FIA] Facchetti, G., Iacono G., and Altafini C. (2011). Computing
-       global structural balance in large-scale signed social networks.
-       PNAS, 108, no. 52, 20953-20958
+    Facchetti, G., Iacono G., and Altafini C. (2011). 
+    Computing global structural balance in large-scale signed social networks.
+    PNAS, 108, no. 52, 20953-20958
 
     """
     h, J = structural_imbalance_ising(S)

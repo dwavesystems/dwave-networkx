@@ -7,8 +7,6 @@
 .. image:: https://circleci.com/gh/dwavesystems/dwave-networkx.svg?style=svg
     :target: https://circleci.com/gh/dwavesystems/dwave-networkx
 
-.. inclusion-marker-do-not-remove
-
 D-Wave NetworkX
 ===============
 
