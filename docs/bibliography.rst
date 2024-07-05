@@ -1,13 +1,9 @@
 Bibliography
 ============
 
-.. [NX] A. A. Hagberg, D. A. Schult and P. J. Swart, “Exploring network structure, dynamics, and function using NetworkX”, in Proceedings of the 7th Python in Science Conference (SciPy2008), Gäel Varoquaux, Travis Vaught, and Jarrod Millman (Eds), (Pasadena, CA USA), pp. 11–15, Aug 2008
-
 .. [GD] V. Gogate and R. Dechter, "A Complete Anytime Algorithm for Treewidth", https://arxiv.org/abs/1207.4109
 
 .. [AL] A. Lucas (2014). Ising formulations of many NP problems. Frontiers in Physics, Volume 2, Article 5.
-
-.. [FIA] G. Facchetti, G. Iacono and C. Altafini (2011). Computing global structural balance in large-scale signed social networks. PNAS, 108, no. 52, 20953-20958
 
 .. [DWMP] E. Dahl, "Programming the D-Wave: Map Coloring Problem", https://www.dwavesys.com/media/htfgw5bk/map-coloring-wp2.pdf
 
