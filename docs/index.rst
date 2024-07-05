@@ -2,9 +2,14 @@
 
 .. _index_dnx:
 
-.. include:: README.rst
-  :start-after: inclusion-marker-do-not-remove
+==============
+dwave-networkx
+==============
 
+.. include:: README.rst
+    :start-after: index-start-marker
+    :end-before: index-end-marker
+    
 Documentation
 -------------
 
