@@ -157,9 +157,10 @@ def zephyr_graph(m, t=4, create_using=None, node_list=None, edge_list=None,
 
     References
     ----------
-    .. [BRK] Boothby, Raymond, King, Zephyr Topology of D-Wave Quantum
-        Processors, October 2021.
-        https://dwavesys.com/media/fawfas04/14-1056a-a_zephyr_topology_of_d-wave_quantum_processors.pdf
+    Boothby, Raymond, King. 
+    Zephyr Topology of D-Wave Quantum Processors 
+    October 2021.
+    https://dwavesys.com/media/fawfas04/14-1056a-a_zephyr_topology_of_d-wave_quantum_processors.pdf
     """
     G = nx.empty_graph(0, create_using)
     m = int(m)

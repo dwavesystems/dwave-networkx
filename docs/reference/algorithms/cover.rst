@@ -7,7 +7,7 @@ the edges of the graph are incident to at least one of the vertices in the
 set.
 
 .. figure:: ../../_images/Cover.png
-   :name: Cover
+   :name: CoverCover
    :alt: image
    :align: center
    :scale: 40 %

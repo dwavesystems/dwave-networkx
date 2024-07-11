@@ -79,8 +79,8 @@ def maximum_weighted_independent_set(G, weight=None, sampler=None, lagrange=2.0,
 
     `QUBO on Wikipedia <https://en.wikipedia.org/wiki/Quadratic_unconstrained_binary_optimization>`_
 
-    .. [AL] Lucas, A. (2014). Ising formulations of many NP problems.
-       Frontiers in Physics, Volume 2, Article 5.
+    Lucas, A. (2014). Ising formulations of many NP problems.
+    Frontiers in Physics, Volume 2, Article 5.
 
     """
     # Get a QUBO representation of the problem
@@ -161,8 +161,8 @@ def maximum_independent_set(G, sampler=None, lagrange=2.0, **sampler_args):
 
     `QUBO on Wikipedia <https://en.wikipedia.org/wiki/Quadratic_unconstrained_binary_optimization>`_
 
-    .. [AL] Lucas, A. (2014). Ising formulations of many NP problems.
-       Frontiers in Physics, Volume 2, Article 5.
+    Lucas, A. (2014). Ising formulations of many NP problems.
+    Frontiers in Physics, Volume 2, Article 5.
 
     """
     return maximum_weighted_independent_set(G, None, sampler, lagrange, **sampler_args)
