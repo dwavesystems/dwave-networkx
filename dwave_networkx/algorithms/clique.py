@@ -78,8 +78,8 @@ def maximum_clique(G, sampler=None, lagrange=2.0, **sampler_args):
 
     `QUBO on Wikipedia <https://en.wikipedia.org/wiki/Quadratic_unconstrained_binary_optimization>`_
 
-    .. [AL] Lucas, A. (2014). Ising formulations of many NP problems.
-       Frontiers in Physics, Volume 2, Article 5.
+    Lucas, A. (2014). Ising formulations of many NP problems. 
+    Frontiers in Physics, Volume 2, Article 5.
     """
     if G is None:
         raise ValueError("Expected NetworkX graph!")

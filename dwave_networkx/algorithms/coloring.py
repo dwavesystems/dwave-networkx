@@ -121,12 +121,6 @@ def vertex_color(G, colors, sampler=None, **sampler_args):
         A coloring for each vertex in G such that no adjacent nodes
         share the same color. A dict of the form {node: color, ...}
 
-
-    References
-    ----------
-    .. [DWMP] Dahl, E., "Programming the D-Wave: Map Coloring Problem",
-       https://www.dwavesys.com/media/htfgw5bk/map-coloring-wp2.pdf
-
     Notes
     -----
     Samplers by their nature may not return the optimal solution. This
@@ -305,11 +299,6 @@ def min_vertex_color(G, sampler=None, chromatic_lb=None, chromatic_ub=None,
     coloring : dict
         A coloring for each vertex in G such that no adjacent nodes
         share the same color. A dict of the form {node: color, ...}
-
-    References
-    ----------
-    .. [DWMP] Dahl, E., "Programming the D-Wave: Map Coloring Problem",
-       https://www.dwavesys.com/media/htfgw5bk/map-coloring-wp2.pdf
 
     Notes
     -----
