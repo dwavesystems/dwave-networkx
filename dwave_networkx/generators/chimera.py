@@ -252,7 +252,7 @@ def chimera_graph(m, n=None, t=None, create_using=None, node_list=None, edge_lis
 
 
 def find_chimera_indices(G):
-    """Attempts to determine the Chimera indices of the nodes in graph ``G``.
+    """Determines the Chimera indices of the nodes in graph ``G``.
 
     See the :func:`~chimera_graph()` function for a definition of a Chimera graph 
     and Chimera indices.
@@ -431,8 +431,7 @@ class chimera_coordinates(object):
         return self.iter_chimera_to_linear(qlist)
 
     def iter_chimera_to_linear(self, qlist):
-        """Returns an iterator converting a sequence of 4-term Chimera
-        coordinates to linear indices.
+        """Converts a sequence of 4-term Chimera coordinates to linear indices.
         """
         m, n, t = self.args
         for (i, j, u, k) in qlist:
@@ -447,8 +446,7 @@ class chimera_coordinates(object):
         return self.iter_linear_to_chimera(rlist)
 
     def iter_linear_to_chimera(self, rlist):
-        """Returns an iterator converting a sequence of linear indices to 4-term
-        Chimera coordinates.
+        """Converts a sequence of linear indices to 4-term Chimera coordinates.
         """
         m, n, t = self.args
         for r in rlist:
@@ -476,8 +474,7 @@ class chimera_coordinates(object):
         return self.iter_chimera_to_linear_pairs(plist)
 
     def iter_chimera_to_linear_pairs(self, plist):
-        """Returns an iterator converting a sequence of pairs of 4-term Chimera
-        coordinates to pairs of linear indices.
+        """Converts pairs of 4-term Chimera coordinates to pairs of linear indices.
         """
         return self._pair_repack(self.iter_chimera_to_linear, plist)
 
@@ -490,8 +487,7 @@ class chimera_coordinates(object):
         return self.iter_linear_to_chimera_pairs(plist)
 
     def iter_linear_to_chimera_pairs(self, plist):
-        """Returns an iterator converting a sequence of pairs of linear indices
-        to pairs of 4-term Chimera coordinates.
+        """Converts pairs of linear indices to pairs of 4-term Chimera coordinates.
         """
         return self._pair_repack(self.iter_linear_to_chimera, plist)
 
@@ -578,7 +574,7 @@ def linear_to_chimera(r, m, n=None, t=None):
     j : int
         The row of the Chimera index's unit cell associated with `r`.
     u : int
-        Whether the index is even (0) or odd (1); the side of the bipartite
+        Side of the bipartite: whether the index is even (0) or odd (1).
         graph of the Chimera unit cell.
     k : int
         Index into the Chimera unit cell.
@@ -603,7 +599,7 @@ def chimera_to_linear(i, j, u, k, m, n=None, t=None):
     j : int
         The row of the Chimera index's unit cell associated with ``r``.
     u : int
-        Whether the index is even (0) or odd (1); the side of the bipartite
+        Side of the bipartite: whether the index is even (0) or odd (1).
         graph of the Chimera unit cell.
     k : int
         Index into the Chimera unit cell.
@@ -642,7 +638,7 @@ def _chimera_sublattice_mapping(source_to_chimera, chimera_to_target, offset):
         chimera_to_target: function
             A function mapping a chimera coordinate to a target nodes.
         offset : tuple (int, int)
-            A pair of ints representing the y- and x-offset of the sublattice.
+            A pair of integers representing the y- and x-offset of the sublattice.
 
     Returns
     -------
@@ -712,7 +708,7 @@ def chimera_sublattice_mappings(source, target, offset_list=None):
     addition to reflections and rotations of the grid of unit cells where 
     rotations by 90 and 270 degrees induce a change in orientation.  
     Although the full set of sublattice mappings would take those isomorphisms 
-    into account, we do not undertake that complexity here.
+    into account, this function does not handle that complex task.
     
     """
     if not (source.graph.get('family') == target.graph.get('family') == 'chimera'):

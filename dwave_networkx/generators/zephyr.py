@@ -313,16 +313,14 @@ class zephyr_coordinates(object):
         return u, w, k, j, z
 
     def iter_zephyr_to_linear(self, qlist):
-        """Returns an iterator converting a sequence of 5-term Zephyr
-        coordinates to linear indices.
+        """Converts a sequence of 5-term Zephyr coordinates to linear indices.
         """
         m, M, t = self.args
         for (u, w, k, j, z) in qlist:
             yield (((u * M + w) * t + k) * 2 + j) * m + z
 
     def iter_linear_to_zephyr(self, rlist):
-        """Returns an iterator converting a sequence of linear indices to 5-term
-        Zephyr coordinates.
+        """Converts a sequence of linear indices to 5-term Zephyr coordinates.
         """
         m, M, t = self.args
         for r in rlist:
@@ -343,14 +341,12 @@ class zephyr_coordinates(object):
             yield u, v
 
     def iter_zephyr_to_linear_pairs(self, plist):
-        """Returns an iterator converting a sequence of pairs of 5-term Zephyr
-        coordinates to pairs of linear indices.
+        """Converts pairs of 5-term Zephyr coordinates to pairs of linear indices.
         """
         return self._pair_repack(self.iter_zephyr_to_linear, plist)
 
     def iter_linear_to_zephyr_pairs(self, plist):
-        """Returns an iterator converting a sequence of pairs of linear indices
-        to pairs of 5-term Zephyr coordinates.
+        """Converts pairs of linear indices to pairs of 5-term Zephyr coordinates.
         """
         return self._pair_repack(self.iter_linear_to_zephyr, plist)
 
