@@ -67,10 +67,6 @@ Zephyr
 
    zephyr_coordinates.graph_to_linear
    zephyr_coordinates.graph_to_zephyr
-   zephyr_coordinates.iter_linear_to_zephyr
-   zephyr_coordinates.iter_linear_to_zephyr_pairs
-   zephyr_coordinates.iter_zephyr_to_linear
-   zephyr_coordinates.iter_zephyr_to_linear_pairs
    zephyr_coordinates.linear_to_zephyr
    zephyr_coordinates.zephyr_to_linear
    zephyr_sublattice_mappings

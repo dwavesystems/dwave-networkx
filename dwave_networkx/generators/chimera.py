@@ -666,9 +666,9 @@ def chimera_sublattice_mappings(source, target, offset_list=None):
     A sublattice mapping is a function from the nodes of a
     ``chimera_graph(m_s, n_s, t)`` to the nodes of a ``chimera_graph(m_t, n_t, t)``
     with ``m_s <= m_t`` and ``n_s <= n_t``.  This sublattice mapping is used 
-    to identify subgraphs of the target Chimera graphs that are isomorphic 
+    to identify subgraphs of the target Chimera graph that is isomorphic 
     to the source Chimera graph.  However, if the target graph is not of perfect 
-    yield, these functions do not generally produce isomorphisms; for example, 
+    yield, this function does not generally produce isomorphisms; for example, 
     if a node is missing in the target graph, it may still appear in the 
     source graph's image.
 

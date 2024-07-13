@@ -584,9 +584,9 @@ def zephyr_sublattice_mappings(source, target, offset_list=None):
         * a ``chimera_graph(m_s, n_s, 2*t)`` to nodes of a ``zephyr_graph(m_t, t)``
           where ``m_s <= m_t`` and ``n_s <= m_t``.
 
-    This sublattice mapping is used to identify subgraphs of the target Zephyr graphs 
-    which are isomorphic to the source graph. However, if the target graph is not of
-    perfect yield, these functions do not generally produce isomorphisms; for
+    This sublattice mapping is used to identify subgraphs of the target Zephyr graph 
+    which is isomorphic to the source graph. However, if the target graph is not of
+    perfect yield, this function does not generally produce isomorphisms; for
     example, if a node is missing in the target graph, it may still appear in
     the image of the source graph.
 
@@ -628,7 +628,7 @@ def zephyr_sublattice_mappings(source, target, offset_list=None):
     induce inversion of orthogonal minor offsets and rotations that induce
     inversions of minor offsets, orientation, or both. Although the full set 
     of sublattice mappings would take those isomorphisms into account,
-    we do not undertake that complexity here.
+    this function does not handle that complex task.
     """
     if target.graph.get('family') != 'zephyr':
         raise ValueError("source graphs must a Zephyr graph constructed by dwave_networkx.zephyr_graph")

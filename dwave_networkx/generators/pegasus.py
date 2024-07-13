@@ -1082,8 +1082,8 @@ def pegasus_sublattice_mappings(source, target, offset_list=None):
     or ``chimera_graph(m_c, n_c, 4)`` to the nodes of a ``pegasus_graph(m_t)`` with
     ``m_s <= m_t`` or ``m_c <= m_t - 1`` and ``n_c <= m_t - 1``.
     This sublattice mapping is used to identify subgraphs of the target Pegasus 
-    graphs that are isomorphic to the source graph.  However, if the target graph 
-    is not of perfect yield, these functions do not generally produce isomorphisms; 
+    graph that is isomorphic to the source graph.  However, if the target graph 
+    is not of perfect yield, this function does not generally produce isomorphisms; 
     for example, if a node is missing in the target graph, it may still appear in 
     the source graph's image.
 
@@ -1131,8 +1131,8 @@ def pegasus_sublattice_mappings(source, target, offset_list=None):
     isomorphisms of Pegasus graphs permit the swapping across rows and columns
     of odd couplers as well as a reflection about the main antidiagonal which
     induces a change in orientation. Although the full set of sublattice mappings 
-    would take those isomorphisms into account, we do not undertake that complexity
-    here.
+    would take those isomorphisms into account, this function does not handle 
+    that complex task.
     """
     if target.graph.get('family') != 'pegasus':
         raise ValueError("source graphs must a Pegasus graph constructed by dwave_networkx.pegasus_graph")
