@@ -549,7 +549,7 @@ class chimera_coordinates(object):
         Returns
         -------
         G : NetworkX Graph
-            An (m, n, t) Chimera graph relabeled with Chimera coordinates.
+            A Chimera graph relabeled with Chimera coordinates.
 
         """
         labels = g.graph.get('labels')
