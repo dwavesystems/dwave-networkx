@@ -813,11 +813,11 @@ def chimera_torus(m, n=None, t=None, node_list=None, edge_list=None):
         A Chimera torus with shape (m, n, t), with Chimera coordinate node labels.
 
 
-    A Chimera torus is a generalization of the standard chimera graph
+    A Chimera torus is a generalization of the standard Chimera graph
     whereby degree-six connectivity is maintained, but the boundary
     condition is modified to enforce an additional translational-invariance 
     symmetry [RH]_. Local connectivity in the Chimera torus
-    is identical to connectivity for chimera graph nodes away from the boundary.
+    is identical to connectivity for Chimera graph nodes away from the boundary.
     The graph has :code:`V=8*m*n` nodes, and :code:`min(6, 4 + m)V//2 + 
     min(6, 4 + n)V/2` edges. With the standard :math:`K_{t, t}` Chimera tile definition,
     any tile displacement :math:`(x, y)`  modulo :math:`(m, n)`, rows and columns respectively,
