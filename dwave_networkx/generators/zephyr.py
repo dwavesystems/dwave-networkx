@@ -357,6 +357,11 @@ class zephyr_coordinates(object):
         ----------
         g : NetworkX Graph
             The Zephyr graph to be relabeled.        
+        
+        Returns
+        -------
+        G : NetworkX Graph
+            A Zephyr graph relabeled with linear indices.
         """
         labels = g.graph.get('labels')
         if labels == 'int':
@@ -378,12 +383,17 @@ class zephyr_coordinates(object):
         )
 
     def graph_to_zephyr(self, g):
-        """Returns a copy of the graph ``g`` relabeled to have zephyr coordinates.
+        """Returns a copy of the graph ``g`` relabeled to have Zephyr coordinates.
         
         Parameters
         ----------
         g : NetworkX Graph
             The Zephyr graph to be relabeled.        
+        
+        Returns
+        -------
+        G : NetworkX Graph
+            A Zephyr graph relabeled with Zephyr coordinates.
         """
         labels = g.graph.get('labels')
         if labels == 'int':
@@ -586,7 +596,7 @@ def zephyr_sublattice_mappings(source, target, offset_list=None):
 
     This sublattice mapping is used to identify subgraphs of the target Zephyr graph 
     which is isomorphic to the source graph. However, if the target graph is not of
-    perfect yield, this function does not generally produce isomorphisms; for
+    perfect yield,\ [#]_ this function does not generally produce isomorphisms; for
     example, if a node is missing in the target graph, it may still appear in
     the image of the source graph.
 
@@ -598,6 +608,11 @@ def zephyr_sublattice_mappings(source, target, offset_list=None):
     ``_double_chimera_zephyr_sublattice_mapping``, and
     ``_single_chimera_zephyr_sublattice_mapping`` internal functions.
     
+    .. [#]
+        The yield is the percentage of working qubits on a QPU and the subset 
+        of available qubits is called
+        the `working graph <https://docs.dwavesys.com/docs/latest/c_gs_4.html#the-working-graph>`_.
+        
     Parameters
     ----------
         source : NetworkX Graph

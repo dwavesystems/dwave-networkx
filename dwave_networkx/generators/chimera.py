@@ -385,6 +385,11 @@ class chimera_coordinates(object):
         q : 4-tuple
             Chimera coordinate.
 
+        Returns
+        -------
+        r : int
+            Linear index.
+
         Examples
         --------
         >>> dnx.chimera_coordinates(16).chimera_to_linear((2, 2, 0, 0))
@@ -410,6 +415,18 @@ class chimera_coordinates(object):
         ----------
         r : int
             Linear index.
+
+        Returns
+        -------
+        i : int
+            The column of the Chimera index's unit cell associated with `r`.
+        j : int
+            The row of the Chimera index's unit cell associated with `r`.
+        u : int
+            Side of the bipartite: whether the index is even (0) or odd (1).
+            graph of the Chimera unit cell.
+        k : int
+            Index into the Chimera unit cell.
 
         Examples
         --------
@@ -497,7 +514,12 @@ class chimera_coordinates(object):
         Parameters
         ----------
         g : NetworkX Graph
-            The Chimera graph to be relabeled.        
+            The Chimera graph to be relabeled.
+
+        Returns
+        -------
+        G : NetworkX Graph
+            A Chimera graph relabeled with linear indices.
         """
         labels = g.graph.get('labels')
         if labels == 'int':
@@ -523,6 +545,12 @@ class chimera_coordinates(object):
         ----------
         g : NetworkX Graph
             The Chimera graph to be relabeled.        
+
+        Returns
+        -------
+        G : NetworkX Graph
+            An (m, n, t) Chimera graph relabeled with Chimera coordinates.
+
         """
         labels = g.graph.get('labels')
         if labels == 'int':
@@ -668,7 +696,7 @@ def chimera_sublattice_mappings(source, target, offset_list=None):
     with ``m_s <= m_t`` and ``n_s <= n_t``.  This sublattice mapping is used 
     to identify subgraphs of the target Chimera graph that is isomorphic 
     to the source Chimera graph.  However, if the target graph is not of perfect 
-    yield, this function does not generally produce isomorphisms; for example, 
+    yield,\ [#]_ this function does not generally produce isomorphisms; for example, 
     if a node is missing in the target graph, it may still appear in the 
     source graph's image.
 
@@ -681,6 +709,11 @@ def chimera_sublattice_mappings(source, target, offset_list=None):
     preserving the orientation and tile index of nodes. Although the notation 
     of above Chimera coordinates is used, either or both of the target graphs 
     may have integer or coordinate labels.
+
+    .. [#]
+        The yield is the percentage of working qubits on a QPU and the subset 
+        of available qubits is called
+        the `working graph <https://docs.dwavesys.com/docs/latest/c_gs_4.html#the-working-graph>`_.
 
     Parameters
     ----------

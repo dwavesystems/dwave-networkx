@@ -790,6 +790,11 @@ class pegasus_coordinates(object):
         ----------
         g : NetworkX Graph
             The Pegasus graph to be relabeled.        
+
+        Returns
+        -------
+        G : NetworkX Graph
+            A Pegasus graph relabeled with linear indices.
         """
         labels = g.graph.get('labels')
         if labels == 'int':
@@ -823,6 +828,11 @@ class pegasus_coordinates(object):
         ----------
         g : NetworkX Graph
             The Pegasus graph to be relabeled.        
+
+        Returns
+        -------
+        G : NetworkX Graph
+            A Pegaus graph relabeled with 4-term Pegasus coordinates.
         """
         labels = g.graph.get('labels')
         if labels == 'int':
@@ -857,6 +867,11 @@ class pegasus_coordinates(object):
         ----------
         g : NetworkX Graph
             The Pegasus graph to be relabeled.        
+        
+        Returns
+        -------
+        G : NetworkX Graph
+            A Pegasus graph relabeled with 5-term nice coordinates.
         """
         labels = g.graph.get('labels')
         if labels == 'int':
@@ -1083,7 +1098,7 @@ def pegasus_sublattice_mappings(source, target, offset_list=None):
     ``m_s <= m_t`` or ``m_c <= m_t - 1`` and ``n_c <= m_t - 1``.
     This sublattice mapping is used to identify subgraphs of the target Pegasus 
     graph that is isomorphic to the source graph.  However, if the target graph 
-    is not of perfect yield, this function does not generally produce isomorphisms; 
+    is not of perfect yield,\ [#]_ this function does not generally produce isomorphisms; 
     for example, if a node is missing in the target graph, it may still appear in 
     the source graph's image.
 
@@ -1102,6 +1117,11 @@ def pegasus_sublattice_mappings(source, target, offset_list=None):
     of the source and target graph.  Note, the notation above for 
     Pegasus-to-Pegasus mappings is only suggestive; 
     see `_pegasus_pegasus_sublattice_mapping` for a precise formula.
+
+    .. [#]
+        The yield is the percentage of working qubits on a QPU and the subset 
+        of available qubits is called
+        the `working graph <https://docs.dwavesys.com/docs/latest/c_gs_4.html#the-working-graph>`_.
     
     Parameters
     ----------
