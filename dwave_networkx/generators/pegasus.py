@@ -1097,12 +1097,12 @@ def pegasus_sublattice_mappings(source, target, offset_list=None):
     or ``chimera_graph(m_c, n_c, 4)`` to the nodes of a ``pegasus_graph(m_t)`` with
     ``m_s <= m_t`` or ``m_c <= m_t - 1`` and ``n_c <= m_t - 1``.
     This sublattice mapping is used to identify subgraphs of the target Pegasus 
-    graph that is isomorphic to the source graph.  However, if the target graph 
+    graph that are isomorphic to the source graph.  However, if the target graph 
     is not of perfect yield,\ [#]_ this function does not generally produce isomorphisms; 
     for example, if a node is missing in the target graph, it may still appear in 
     the source graph's image.
 
-    Note that we require the tile parameter of Chimera graphs to be 4, and the
+    Note that the function requires that the tile parameter of Chimera graphs to be 4, and the
     mappings produced are not exhaustive.  The mappings take the form
 
         ``(y, x, u, k) -> (t_offset, y+y_offset, x+x_offset, u, k)``
@@ -1113,10 +1113,10 @@ def pegasus_sublattice_mappings(source, target, offset_list=None):
     
     when the source is a Pegasus graph, thus preserving the orientation and tile
     index of nodes.  The notation of Chimera coordinates and Pegasus nice 
-    coordinates above is used, but the mapping produced respects the labelings 
+    coordinates is used, but the mapping produced respects the labelings 
     of the source and target graph.  Note, the notation above for 
     Pegasus-to-Pegasus mappings is only suggestive; 
-    see `_pegasus_pegasus_sublattice_mapping` for a precise formula.
+    see ``_pegasus_pegasus_sublattice_mapping`` in the source code for a precise formula.
 
     .. [#]
         The yield is the percentage of working qubits on a QPU and the subset 

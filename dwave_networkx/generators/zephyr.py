@@ -595,7 +595,7 @@ def zephyr_sublattice_mappings(source, target, offset_list=None):
           where ``m_s <= m_t`` and ``n_s <= m_t``.
 
     This sublattice mapping is used to identify subgraphs of the target Zephyr graph 
-    which is isomorphic to the source graph. However, if the target graph is not of
+    which are isomorphic to the source graph. However, if the target graph is not of
     perfect yield,\ [#]_ this function does not generally produce isomorphisms; for
     example, if a node is missing in the target graph, it may still appear in
     the image of the source graph.
@@ -606,7 +606,7 @@ def zephyr_sublattice_mappings(source, target, offset_list=None):
     the linear ordering of tile indices; see the
     ``_zephyr_zephyr_sublattice_mapping``,
     ``_double_chimera_zephyr_sublattice_mapping``, and
-    ``_single_chimera_zephyr_sublattice_mapping`` internal functions.
+    ``_single_chimera_zephyr_sublattice_mapping`` internal functions in the source code.
     
     .. [#]
         The yield is the percentage of working qubits on a QPU and the subset 
@@ -621,7 +621,7 @@ def zephyr_sublattice_mappings(source, target, offset_list=None):
             The Zephyr graph that nodes are output to.
         offset_list : iterable (tuple), optional (default None)
             An iterable of offsets that can be used to reconstruct a set of
-            mappings since the offset used to generate a single mapping is stored
+            mappings. The offset used to generate a single mapping is stored
             in the ``offset`` attribute of that mapping.
 
     Yields

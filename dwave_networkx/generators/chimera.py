@@ -418,15 +418,8 @@ class chimera_coordinates(object):
 
         Returns
         -------
-        i : int
-            The column of the Chimera index's unit cell associated with `r`.
-        j : int
-            The row of the Chimera index's unit cell associated with `r`.
-        u : int
-            Side of the bipartite: whether the index is even (0) or odd (1).
-            graph of the Chimera unit cell.
-        k : int
-            Index into the Chimera unit cell.
+        c : 4-tuple
+            Chimera coordinates as defined in :func:`~dwave_networkx.chimera_graph`.
 
         Examples
         --------
@@ -694,20 +687,20 @@ def chimera_sublattice_mappings(source, target, offset_list=None):
     A sublattice mapping is a function from the nodes of a
     ``chimera_graph(m_s, n_s, t)`` to the nodes of a ``chimera_graph(m_t, n_t, t)``
     with ``m_s <= m_t`` and ``n_s <= n_t``.  This sublattice mapping is used 
-    to identify subgraphs of the target Chimera graph that is isomorphic 
+    to identify subgraphs of the target Chimera graph that are isomorphic 
     to the source Chimera graph.  However, if the target graph is not of perfect 
     yield,\ [#]_ this function does not generally produce isomorphisms; for example, 
     if a node is missing in the target graph, it may still appear in the 
     source graph's image.
 
-    Note that we do not produce mappings between Chimera graphs of different
+    Note that this function does not produce mappings between Chimera graphs of different
     tile parameters, and the mappings produced are not exhaustive.  The mappings
     take the form
 
         ``(y, x, u, k) -> (y + y_offset, x + x_offset, u, k)``
 
     preserving the orientation and tile index of nodes. Although the notation 
-    of above Chimera coordinates is used, either or both of the target graphs 
+    of Chimera coordinates is used, either or both of the target graphs 
     may have integer or coordinate labels.
 
     .. [#]
