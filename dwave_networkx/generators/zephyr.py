@@ -275,7 +275,7 @@ class zephyr_coordinates(object):
         self.args = m, 2 * m + 1, t
 
     def zephyr_to_linear(self, q):
-        """Convert a 5-term Zephyr coordinate into a linear index.
+        """Converts a 5-term Zephyr coordinate into a linear index.
 
         Parameters
         ----------
@@ -292,7 +292,7 @@ class zephyr_coordinates(object):
         return (((u * M + w) * t + k) * 2 + j) * m + z
 
     def linear_to_zephyr(self, r):
-        """Convert a linear index into a 5-term Zephyr coordinate.
+        """Converts a linear index into a 5-term Zephyr coordinate.
 
         Parameters
         ----------
@@ -313,16 +313,14 @@ class zephyr_coordinates(object):
         return u, w, k, j, z
 
     def iter_zephyr_to_linear(self, qlist):
-        """Return an iterator converting a sequence of 5-term Zephyr
-        coordinates to linear indices.
+        """Converts a sequence of 5-term Zephyr coordinates to linear indices.
         """
         m, M, t = self.args
         for (u, w, k, j, z) in qlist:
             yield (((u * M + w) * t + k) * 2 + j) * m + z
 
     def iter_linear_to_zephyr(self, rlist):
-        """Return an iterator converting a sequence of linear indices to 5-term
-        Zephyr coordinates.
+        """Converts a sequence of linear indices to 5-term Zephyr coordinates.
         """
         m, M, t = self.args
         for r in rlist:
@@ -334,7 +332,7 @@ class zephyr_coordinates(object):
 
     @staticmethod
     def _pair_repack(f, plist):
-        """Flattens a sequence of pairs to pass through `f`, and then
+        """Flattens a sequence of pairs to pass through ``f``, and then
         re-pairs the result.
         """
         ulist = f(u for p in plist for u in p)
@@ -343,19 +341,28 @@ class zephyr_coordinates(object):
             yield u, v
 
     def iter_zephyr_to_linear_pairs(self, plist):
-        """Return an iterator converting a sequence of pairs of 5-term Zephyr
-        coordinates to pairs of linear indices.
+        """Converts pairs of 5-term Zephyr coordinates to pairs of linear indices.
         """
         return self._pair_repack(self.iter_zephyr_to_linear, plist)
 
     def iter_linear_to_zephyr_pairs(self, plist):
-        """Return an iterator converting a sequence of pairs of linear indices
-        to pairs of 5-term Zephyr coordinates.
+        """Converts pairs of linear indices to pairs of 5-term Zephyr coordinates.
         """
         return self._pair_repack(self.iter_linear_to_zephyr, plist)
 
     def graph_to_linear(self, g):
-        """Return a copy of the graph g relabeled to have linear indices"""
+        """Returns a copy of the graph ``g`` relabeled to have linear indices.
+        
+        Parameters
+        ----------
+        g : NetworkX Graph
+            The Zephyr graph to be relabeled.        
+        
+        Returns
+        -------
+        G : NetworkX Graph
+            A Zephyr graph relabeled with linear indices.
+        """
         labels = g.graph.get('labels')
         if labels == 'int':
             return g.copy()
@@ -376,7 +383,18 @@ class zephyr_coordinates(object):
         )
 
     def graph_to_zephyr(self, g):
-        """Return a copy of the graph g relabeled to have zephyr coordinates"""
+        """Returns a copy of the graph ``g`` relabeled to have Zephyr coordinates.
+        
+        Parameters
+        ----------
+        g : NetworkX Graph
+            The Zephyr graph to be relabeled.        
+        
+        Returns
+        -------
+        G : NetworkX Graph
+            A Zephyr graph relabeled with Zephyr coordinates.
+        """
         labels = g.graph.get('labels')
         if labels == 'int':
             nodes = self.iter_linear_to_zephyr(g)
@@ -574,34 +592,27 @@ def zephyr_sublattice_mappings(source, target, offset_list=None):
         * a ``chimera_graph(m_s, n_s, t)`` to nodes of a ``zephyr_graph(m_t, t)``
           where ``m_s <= 2*m_t`` and ``n_s <= 2*m_t``, or
         * a ``chimera_graph(m_s, n_s, 2*t)`` to nodes of a ``zephyr_graph(m_t, t)``
-          where ``m_s <= m_t`` and ``n_s <= m_t``, or
+          where ``m_s <= m_t`` and ``n_s <= m_t``.
 
-    This is used to identify subgraphs of the target Zephyr graphs which are
-    isomorphic to the source graph. However, if the target graph is not of
-    perfect yield, these functions do not generally produce isomorphisms (for
+    This sublattice mapping is used to identify subgraphs of the target Zephyr graph 
+    which are isomorphic to the source graph. However, if the target graph is not of
+    perfect yield,\ [#]_ this function does not generally produce isomorphisms; for
     example, if a node is missing in the target graph, it may still appear in
-    the image of the source graph).
+    the image of the source graph.
 
-    Note that the tile parameter of Chimera graphs must be either the
-    same or double that of the target Zephyr graphs; if both graphs are
-    Zephyr graphs, the tile parameters must be the same. The mappings
-    produced preserve the linear ordering of tile indices; see the
+    The tile parameter of Chimera graphs must be either the same or double 
+    that of the target Zephyr graphs; if both graphs are Zephyr graphs, 
+    the tile parameters must be the same. The mappings produced preserve 
+    the linear ordering of tile indices; see the
     ``_zephyr_zephyr_sublattice_mapping``,
     ``_double_chimera_zephyr_sublattice_mapping``, and
-    ``_single_chimera_zephyr_sublattice_mapping`` internal functions for more
-    details.
-
-    Academic note: the full group of isomorphisms of a Chimera graph includes
-    mappings which permute tile indices on a per-row and per-column basis, in
-    addition to reflections and rotations of the grid of unit tiles where
-    rotations by 90 and 270 degrees induce a change in orientation.  The
-    isomorphisms of Zephyr graphs permit permutations of major tile indices on a
-    per-row and per-column basis, in addition to reflections of the grid which
-    induce inversion of orthogonal minor offsets, and rotations which induce
-    inversions of minor offsets and/or orientation. The full set of sublattice
-    mappings would take those isomorphisms into account; we do not undertake
-    that complexity here.
-
+    ``_single_chimera_zephyr_sublattice_mapping`` internal functions in the source code.
+    
+    .. [#]
+        The yield is the percentage of working qubits on a QPU and the subset 
+        of available qubits is called
+        the `working graph <https://docs.dwavesys.com/docs/latest/c_gs_4.html#the-working-graph>`_.
+        
     Parameters
     ----------
         source : NetworkX Graph
@@ -609,18 +620,30 @@ def zephyr_sublattice_mappings(source, target, offset_list=None):
         target : NetworkX Graph
             The Zephyr graph that nodes are output to.
         offset_list : iterable (tuple), optional (default None)
-            An iterable of offsets. This can be used to reconstruct a set of
-            mappings, as the offset used to generate a single mapping is stored
+            An iterable of offsets that can be used to reconstruct a set of
+            mappings. The offset used to generate a single mapping is stored
             in the ``offset`` attribute of that mapping.
 
     Yields
     ------
         mapping : function
-            A function from nodes of the source graph, to nodes of the target
+            A function from nodes of the source graph to nodes of the target
             graph.  The offset used to generate this mapping is stored in
-            ``mapping.offset`` -- these can be collected and passed into
+            ``mapping.offset``, which can be collected and passed into
             ``offset_list`` in a later session.
 
+    Notes
+    -----
+    The full group of isomorphisms of a Chimera graph includes
+    mappings which permute tile indices on a per-row and per-column basis in
+    addition to reflections and rotations of the grid of unit tiles where
+    rotations by 90 and 270 degrees induce a change in orientation.  The
+    isomorphisms of Zephyr graphs permit permutations of major tile indices on a
+    per-row and per-column basis in addition to reflections of the grid that
+    induce inversion of orthogonal minor offsets and rotations that induce
+    inversions of minor offsets, orientation, or both. Although the full set 
+    of sublattice mappings would take those isomorphisms into account,
+    this function does not handle that complex task.
     """
     if target.graph.get('family') != 'zephyr':
         raise ValueError("source graphs must a Zephyr graph constructed by dwave_networkx.zephyr_graph")
