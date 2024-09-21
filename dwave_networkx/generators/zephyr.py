@@ -816,13 +816,13 @@ def zephyr_four_color(q):
 
     Examples
     ========
-    A mapping of every qubit (default integer labels) in the Chimera[m, t]
+    A mapping of every qubit (default integer labels) in the Zephyr[m, t]
     graph to one of 4 colors
     >>> m = 2
-    >>> G = dnx.chimera_graph(m)
-    >>> colors = {q: dnx.chimera_four_color(dnx.chimera_coordinates(m,t).linear_to_chimera(q)) for q in G.nodes()}    # doctest: +SKIP
+    >>> G = dnx.zephyr_graph(m)
+    >>> colors = {q: dnx.zephyr_four_color(dnx.zephyr_coordinates(m,t).linear_to_zephyr(q)) for q in G.nodes()}    # doctest: +SKIP
     
     """
     u, w, _, j, z = q
-    return (w + 2 * (z + u) + j) & 2 + j
-    #return (2*u + w + 2*z + j) & 3
+    # Consider supporting other cases not related by automorphism
+    return (2*u + w + 2*z + j) & 3  

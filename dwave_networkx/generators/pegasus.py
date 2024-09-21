@@ -1320,7 +1320,7 @@ def pegasus_four_color(q):
             Colors 0, 1, 2 or 3
     Examples
     ========
-    A mapping of every qubit (default integer labels) in the Zephyr[m]
+    A mapping of every qubit (default integer labels) in the Pegasus[m]
     graph to one of 4 colors
     >>> m = 2
     >>> G = dnx.pegasus_graph(m)
