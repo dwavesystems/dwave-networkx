@@ -30,6 +30,7 @@ __all__ = ['pegasus_graph',
            'pegasus_coordinates',
            'pegasus_sublattice_mappings',
            'pegasus_torus',
+           'pegasus_four_color',
            ]
 
 def pegasus_graph(m, create_using=None, node_list=None, edge_list=None, data=True,
@@ -538,7 +539,7 @@ def fragmented_edges(pegasus_graph):
             else:
                 yield ((fw1, fw0, u0, k0&1), (fw1, fw0, u1, k1&1))
 
-
+    
 # Developer note: we could implement a function that creates the iter_*_to_* and
 # iter_*_to_*_pairs methods just-in-time, but there are a small enough number
 # that for now it makes sense to do them by hand.
@@ -1303,3 +1304,28 @@ def pegasus_torus(m, node_list=None, edge_list=None,
     G.graph['boundary_condition'] = 'torus'
     
     return G
+
+def pegasus_four_color(q):
+    """
+    Node color assignment sufficient for four coloring of a pegasus graph. 
+
+    Parameters
+    ----------
+        q : tuple
+            Qubit label in standard coordinate format.
+
+    Returns
+    -------
+        color : int
+            Colors 0, 1, 2 or 3
+    Examples
+    ========
+    A mapping of every qubit (default integer labels) in the Zephyr[m]
+    graph to one of 4 colors
+    >>> m = 2
+    >>> G = dnx.pegasus_graph(m)
+    >>> colors = {q: dnx.pegasus_four_color(dnx.pegasus_coordinates(m).linear_to_zephyr(q)) for q in G.nodes()}    # doctest: +SKIP
+    
+    """
+    u, w, k, z = q
+    return 2 * u + ((k ^ z) & 1)

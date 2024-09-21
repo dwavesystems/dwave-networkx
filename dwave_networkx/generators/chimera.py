@@ -35,6 +35,7 @@ __all__ = ['chimera_graph',
            'linear_to_chimera',
            'chimera_sublattice_mappings',
            'chimera_torus',
+           'chimera_four_color',
            ]
 
 
@@ -866,3 +867,30 @@ def chimera_torus(m, n=None, t=None, node_list=None, edge_list=None):
     G.graph['boundary_condition'] = 'torus'
     
     return G
+
+
+def chimera_four_color(q):
+    """
+    Node color assignment sufficient for four coloring of a Chimera graph. 
+
+    Parameters
+    ----------
+        q : tuple
+            Qubit label in standard coordinate format: i, j, u, k
+
+    Returns
+    -------
+        color : int
+            Colors 0, 1, 2 or 3
+
+    Examples
+    ========
+    A mapping of every qubit (default integer labels) in the Chimera[m, t]
+    graph to one of 4 colors
+    >>> m = 2
+    >>> G = dnx.chimera_graph(m)
+    >>> colors = {q: dnx.chimera_four_color(dnx.chimera_coordinates(m,t).linear_to_chimera(q)) for q in G.nodes()}    # doctest: +SKIP
+    
+    """
+    i, j, u, _ = q
+    return 2 * u + (i ^ j) & 1

@@ -30,7 +30,8 @@ from .common import _add_compatible_edges, _add_compatible_nodes, _add_compatibl
 __all__ = ['zephyr_graph',
            'zephyr_coordinates',
            'zephyr_sublattice_mappings',
-           'zephyr_torus'
+           'zephyr_torus',
+           'zephyr_four_color',
            ]
 
 def zephyr_graph(m, t=4, create_using=None, node_list=None, edge_list=None,
@@ -797,3 +798,31 @@ def zephyr_torus(m, t=4, node_list=None, edge_list=None):
     G.graph['boundary_condition'] = 'torus'
 
     return G
+
+
+def zephyr_four_color(q):
+    """
+    Node color assignment sufficient for four coloring of a Zephyr graph. 
+
+    Parameters
+    ----------
+        q : tuple
+            Qubit label in standard coordinate format: u, w, k, j, z
+
+    Returns
+    -------
+        color : int
+            Colors 0, 1, 2 or 3
+
+    Examples
+    ========
+    A mapping of every qubit (default integer labels) in the Chimera[m, t]
+    graph to one of 4 colors
+    >>> m = 2
+    >>> G = dnx.chimera_graph(m)
+    >>> colors = {q: dnx.chimera_four_color(dnx.chimera_coordinates(m,t).linear_to_chimera(q)) for q in G.nodes()}    # doctest: +SKIP
+    
+    """
+    u, w, _, j, z = q
+    return (w + 2 * (z + u) + j) & 2 + j
+    #return (2*u + w + 2*z + j) & 3
