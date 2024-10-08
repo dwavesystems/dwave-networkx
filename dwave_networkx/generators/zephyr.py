@@ -800,7 +800,7 @@ def zephyr_torus(m, t=4, node_list=None, edge_list=None):
     return G
 
 
-def zephyr_four_color(q):
+def zephyr_four_color(q, scheme=0):
     """
     Node color assignment sufficient for four coloring of a Zephyr graph. 
 
@@ -808,12 +808,12 @@ def zephyr_four_color(q):
     ----------
         q : tuple
             Qubit label in standard coordinate format: u, w, k, j, z
-
+        scheme : int
+            Two patterns not related by automorphism are supported 
     Returns
     -------
         color : int
             Colors 0, 1, 2 or 3
-
     Examples
     ========
     A mapping of every qubit (default integer labels) in the Zephyr[m, t]
@@ -824,5 +824,9 @@ def zephyr_four_color(q):
     
     """
     u, w, _, j, z = q
-    # Consider supporting other cases not related by automorphism
-    return (2*u + w + 2*z + j) & 3  
+    
+    if scheme == 0:
+        return j + ((w + 2*(z+u) + j)&2)
+    else:
+        return (2*u + w + 2*z + j) & 3
+    
