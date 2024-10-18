@@ -887,8 +887,8 @@ def chimera_two_color(q):
     A mapping of every qubit (default integer labels) in the Chimera[m, t]
     graph to one of 2 colors
     >>> m = 2
-    >>> G = dnx.chimera_graph(m)
-    >>> colors = {q: dnx.chimera_two_color(dnx.chimera_coordinates(m,t).linear_to_chimera(q)) for q in G.nodes()}    # doctest: +SKIP
+    >>> G = dnx.chimera_graph(m, coordinates=True)
+    >>> colors = {q: dnx.chimera_two_color(q) for q in G.nodes()}    # doctest: +SKIP
     
     """
     i, j, u, _ = q

@@ -818,8 +818,8 @@ def zephyr_four_color(q, scheme=0):
     A mapping of every qubit (default integer labels) in the Zephyr[m, t]
     graph to one of 4 colors
     >>> m = 2
-    >>> G = dnx.zephyr_graph(m)
-    >>> colors = {q: dnx.zephyr_four_color(dnx.zephyr_coordinates(m,t).linear_to_zephyr(q)) for q in G.nodes()}    # doctest: +SKIP
+    >>> G = dnx.zephyr_graph(m, coordinates=True)
+    >>> colors = {q: dnx.zephyr_four_color(q) for q in G.nodes()}    # doctest: +SKIP
     
     """
     u, w, _, j, z = q

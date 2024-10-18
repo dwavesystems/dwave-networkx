@@ -1322,8 +1322,8 @@ def pegasus_four_color(q):
     A mapping of every qubit (default integer labels) in the Pegasus[m]
     graph to one of 4 colors
     >>> m = 2
-    >>> G = dnx.pegasus_graph(m)
-    >>> colors = {q: dnx.pegasus_four_color(dnx.pegasus_coordinates(m).linear_to_zephyr(q)) for q in G.nodes()}    # doctest: +SKIP
+    >>> G = dnx.pegasus_graph(m, coordinates=True)
+    >>> colors = {q: dnx.pegasus_four_color(q) for q in G.nodes()}    # doctest: +SKIP
     
     """
     u, w, k, z = q
