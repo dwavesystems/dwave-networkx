@@ -801,8 +801,7 @@ def zephyr_torus(m, t=4, node_list=None, edge_list=None):
 
 
 def zephyr_four_color(q, scheme=0):
-    """
-    Node color assignment sufficient for four coloring of a Zephyr graph. 
+    """Node color assignment sufficient for four coloring of a Zephyr graph.
 
     Parameters
     ----------
@@ -827,6 +826,7 @@ def zephyr_four_color(q, scheme=0):
     
     if scheme == 0:
         return j + ((w + 2*(z+u) + j)&2)
-    else:
+    elif scheme == 1:
         return (2*u + w + 2*z + j) & 3
-    
+    else:
+        raise ValueError('Unknown scheme')

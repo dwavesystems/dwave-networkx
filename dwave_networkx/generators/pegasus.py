@@ -539,7 +539,7 @@ def fragmented_edges(pegasus_graph):
             else:
                 yield ((fw1, fw0, u0, k0&1), (fw1, fw0, u1, k1&1))
 
-    
+
 # Developer note: we could implement a function that creates the iter_*_to_* and
 # iter_*_to_*_pairs methods just-in-time, but there are a small enough number
 # that for now it makes sense to do them by hand.
@@ -1306,8 +1306,7 @@ def pegasus_torus(m, node_list=None, edge_list=None,
     return G
 
 def pegasus_four_color(q):
-    """
-    Node color assignment sufficient for four coloring of a pegasus graph. 
+    """Node color assignment sufficient for four coloring of a pegasus graph.
 
     Parameters
     ----------

@@ -870,8 +870,7 @@ def chimera_torus(m, n=None, t=None, node_list=None, edge_list=None):
 
 
 def chimera_two_color(q):
-    """
-    Node color assignment sufficient for four coloring of a Chimera graph. 
+    """Node color assignment sufficient for two coloring of a Chimera graph.
 
     Parameters
     ----------
