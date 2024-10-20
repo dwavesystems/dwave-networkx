@@ -1323,8 +1323,7 @@ def pegasus_four_color(q):
     graph to one of 4 colors
     >>> m = 2
     >>> G = dnx.pegasus_graph(m, coordinates=True)
-    >>> colors = {q: dnx.pegasus_four_color(q) for q in G.nodes()}    # doctest: +SKIP
-    
+    >>> colors = {q: dnx.pegasus_four_color(q) for q in G.nodes()}
     """
     u, w, k, z = q
     return 2 * u + ((k ^ z) & 1)

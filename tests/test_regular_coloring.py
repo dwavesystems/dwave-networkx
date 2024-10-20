@@ -1,4 +1,4 @@
-# Copyright 2024 D-Wave Systems Inc.
+# Copyright 2024 D-Wave Inc.
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
 #    you may not use this file except in compliance with the License.
@@ -14,8 +14,9 @@
 
 import unittest
 
-import dwave_networkx as dnx
 import numpy as np
+
+import dwave_networkx as dnx
 
 class TestRegularColoring(unittest.TestCase):
 
@@ -48,8 +49,8 @@ class TestRegularColoring(unittest.TestCase):
             for topology_shape in topology_shapes:
                 G = graph(*topology_shape, coordinates=True)
                 col_dict = {q: color(q) for q in G.nodes}
-                self.assertTrue(np.all(np.unique(list(col_dict.values())) ==
-                                       np.arange(num_colors)))
+                self.assertSetEqual(set(col_dict.values()),
+                                    set(range(num_colors)))
                 self.assertTrue(all(col_dict[q1] != col_dict[q2]
                                     for q1, q2 in G.edges),
                                 f'{topology_type}[{topology_shape}]')

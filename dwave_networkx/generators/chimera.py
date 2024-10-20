@@ -888,8 +888,7 @@ def chimera_two_color(q):
     graph to one of 2 colors
     >>> m = 2
     >>> G = dnx.chimera_graph(m, coordinates=True)
-    >>> colors = {q: dnx.chimera_two_color(q) for q in G.nodes()}    # doctest: +SKIP
-    
+    >>> colors = {q: dnx.chimera_two_color(q) for q in G.nodes()}
     """
     i, j, u, _ = q
     return (i ^ j ^ u) & 1
