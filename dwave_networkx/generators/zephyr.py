@@ -30,7 +30,8 @@ from .common import _add_compatible_edges, _add_compatible_nodes, _add_compatibl
 __all__ = ['zephyr_graph',
            'zephyr_coordinates',
            'zephyr_sublattice_mappings',
-           'zephyr_torus'
+           'zephyr_torus',
+           'zephyr_four_color',
            ]
 
 def zephyr_graph(m, t=4, create_using=None, node_list=None, edge_list=None,
@@ -797,3 +798,34 @@ def zephyr_torus(m, t=4, node_list=None, edge_list=None):
     G.graph['boundary_condition'] = 'torus'
 
     return G
+
+
+def zephyr_four_color(q, scheme=0):
+    """Node color assignment sufficient for four coloring of a Zephyr graph.
+
+    Parameters
+    ----------
+        q : tuple
+            Qubit label in standard coordinate format: u, w, k, j, z
+        scheme : int
+            Two patterns not related by automorphism are supported 
+    Returns
+    -------
+        color : int
+            Colors 0, 1, 2 or 3
+    Examples
+    ========
+    A mapping of every qubit (default integer labels) in the Zephyr[m, t]
+    graph to one of 4 colors
+    >>> m = 2
+    >>> G = dnx.zephyr_graph(m, coordinates=True)
+    >>> colors = {q: dnx.zephyr_four_color(q) for q in G.nodes()}
+    """
+    u, w, _, j, z = q
+    
+    if scheme == 0:
+        return j + ((w + 2*(z+u) + j)&2)
+    elif scheme == 1:
+        return (2*u + w + 2*z + j) & 3
+    else:
+        raise ValueError('Unknown scheme')
