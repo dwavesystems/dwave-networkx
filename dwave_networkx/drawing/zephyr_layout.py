@@ -127,7 +127,6 @@ def zephyr_node_placer_2d(G, scale=1., center=None, dim=2):
         Zephyr lattice to plottable x- and y-coordinates.
 
     """
-    import numpy as np
 
     m = G.graph.get('rows')
     tile_width = G.graph.get("tile")
