@@ -1,7 +1,7 @@
 version: 2.1
 
 orbs:
-  win: circleci/windows@2.2.0
+  win: circleci/windows@5.0
 
 jobs:
   test-linux:
@@ -58,9 +58,7 @@ jobs:
         type: string
       xcode:
         type: string
-        default: "14.3.0"
-
-    resource_class: macos.m1.medium.gen1
+        default: "16.0.0"
 
     macos:
       xcode: << parameters.xcode >>
@@ -74,6 +72,7 @@ jobs:
       - run:
           name: Install pyenv
           command: |
+            brew update
             brew install pyenv
 
       - run:
