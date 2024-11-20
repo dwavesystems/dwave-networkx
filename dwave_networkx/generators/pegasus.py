@@ -1092,7 +1092,7 @@ def _pegasus_pegasus_sublattice_mapping(source_to_nice, nice_to_target, offset):
 
 
 def pegasus_sublattice_mappings(source, target, offset_list=None):
-    """Yields mappings from a Chimera or Pegasus graph into a Pegasus graph.
+    r"""Yields mappings from a Chimera or Pegasus graph into a Pegasus graph.
     
     A sublattice mapping is a function from the nodes of a ``pegasus_graph(m_s)`` 
     or ``chimera_graph(m_c, n_c, 4)`` to the nodes of a ``pegasus_graph(m_t)`` with

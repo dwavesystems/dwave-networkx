@@ -584,7 +584,7 @@ def _double_chimera_zephyr_sublattice_mapping(source_to_chimera, zephyr_to_targe
 
 
 def zephyr_sublattice_mappings(source, target, offset_list=None):
-    """Yields mappings from a Chimera or Zephyr graph into a Zephyr graph.
+    r"""Yields mappings from a Chimera or Zephyr graph into a Zephyr graph.
 
     A sublattice mapping is a function from nodes of
 

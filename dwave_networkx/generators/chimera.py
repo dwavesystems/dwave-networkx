@@ -683,7 +683,7 @@ def _chimera_sublattice_mapping(source_to_chimera, chimera_to_target, offset):
 
 
 def chimera_sublattice_mappings(source, target, offset_list=None):
-    """Yields mappings from a Chimera graph into a larger Chimera graph.
+    r"""Yields mappings from a Chimera graph into a larger Chimera graph.
 
     A sublattice mapping is a function from the nodes of a
     ``chimera_graph(m_s, n_s, t)`` to the nodes of a ``chimera_graph(m_t, n_t, t)``
