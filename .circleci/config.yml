@@ -218,7 +218,7 @@ workflows:
       - test-linux:
           matrix:
             parameters:
-              python-version: &python-versions ["3.8", "3.9", "3.10", "3.11", "3.12"]
+              python-version: &python-versions ["3.8", "3.9", "3.10", "3.11", "3.12", "3.13"]
               dependency-versions: ["dimod==0.10.8 networkx==2.4 oldest-supported-numpy",  # oldest supported
                                     "dimod networkx numpy",                                # latest
                                     ]
@@ -227,6 +227,8 @@ workflows:
               - python-version: "3.11"
                 dependency-versions: "dimod==0.10.8 networkx==2.4 oldest-supported-numpy"
               - python-version: "3.12"
+                dependency-versions: "dimod==0.10.8 networkx==2.4 oldest-supported-numpy"
+              - python-version: "3.13"
                 dependency-versions: "dimod==0.10.8 networkx==2.4 oldest-supported-numpy"
       - test-osx:
           matrix:
