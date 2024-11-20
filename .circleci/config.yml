@@ -1,7 +1,8 @@
 version: 2.1
 
 orbs:
-  win: circleci/windows@2.2.0
+  win: circleci/windows@5.0
+  codecov: codecov/codecov@3
 
 jobs:
   test-linux:
@@ -12,7 +13,7 @@ jobs:
         type: string
 
     docker:
-      - image: cimg/python:<< parameters.python-version >>
+      - image: python:<< parameters.python-version >>
 
     steps:
       - checkout
@@ -45,12 +46,10 @@ jobs:
           command: |
             . env/bin/activate
             coverage run -m unittest discover
+            coverage xml
 
-      - run: &run-codecov
-          name: Run codecov
-          command: |
-            . env/bin/activate
-            codecov
+      - codecov/upload: &upload-python-code-coverage
+          file: coverage.xml
 
   test-osx:
     parameters:
@@ -58,9 +57,7 @@ jobs:
         type: string
       xcode:
         type: string
-        default: "14.3.0"
-
-    resource_class: macos.m1.medium.gen1
+        default: "16.0.0"
 
     macos:
       xcode: << parameters.xcode >>
@@ -74,6 +71,7 @@ jobs:
       - run:
           name: Install pyenv
           command: |
+            brew update
             brew install pyenv
 
       - run:
@@ -104,8 +102,6 @@ jobs:
       - save_cache: *save-cache-env
 
       - run: *run-tests
-
-      - run: *run-codecov
 
   test-win:
     parameters:
@@ -149,7 +145,7 @@ jobs:
 
   test-doctest:
     docker:
-      - image: cimg/python:3.9
+      - image: python:3.12
 
     steps:
       - checkout
@@ -189,7 +185,7 @@ jobs:
 
   deploy:
     docker:
-      - image: cimg/python:3.9
+      - image: python:3.12
 
     steps:
       - checkout
@@ -207,6 +203,7 @@ jobs:
           name: Build sdist and bdist
           command: |
             . env/bin/activate
+            pip install setuptools wheel
             python setup.py sdist bdist_wheel
 
       - run:
@@ -221,7 +218,7 @@ workflows:
       - test-linux:
           matrix:
             parameters:
-              python-version: &python-versions ["3.8", "3.9", "3.10", "3.11", "3.12"]
+              python-version: &python-versions ["3.9", "3.10", "3.11", "3.12", "3.13"]
               dependency-versions: ["dimod==0.10.8 networkx==2.4 oldest-supported-numpy",  # oldest supported
                                     "dimod networkx numpy",                                # latest
                                     ]
@@ -230,6 +227,8 @@ workflows:
               - python-version: "3.11"
                 dependency-versions: "dimod==0.10.8 networkx==2.4 oldest-supported-numpy"
               - python-version: "3.12"
+                dependency-versions: "dimod==0.10.8 networkx==2.4 oldest-supported-numpy"
+              - python-version: "3.13"
                 dependency-versions: "dimod==0.10.8 networkx==2.4 oldest-supported-numpy"
       - test-osx:
           matrix:

@@ -1,4 +1,4 @@
 networkx==3.0
-dimod==0.12.0
+dimod==0.12.17
 
 oldest-supported-numpy

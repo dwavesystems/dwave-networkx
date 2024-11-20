@@ -21,8 +21,8 @@ __all__ = ["maximum_clique", "clique_number", "is_clique"]
 
 @binary_quadratic_model_sampler(1)
 def maximum_clique(G, sampler=None, lagrange=2.0, **sampler_args):
-    """
-    Returns an approximate maximum clique.
+    r"""Returns an approximate maximum clique.
+
     A clique in an undirected graph, G = (V, E), is a subset of the vertex set
     :math:`C \subseteq V` such that for every two vertices in C there exists an edge
     connecting the two. This is equivalent to saying that the subgraph
@@ -92,8 +92,8 @@ def maximum_clique(G, sampler=None, lagrange=2.0, **sampler_args):
 
 @binary_quadratic_model_sampler(1)
 def clique_number(G, sampler=None, lagrange=2.0, **sampler_args):
-    """
-    Returns the number of vertices in the maximum clique of a graph.
+    r"""Returns the number of vertices in the maximum clique of a graph.
+
     A maximum clique is a clique of the largest possible size in a given graph.
     The clique number math:`\omega(G)` of a graph G is the number of
     vertices in a maximum clique in G. The intersection number of
