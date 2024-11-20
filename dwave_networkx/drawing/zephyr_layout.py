@@ -157,7 +157,6 @@ def zephyr_node_placer_2d(G, scale=1., center=None, dim=2):
             xy = np.array([W, -Z])
 
         return np.hstack((xy * scale, np.zeros(paddims))) + center
-  
     return _xy_coords
 
 

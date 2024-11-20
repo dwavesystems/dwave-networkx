@@ -106,7 +106,6 @@ class TestDrawing(unittest.TestCase):
         self.assertAlmostEqual(min_y, -10, delta=1e-5, msg="min_y should be approximately -10")
         self.assertAlmostEqual(max_y, 0, delta=1e-5, msg="max_y should be approximately 0")
 
-
     @unittest.skipUnless(_display, " No display found")
     def test_draw_zephyr_yield(self):
         G = dnx.zephyr_graph(2, 4, data=False)
