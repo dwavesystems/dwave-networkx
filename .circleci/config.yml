@@ -2,6 +2,7 @@ version: 2.1
 
 orbs:
   win: circleci/windows@5.0
+  codecov: codecov/codecov@3
 
 jobs:
   test-linux:
@@ -45,12 +46,10 @@ jobs:
           command: |
             . env/bin/activate
             coverage run -m unittest discover
+            coverage xml
 
-      - run: &run-codecov
-          name: Run codecov
-          command: |
-            . env/bin/activate
-            codecov
+      - codecov/upload: &upload-python-code-coverage
+          file: coverage.xml
 
   test-osx:
     parameters:
@@ -103,8 +102,6 @@ jobs:
       - save_cache: *save-cache-env
 
       - run: *run-tests
-
-      - run: *run-codecov
 
   test-win:
     parameters:
