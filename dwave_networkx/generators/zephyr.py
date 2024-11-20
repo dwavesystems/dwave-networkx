@@ -30,7 +30,8 @@ from .common import _add_compatible_edges, _add_compatible_nodes, _add_compatibl
 __all__ = ['zephyr_graph',
            'zephyr_coordinates',
            'zephyr_sublattice_mappings',
-           'zephyr_torus'
+           'zephyr_torus',
+           'zephyr_four_color',
            ]
 
 def zephyr_graph(m, t=4, create_using=None, node_list=None, edge_list=None,
@@ -157,9 +158,10 @@ def zephyr_graph(m, t=4, create_using=None, node_list=None, edge_list=None,
 
     References
     ----------
-    .. [BRK] Boothby, Raymond, King, Zephyr Topology of D-Wave Quantum
-        Processors, October 2021.
-        https://dwavesys.com/media/fawfas04/14-1056a-a_zephyr_topology_of_d-wave_quantum_processors.pdf
+    Boothby, Raymond, King. 
+    Zephyr Topology of D-Wave Quantum Processors 
+    October 2021.
+    https://dwavesys.com/media/fawfas04/14-1056a-a_zephyr_topology_of_d-wave_quantum_processors.pdf
     """
     G = nx.empty_graph(0, create_using)
     m = int(m)
@@ -274,7 +276,7 @@ class zephyr_coordinates(object):
         self.args = m, 2 * m + 1, t
 
     def zephyr_to_linear(self, q):
-        """Convert a 5-term Zephyr coordinate into a linear index.
+        """Converts a 5-term Zephyr coordinate into a linear index.
 
         Parameters
         ----------
@@ -291,7 +293,7 @@ class zephyr_coordinates(object):
         return (((u * M + w) * t + k) * 2 + j) * m + z
 
     def linear_to_zephyr(self, r):
-        """Convert a linear index into a 5-term Zephyr coordinate.
+        """Converts a linear index into a 5-term Zephyr coordinate.
 
         Parameters
         ----------
@@ -312,16 +314,14 @@ class zephyr_coordinates(object):
         return u, w, k, j, z
 
     def iter_zephyr_to_linear(self, qlist):
-        """Return an iterator converting a sequence of 5-term Zephyr
-        coordinates to linear indices.
+        """Converts a sequence of 5-term Zephyr coordinates to linear indices.
         """
         m, M, t = self.args
         for (u, w, k, j, z) in qlist:
             yield (((u * M + w) * t + k) * 2 + j) * m + z
 
     def iter_linear_to_zephyr(self, rlist):
-        """Return an iterator converting a sequence of linear indices to 5-term
-        Zephyr coordinates.
+        """Converts a sequence of linear indices to 5-term Zephyr coordinates.
         """
         m, M, t = self.args
         for r in rlist:
@@ -333,7 +333,7 @@ class zephyr_coordinates(object):
 
     @staticmethod
     def _pair_repack(f, plist):
-        """Flattens a sequence of pairs to pass through `f`, and then
+        """Flattens a sequence of pairs to pass through ``f``, and then
         re-pairs the result.
         """
         ulist = f(u for p in plist for u in p)
@@ -342,19 +342,28 @@ class zephyr_coordinates(object):
             yield u, v
 
     def iter_zephyr_to_linear_pairs(self, plist):
-        """Return an iterator converting a sequence of pairs of 5-term Zephyr
-        coordinates to pairs of linear indices.
+        """Converts pairs of 5-term Zephyr coordinates to pairs of linear indices.
         """
         return self._pair_repack(self.iter_zephyr_to_linear, plist)
 
     def iter_linear_to_zephyr_pairs(self, plist):
-        """Return an iterator converting a sequence of pairs of linear indices
-        to pairs of 5-term Zephyr coordinates.
+        """Converts pairs of linear indices to pairs of 5-term Zephyr coordinates.
         """
         return self._pair_repack(self.iter_linear_to_zephyr, plist)
 
     def graph_to_linear(self, g):
-        """Return a copy of the graph g relabeled to have linear indices"""
+        """Returns a copy of the graph ``g`` relabeled to have linear indices.
+        
+        Parameters
+        ----------
+        g : NetworkX Graph
+            The Zephyr graph to be relabeled.        
+        
+        Returns
+        -------
+        G : NetworkX Graph
+            A Zephyr graph relabeled with linear indices.
+        """
         labels = g.graph.get('labels')
         if labels == 'int':
             return g.copy()
@@ -375,7 +384,18 @@ class zephyr_coordinates(object):
         )
 
     def graph_to_zephyr(self, g):
-        """Return a copy of the graph g relabeled to have zephyr coordinates"""
+        """Returns a copy of the graph ``g`` relabeled to have Zephyr coordinates.
+        
+        Parameters
+        ----------
+        g : NetworkX Graph
+            The Zephyr graph to be relabeled.        
+        
+        Returns
+        -------
+        G : NetworkX Graph
+            A Zephyr graph relabeled with Zephyr coordinates.
+        """
         labels = g.graph.get('labels')
         if labels == 'int':
             nodes = self.iter_linear_to_zephyr(g)
@@ -573,34 +593,27 @@ def zephyr_sublattice_mappings(source, target, offset_list=None):
         * a ``chimera_graph(m_s, n_s, t)`` to nodes of a ``zephyr_graph(m_t, t)``
           where ``m_s <= 2*m_t`` and ``n_s <= 2*m_t``, or
         * a ``chimera_graph(m_s, n_s, 2*t)`` to nodes of a ``zephyr_graph(m_t, t)``
-          where ``m_s <= m_t`` and ``n_s <= m_t``, or
+          where ``m_s <= m_t`` and ``n_s <= m_t``.
 
-    This is used to identify subgraphs of the target Zephyr graphs which are
-    isomorphic to the source graph. However, if the target graph is not of
-    perfect yield, these functions do not generally produce isomorphisms (for
+    This sublattice mapping is used to identify subgraphs of the target Zephyr graph 
+    which are isomorphic to the source graph. However, if the target graph is not of
+    perfect yield,\ [#]_ this function does not generally produce isomorphisms; for
     example, if a node is missing in the target graph, it may still appear in
-    the image of the source graph).
+    the image of the source graph.
 
-    Note that the tile parameter of Chimera graphs must be either the
-    same or double that of the target Zephyr graphs; if both graphs are
-    Zephyr graphs, the tile parameters must be the same. The mappings
-    produced preserve the linear ordering of tile indices; see the
+    The tile parameter of Chimera graphs must be either the same or double 
+    that of the target Zephyr graphs; if both graphs are Zephyr graphs, 
+    the tile parameters must be the same. The mappings produced preserve 
+    the linear ordering of tile indices; see the
     ``_zephyr_zephyr_sublattice_mapping``,
     ``_double_chimera_zephyr_sublattice_mapping``, and
-    ``_single_chimera_zephyr_sublattice_mapping`` internal functions for more
-    details.
-
-    Academic note: the full group of isomorphisms of a Chimera graph includes
-    mappings which permute tile indices on a per-row and per-column basis, in
-    addition to reflections and rotations of the grid of unit tiles where
-    rotations by 90 and 270 degrees induce a change in orientation.  The
-    isomorphisms of Zephyr graphs permit permutations of major tile indices on a
-    per-row and per-column basis, in addition to reflections of the grid which
-    induce inversion of orthogonal minor offsets, and rotations which induce
-    inversions of minor offsets and/or orientation. The full set of sublattice
-    mappings would take those isomorphisms into account; we do not undertake
-    that complexity here.
-
+    ``_single_chimera_zephyr_sublattice_mapping`` internal functions in the source code.
+    
+    .. [#]
+        The yield is the percentage of working qubits on a QPU and the subset 
+        of available qubits is called
+        the `working graph <https://docs.dwavesys.com/docs/latest/c_gs_4.html#the-working-graph>`_.
+        
     Parameters
     ----------
         source : NetworkX Graph
@@ -608,18 +621,30 @@ def zephyr_sublattice_mappings(source, target, offset_list=None):
         target : NetworkX Graph
             The Zephyr graph that nodes are output to.
         offset_list : iterable (tuple), optional (default None)
-            An iterable of offsets. This can be used to reconstruct a set of
-            mappings, as the offset used to generate a single mapping is stored
+            An iterable of offsets that can be used to reconstruct a set of
+            mappings. The offset used to generate a single mapping is stored
             in the ``offset`` attribute of that mapping.
 
     Yields
     ------
         mapping : function
-            A function from nodes of the source graph, to nodes of the target
+            A function from nodes of the source graph to nodes of the target
             graph.  The offset used to generate this mapping is stored in
-            ``mapping.offset`` -- these can be collected and passed into
+            ``mapping.offset``, which can be collected and passed into
             ``offset_list`` in a later session.
 
+    Notes
+    -----
+    The full group of isomorphisms of a Chimera graph includes
+    mappings which permute tile indices on a per-row and per-column basis in
+    addition to reflections and rotations of the grid of unit tiles where
+    rotations by 90 and 270 degrees induce a change in orientation.  The
+    isomorphisms of Zephyr graphs permit permutations of major tile indices on a
+    per-row and per-column basis in addition to reflections of the grid that
+    induce inversion of orthogonal minor offsets and rotations that induce
+    inversions of minor offsets, orientation, or both. Although the full set 
+    of sublattice mappings would take those isomorphisms into account,
+    this function does not handle that complex task.
     """
     if target.graph.get('family') != 'zephyr':
         raise ValueError("source graphs must a Zephyr graph constructed by dwave_networkx.zephyr_graph")
@@ -773,3 +798,34 @@ def zephyr_torus(m, t=4, node_list=None, edge_list=None):
     G.graph['boundary_condition'] = 'torus'
 
     return G
+
+
+def zephyr_four_color(q, scheme=0):
+    """Node color assignment sufficient for four coloring of a Zephyr graph.
+
+    Parameters
+    ----------
+        q : tuple
+            Qubit label in standard coordinate format: u, w, k, j, z
+        scheme : int
+            Two patterns not related by automorphism are supported 
+    Returns
+    -------
+        color : int
+            Colors 0, 1, 2 or 3
+    Examples
+    ========
+    A mapping of every qubit (default integer labels) in the Zephyr[m, t]
+    graph to one of 4 colors
+    >>> m = 2
+    >>> G = dnx.zephyr_graph(m, coordinates=True)
+    >>> colors = {q: dnx.zephyr_four_color(q) for q in G.nodes()}
+    """
+    u, w, _, j, z = q
+    
+    if scheme == 0:
+        return j + ((w + 2*(z+u) + j)&2)
+    elif scheme == 1:
+        return (2*u + w + 2*z + j) & 3
+    else:
+        raise ValueError('Unknown scheme')

@@ -30,13 +30,14 @@ __all__ = ['pegasus_graph',
            'pegasus_coordinates',
            'pegasus_sublattice_mappings',
            'pegasus_torus',
+           'pegasus_four_color',
            ]
 
 def pegasus_graph(m, create_using=None, node_list=None, edge_list=None, data=True,
                   offset_lists=None, offsets_index=None, coordinates=False, fabric_only=True,
                   nice_coordinates=False, check_node_list=False, check_edge_list=False):
     """
-    Creates a Pegasus graph with size parameter `m`.
+    Creates a Pegasus graph with size parameter ``m``.
 
     Parameters
     ----------
@@ -108,7 +109,7 @@ def pegasus_graph(m, create_using=None, node_list=None, edge_list=None, data=Tru
     Returns
     -------
     G : NetworkX Graph
-        A Pegasus lattice for size parameter `m`.
+        A Pegasus lattice for size parameter ``m``.
 
 
     The maximum degree of this graph is 15. The number of nodes depends on multiple
@@ -560,7 +561,7 @@ class pegasus_coordinates(object):
         self.args = m, m - 1
 
     def pegasus_to_linear(self, q):
-        """Convert a 4-term Pegasus coordinate into a linear index.
+        """Converts a 4-term Pegasus coordinate into a linear index.
 
         Parameters
         ----------
@@ -577,7 +578,7 @@ class pegasus_coordinates(object):
         return ((m * u + w) * 12 + k) * m1 + z
 
     def linear_to_pegasus(self, r):
-        """Convert a linear index into a 4-term Pegasus coordinate.
+        """Converts a linear index into a 4-term Pegasus coordinate.
 
         Parameters
         ----------
@@ -598,7 +599,7 @@ class pegasus_coordinates(object):
 
     @staticmethod
     def nice_to_pegasus(n):
-        """Convert a 5-term nice coordinate into a 4-term Pegasus coordinate.
+        """Converts a 5-term nice coordinate into a 4-term Pegasus coordinate.
 
         Parameters
         ----------
@@ -627,7 +628,7 @@ class pegasus_coordinates(object):
 
     @staticmethod
     def pegasus_to_nice(p):
-        """Convert a 4-term Pegasus coordinate to a 5-term nice coordinate.
+        """Converts a 4-term Pegasus coordinate to a 5-term nice coordinate.
 
         Parameters
         ----------
@@ -657,7 +658,7 @@ class pegasus_coordinates(object):
         raise ValueError('invalid Pegasus coordinates')
 
     def linear_to_nice(self, r):
-        """Convert a linear index into a 5-term nice coordinate.
+        """Converts a linear index into a 5-term nice coordinate.
 
         Parameters
         ----------
@@ -672,7 +673,7 @@ class pegasus_coordinates(object):
         return self.pegasus_to_nice(self.linear_to_pegasus(r))
 
     def nice_to_linear(self, n):
-        """Convert a 5-term nice coordinate into a linear index.
+        """Converts a 5-term nice coordinate into a linear index.
 
         Parameters
         ----------
@@ -687,16 +688,14 @@ class pegasus_coordinates(object):
         return self.pegasus_to_linear(self.nice_to_pegasus(n))
 
     def iter_pegasus_to_linear(self, qlist):
-        """Return an iterator converting a sequence of 4-term Pegasus
-        coordinates to linear indices.
+        """Converts a sequence of 4-term Pegasus coordinates to linear indices.
         """
         m, m1 = self.args
         for (u, w, k, z) in qlist:
             yield ((m * u + w) * 12 + k) * m1 + z
 
     def iter_linear_to_pegasus(self, rlist):
-        """Return an iterator converting a sequence of linear indices to 4-term
-        Pegasus coordinates.
+        """Converts a sequence of linear indices to 4-term Pegasus coordinates.
         """
         m, m1 = self.args
         for r in rlist:
@@ -707,8 +706,7 @@ class pegasus_coordinates(object):
 
     @classmethod
     def iter_nice_to_pegasus(cls, nlist):
-        """Return an iterator converting a sequence of 5-term nice coordinates
-        to 4-term Pegasus coordinates.
+        """Converts 5-term nice coordinates to 4-term Pegasus coordinates.
 
         Note that this method does not depend on the size of the Pegasus
         lattice.
@@ -718,8 +716,7 @@ class pegasus_coordinates(object):
 
     @classmethod
     def iter_pegasus_to_nice(cls, plist):
-        """Return an iterator converting a sequence of 4-term Pegasus
-        coordinates to 5-term nice coordinates.
+        """Converts 4-term Pegasus coordinates to 5-term nice coordinates.
 
         Note that this method does not depend on the size of the Pegasus
         lattice.
@@ -728,15 +725,13 @@ class pegasus_coordinates(object):
             yield cls.pegasus_to_nice(p)
 
     def iter_linear_to_nice(self, rlist):
-        """Return an iterator converting a sequence of linear indices to 5-term
-        nice coordinates.
+        """Converts a sequence of linear indices to 5-term nice coordinates.
         """
         for r in rlist:
             yield self.linear_to_nice(r)
 
     def iter_nice_to_linear(self, nlist):
-        """Return an iterator converting a sequence of 5-term nice coordinates
-        to linear indices.
+        """Converts a sequence of 5-term nice coordinates to linear indices.
         """
         for n in nlist:
             yield self.nice_to_linear(n)
@@ -752,21 +747,18 @@ class pegasus_coordinates(object):
             yield u, v
 
     def iter_pegasus_to_linear_pairs(self, plist):
-        """Return an iterator converting a sequence of pairs of 4-term Pegasus
-        coordinates to pairs of linear indices.
+        """Converts pairs of 4-term Pegasus coordinates to pairs of linear indices.
         """
         return self._pair_repack(self.iter_pegasus_to_linear, plist)
 
     def iter_linear_to_pegasus_pairs(self, plist):
-        """Return an iterator converting a sequence of pairs of linear indices
-        to pairs of 4-term Pegasus coordinates.
+        """Converts pairs of linear indices to pairs of 4-term Pegasus coordinates.
         """
         return self._pair_repack(self.iter_linear_to_pegasus, plist)
 
     @classmethod
     def iter_nice_to_pegasus_pairs(cls, nlist):
-        """Return an iterator converting a sequence of pairs of 5-term nice
-        coordinates to pairs of 4-term Pegasus coordinates.
+        """Converts pairs of 5-term nice coordinates to pairs of 4-term Pegasus coordinates.
 
         Note that this method does not depend on the size of the Pegasus
         lattice.
@@ -775,8 +767,7 @@ class pegasus_coordinates(object):
 
     @classmethod
     def iter_pegasus_to_nice_pairs(cls, plist):
-        """Return an iterator converting a sequence of pairs of 4-term Pegasus
-        coordinates to pairs of 5-term nice coordinates.
+        """Converts pairs of 4-term Pegasus coordinates to pairs of 5-term nice coordinates.
 
         Note that this method does not depend on the size of the Pegasus
         lattice.
@@ -784,19 +775,28 @@ class pegasus_coordinates(object):
         return cls._pair_repack(cls.iter_pegasus_to_nice, plist)
 
     def iter_linear_to_nice_pairs(self, rlist):
-        """Return an iterator converting a sequence of pairs of linear indices
-        to pairs of 5-term nice coordinates.
+        """Converts pairs of linear indices to pairs of 5-term nice coordinates.
         """
         return self._pair_repack(self.iter_linear_to_nice, rlist)
 
     def iter_nice_to_linear_pairs(self, nlist):
-        """Return an iterator converting a sequence of pairs of 5-term nice
-        coordinates to pairs of linear indices.
+        """Converts pairs of 5-term nice coordinates to pairs of linear indices.
         """
         return self._pair_repack(self.iter_nice_to_linear, nlist)
 
     def graph_to_linear(self, g):
-        """Return a copy of the graph g relabeled to have linear indices"""
+        """Returns a copy of the graph ``g`` relabeled to have linear indices.
+        
+        Parameters
+        ----------
+        g : NetworkX Graph
+            The Pegasus graph to be relabeled.        
+
+        Returns
+        -------
+        G : NetworkX Graph
+            A Pegasus graph relabeled with linear indices.
+        """
         labels = g.graph.get('labels')
         if labels == 'int':
             return g.copy()
@@ -823,7 +823,18 @@ class pegasus_coordinates(object):
         )
 
     def graph_to_pegasus(self, g):
-        """Return a copy of the graph g relabeled to have pegasus coordinates"""
+        """Returns a copy of the graph ``g`` relabeled to have Pegasus coordinates.
+        
+        Parameters
+        ----------
+        g : NetworkX Graph
+            The Pegasus graph to be relabeled.        
+
+        Returns
+        -------
+        G : NetworkX Graph
+            A Pegaus graph relabeled with 4-term Pegasus coordinates.
+        """
         labels = g.graph.get('labels')
         if labels == 'int':
             nodes = self.iter_linear_to_pegasus(g)
@@ -851,7 +862,18 @@ class pegasus_coordinates(object):
         )
 
     def graph_to_nice(self, g):
-        """Return a copy of the graph p relabeled to have nice coordinates"""
+        """Returns a copy of the graph ``g`` relabeled to have nice coordinates.
+        
+        Parameters
+        ----------
+        g : NetworkX Graph
+            The Pegasus graph to be relabeled.        
+        
+        Returns
+        -------
+        G : NetworkX Graph
+            A Pegasus graph relabeled with 5-term nice coordinates.
+        """
         labels = g.graph.get('labels')
         if labels == 'int':
             nodes = self.iter_linear_to_nice(g)
@@ -1072,60 +1094,66 @@ def _pegasus_pegasus_sublattice_mapping(source_to_nice, nice_to_target, offset):
 def pegasus_sublattice_mappings(source, target, offset_list=None):
     """Yields mappings from a Chimera or Pegasus graph into a Pegasus graph.
     
-    A sublattice mapping is a function from nodes of a ``pegasus_graph(m_s)`` or
-    ``chimera_graph(m_c, n_c, 4)`` to nodes of a ``pegasus_graph(m_t)`` with
-    ``m_s <= m_t`` or ``m_c <= m_t - 1`` and ``n_c <= m_t - 1``.  This is used
-    to identify subgraphs of the target Pegasus graphs which are isomorphic to
-    the source graph.  However, if the target graph is not of perfect yield,
-    these functions do not generally produce isomorphisms (for example, if a 
-    node is missing in the target graph, it may still appear in the image of the
-    source graph).
-    
-    Note that we require the tile parameter of Chimera graphs to be 4, and the
+    A sublattice mapping is a function from the nodes of a ``pegasus_graph(m_s)`` 
+    or ``chimera_graph(m_c, n_c, 4)`` to the nodes of a ``pegasus_graph(m_t)`` with
+    ``m_s <= m_t`` or ``m_c <= m_t - 1`` and ``n_c <= m_t - 1``.
+    This sublattice mapping is used to identify subgraphs of the target Pegasus 
+    graph that are isomorphic to the source graph.  However, if the target graph 
+    is not of perfect yield,\ [#]_ this function does not generally produce isomorphisms; 
+    for example, if a node is missing in the target graph, it may still appear in 
+    the source graph's image.
+
+    Note that the function requires that the tile parameter of Chimera graphs to be 4, and the
     mappings produced are not exhaustive.  The mappings take the form
-    
+
         ``(y, x, u, k) -> (t_offset, y+y_offset, x+x_offset, u, k)``
         
     when the source is a Chimera graph, or
-    
+
         ``(t, y, x, u, k) -> ((t + t_offset)%3, y+y_offset, x+x_offset, u, k)``
     
-    when the source is a Pegasus graph; preserving the orientation and tile
-    index of nodes.  We use the notation of Chimera coordinates and Pegasus nice 
-    coordinates above, but the mapping produced will respect the labelings of
-    the source and target graph.  Note, the notation above for Pegasus->Pegasus
-    mappings is only suggestive. See _pegasus_pegasus_sublattice_mapping for a
-    precise formula.
-    
-    Academic note: the full group of isomorphisms of a Chimera graph includes 
-    mappings which permute tile indices on a per-row and per-column basis, in
-    addition to reflections and rotations of the grid of unit tiles where 
-    rotations by 90 and 270 degrees induce a change in orientation.  The
-    isomorphisms of Pegasus graphs permit the swapping across rows and columns
-    of odd couplers, as well as a reflection about the main antidiagonal which
-    induces a change in orientation.  The full set of sublattice mappings would
-    take those isomorphisms into account; we do not undertake that complexity
-    here.
+    when the source is a Pegasus graph, thus preserving the orientation and tile
+    index of nodes.  The notation of Chimera coordinates and Pegasus nice 
+    coordinates is used, but the mapping produced respects the labelings 
+    of the source and target graph.  Note, the notation above for 
+    Pegasus-to-Pegasus mappings is only suggestive; 
+    see ``_pegasus_pegasus_sublattice_mapping`` in the source code for a precise formula.
 
+    .. [#]
+        The yield is the percentage of working qubits on a QPU and the subset 
+        of available qubits is called
+        the `working graph <https://docs.dwavesys.com/docs/latest/c_gs_4.html#the-working-graph>`_.
+    
     Parameters
     ----------
         source : NetworkX Graph
-            The Chimera or Pegasus graph that nodes are input from
+            The Chimera or Pegasus graph that nodes are input from.
         target : NetworkX Graph
-            The Pegasus graph that nodes are output to
+            The Pegasus graph that nodes are output to.
         offset_list : iterable (tuple), optional (default None)
-            An iterable of offsets.  This can be used to reconstruct a set of
-            mappings, as the offset used to generate a single mapping is stored
+            An iterable of offsets that can be used to reconstruct a set of
+            mappings since the offset used to generate a single mapping is stored
             in the ``offset`` attribute of that mapping.
             
     Yields
     ------
         mapping : function
-            A function from nodes of the source graph, to nodes of the target
+            A function from the nodes of the source graph to the nodes of the target
             graph.  The offset used to generate this mapping is stored in
-            ``mapping.offset`` -- these can be collected and passed into 
+            ``mapping.offset``, which can be collected and passed into 
             ``offset_list`` in a later session.
-        
+
+    Notes
+    -----
+    The full group of isomorphisms of a Chimera graph includes 
+    mappings which permute tile indices on a per-row and per-column basis in
+    addition to reflections and rotations of the grid of unit tiles where 
+    rotations by 90 and 270 degrees induce a change in orientation.  The
+    isomorphisms of Pegasus graphs permit the swapping across rows and columns
+    of odd couplers as well as a reflection about the main antidiagonal which
+    induces a change in orientation. Although the full set of sublattice mappings 
+    would take those isomorphisms into account, this function does not handle 
+    that complex task.
     """
     if target.graph.get('family') != 'pegasus':
         raise ValueError("source graphs must a Pegasus graph constructed by dwave_networkx.pegasus_graph")
@@ -1276,3 +1304,26 @@ def pegasus_torus(m, node_list=None, edge_list=None,
     G.graph['boundary_condition'] = 'torus'
     
     return G
+
+def pegasus_four_color(q):
+    """Node color assignment sufficient for four coloring of a pegasus graph.
+
+    Parameters
+    ----------
+        q : tuple
+            Qubit label in standard coordinate format.
+
+    Returns
+    -------
+        color : int
+            Colors 0, 1, 2 or 3
+    Examples
+    ========
+    A mapping of every qubit (default integer labels) in the Pegasus[m]
+    graph to one of 4 colors
+    >>> m = 2
+    >>> G = dnx.pegasus_graph(m, coordinates=True)
+    >>> colors = {q: dnx.pegasus_four_color(q) for q in G.nodes()}
+    """
+    u, w, k, z = q
+    return 2 * u + ((k ^ z) & 1)

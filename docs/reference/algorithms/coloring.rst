@@ -13,7 +13,7 @@ The map-coloring problem is to assign a color to each region of a map
 border (represented by an edge of the graph) have different colors.
 
 .. figure:: ../../_images/Problem_MapColoring.png
-   :name: Problem_MapColoring
+   :name: Problem_MapColoringColoring
    :alt: image
    :align: center
    :scale: 70 %

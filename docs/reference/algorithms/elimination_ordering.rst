@@ -29,10 +29,3 @@ for the subset of vertices :math:`i..n`.
    pegasus_elimination_order
    treewidth_branch_and_bound
 
-
-References
-===========
-
-.. [GD] Gogate & Dechter.
-   "A Complete Anytime Algorithm for Treewidth."
-   https://arxiv.org/abs/1207.4109
