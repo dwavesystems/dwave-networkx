@@ -24,6 +24,14 @@ from networkx import draw
 
 from dwave_networkx.drawing.distinguishable_colors import distinguishable_color_map
 
+# new imports added to supports visualize parallel embedding function
+import numpy as np
+from typing import Union
+import matplotlib as plt
+from dwave_networkx.drawing.chimera_layout import draw_chimera, chimera_layout
+from dwave_networkx.drawing.pegasus_layout import draw_pegasus, pegasus_layout
+from dwave_networkx.drawing.zephyr_layout import draw_zephyr, zephyr_layout
+
 __all__ = ['draw_qubit_graph']
 
 
@@ -369,6 +377,165 @@ def draw_embedding(G, layout, emb, embedded_graph=None, interaction_edges=None,
     draw(G, layout, nodelist=nodelist, edgelist=edgelist,
          node_color=node_color, edge_color=edge_color, labels=labels,
          **kwargs)
+
+
+def visualize_parallel_embeddings(G: nx.Graph, embeddings: list, S: nx.Graph = None,
+    one_to_iterable: bool = False, shuffle_colormap: bool = True,
+    seed: Union[int, np.random.RandomState, np.random.Generator] = None,
+    **kwargs):
+    """Visualizes the embeddings using dwave_networkx's layout functions.
+
+    This function visualizes embeddings of a source graph onto a target graph
+    using specialized layouts for structured graphs (chimera, pegasus, or zephyr)
+    or general layouts for unstructured graphs. Node and edge colors are used
+    to differentiate embeddings.
+
+    Args:
+        G: The target graph to be visualized. If the graph
+            represents a specialized topology, it must be constructed using
+            dwave_networkx (e.g., chimera, pegasus, or zephyr graphs).
+        embeddings: A list of embeddings where each embedding is a dictionary
+            mapping nodes of the source graph to nodes in the target graph.
+        S: The source graph to visualize (optional). If provided, only edges
+            corresponding to the source graph embeddings are visualized.
+        one_to_iterable: Specifies how embeddings are interpreted. Set to `True`
+            to allow multiple target nodes to map to a single source node.
+            Defaults to `False` for one-to-one embeddings.
+        shuffle_colormap: A sequential colormap is used. If shuffle_colormap is
+            False the sequential ordering determines a sequence of related colors
+            otherwise colors are randomized.
+        seed: A seed for the pseudo-random number generator. When provided,
+            it randomizes the colormap assignment for embeddings.
+        **kwargs: Additional keyword arguments passed to the drawing functions
+            (e.g., `node_size`, `font_size`, `width`).
+
+    Returns:
+        Two dictionaries the first mapping plotted nodes to the source index.
+        The second mapping plotted edges to the source index. The source embedding
+        is embeddings[index]. Background edges/nodes are mapped to nan.
+
+    Draws:
+        - Specialized layouts: Uses dwave_networkx's `draw_chimera`,
+          `draw_pegasus`, or `draw_zephyr` functions if the graph family is identified.
+        - General layouts: Falls back to networkx's `draw_networkx` for
+          graphs with unknown topology.
+    """
+    ax = plt.gca()
+    cmap = plt.get_cmap("turbo").copy()
+    cmap.set_bad("lightgrey")
+
+    # Create node color mapping
+    node_color_dict = {q: float("nan") for q in G.nodes()}
+
+    if shuffle_colormap:
+        _embeddings = embeddings.copy()
+        prng = np.random.default_rng(seed)
+        prng.shuffle(_embeddings)
+    else:
+        _embeddings = embeddings
+
+    if S is None:
+        if one_to_iterable:
+            node_color_dict.update(
+                {
+                    q: idx
+                    for idx, emb in enumerate(_embeddings)
+                    for c in emb.values()
+                    for q in c
+                }
+            )
+        else:
+            node_color_dict.update(
+                {q: idx for idx, emb in enumerate(_embeddings) for q in emb.values()}
+            )
+    else:
+        node_set = set(S.nodes())
+        if one_to_iterable:
+            node_color_dict.update(
+                {
+                    q: idx if n in node_set else float("nan")
+                    for idx, emb in enumerate(_embeddings)
+                    for n, c in emb.items()
+                    for q in c
+                }
+            )
+        else:
+            node_color_dict.update(
+                {
+                    q: idx
+                    for idx, emb in enumerate(_embeddings)
+                    for n, q in emb.items()
+                    if n in node_set
+                }
+            )
+    # Create edge color mapping
+    edge_color_dict = {}
+    if S is not None:
+        edge_color_dict = {
+            (tu, tv): idx
+            for idx, emb in enumerate(_embeddings)
+            for u, v in S.edges()
+            if u in emb and v in emb
+            for tu in (emb[u] if one_to_iterable else [emb[u]])
+            for tv in (emb[v] if one_to_iterable else [emb[v]])
+            if G.has_edge(tu, tv)
+        }
+        if one_to_iterable:
+            # Feature enhancement? We could consider formatting these lines
+            # differently to distinguish chain couplers from logical couplers
+            for idx, emb in enumerate(_embeddings):
+                for chain in emb.values():
+                    Gchain = G.subgraph(chain)
+                    edge_color_dict.update({e: idx for e in Gchain.edges()})
+
+    else:
+        edge_color_dict = {
+            (v1, v2): node_color_dict[v1]
+            for v1, v2 in G.edges()
+            if node_color_dict[v1] == node_color_dict[v2]
+        }
+
+    # Default drawing arguments
+    draw_kwargs = {
+        "G": G,
+        "node_color": [node_color_dict[q] for q in G.nodes()],
+        "edge_color": "lightgrey",
+        "node_shape": "o",
+        "ax": ax,
+        "with_labels": False,
+        "width": 1,
+        "cmap": cmap,
+        "edge_cmap": cmap,
+        "node_size": 300 / np.sqrt(G.number_of_nodes()),
+    }
+    draw_kwargs.update(kwargs)
+
+    topology = G.graph.get("family")
+    # Draw the combined graph with color mappings
+    if topology == "chimera":
+        pos = chimera_layout(G)
+        draw_chimera(**draw_kwargs)
+    elif topology == "pegasus":
+        pos = pegasus_layout(G)
+        draw_pegasus(**draw_kwargs)
+    elif topology == "zephyr":
+        pos = zephyr_layout(G)
+        draw_zephyr(**draw_kwargs)
+    else:
+        pos = nx.spring_layout(G)
+        nx.draw_networkx(**draw_kwargs)
+    if len(edge_color_dict) > 0:
+        # Recolor specific edges on top of the original graph
+        nx.draw_networkx_edges(
+            G,
+            pos=pos,
+            edgelist=list(edge_color_dict.keys()),
+            edge_color=list(edge_color_dict.values()),
+            width=1,
+            edge_cmap=cmap,
+            ax=ax,
+        )
+    return node_color_dict, edge_color_dict
 
 
 def compute_bags(C, emb):
