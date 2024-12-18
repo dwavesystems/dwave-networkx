@@ -26,7 +26,7 @@ from dwave_networkx.drawing.distinguishable_colors import distinguishable_color_
 
 # new imports added to supports visualize parallel embedding function
 import numpy as np
-from typing import Union
+from typing import Union, List, Dict, Tuple, Optional
 import matplotlib as plt
 from dwave_networkx.drawing.chimera_layout import draw_chimera, chimera_layout
 from dwave_networkx.drawing.pegasus_layout import draw_pegasus, pegasus_layout
@@ -379,52 +379,23 @@ def draw_embedding(G, layout, emb, embedded_graph=None, interaction_edges=None,
          **kwargs)
 
 
-def visualize_parallel_embeddings(G: nx.Graph, embeddings: list, S: nx.Graph = None,
+def generate_node_color_dict(G: nx.Graph, embeddings: List[dict], S: nx.Graph = None,
     one_to_iterable: bool = False, shuffle_colormap: bool = True,
-    seed: Union[int, np.random.RandomState, np.random.Generator] = None,
-    **kwargs):
-    """Visualizes the embeddings using dwave_networkx's layout functions.
-
-    This function visualizes embeddings of a source graph onto a target graph
-    using specialized layouts for structured graphs (chimera, pegasus, or zephyr)
-    or general layouts for unstructured graphs. Node and edge colors are used
-    to differentiate embeddings.
-
+    seed: Union[int, np.random.RandomState, np.random.Generator] = None,) -> Tuple[Dict, List[dict]]:
+    """Generate a node color dictionary mapping each node in G to an embedding index or NaN.
+    
     Args:
-        G: The target graph to be visualized. If the graph
-            represents a specialized topology, it must be constructed using
-            dwave_networkx (e.g., chimera, pegasus, or zephyr graphs).
-        embeddings: A list of embeddings where each embedding is a dictionary
-            mapping nodes of the source graph to nodes in the target graph.
-        S: The source graph to visualize (optional). If provided, only edges
-            corresponding to the source graph embeddings are visualized.
-        one_to_iterable: Specifies how embeddings are interpreted. Set to `True`
-            to allow multiple target nodes to map to a single source node.
-            Defaults to `False` for one-to-one embeddings.
-        shuffle_colormap: A sequential colormap is used. If shuffle_colormap is
-            False the sequential ordering determines a sequence of related colors
-            otherwise colors are randomized.
-        seed: A seed for the pseudo-random number generator. When provided,
-            it randomizes the colormap assignment for embeddings.
-        **kwargs: Additional keyword arguments passed to the drawing functions
-            (e.g., `node_size`, `font_size`, `width`).
-
+        G: The target graph.
+        embeddings: A list of embeddings (each embedding a dict from source nodes to target nodes).
+        S: The optional source graph.
+        one_to_iterable: If True, a single source node maps to multiple target nodes.
+        shuffle_colormap: If True, embeddings are shuffled before assigning colors.
+        seed: A seed for the random number generator.
+    
     Returns:
-        Two dictionaries the first mapping plotted nodes to the source index.
-        The second mapping plotted edges to the source index. The source embedding
-        is embeddings[index]. Background edges/nodes are mapped to nan.
-
-    Draws:
-        - Specialized layouts: Uses dwave_networkx's `draw_chimera`,
-          `draw_pegasus`, or `draw_zephyr` functions if the graph family is identified.
-        - General layouts: Falls back to networkx's `draw_networkx` for
-          graphs with unknown topology.
+        node_color_dict: A dictionary mapping each node in G to either an embedding index or NaN.
+        _embeddings: The potentially shuffled embeddings list used for assigning colors.
     """
-    ax = plt.gca()
-    cmap = plt.get_cmap("turbo").copy()
-    cmap.set_bad("lightgrey")
-
-    # Create node color mapping
     node_color_dict = {q: float("nan") for q in G.nodes()}
 
     if shuffle_colormap:
@@ -435,7 +406,9 @@ def visualize_parallel_embeddings(G: nx.Graph, embeddings: list, S: nx.Graph = N
         _embeddings = embeddings
 
     if S is None:
+        # If there is no source graph, color all nodes in the embeddings
         if one_to_iterable:
+            # Multiple target nodes per source node
             node_color_dict.update(
                 {
                     q: idx
@@ -445,10 +418,12 @@ def visualize_parallel_embeddings(G: nx.Graph, embeddings: list, S: nx.Graph = N
                 }
             )
         else:
+            # One-to-one mapping
             node_color_dict.update(
                 {q: idx for idx, emb in enumerate(_embeddings) for q in emb.values()}
             )
     else:
+        # If a source graph is provided, only color nodes corresponding to S
         node_set = set(S.nodes())
         if one_to_iterable:
             node_color_dict.update(
@@ -468,32 +443,81 @@ def visualize_parallel_embeddings(G: nx.Graph, embeddings: list, S: nx.Graph = N
                     if n in node_set
                 }
             )
-    # Create edge color mapping
-    edge_color_dict = {}
+
+    return node_color_dict, _embeddings
+
+
+def generate_edge_color_dict(G: nx.Graph, embeddings: List[dict], S: nx.Graph,
+    one_to_iterable: bool, node_color_dict: Dict) -> Dict:
+    """Generate an edge color dictionary mapping each edge in G to an embedding index or NaN.
+    
+    Args:
+        G: The target graph.
+        embeddings: A list of embeddings (each embedding a dict from source nodes to target nodes).
+        S: The optional source graph (if None, edges are colored based on node colors).
+        one_to_iterable: If True, a single source node maps to multiple target nodes.
+        node_color_dict: The node color dictionary to reference for edge coloring.
+    
+    Returns:
+        edge_color_dict: A dictionary mapping each edge in G to either an embedding index or NaN.
+    """
     if S is not None:
+        # Edges corresponding to source graph embeddings
         edge_color_dict = {
             (tu, tv): idx
-            for idx, emb in enumerate(_embeddings)
+            for idx, emb in enumerate(embeddings)
             for u, v in S.edges()
             if u in emb and v in emb
             for tu in (emb[u] if one_to_iterable else [emb[u]])
             for tv in (emb[v] if one_to_iterable else [emb[v]])
             if G.has_edge(tu, tv)
         }
+
         if one_to_iterable:
-            # Feature enhancement? We could consider formatting these lines
-            # differently to distinguish chain couplers from logical couplers
-            for idx, emb in enumerate(_embeddings):
+            # Add chain edges
+            for idx, emb in enumerate(embeddings):
                 for chain in emb.values():
                     Gchain = G.subgraph(chain)
                     edge_color_dict.update({e: idx for e in Gchain.edges()})
-
     else:
+        # If no source graph, color edges where both endpoints share the same embedding color
         edge_color_dict = {
             (v1, v2): node_color_dict[v1]
             for v1, v2 in G.edges()
             if node_color_dict[v1] == node_color_dict[v2]
         }
+
+    return edge_color_dict
+
+
+def visualize_parallel_embeddings(G: nx.Graph, embeddings: List[dict], S: nx.Graph = None,
+    one_to_iterable: bool = False, shuffle_colormap: bool = True,
+    seed: Union[int, np.random.RandomState, np.random.Generator] = None, **kwargs,
+) -> Tuple[dict, dict]:
+    """Visualizes the embeddings using dwave_networkx's layout functions.
+
+    Args:
+        G: The target graph to be visualized.
+        embeddings: A list of embeddings.
+        S: The source graph to visualize (optional).
+        one_to_iterable: If True, allow multiple target nodes per source node.
+        shuffle_colormap: If True, randomize the colormap assignment.
+        seed: A seed for the random number generator.
+        **kwargs: Additional keyword arguments for the drawing functions.
+    """
+    ax = plt.gca()
+    cmap = plt.get_cmap("turbo").copy()
+    cmap.set_bad("lightgrey")
+
+    # Generate node_color_dict and embeddings to use
+    node_color_dict, _embeddings = generate_node_color_dict(
+        G, embeddings, S, one_to_iterable, shuffle_colormap, seed
+    )
+
+    # Generate edge_color_dict
+    edge_color_dict = generate_edge_color_dict(
+        G, _embeddings, S, one_to_iterable, node_color_dict
+    )
 
     # Default drawing arguments
     draw_kwargs = {
@@ -524,6 +548,7 @@ def visualize_parallel_embeddings(G: nx.Graph, embeddings: list, S: nx.Graph = N
     else:
         pos = nx.spring_layout(G)
         nx.draw_networkx(**draw_kwargs)
+
     if len(edge_color_dict) > 0:
         # Recolor specific edges on top of the original graph
         nx.draw_networkx_edges(
@@ -535,7 +560,6 @@ def visualize_parallel_embeddings(G: nx.Graph, embeddings: list, S: nx.Graph = N
             edge_cmap=cmap,
             ax=ax,
         )
-    return node_color_dict, edge_color_dict
 
 
 def compute_bags(C, emb):
