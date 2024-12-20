@@ -11,17 +11,15 @@
 #    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
-
-import networkx as nx
-
-# new imports added to supports visualize parallel embedding function
-import numpy as np
 from typing import Union, List, Dict, Tuple
-import matplotlib as plt
+
+import matplotlib.pyplot as plt
+import networkx as nx
+import numpy as np
+
 from dwave_networkx.drawing.chimera_layout import draw_chimera, chimera_layout
 from dwave_networkx.drawing.pegasus_layout import draw_pegasus, pegasus_layout
 from dwave_networkx.drawing.zephyr_layout import draw_zephyr, zephyr_layout
-
 
 
 def generate_node_color_dict(G: nx.Graph, embeddings: List[dict], S: nx.Graph = None,
