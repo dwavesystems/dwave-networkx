@@ -12,13 +12,9 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 import unittest 
-import os
-import numpy as np
 
 import networkx as nx
-from itertools import product
 
-import dwave_networkx as dnx
 from dwave_networkx.drawing.visualize_parallel_embeddings import generate_edge_color_dict, generate_node_color_dict
 
 
