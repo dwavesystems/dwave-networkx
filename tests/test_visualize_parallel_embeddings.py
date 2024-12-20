@@ -19,24 +19,34 @@ import networkx as nx
 from itertools import product
 
 import dwave_networkx as dnx
-from dwave_networkx.drawing.visualize_parallel_embeddings import visualize_parallel_embeddings
+from dwave_networkx.drawing.visualize_parallel_embeddings import generate_edge_color_dict, generate_node_color_dict
 
 
 
-_display = os.environ.get("DISPLAY", "") != ""
+#_display = os.environ.get("DISPLAY", "") != ""
 
 class TestEmbeddings(unittest.TestCase):
 
-    @unittest.skipUnless(_display, " No display found")
-    def test_visualize_parallel_embeddings(self):
-        # NB, matplotlib.pyplot.show() can be added to display plots
+    #@unittest.skipUnless(_display, " No display found")
+    def test_visualize_embeddings(self):
         import matplotlib.pyplot as plt
+        from dwave_networkx import chimera_graph
+        from itertools import product
+        import numpy as np
 
+        # The refactored code defines these helpers:
+        # generate_node_color_dict(G, embeddings, S=None, one_to_iterable=False, shuffle_colormap=True, seed=None)
+        # generate_edge_color_dict(G, embeddings, S, one_to_iterable, node_color_dict)
+
+        T = chimera_graph(2)
         embeddings = [{}]
-        T = dnx.chimera_graph(2)
-        n, e = visualize_parallel_embeddings(T, embeddings)
+
+        # Test empty embeddings: All nodes should be NaN, no edges
+        n, _emb = generate_node_color_dict(T, embeddings, S=None, one_to_iterable=False, shuffle_colormap=False)
+        e = generate_edge_color_dict(T, _emb, S=None, one_to_iterable=False, node_color_dict=n)
         self.assertTrue(np.all(np.isnan(list(n.values()))))
         self.assertEqual(len(e), 0)
+
         blocks_of = [1, 8]
         one_to_iterable = [True, False]
         for b, o in product(blocks_of, one_to_iterable):
@@ -44,60 +54,66 @@ class TestEmbeddings(unittest.TestCase):
                 embeddings = [
                     {0: tuple(n + idx * b for n in range(b))}
                     for idx in range(T.number_of_nodes() // b)
-                ]  # Blocks of 8
+                ]
             else:
                 embeddings = [
                     {n: n + idx * b for n in range(b)}
                     for idx in range(T.number_of_nodes() // b)
-                ]  # Blocks of 8
-
-            n, e = visualize_parallel_embeddings(
-                T, embeddings, one_to_iterable=o, shuffle_colormap=False
-            )
+                ]
+            
+            # No shuffle
+            n, _emb = generate_node_color_dict(T, embeddings, S=None, one_to_iterable=o, shuffle_colormap=False)
+            e = generate_edge_color_dict(T, _emb, S=None, one_to_iterable=o, node_color_dict=n)
+            # length of e should match certain pattern
             self.assertEqual(len(e), len(embeddings) * (b // 2) * (b // 2))
-
-            n1, e1 = visualize_parallel_embeddings(
-                T, embeddings, shuffle_colormap=True, seed=42, one_to_iterable=o
-            )
+            
+            # With shuffle and seed
+            n1, _emb1 = generate_node_color_dict(T, embeddings, S=None, one_to_iterable=o, shuffle_colormap=True, seed=42)
+            e1 = generate_edge_color_dict(T, _emb1, S=None, one_to_iterable=o, node_color_dict=n1)
+            
             if b == 1:
-                # Highly unlikely to have aligned colors.
-                self.assertFalse(
-                    all([n1[idx] <= n1[idx + 1] for idx in range(len(n1) - 1)])
-                )
-                self.assertTrue(
-                    all([n[idx] <= n[idx + 1] for idx in range(len(n) - 1)])
-                )
-            n2, e2 = visualize_parallel_embeddings(
-                T, embeddings, shuffle_colormap=True, seed=42, one_to_iterable=o
-            )
+                # Check color ordering behavior
+                vals_n1 = np.array(list(n1.values()))
+                # Shuffled version (n1) vs non-shuffled (n)
+                vals_n = np.array(list(n.values()))
+                # checkeordering differences
+                # Highly unlikely to have aligned colors
+                self.assertFalse(all(vals_n1[i] <= vals_n1[i+1] for i in range(len(vals_n1)-1)))
+                vals_n = np.array([n[v] for v in sorted(n.keys())])
+                self.assertTrue(all(vals_n[i] <= vals_n[i+1] for i in range(len(vals_n)-1)))
+
+
+            # Re-generate with same seed
+            n2, _emb2 = generate_node_color_dict(T, embeddings, S=None, one_to_iterable=o, shuffle_colormap=True, seed=42)
+            e2 = generate_edge_color_dict(T, _emb2, S=None, one_to_iterable=o, node_color_dict=n2)
             self.assertEqual(n1, n2)
             self.assertEqual(e1, e2)
 
         S = nx.Graph()
         S.add_node(0)
         embs = [{0: n} for n in T.nodes]
-        n, e = visualize_parallel_embeddings(
-            T, embeddings=embs, S=S
-        )  # Should plot every node colorfully but no edges
+
+        # With S specified but no edges in S
+        n, _emb = generate_node_color_dict(T, embs, S=S, one_to_iterable=False, shuffle_colormap=False)
+        e = generate_edge_color_dict(T, _emb, S=S, one_to_iterable=False, node_color_dict=n)
         vals = np.array(list(n.values()))
         self.assertTrue(np.all(np.logical_and(vals < len(embs), vals >= 0)))
         self.assertEqual(len(e), 0)
 
+        # Add edges to S
         S.add_edges_from(list(T.edges)[:2])
         emb = {n: n for n in T.nodes}
-
-        n, e = visualize_parallel_embeddings(
-            T, embeddings=[emb], S=S
-        )  # Should plot 3 nodes, and two edges
-
+        n, _emb = generate_node_color_dict(T, embeddings=[emb], S=S, one_to_iterable=False, shuffle_colormap=False)
+        e = generate_edge_color_dict(T, _emb, S=S, one_to_iterable=False, node_color_dict=n)
         vals = np.array(list(n.values()))
         self.assertEqual(len(vals), T.number_of_nodes())
+        # 3 nodes should be colored, rest NaN
         self.assertEqual(np.sum(np.isnan(vals)), T.number_of_nodes() - 3)
         self.assertEqual(len(e), 2)
 
-        n, e = visualize_parallel_embeddings(
-            T, embeddings=[emb], S=None
-        )  # Should plot every nodes and edges
+        # Without S, all nodes/edges colored
+        n, _emb = generate_node_color_dict(T, embeddings=[emb], S=None, one_to_iterable=False, shuffle_colormap=False)
+        e = generate_edge_color_dict(T, _emb, S=None, one_to_iterable=False, node_color_dict=n)
         self.assertEqual(len(e), T.number_of_edges())
         self.assertEqual(len(n), T.number_of_nodes())
 
@@ -107,12 +123,10 @@ class TestEmbeddings(unittest.TestCase):
             embedding,
             {k: tuple(v + 8 for v in c) for k, c in embedding.items()},
         ]
-        plt.figure("check one_to_iterable with S")
-        n, e = visualize_parallel_embeddings(T, S=S, embeddings=embeddings, one_to_iterable=True)
+        # Test one_to_iterable with S
+        n, _emb = generate_node_color_dict(T, embeddings, S=S, one_to_iterable=True, shuffle_colormap=False)
+        e = generate_edge_color_dict(T, _emb, S=S, one_to_iterable=True, node_color_dict=n)
         vals = np.array(list(n.values()))
-        self.assertEqual(len(e), 7 * 2)
+        self.assertEqual(len(e), 7 * 2)  # Matches original test logic
         self.assertEqual(len(vals), T.number_of_nodes())
         self.assertEqual(np.sum(np.isnan(vals)), T.number_of_nodes() - 6 * 2)
-        # Should plot 7 edges total and 6 nodes: Top left and top right cells.
-        #  3 (NE to SW) chains, 2 logical double-couplers
-        # NB without S would be a clique.
