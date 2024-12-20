@@ -11,25 +11,29 @@
 #    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
+import os
 import unittest 
+from itertools import product
 
 import networkx as nx
+import numpy as np
 
-from dwave_networkx.drawing.visualize_parallel_embeddings import generate_edge_color_dict, generate_node_color_dict
+from dwave_networkx.drawing.visualize_parallel_embeddings import generate_edge_color_dict, generate_node_color_dict, visualize_parallel_embeddings
+from dwave_networkx import chimera_graph
 
 
-
-#_display = os.environ.get("DISPLAY", "") != ""
+_display = os.environ.get("DISPLAY", "") != ""
 
 class TestEmbeddings(unittest.TestCase):
 
-    #@unittest.skipUnless(_display, " No display found")
+    @unittest.skipUnless(_display, " No display found")
     def test_visualize_embeddings(self):
-        import matplotlib.pyplot as plt
-        from dwave_networkx import chimera_graph
-        from itertools import product
-        import numpy as np
-
+        S = chimera_graph(1)
+        T = chimera_graph(2)
+        embeddings = [{i: i+8*offset for i in range(8)} for offset in range(4)]
+        visualize_parallel_embeddings(G=T, embeddings=embeddings, S=S)
+    
+    def test_color_dict(self):
         # The refactored code defines these helpers:
         # generate_node_color_dict(G, embeddings, S=None, one_to_iterable=False, shuffle_colormap=True, seed=None)
         # generate_edge_color_dict(G, embeddings, S, one_to_iterable, node_color_dict)
