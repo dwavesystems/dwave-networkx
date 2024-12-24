@@ -22,7 +22,7 @@ import inspect
 
 import dwave_networkx as dnx
 
-__all__ = ['binary_quadratic_model_sampler']
+__all__ = ['binary_quadratic_model_sampler', 'topology_dispatch']
 
 
 def binary_quadratic_model_sampler(which_args):
@@ -74,3 +74,34 @@ def binary_quadratic_model_sampler(which_args):
             return f(*new_args, **kw)
         return func
     return decorator
+
+
+def topology_dispatch(f):
+    dispatch = {}
+    default = f, ()
+
+    @functools.wraps(f)
+    def decorated(G, *args, **kwargs):
+        nonlocal dispatch
+        family = G.graph.get('family')
+        special, _ = dispatch.get(family, default)
+
+        return special(G, *args, **kwargs)
+
+    def install_dispatch(family, pop_kwargs = ()):
+        def install(g):
+            nonlocal dispatch
+            dispatch[family] = g, pop_kwargs
+            return g
+        return install
+
+    def pop_kwargs(G, kwargs):
+        nonlocal dispatch
+        family = G.graph.get('family')
+        _, pop = dispatch[family]        
+        return kwargs, {key: kwargs.pop(key) for key in pop if key in kwargs}
+
+    decorated.install_dispatch = install_dispatch
+    decorated.pop_kwargs = pop_kwargs
+
+    return decorated

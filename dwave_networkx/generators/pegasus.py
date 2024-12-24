@@ -24,7 +24,8 @@ import warnings
 
 from itertools import product
 from .chimera import _chimera_coordinates_cache
-from .common import _add_compatible_edges, _add_compatible_nodes, _add_compatible_terms
+from .common import _add_compatible_edges, _add_compatible_nodes, _add_compatible_terms, defect_free
+from ..topology import CHIMERA, PEGASUS
 
 __all__ = ['pegasus_graph',
            'pegasus_coordinates',
@@ -229,7 +230,7 @@ def pegasus_graph(m, create_using=None, node_list=None, edge_list=None, data=Tru
         def label(u, w, k, z):
             return u * 12 * m * m1 + w * 12 * m1 + k * m1 + z
 
-    construction = (("family", "pegasus"), ("rows", m), ("columns", m),
+    construction = (("family", PEGASUS), ("rows", m), ("columns", m),
                     ("tile", 12), ("vertical_offsets", offset_lists[0]),
                     ("horizontal_offsets", offset_lists[1]), ("data", data),
                     ("labels", labels))
@@ -327,6 +328,24 @@ def pegasus_graph(m, create_using=None, node_list=None, edge_list=None, data=Tru
 
     return G
 
+
+@defect_free.install_dispatch(PEGASUS)
+def defect_free_pegasus(G):
+    """Construct a defect-free Pegasus graph based on the properties of G."""
+    attrib = G.graph
+    family = attrib.get('family')
+    if family != PEGASUS:
+        raise ValueError("G must be constructed by dwave_networkx.pegasus_graph")
+
+    offsets = eval(p.name.replace('pegasus_graph', ''))[1]
+    args = attrib['rows'],
+    kwargs = {
+        'offsets_index' if isinstance(offsets, int) else 'offset_lists': offsets,
+        'coordinates': 'coordinate' == attrib['labels'],
+        'nice': 'nice' == attrib['labels'],
+    }
+
+    return pegasus_graph(*args, **kwargs)
 
 def get_tuple_fragmentation_fn(pegasus_graph):
     """
@@ -1155,7 +1174,7 @@ def pegasus_sublattice_mappings(source, target, offset_list=None):
     would take those isomorphisms into account, this function does not handle 
     that complex task.
     """
-    if target.graph.get('family') != 'pegasus':
+    if target.graph.get('family') != PEGASUS:
         raise ValueError("source graphs must a Pegasus graph constructed by dwave_networkx.pegasus_graph")
 
     m_t = target.graph['rows']
@@ -1171,7 +1190,7 @@ def pegasus_sublattice_mappings(source, target, offset_list=None):
         raise ValueError(f"Pegasus node labeling {labels_t} not recognized")
 
     labels_s = source.graph['labels']    
-    if source.graph.get('family') == 'chimera':
+    if source.graph.get('family') == CHIMERA:
         if source.graph['tile'] != 4:
             raise ValueError("Cannot construct sublattice mappings from Chimera to Pegasus unless the Chimera tile parameter is 4")
 
@@ -1189,7 +1208,7 @@ def pegasus_sublattice_mappings(source, target, offset_list=None):
 
         make_mapping = _chimera_pegasus_sublattice_mapping
 
-    elif source.graph.get('family') == 'pegasus':
+    elif source.graph.get('family') == PEGASUS:
         m_s = source.graph['rows']
         if offset_list is None:
             ranges = range(m_t - m_s + 1), range(m_t - m_s), range(m_t - m_s)

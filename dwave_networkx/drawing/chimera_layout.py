@@ -20,13 +20,13 @@ Tools to visualize :term:`Chimera` lattices and weighted :term:`graph` problems 
 import networkx as nx
 from networkx import draw
 
-from dwave_networkx.drawing.qubit_layout import draw_qubit_graph, draw_embedding, draw_yield
-from dwave_networkx.generators.chimera import chimera_graph, find_chimera_indices, chimera_coordinates
-
+from dwave_networkx.drawing.qubit_layout import draw_qubit_graph, draw_embedding, draw_yield, qubit_layout
+from dwave_networkx.generators.chimera import chimera_graph, find_chimera_indices, chimera_coordinates, defect_free_chimera
+from ..topology import CHIMERA
 
 __all__ = ['chimera_layout', 'draw_chimera', 'draw_chimera_embedding', 'draw_chimera_yield']
 
-
+@qubit_layout.install_dispatch(CHIMERA, pop_kwargs=('scale', 'center', 'dim'))
 def chimera_layout(G, scale=1., center=None, dim=2):
     """Positions the nodes of graph ``G`` in a Chimera layout.
 
@@ -312,16 +312,5 @@ def draw_chimera_yield(G, **kwargs):
        the :func:`~networkx.drawing.nx_pylab.draw_networkx` ``node_color``
        or ``edge_color`` parameters are ignored.
     """
-    try:
-        assert(G.graph["family"] == "chimera")
-        m = G.graph["rows"]
-        n = G.graph["columns"]
-        t = G.graph["tile"]
-        coordinates = G.graph["labels"] == "coordinate"
-    except:
-        raise ValueError("Target chimera graph needs to have columns, rows, \
-        tile, and label attributes to be able to identify faulty qubits.")
-
-    perfect_graph = chimera_graph(m,n,t, coordinates=coordinates)
-
+    perfect_graph = defect_free_chimera(G)
     draw_yield(G, chimera_layout(perfect_graph), perfect_graph, **kwargs)

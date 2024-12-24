@@ -15,3 +15,10 @@
 from dwave_networkx.drawing.chimera_layout import *
 from dwave_networkx.drawing.pegasus_layout import *
 from dwave_networkx.drawing.zephyr_layout import *
+
+from dwave_networkx.drawing.qubit_layout import (
+    draw_qubit_graph_generic as draw_qubit_graph,
+    draw_embedding_generic as draw_embedding,
+    draw_yield_generic as draw_yield,
+    qubit_layout as qubit_layout
+)

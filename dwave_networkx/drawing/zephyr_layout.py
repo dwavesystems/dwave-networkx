@@ -20,9 +20,9 @@ import networkx as nx
 from networkx import draw
 import numpy as np
 
-from dwave_networkx.drawing.qubit_layout import draw_qubit_graph, draw_embedding, draw_yield
-from dwave_networkx.generators.zephyr import zephyr_graph, zephyr_coordinates
-
+from dwave_networkx.drawing.qubit_layout import draw_qubit_graph, draw_embedding, draw_yield, qubit_layout
+from dwave_networkx.generators.zephyr import zephyr_graph, zephyr_coordinates, defect_free_zephyr
+from ..topology import ZEPHYR
 
 __all__ = ['zephyr_layout',
            'draw_zephyr',
@@ -30,7 +30,7 @@ __all__ = ['zephyr_layout',
            'draw_zephyr_yield',
            ]
 
-
+@qubit_layout.install_dispatch(ZEPHYR, pop_kwargs=('scale', 'center', 'dim'))
 def zephyr_layout(G, scale=1., center=None, dim=2):
     """Positions the nodes of graph ``G`` in a Zephyr topology.
 
@@ -282,16 +282,5 @@ def draw_zephyr_yield(G, **kwargs):
        the :func:`~networkx.drawing.nx_pylab.draw_networkx` ``node_color``
        or ``edge_color`` parameters are ignored.
     """
-    try:
-        assert(G.graph["family"] == "zephyr")
-        m = G.graph['columns']
-        t = G.graph['tile']
-        coordinates = G.graph["labels"] == "coordinate"
-    except:
-        raise ValueError("Target zephyr graph needs to have columns, rows, \
-        tile, and label attributes to be able to identify faulty qubits.")
-
-
-    perfect_graph = zephyr_graph(m, t, coordinates=coordinates)
-
+    perfect_graph = defect_free_zephyr(G)
     draw_yield(G, zephyr_layout(perfect_graph), perfect_graph, **kwargs)

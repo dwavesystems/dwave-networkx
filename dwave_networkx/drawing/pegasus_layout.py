@@ -19,10 +19,10 @@ import networkx as nx
 from networkx import draw
 import numpy as np
 
-from dwave_networkx.drawing.qubit_layout import draw_qubit_graph, draw_embedding, draw_yield
-from dwave_networkx.generators.pegasus import pegasus_graph, pegasus_coordinates
+from dwave_networkx.drawing.qubit_layout import draw_qubit_graph, draw_embedding, draw_yield, qubit_layout
+from dwave_networkx.generators.pegasus import pegasus_graph, pegasus_coordinates, defect_free_pegasus
 from dwave_networkx.drawing.chimera_layout import chimera_node_placer_2d
-
+from ..topology import PEGASUS
 
 __all__ = ['pegasus_layout',
            'draw_pegasus',
@@ -30,7 +30,7 @@ __all__ = ['pegasus_layout',
            'draw_pegasus_yield',
            ]
 
-
+@qubit_layout.install_dispatch(PEGASUS, pop_kwargs = ('scale', 'center', 'dim', 'crosses'))
 def pegasus_layout(G, scale=1., center=None, dim=2, crosses=False):
     """Positions the nodes of graph ``G`` in a Pegasus topology.
 
@@ -322,18 +322,5 @@ def draw_pegasus_yield(G, **kwargs):
        the :func:`~networkx.drawing.nx_pylab.draw_networkx` ``node_color``
        or ``edge_color`` parameters are ignored.
     """
-    try:
-        assert(G.graph["family"] == "pegasus")
-        m = G.graph['columns']
-        offset_lists = (G.graph['vertical_offsets'], G.graph['horizontal_offsets'])
-        coordinates = G.graph["labels"] == "coordinate"
-        nice = G.graph["labels"] == "nice"
-        # Can't interpret fabric_only from graph attributes
-    except:
-        raise ValueError("Target pegasus graph needs to have columns, rows, \
-        tile, and label attributes to be able to identify faulty qubits.")
-
-
-    perfect_graph = pegasus_graph(m, offset_lists=offset_lists, coordinates=coordinates, nice_coordinates=nice)
-
+    perfect_graph = defect_free_pegasus(G)
     draw_yield(G, pegasus_layout(perfect_graph), perfect_graph, **kwargs)

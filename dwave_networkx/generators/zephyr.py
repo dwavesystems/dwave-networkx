@@ -25,7 +25,9 @@ from dwave_networkx.exceptions import DWaveNetworkXException
 
 from .chimera import _chimera_coordinates_cache
 
-from .common import _add_compatible_edges, _add_compatible_nodes, _add_compatible_terms
+from .common import _add_compatible_edges, _add_compatible_nodes, _add_compatible_terms, defect_free
+from ..topology import CHIMERA, ZEPHYR
+
 
 __all__ = ['zephyr_graph',
            'zephyr_coordinates',
@@ -180,7 +182,7 @@ def zephyr_graph(m, t=4, create_using=None, node_list=None, edge_list=None,
         def label(u, w, k, j, z):
             return (((u * M + w) * t + k) * 2 + j) * m + z
 
-    construction = (("family", "zephyr"), ("rows", m), ("columns", m),
+    construction = (("family", ZEPHYR), ("rows", m), ("columns", m),
                     ("tile", t), ("data", data), ("labels", labels))
 
     G.graph.update(construction)
@@ -252,6 +254,18 @@ def zephyr_graph(m, t=4, create_using=None, node_list=None, edge_list=None,
                             v += 1
 
     return G
+
+
+@defect_free.install_dispatch(ZEPHYR)
+def defect_free_zephyr(G):
+    """Construct a defect-free Zephyr graph based on the properties of G."""
+    attrib = G.graph
+    family = attrib.get('family')
+    if family != ZEPHYR:
+        raise ValueError("G must be constructed by dwave_networkx.zephyr_graph")
+    args = attrib['rows'], attrib['tile']
+    kwargs = {'coordinates': attrib['labels'] == 'coordinate'}
+    return zephyr_graph(*args, **kwargs)
 
 
 # Developer note: we could implement a function that creates the iter_*_to_* and
@@ -646,7 +660,7 @@ def zephyr_sublattice_mappings(source, target, offset_list=None):
     of sublattice mappings would take those isomorphisms into account,
     this function does not handle that complex task.
     """
-    if target.graph.get('family') != 'zephyr':
+    if target.graph.get('family') != ZEPHYR:
         raise ValueError("source graphs must a Zephyr graph constructed by dwave_networkx.zephyr_graph")
 
     m_t = target.graph['rows']
@@ -661,7 +675,7 @@ def zephyr_sublattice_mappings(source, target, offset_list=None):
         raise ValueError(f"Zephyr node labeling {labels_t} not recognized")
 
     labels_s = source.graph['labels']
-    if source.graph.get('family') == 'chimera':
+    if source.graph.get('family') == CHIMERA:
         t_t = source.graph['tile']
         m_s = source.graph['rows']
         n_s = source.graph['columns']
@@ -691,7 +705,7 @@ def zephyr_sublattice_mappings(source, target, offset_list=None):
         else:
             raise ValueError(f"Chimera node labeling {labels_s} not recognized")
 
-    elif source.graph.get('family') == 'zephyr':
+    elif source.graph.get('family') == ZEPHYR:
         m_s = source.graph['rows']
         if offset_list is None:
             mrange = range((2*m_t+1) - (2*m_s+1) + 1)
