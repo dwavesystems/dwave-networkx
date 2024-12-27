@@ -1,4 +1,4 @@
-# Copyright 2018 D-Wave Systems Inc.
+# Copyright 2024 D-Wave
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
 #    you may not use this file except in compliance with the License.
@@ -11,22 +11,26 @@
 #    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
-from typing import Union, List, Dict, Tuple
+from typing import Union, List, Dict, Tuple, Optional
+import random
+import math
 
-import matplotlib.pyplot as plt
 import networkx as nx
-import numpy as np
 
 from dwave_networkx.drawing.chimera_layout import draw_chimera, chimera_layout
 from dwave_networkx.drawing.pegasus_layout import draw_pegasus, pegasus_layout
 from dwave_networkx.drawing.zephyr_layout import draw_zephyr, zephyr_layout
 
-
-def generate_node_color_dict(G: nx.Graph, embeddings: List[dict], S: nx.Graph = None,
-    one_to_iterable: bool = False, shuffle_colormap: bool = True,
-    seed: Union[int, np.random.RandomState, np.random.Generator] = None,) -> Tuple[Dict, List[dict]]:
+def _generate_node_color_dict(
+    G: nx.Graph,
+    embeddings: List[dict],
+    S: nx.Graph = None,
+    one_to_iterable: bool = False,
+    shuffle_colormap: bool = True,
+    seed: Optional[int] = None,
+) -> Tuple[Dict, List[dict]]:
     """Generate a node color dictionary mapping each node in G to an embedding index or NaN.
-    
+
     Args:
         G: The target graph.
         embeddings: A list of embeddings (each embedding a dict from source nodes to target nodes).
@@ -34,7 +38,7 @@ def generate_node_color_dict(G: nx.Graph, embeddings: List[dict], S: nx.Graph = 
         one_to_iterable: If True, a single source node maps to multiple target nodes.
         shuffle_colormap: If True, embeddings are shuffled before assigning colors.
         seed: A seed for the random number generator.
-    
+
     Returns:
         node_color_dict: A dictionary mapping each node in G to either an embedding index or NaN.
         _embeddings: The potentially shuffled embeddings list used for assigning colors.
@@ -43,11 +47,10 @@ def generate_node_color_dict(G: nx.Graph, embeddings: List[dict], S: nx.Graph = 
 
     if shuffle_colormap:
         _embeddings = embeddings.copy()
-        prng = np.random.default_rng(seed)
-        prng.shuffle(_embeddings)
+        random.seed(seed)
+        random.shuffle(_embeddings)
     else:
         _embeddings = embeddings
-
     if S is None:
         # If there is no source graph, color all nodes in the embeddings
         if one_to_iterable:
@@ -90,17 +93,22 @@ def generate_node_color_dict(G: nx.Graph, embeddings: List[dict], S: nx.Graph = 
     return node_color_dict, _embeddings
 
 
-def generate_edge_color_dict(G: nx.Graph, embeddings: List[dict], S: nx.Graph,
-    one_to_iterable: bool, node_color_dict: Dict) -> Dict:
+def _generate_edge_color_dict(
+    G: nx.Graph,
+    embeddings: List[dict],
+    S: nx.Graph,
+    one_to_iterable: bool,
+    node_color_dict: Dict,
+) -> Dict:
     """Generate an edge color dictionary mapping each edge in G to an embedding index or NaN.
-    
+
     Args:
         G: The target graph.
         embeddings: A list of embeddings (each embedding a dict from source nodes to target nodes).
         S: The optional source graph (if None, edges are colored based on node colors).
         one_to_iterable: If True, a single source node maps to multiple target nodes.
         node_color_dict: The node color dictionary to reference for edge coloring.
-    
+
     Returns:
         edge_color_dict: A dictionary mapping each edge in G to either an embedding index or NaN.
     """
@@ -133,9 +141,15 @@ def generate_edge_color_dict(G: nx.Graph, embeddings: List[dict], S: nx.Graph,
     return edge_color_dict
 
 
-def visualize_parallel_embeddings(G: nx.Graph, embeddings: List[dict], S: nx.Graph = None,
-    one_to_iterable: bool = False, shuffle_colormap: bool = True,
-    seed: Union[int, np.random.RandomState, np.random.Generator] = None, **kwargs,
+def draw_parallel_embeddings(
+    G: nx.Graph,
+    embeddings: List[dict],
+    S: nx.Graph = None,
+    one_to_iterable: bool = True,
+    shuffle_colormap: bool = True,
+    seed: Optional[int] = None,
+    use_plt=True,
+    **kwargs,
 ) -> Tuple[dict, dict]:
     """Visualizes the embeddings using dwave_networkx's layout functions.
 
@@ -143,22 +157,45 @@ def visualize_parallel_embeddings(G: nx.Graph, embeddings: List[dict], S: nx.Gra
         G: The target graph to be visualized.
         embeddings: A list of embeddings.
         S: The source graph to visualize (optional).
-        one_to_iterable: If True, allow multiple target nodes per source node.
+        one_to_iterable: If True, allow multiple target nodes per source node,
+            values of the embedding are iterables on nodes of G.
+            If False, embedding values should be nodes of G.
         shuffle_colormap: If True, randomize the colormap assignment.
         seed: A seed for the random number generator.
         **kwargs: Additional keyword arguments for the drawing functions.
+
+    Examples
+    --------
+    This example plots 3 embeddings of a length-8 path on Chimera[m=2], with
+    no embedding in the bottom right.
+
+    >>> import networkx as nx
+    >>> import dwave_networkx as dnx
+    >>> import matplotlib.pyplot as plt   # doctest: +SKIP
+    >>> G = dnx.chimera_graph(2)
+    >>> S = nx.from_edgelist({(i,i+1) for i in range(7)})
+    >>> emb = {i: 2 * (i // 2) + 4*(i % 2) for i in range(8)}  # Top-left embedding
+    >>> embs = [{k:v+8*offset for k,v in emb.items()} for offset in range(3)]
+    >>> dnx.draw_parallel_embeddings(G)    # doctest: +SKIP
+    >>> plt.show()    # doctest: +SKIP
+
     """
+    try:
+        import matplotlib.pyplot as plt
+    except ImportError:
+        raise ImportError("Matplotlib is required for draw_parallel_embeddings()")
+
     ax = plt.gca()
     cmap = plt.get_cmap("turbo").copy()
     cmap.set_bad("lightgrey")
 
     # Generate node_color_dict and embeddings to use
-    node_color_dict, _embeddings = generate_node_color_dict(
+    node_color_dict, _embeddings = _generate_node_color_dict(
         G, embeddings, S, one_to_iterable, shuffle_colormap, seed
     )
 
     # Generate edge_color_dict
-    edge_color_dict = generate_edge_color_dict(
+    edge_color_dict = _generate_edge_color_dict(
         G, _embeddings, S, one_to_iterable, node_color_dict
     )
 
@@ -173,7 +210,7 @@ def visualize_parallel_embeddings(G: nx.Graph, embeddings: List[dict], S: nx.Gra
         "width": 1,
         "cmap": cmap,
         "edge_cmap": cmap,
-        "node_size": 300 / np.sqrt(G.number_of_nodes()),
+        "node_size": 300 / math.sqrt(G.number_of_nodes()),
     }
     draw_kwargs.update(kwargs)
 
