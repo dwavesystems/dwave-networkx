@@ -20,13 +20,14 @@ Tools to visualize :term:`Chimera` lattices and weighted :term:`graph` problems 
 import networkx as nx
 from networkx import draw
 
-from dwave_networkx.drawing.qubit_layout import draw_qubit_graph, draw_embedding, draw_yield, qubit_layout
-from dwave_networkx.generators.chimera import chimera_graph, find_chimera_indices, chimera_coordinates, defect_free_chimera
+from dwave_networkx.drawing.qubit_layout import draw_qubit_graph, draw_embedding, draw_yield
+from dwave_networkx.generators.chimera import find_chimera_indices, chimera_coordinates, defect_free_chimera
 from ..topology import CHIMERA
 
 __all__ = ['chimera_layout', 'draw_chimera', 'draw_chimera_embedding', 'draw_chimera_yield']
 
-@qubit_layout.install_dispatch(CHIMERA, pop_kwargs=('scale', 'center', 'dim'))
+
+@CHIMERA.layout.implementation
 def chimera_layout(G, scale=1., center=None, dim=2):
     """Positions the nodes of graph ``G`` in a Chimera layout.
 
@@ -71,7 +72,7 @@ def chimera_layout(G, scale=1., center=None, dim=2):
 
     # now we get chimera coordinates for the translation
     # first, check if we made it
-    if G.graph.get("family") == "chimera":
+    if G.graph.get("family") == CHIMERA:
         m = G.graph['rows']
         n = G.graph['columns']
         t = G.graph['tile']
@@ -189,6 +190,7 @@ def chimera_node_placer_2d(m, n, t, scale=1., center=None, dim=2):
     return _xy_coords
 
 
+@CHIMERA.draw.implementation
 def draw_chimera(G, **kwargs):
     """Draws graph ``G`` in a Chimera layout.
 
@@ -230,6 +232,7 @@ def draw_chimera(G, **kwargs):
     draw_qubit_graph(G, chimera_layout(G), **kwargs)
 
 
+@CHIMERA.draw_embedding.implementation
 def draw_chimera_embedding(G, *args, **kwargs):
     """Draws an embedding onto the Chimera graph ``G``.
 
@@ -282,6 +285,7 @@ def draw_chimera_embedding(G, *args, **kwargs):
     draw_embedding(G, chimera_layout(G), *args, **kwargs)
 
 
+@CHIMERA.draw_yield.implementation
 def draw_chimera_yield(G, **kwargs):
     """Draws graph ``G`` with highlighted faults.
 

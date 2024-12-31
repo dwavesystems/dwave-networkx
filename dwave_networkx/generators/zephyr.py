@@ -25,7 +25,7 @@ from dwave_networkx.exceptions import DWaveNetworkXException
 
 from .chimera import _chimera_coordinates_cache
 
-from .common import _add_compatible_edges, _add_compatible_nodes, _add_compatible_terms, defect_free
+from .common import _add_compatible_edges, _add_compatible_nodes, _add_compatible_terms
 from ..topology import CHIMERA, ZEPHYR
 
 
@@ -36,6 +36,7 @@ __all__ = ['zephyr_graph',
            'zephyr_four_color',
            ]
 
+@ZEPHYR.generator.implementation
 def zephyr_graph(m, t=4, create_using=None, node_list=None, edge_list=None,
                  data=True, coordinates=False, check_node_list=False,
                  check_edge_list=False):
@@ -256,7 +257,7 @@ def zephyr_graph(m, t=4, create_using=None, node_list=None, edge_list=None,
     return G
 
 
-@defect_free.install_dispatch(ZEPHYR)
+@ZEPHYR.defect_free_graph.implementation
 def defect_free_zephyr(G):
     """Construct a defect-free Zephyr graph based on the properties of G."""
     attrib = G.graph
@@ -271,6 +272,7 @@ def defect_free_zephyr(G):
 # Developer note: we could implement a function that creates the iter_*_to_* and
 # iter_*_to_*_pairs methods just-in-time, but there are a small enough number
 # that for now it makes sense to do them by hand.
+@ZEPHYR.coordinates.implementation
 class zephyr_coordinates(object):
     """Provides coordinate converters for the Zephyr indexing schemes.
 
@@ -596,7 +598,7 @@ def _double_chimera_zephyr_sublattice_mapping(source_to_chimera, zephyr_to_targe
 
     return mapping
 
-
+@ZEPHYR.sublattice_mappings.implementation
 def zephyr_sublattice_mappings(source, target, offset_list=None):
     r"""Yields mappings from a Chimera or Zephyr graph into a Zephyr graph.
 
@@ -728,6 +730,8 @@ def zephyr_sublattice_mappings(source, target, offset_list=None):
     for offset in offset_list:
         yield make_mapping(source_to_inner, zephyr_to_target, offset)
 
+
+@ZEPHYR.torus_generator.implementation
 def zephyr_torus(m, t=4, node_list=None, edge_list=None):
     """
     Creates a Zephyr graph modified to allow for periodic boundary conditions and translational invariance.

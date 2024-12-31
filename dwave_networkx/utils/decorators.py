@@ -22,7 +22,7 @@ import inspect
 
 import dwave_networkx as dnx
 
-__all__ = ['binary_quadratic_model_sampler', 'topology_dispatch']
+__all__ = ['binary_quadratic_model_sampler', 'ImplementationHook']
 
 
 def binary_quadratic_model_sampler(which_args):
@@ -76,32 +76,45 @@ def binary_quadratic_model_sampler(which_args):
     return decorator
 
 
-def topology_dispatch(f):
-    dispatch = {}
-    default = f, ()
+class ImplementationHook:
+    """A decorator class to provide a temporary slot value which overwrites itself
 
-    @functools.wraps(f)
-    def decorated(G, *args, **kwargs):
-        nonlocal dispatch
-        family = G.graph.get('family')
-        special, _ = dispatch.get(family, default)
+    This is used by the ``dwave_networkx.TopologyFamily`` enum.  Each family
+    object holds references to specific implementations of generic functions.
+    But to avoid circular dependencies, we first install this hook when the
+    family object is constructed.  Then, when each generic function is
+    implemented, that implementation gets decorated with the ``implementation``
+    method of the respective ``ImplementationHook`` object.  When the decoration
+    occurs, the hook replaces itself with the decorated function.  The decorated
+    function itself is left unchanged.
 
-        return special(G, *args, **kwargs)
+    For example, in ``dwave_networkx.drawing.chimera_layout``, we implement the
+    function ``draw_chimera_embedding``.  We also want to make an alias of that
+    named ``dwave_networkx.CHIMERA.draw_embedding``.  So, in the construction
+    of ``dwave_networkx.CHIMERA`` we have put an ``ImplementationHook`` in place
+    of ``draw_embedding``.  Then, when we implement ``draw_chimera_embedding``,
+    we write
 
-    def install_dispatch(family, pop_kwargs = ()):
-        def install(g):
-            nonlocal dispatch
-            dispatch[family] = g, pop_kwargs
-            return g
-        return install
+        @CHIMERA.draw_embedding.implementation
+        def draw_chimera_embedding(...)
+            ...
 
-    def pop_kwargs(G, kwargs):
-        nonlocal dispatch
-        family = G.graph.get('family')
-        _, pop = dispatch[family]        
-        return kwargs, {key: kwargs.pop(key) for key in pop if key in kwargs}
+    which provides the desired alias.
 
-    decorated.install_dispatch = install_dispatch
-    decorated.pop_kwargs = pop_kwargs
+    """
 
-    return decorated
+    def __init__(self, obj, name):
+        self.obj = obj
+        self.name = name
+
+    def implementation(self, f):
+        # monkeypatch the object with this implementation
+        setattr(self.obj, self.name, f)
+
+        # don't forget to return f, or the decorated function will be None
+        return f
+
+    def __call__(self, *args, **kwargs):
+        raise NotImplementedError(
+            f"the {self.name} method of {self.obj:r} has not been attached"
+        )

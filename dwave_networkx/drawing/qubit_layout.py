@@ -23,20 +23,9 @@ import networkx as nx
 from networkx import draw
 
 from dwave_networkx.drawing.distinguishable_colors import distinguishable_color_map
-from ..utils.decorators import topology_dispatch
 
-__all__ = ['draw_qubit_graph_generic', 'draw_embedding_generic', 'draw_yield_generic', 'qubit_layout']
+__all__ = ['draw_qubit_graph_generic', 'draw_embedding_generic', 'draw_yield_generic']
 
-
-@topology_dispatch
-def qubit_layout(G):
-    raise NotImplementedError(f"no dispatch defined for layouts of {G.graph.get('family')} graphs")
-
-def _get_layout_and_kwargs(G, layout, kwargs):
-    if layout is None:
-        kwargs, layout_args = qubit_layout.pop_kwargs(G, kwargs)
-        layout = qubit_layout(G, **layout_args)
-    return layout, kwargs
 
 
 def draw_qubit_graph(G, layout, linear_biases=None, quadratic_biases=None,
@@ -184,44 +173,6 @@ def draw_qubit_graph(G, layout, linear_biases=None, quadratic_biases=None,
 
     draw(G, layout, ax=ax, nodelist=nodelist, edgelist=edgelist, **kwargs)
 
-def draw_qubit_graph_generic(G, linear_biases=None, quadratic_biases=None,
-                     nodelist=None, edgelist=None, midpoint=None,
-                     **kwargs):
-    """Draws graph G with a layout computed according to its topology family.
-
-    If `linear_biases` and/or `quadratic_biases` are provided, these
-    are visualized on the plot.
-
-    Parameters
-    ----------
-    G : NetworkX graph
-        The graph to be drawn.  Must be a dwave_networkx qubit topology.
-
-    linear_biases : dict (optional, None)
-        A dict of biases associated with each node in G. Should be of
-        form {node: bias, ...}. Each bias should be numeric.
-
-    quadratic_biases : dict (optional, None)
-        A dict of biases associated with each edge in G. Should be of
-        form {edge: bias, ...}. Each bias should be numeric. Self-loop
-        edges (i.e., :math:`i=j`) are treated as linear biases.
-
-    midpoint : float (optional, default None)
-        A float that specifies where the center of the colormap should
-        be. If not provided, the colormap will default to the middle of
-        min/max values provided.
-
-    kwargs : optional keywords
-       See networkx.draw_networkx() for a description of optional keywords,
-       with the exception of the `pos` parameter which is not used by this
-       function. If `linear_biases` or `quadratic_biases` are provided,
-       any provided `node_color` or `edge_color` arguments are ignored.
-
-    """
-
-    layout, kwargs = _get_layout_and_kwargs(G, kwargs)
-    return draw_qubit_graph(G, layout, linear_biases=linear_biases, quadratic_biases=quadratic_biases,
-                     nodelist=nodelist, edgelist=edgelist, midpoint=midpoint, **kwargs)
 
 def draw_embedding(G, layout, emb, embedded_graph=None, interaction_edges=None,
                    chain_color=None, unused_color=(0.9, 0.9, 0.9, 1.0), cmap=None,
@@ -420,70 +371,6 @@ def draw_embedding(G, layout, emb, embedded_graph=None, interaction_edges=None,
          node_color=node_color, edge_color=edge_color, labels=labels,
          **kwargs)
 
-def draw_embedding_generic(G, emb, embedded_graph=None, interaction_edges=None,
-                   chain_color=None, unused_color=(0.9, 0.9, 0.9, 1.0), cmap=None,
-                   show_labels=False, overlapped_embedding=False, **kwargs):
-    """Draws an embedding onto the graph G.
-
-    If interaction_edges is not None, then only display the couplers in that
-    list.  If embedded_graph is not None, the only display the couplers between
-    chains with intended couplings according to embedded_graph.
-
-    The layout of G is computed according to its topology family.
-
-    Parameters
-    ----------
-    G : NetworkX graph
-        The graph to be drawn.  Must be a dwave_networkx qubit topology.
-
-    emb : dict
-        A dict of chains associated with each node in G.  Should be
-        of the form {node: chain, ...}.  Chains should be iterables
-        of qubit labels (qubits are nodes in G).
-
-    embedded_graph : NetworkX graph (optional, default None)
-        A graph which contains all keys of emb as nodes.  If specified,
-        edges of G will be considered interactions if and only if they
-        exist between two chains of emb if their keys are connected by
-        an edge in embedded_graph
-
-    interaction_edges : list (optional, default None)
-        A list of edges which will be used as interactions.
-
-    show_labels: boolean (optional, default False)
-        If show_labels is True, then each chain in emb is labelled with its key.
-
-    chain_color : dict (optional, default None)
-        A dict of colors associated with each key in emb.  Should be
-        of the form {node: rgba_color, ...}.  Colors should be length-4
-        tuples of floats between 0 and 1 inclusive. If chain_color is None,
-        each chain will be assigned a different color.
-
-    cmap : str or matplotlib colormap (optional, default None)
-        A matplotlib colormap for coloring of chains.  Only used if chain_color
-        is None.
-
-    unused_color : tuple or color string (optional, default (0.9,0.9,0.9,1.0))
-        The color to use for nodes and edges of G which are not involved
-        in chains, and edges which are neither chain edges nor interactions.
-        If unused_color is None, these nodes and edges will not be shown at all.
-
-    overlapped_embedding: boolean (optional, default False)
-        If overlapped_embedding is True, then chains in emb may overlap (contain
-        the same vertices in G), and the drawing will display these overlaps as
-        concentric circles.
-
-    kwargs : optional keywords
-       See networkx.draw_networkx() for a description of optional keywords,
-       with the exception of the `pos` parameter which is not used by this
-       function. If `linear_biases` or `quadratic_biases` are provided,
-       any provided `node_color` or `edge_color` arguments are ignored.
-    """
-    layout, kwargs = _get_layout_and_kwargs(G, kwargs)
-    return draw_embedding(G, layout, emb=emb, embedded_graph=embedded_graph, interaction_edges=interaction_edges,
-                   chain_color=chain_color, unused_color=unused_color, cmap=cmap,
-                   show_labels=show_labels, overlapped_embedding=overlapped_embedding, **kwargs)
-
 
 def compute_bags(C, emb):
     # Given an overlapped embedding, compute the set of source nodes embedded at every target node.
@@ -600,43 +487,5 @@ def draw_yield(G, layout, perfect_graph, unused_color=(0.9, 0.9, 0.9, 1.0),
         draw(perfect_graph, layout, nodelist=nodelist, edgelist=edgelist,
              node_color=unused_node_color, edge_color=unused_edge_color,
              **kwargs)
-             
-def draw_yield_generic(G, linear_biases=None, unused_color=(0.9, 0.9, 0.9, 1.0),
-               fault_color=(1.0, 0.0, 0.0, 1.0), fault_shape='x',
-               fault_style='dashed', **kwargs):
-    """Draws the graph G with highlighted faults.
-    
-    The graph layout will be computed according to the topology family of G.
 
-    Parameters
-    ----------
-    G : NetworkX graph
-        The graph to be parsed for faults.  Must be a dwave_networkx qubit topology.
-
-    unused_color : tuple or color string (optional, default (0.9,0.9,0.9,1.0))
-        The color to use for nodes and edges of G which are not faults.
-        If unused_color is None, these nodes and edges will not be shown at all.
-
-    fault_color : tuple or color string (optional, default (1.0,0.0,0.0,1.0))
-        A color to represent nodes absent from the graph G. Colors should be
-        length-4 tuples of floats between 0 and 1 inclusive.
-
-    fault_shape : string, optional (default='x')
-        The shape of the fault nodes. Specification is as matplotlib.scatter
-        marker, one of 'so^>v<dph8'.
-
-    fault_style : string, optional (default='dashed')
-        Edge fault line style (solid|dashed|dotted,dashdot)
-
-    kwargs : optional keywords
-       See networkx.draw_networkx() for a description of optWional keywords,
-       with the exception of the `pos` parameter which is not used by this
-       function. If `linear_biases` or `quadratic_biases` are provided,
-       any provided `node_color` or `edge_color` arguments are ignored.
-    """
-    perfect_graph = topology_without_defects(G)
-    layout, kwargs = _get_layout_and_kwargs(perfect_graph)
-    return draw_qubit_graph(G, layout, unused_color=unused_color,
-               fault_color=fault_color, fault_shape=fault_shape,
-               fault_style=fault_style, **kwargs)
 

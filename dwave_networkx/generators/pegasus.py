@@ -24,7 +24,7 @@ import warnings
 
 from itertools import product
 from .chimera import _chimera_coordinates_cache
-from .common import _add_compatible_edges, _add_compatible_nodes, _add_compatible_terms, defect_free
+from .common import _add_compatible_edges, _add_compatible_nodes, _add_compatible_terms
 from ..topology import CHIMERA, PEGASUS
 
 __all__ = ['pegasus_graph',
@@ -34,6 +34,7 @@ __all__ = ['pegasus_graph',
            'pegasus_four_color',
            ]
 
+@PEGASUS.generator.implementation
 def pegasus_graph(m, create_using=None, node_list=None, edge_list=None, data=True,
                   offset_lists=None, offsets_index=None, coordinates=False, fabric_only=True,
                   nice_coordinates=False, check_node_list=False, check_edge_list=False):
@@ -329,7 +330,7 @@ def pegasus_graph(m, create_using=None, node_list=None, edge_list=None, data=Tru
     return G
 
 
-@defect_free.install_dispatch(PEGASUS)
+@PEGASUS.defect_free_graph.implementation
 def defect_free_pegasus(G):
     """Construct a defect-free Pegasus graph based on the properties of G."""
     attrib = G.graph
@@ -346,6 +347,7 @@ def defect_free_pegasus(G):
     }
 
     return pegasus_graph(*args, **kwargs)
+
 
 def get_tuple_fragmentation_fn(pegasus_graph):
     """
@@ -562,6 +564,7 @@ def fragmented_edges(pegasus_graph):
 # Developer note: we could implement a function that creates the iter_*_to_* and
 # iter_*_to_*_pairs methods just-in-time, but there are a small enough number
 # that for now it makes sense to do them by hand.
+@PEGASUS.coordinates.implementation
 class pegasus_coordinates(object):
     """Provides coordinate converters for the Pegasus indexing schemes.
 
@@ -1110,6 +1113,7 @@ def _pegasus_pegasus_sublattice_mapping(source_to_nice, nice_to_target, offset):
     return mapping
 
 
+@PEGASUS.sublattice_mappings.implementation
 def pegasus_sublattice_mappings(source, target, offset_list=None):
     r"""Yields mappings from a Chimera or Pegasus graph into a Pegasus graph.
     
@@ -1234,6 +1238,7 @@ def pegasus_sublattice_mappings(source, target, offset_list=None):
         yield make_mapping(source_to_inner, nice_to_target, offset)
 
 
+@PEGASUS.torus_generator.implementation
 def pegasus_torus(m, node_list=None, edge_list=None, 
                   offset_lists=None, offsets_index=None):
     """
