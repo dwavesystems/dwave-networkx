@@ -27,6 +27,8 @@ from dwave_networkx.generators.pegasus import (
     get_tuple_fragmentation_fn,
     )
 
+from .common import graphs_equal
+
 alpha_map = dict(enumerate('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'))
 
 
@@ -407,19 +409,19 @@ class TestPegasusCoordinates(unittest.TestCase):
         H = G.copy()
         H.remove_nodes_from([*H][::3])
         H.remove_edges_from([*H.edges][::3])
-        self.assertTrue(nx.utils.graphs_equal(G, dnx.generators.pegasus.defect_free_pegasus(H)))
+        self.assertTrue(graphs_equal(G, dnx.generators.pegasus.defect_free_pegasus(H)))
 
         G = dnx.pegasus_graph(3, offsets_index=1, coordinates=True)
         H = G.copy()
         H.remove_nodes_from([*H][::3])
         H.remove_edges_from([*H.edges][::3])
-        self.assertTrue(nx.utils.graphs_equal(G, dnx.generators.pegasus.defect_free_pegasus(H)))
+        self.assertTrue(graphs_equal(G, dnx.generators.pegasus.defect_free_pegasus(H)))
 
         G = dnx.pegasus_graph(3, nice_coordinates=True)
         H = G.copy()
         H.remove_nodes_from([*H][::3])
         H.remove_edges_from([*H.edges][::3])
-        self.assertTrue(nx.utils.graphs_equal(G, dnx.generators.pegasus.defect_free_pegasus(H)))
+        self.assertTrue(graphs_equal(G, dnx.generators.pegasus.defect_free_pegasus(H)))
 
 
 

@@ -17,6 +17,7 @@ import unittest
 import networkx as nx
 import dwave_networkx as dnx
 import numpy as np
+from .common import graphs_equal
 
 class TestZephyrGraph(unittest.TestCase):
     def test_single_tile(self):
@@ -279,13 +280,13 @@ class TestZephyrGraph(unittest.TestCase):
         H = G.copy()
         H.remove_nodes_from([*H][::3])
         H.remove_edges_from([*H.edges][::3])
-        self.assertTrue(nx.utils.graphs_equal(G, dnx.generators.zephyr.defect_free_zephyr(H)))
+        self.assertTrue(graphs_equal(G, dnx.generators.zephyr.defect_free_zephyr(H)))
 
         G = dnx.zephyr_graph(2, 2, coordinates=True)
         H = G.copy()
         H.remove_nodes_from([*H][::3])
         H.remove_edges_from([*H.edges][::3])
-        self.assertTrue(nx.utils.graphs_equal(G, dnx.generators.zephyr.defect_free_zephyr(H)))
+        self.assertTrue(graphs_equal(G, dnx.generators.zephyr.defect_free_zephyr(H)))
 
 class TestZephyrTorus(unittest.TestCase):
     def test(self):

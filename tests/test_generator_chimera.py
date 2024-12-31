@@ -17,6 +17,7 @@ import unittest
 import networkx as nx
 import dwave_networkx as dnx
 import numpy as np
+from .common import graphs_equal
 
 alpha_map = dict(enumerate('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'))
 
@@ -376,13 +377,13 @@ class TestChimeraGraph(unittest.TestCase):
         H = G.copy()
         H.remove_nodes_from([*H][::3])
         H.remove_edges_from([*H.edges][::3])
-        self.assertTrue(nx.utils.graphs_equal(G, dnx.generators.chimera.defect_free_chimera(H)))
+        self.assertTrue(graphs_equal(G, dnx.generators.chimera.defect_free_chimera(H)))
 
         G = dnx.chimera_graph(2, 4, 2, coordinates=True)
         H = G.copy()
         H.remove_nodes_from([*H][::3])
         H.remove_edges_from([*H.edges][::3])
-        self.assertTrue(nx.utils.graphs_equal(G, dnx.generators.chimera.defect_free_chimera(H)))
+        self.assertTrue(graphs_equal(G, dnx.generators.chimera.defect_free_chimera(H)))
 
 class TestChimeraTorus(unittest.TestCase):
     def test(self):
