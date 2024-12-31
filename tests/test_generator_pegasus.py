@@ -407,19 +407,19 @@ class TestPegasusCoordinates(unittest.TestCase):
         H = G.copy()
         H.remove_nodes_from([*H][::3])
         H.remove_edges_from([*H.edges][::3])
-        self.assertEqual(G, dnx.generators.pegasus.defect_free_pegasus(H))
+        self.assertTrue(nx.utils.graphs_equal(G, dnx.generators.pegasus.defect_free_pegasus(H)))
 
         G = dnx.pegasus_graph(3, offsets_index=1, coordinates=True)
         H = G.copy()
         H.remove_nodes_from([*H][::3])
         H.remove_edges_from([*H.edges][::3])
-        self.assertEqual(G, dnx.generators.pegasus.defect_free_pegasus(H))
+        self.assertTrue(nx.utils.graphs_equal(G, dnx.generators.pegasus.defect_free_pegasus(H)))
 
         G = dnx.pegasus_graph(3, nice_coordinates=True)
         H = G.copy()
         H.remove_nodes_from([*H][::3])
         H.remove_edges_from([*H.edges][::3])
-        self.assertEqual(G, dnx.generators.pegasus.defect_free_pegasus(H))
+        self.assertTrue(nx.utils.graphs_equal(G, dnx.generators.pegasus.defect_free_pegasus(H)))
 
 
 

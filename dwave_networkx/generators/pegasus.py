@@ -338,12 +338,12 @@ def defect_free_pegasus(G):
     if family != PEGASUS:
         raise ValueError("G must be constructed by dwave_networkx.pegasus_graph")
 
-    offsets = eval(p.name.replace('pegasus_graph', ''))[1]
+    offsets = eval(G.name.replace('pegasus_graph', ''))[1]
     args = attrib['rows'],
     kwargs = {
         'offsets_index' if isinstance(offsets, int) else 'offset_lists': offsets,
         'coordinates': 'coordinate' == attrib['labels'],
-        'nice': 'nice' == attrib['labels'],
+        'nice_coordinates': 'nice' == attrib['labels'],
     }
 
     return pegasus_graph(*args, **kwargs)
