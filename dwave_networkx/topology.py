@@ -39,9 +39,6 @@ class TopologyFamily:
     def __hash__(self):
         return hash(self.value)
 
-    def _install_dispatch(self, name):
-        return partial(setattr, self, name)
-
     def __init__(self, name):
         # DEV NOTE
         #
