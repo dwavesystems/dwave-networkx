@@ -274,7 +274,19 @@ class TestZephyrGraph(unittest.TestCase):
             G = dnx.zephyr_graph(m, t, edge_list=edge_list,
                                   check_edge_list=True)
 
-            
+    def test_defect_free_zephyr(self):
+        G = dnx.zephyr_graph(2, 4)
+        H = G.copy()
+        H.remove_nodes_from([*H][::3])
+        H.remove_edges_from([*H.edges][::3])
+        self.assertEqual(G, dnx.generators.zephyr.defect_free_zephyr(H))
+
+        G = dnx.zephyr_graph(2, 2, coordinates=True)
+        H = G.copy()
+        H.remove_nodes_from([*H][::3])
+        H.remove_edges_from([*H.edges][::3])
+        self.assertEqual(G, dnx.generators.zephyr.defect_free_zephyr(H))
+
 class TestZephyrTorus(unittest.TestCase):
     def test(self):
         for m in [2,3,4]:

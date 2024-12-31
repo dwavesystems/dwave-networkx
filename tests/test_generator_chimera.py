@@ -370,7 +370,20 @@ class TestChimeraGraph(unittest.TestCase):
             edge_list = [(0, t), (0, t)]
             G = dnx.chimera_graph(m, edge_list=edge_list,
                                   check_edge_list=True)
-       
+
+    def test_defect_free_chimera(self):
+        G = dnx.chimera_graph(2, 4, 2)
+        H = G.copy()
+        H.remove_nodes_from([*H][::3])
+        H.remove_edges_from([*H.edges][::3])
+        self.assertEqual(G, dnx.generators.chimera.defect_free_chimera(H))
+
+        G = dnx.chimera_graph(2, 4, 2, coordinates=True)
+        H = G.copy()
+        H.remove_nodes_from([*H][::3])
+        H.remove_edges_from([*H.edges][::3])
+        self.assertEqual(G, dnx.generators.chimera.defect_free_chimera(H))
+
 class TestChimeraTorus(unittest.TestCase):
     def test(self):
         for m in range(1,4):

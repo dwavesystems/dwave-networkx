@@ -402,6 +402,28 @@ class TestPegasusCoordinates(unittest.TestCase):
             G = dnx.pegasus_graph(m, edge_list=edge_list, fabric_only=False,
                                   check_edge_list=True)
 
+    def test_defect_free_pegasus(self):
+        G = dnx.pegasus_graph(3, offset_lists=[(10,)*12, (6,)*12])
+        H = G.copy()
+        H.remove_nodes_from([*H][::3])
+        H.remove_edges_from([*H.edges][::3])
+        self.assertEqual(G, dnx.generators.pegasus.defect_free_pegasus(H))
+
+        G = dnx.pegasus_graph(3, offsets_index=1, coordinates=True)
+        H = G.copy()
+        H.remove_nodes_from([*H][::3])
+        H.remove_edges_from([*H.edges][::3])
+        self.assertEqual(G, dnx.generators.pegasus.defect_free_pegasus(H))
+
+        G = dnx.pegasus_graph(3, nice_coordinates=True)
+        H = G.copy()
+        H.remove_nodes_from([*H][::3])
+        H.remove_edges_from([*H.edges][::3])
+        self.assertEqual(G, dnx.generators.pegasus.defect_free_pegasus(H))
+
+
+
+
 class TestTupleFragmentation(unittest.TestCase):
 
     def test_empty_list(self):
