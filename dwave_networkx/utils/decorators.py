@@ -116,5 +116,5 @@ class ImplementationHook:
 
     def __call__(self, *args, **kwargs):
         raise NotImplementedError(
-            f"the {self.name} method of {self.obj:r} has not been attached"
+            f"the {self.name} method of {self.obj!r} has not been attached"
         )
