@@ -23,10 +23,10 @@ import networkx as nx
 
 from dwave_networkx.exceptions import DWaveNetworkXException
 
-from .chimera import _chimera_coordinates_cache
+from dwave_networkx.generators.chimera import _chimera_coordinates_cache
 
-from .common import _add_compatible_edges, _add_compatible_nodes, _add_compatible_terms
-from ..topology import CHIMERA, ZEPHYR
+from dwave_networkx.generators.common import _add_compatible_edges, _add_compatible_nodes, _add_compatible_terms
+from dwave_networkx.topology import CHIMERA, ZEPHYR
 
 
 __all__ = ['zephyr_graph',

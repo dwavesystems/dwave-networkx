@@ -20,9 +20,9 @@ import networkx as nx
 from networkx import draw
 import numpy as np
 
-from dwave_networkx.drawing.qubit_layout import draw_qubit_graph, draw_embedding
+from dwave_networkx.drawing.qubit_layout import draw_qubit_graph, draw_embedding, draw_yield
 from dwave_networkx.generators.zephyr import zephyr_coordinates, defect_free_zephyr
-from ..topology import ZEPHYR
+from dwave_networkx.topology import ZEPHYR
 
 __all__ = ['zephyr_layout',
            'draw_zephyr',

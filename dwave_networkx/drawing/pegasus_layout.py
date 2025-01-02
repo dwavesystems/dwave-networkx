@@ -22,7 +22,7 @@ import numpy as np
 from dwave_networkx.drawing.qubit_layout import draw_qubit_graph, draw_embedding, draw_yield
 from dwave_networkx.generators.pegasus import pegasus_coordinates, defect_free_pegasus
 from dwave_networkx.drawing.chimera_layout import chimera_node_placer_2d
-from ..topology import PEGASUS
+from dwave_networkx.topology import PEGASUS
 
 __all__ = ['pegasus_layout',
            'draw_pegasus',

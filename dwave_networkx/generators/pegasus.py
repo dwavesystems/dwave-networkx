@@ -23,9 +23,9 @@ from dwave_networkx.exceptions import DWaveNetworkXException
 import warnings
 
 from itertools import product
-from .chimera import _chimera_coordinates_cache
-from .common import _add_compatible_edges, _add_compatible_nodes, _add_compatible_terms
-from ..topology import CHIMERA, PEGASUS
+from dwave_networkx.generators.chimera import _chimera_coordinates_cache
+from dwave_networkx.generators.common import _add_compatible_edges, _add_compatible_nodes, _add_compatible_terms
+from dwave_networkx.topology import CHIMERA, PEGASUS
 
 __all__ = ['pegasus_graph',
            'pegasus_coordinates',

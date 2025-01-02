@@ -27,12 +27,12 @@ from dwave_networkx.generators.pegasus import (
     get_tuple_fragmentation_fn,
     )
 
-from .common import graphs_equal
+from .common import GraphTesting
 
 alpha_map = dict(enumerate('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'))
 
 
-class TestPegasusGraph(unittest.TestCase):
+class TestPegasusGraph(unittest.TestCase, GraphTesting):
     def test_p2(self):
         G = dnx.pegasus_graph(2, fabric_only=False)
 
@@ -73,7 +73,7 @@ class TestPegasusTorus(unittest.TestCase):
                 g.remove_nodes_from(g_translated.nodes())
                 self.assertEqual(g.number_of_nodes(),0)
 
-class TestPegasusCoordinates(unittest.TestCase):
+class TestPegasusCoordinates(unittest.TestCase, GraphTesting):
 
     def test_connected_component(self):
         test_offsets = [[0] * 12] * 2, [[2] * 12, [6] * 12], [[6] * 12, [2, 2, 6, 6, 10, 10] * 2], [[2, 2, 6, 6, 10, 10] * 2] * 2
@@ -227,15 +227,6 @@ class TestPegasusCoordinates(unittest.TestCase):
         self.assertEqual(EH, sorted(map(sorted, coords.iter_linear_to_pegasus_pairs(Gn.edges()))))
 
     def test_graph_relabeling(self):
-        def graph_equal(g, h):
-            self.assertEqual(set(g), set(h))
-            self.assertEqual(
-                set(map(tuple, map(sorted, g.edges))),
-                set(map(tuple, map(sorted, g.edges)))
-            )
-            for v, d in g.nodes(data=True):
-                self.assertEqual(h.nodes[v], d)
-
         coords = dnx.pegasus_coordinates(3)
         nodes_nice = dnx.pegasus_graph(3, nice_coordinates=True)
         nodes_linear = list(coords.iter_nice_to_linear(nodes_nice))
@@ -246,17 +237,17 @@ class TestPegasusCoordinates(unittest.TestCase):
             p3p = dnx.pegasus_graph(3, data=data, coordinates=True).subgraph(nodes_pegasus)
             p3n = dnx.pegasus_graph(3, data=data, nice_coordinates=True)
 
-            graph_equal(p3l, coords.graph_to_linear(p3l))
-            graph_equal(p3l, coords.graph_to_linear(p3p))
-            graph_equal(p3l, coords.graph_to_linear(p3n))
+            self.assertGraphsEqual(p3l, coords.graph_to_linear(p3l))
+            self.assertGraphsEqual(p3l, coords.graph_to_linear(p3p))
+            self.assertGraphsEqual(p3l, coords.graph_to_linear(p3n))
             
-            graph_equal(p3p, coords.graph_to_pegasus(p3l))
-            graph_equal(p3p, coords.graph_to_pegasus(p3p))
-            graph_equal(p3p, coords.graph_to_pegasus(p3n))
+            self.assertGraphsEqual(p3p, coords.graph_to_pegasus(p3l))
+            self.assertGraphsEqual(p3p, coords.graph_to_pegasus(p3p))
+            self.assertGraphsEqual(p3p, coords.graph_to_pegasus(p3n))
 
-            graph_equal(p3n, coords.graph_to_nice(p3l))
-            graph_equal(p3n, coords.graph_to_nice(p3p))
-            graph_equal(p3n, coords.graph_to_nice(p3n))
+            self.assertGraphsEqual(p3n, coords.graph_to_nice(p3l))
+            self.assertGraphsEqual(p3n, coords.graph_to_nice(p3p))
+            self.assertGraphsEqual(p3n, coords.graph_to_nice(p3n))
 
         h = dnx.pegasus_graph(2)
         del h.graph['labels']
@@ -409,19 +400,21 @@ class TestPegasusCoordinates(unittest.TestCase):
         H = G.copy()
         H.remove_nodes_from([*H][::3])
         H.remove_edges_from([*H.edges][::3])
-        self.assertTrue(graphs_equal(G, dnx.generators.pegasus.defect_free_pegasus(H)))
+        self.assertGraphsEqual(G, dnx.generators.pegasus.defect_free_pegasus(H))
 
         G = dnx.pegasus_graph(3, offsets_index=1, coordinates=True)
         H = G.copy()
         H.remove_nodes_from([*H][::3])
         H.remove_edges_from([*H.edges][::3])
-        self.assertTrue(graphs_equal(G, dnx.generators.pegasus.defect_free_pegasus(H)))
+        self.assertGraphsEqual(G, dnx.generators.pegasus.defect_free_pegasus(H))
+
 
         G = dnx.pegasus_graph(3, nice_coordinates=True)
         H = G.copy()
         H.remove_nodes_from([*H][::3])
         H.remove_edges_from([*H.edges][::3])
-        self.assertTrue(graphs_equal(G, dnx.generators.pegasus.defect_free_pegasus(H)))
+        self.assertGraphsEqual(G, dnx.generators.pegasus.defect_free_pegasus(H))
+
 
 
 

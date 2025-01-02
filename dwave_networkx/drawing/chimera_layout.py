@@ -22,7 +22,7 @@ from networkx import draw
 
 from dwave_networkx.drawing.qubit_layout import draw_qubit_graph, draw_embedding, draw_yield
 from dwave_networkx.generators.chimera import find_chimera_indices, chimera_coordinates, defect_free_chimera
-from ..topology import CHIMERA
+from dwave_networkx.topology import CHIMERA
 
 __all__ = ['chimera_layout', 'draw_chimera', 'draw_chimera_embedding', 'draw_chimera_yield']
 

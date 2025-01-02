@@ -26,8 +26,8 @@ from dwave_networkx.exceptions import DWaveNetworkXException
 
 from itertools import product
 
-from .common import _add_compatible_nodes, _add_compatible_edges, _add_compatible_terms
-from ..topology import CHIMERA
+from dwave_networkx.generators.common import _add_compatible_nodes, _add_compatible_edges, _add_compatible_terms
+from dwave_networkx.topology import CHIMERA
 
 __all__ = ['chimera_graph',
            'chimera_coordinates',

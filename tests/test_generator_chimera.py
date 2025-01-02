@@ -17,12 +17,12 @@ import unittest
 import networkx as nx
 import dwave_networkx as dnx
 import numpy as np
-from .common import graphs_equal
+from .common import GraphTesting
 
 alpha_map = dict(enumerate('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'))
 
 
-class TestChimeraGraph(unittest.TestCase):
+class TestChimeraGraph(unittest.TestCase, GraphTesting):
     def test_single_tile(self):
 
         # fully specified
@@ -230,24 +230,15 @@ class TestChimeraGraph(unittest.TestCase):
 
 
     def test_graph_relabeling(self):
-        def graph_equal(g, h):
-            self.assertEqual(set(g), set(h))
-            self.assertEqual(
-                set(map(tuple, map(sorted, g.edges))),
-                set(map(tuple, map(sorted, g.edges)))
-            )
-            for v, d in g.nodes(data=True):
-                self.assertEqual(h.nodes[v], d)
-
         coords = dnx.chimera_coordinates(3)
         for data in True, False:
             c3l = dnx.chimera_graph(3, data=data)
             c3c = dnx.chimera_graph(3, data=data, coordinates=True)
 
-            graph_equal(c3l, coords.graph_to_linear(c3c))
-            graph_equal(c3l, coords.graph_to_linear(c3l))
-            graph_equal(c3c, coords.graph_to_chimera(c3l))
-            graph_equal(c3c, coords.graph_to_chimera(c3c))
+            self.assertGraphsEqual(c3l, coords.graph_to_linear(c3c))
+            self.assertGraphsEqual(c3l, coords.graph_to_linear(c3l))
+            self.assertGraphsEqual(c3c, coords.graph_to_chimera(c3l))
+            self.assertGraphsEqual(c3c, coords.graph_to_chimera(c3c))
 
         h = dnx.chimera_graph(2)
         del h.graph['labels']
@@ -377,13 +368,14 @@ class TestChimeraGraph(unittest.TestCase):
         H = G.copy()
         H.remove_nodes_from([*H][::3])
         H.remove_edges_from([*H.edges][::3])
-        self.assertTrue(graphs_equal(G, dnx.generators.chimera.defect_free_chimera(H)))
+        self.assertGraphsEqual(G, dnx.generators.chimera.defect_free_chimera(H))
 
         G = dnx.chimera_graph(2, 4, 2, coordinates=True)
         H = G.copy()
         H.remove_nodes_from([*H][::3])
         H.remove_edges_from([*H.edges][::3])
-        self.assertTrue(graphs_equal(G, dnx.generators.chimera.defect_free_chimera(H)))
+        self.assertGraphsEqual(G, dnx.generators.chimera.defect_free_chimera(H))
+
 
 class TestChimeraTorus(unittest.TestCase):
     def test(self):
