@@ -1255,7 +1255,7 @@ def pegasus_torus(m, node_list=None, edge_list=None,
     A Pegasus torus is a generalization of the standard Pegasus graph
     whereby degree-fifteen connectivity is maintained, but the boundary
     condition is modified to enforce an additional translational-invariance 
-    symmetry [RH]_. Local connectivity in the Pegasus torus
+    symmetry [Ray2023]_. Local connectivity in the Pegasus torus
     is identical to connectivity for Pegasus graph nodes away from the boundary.
     A tile consists of 24 nodes, and the torus has :math:`m - 1` by :math:`m - 1` tiles. 
     Tile displacement modulo :math:`m - 1` defines an automorphism.

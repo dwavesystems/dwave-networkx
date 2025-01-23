@@ -40,7 +40,7 @@ def zephyr_graph(m, t=4, create_using=None, node_list=None, edge_list=None,
     """
     Creates a Zephyr graph with grid parameter ``m`` and tile parameter ``t``.
 
-    The Zephyr topology is described in [BRK]_.
+    The Zephyr topology is described in [Boo2021]_.
 
     Parameters
     ----------
@@ -751,7 +751,7 @@ def zephyr_torus(m, t=4, node_list=None, edge_list=None):
     A Zephyr torus is a generalization of the standard Zephyr graph
     whereby degree-twenty connectivity is maintained, but the boundary
     condition is modified to enforce an additional translational-invariance 
-    symmetry [RH]_. Local connectivity in the Zephyr torus
+    symmetry [Ray2023]_. Local connectivity in the Zephyr torus
     is identical to connectivity for Zephyr graph nodes away from the boundary.
     A tile consists of :math:`8t` nodes, and the torus has :math:`m` by :math:`m` tiles. 
     Tile displacement modulo :math:`m` defines an automorphism.
