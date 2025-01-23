@@ -72,7 +72,7 @@ def min_weighted_vertex_cover(G, weight=None, sampler=None, lagrange=2.0, **samp
 
     References
     ----------
-    Based on the formulation presented in [AL]_
+    Based on the formulation presented in [Luc2014]_.
 
     """
     indep_nodes = set(maximum_weighted_independent_set(G, weight, sampler, lagrange, **sampler_args))

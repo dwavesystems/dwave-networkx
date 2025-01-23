@@ -90,7 +90,7 @@ def vertex_color(G, colors, sampler=None, **sampler_args):
     vertices of a graph in a way that no adjacent vertices have the
     same color.
 
-    Defines a QUBO [DWMP]_ with ground states corresponding to valid
+    Defines a QUBO [Dah2013]_ with ground states corresponding to valid
     vertex colorings and uses the sampler to sample from it.
 
     Parameters
@@ -195,7 +195,7 @@ def min_vertex_color_qubo(G, chromatic_lb=None, chromatic_ub=None):
     same color. A minimum vertex coloring is the problem of solving
     the vertex coloring problem using the smallest number of colors.
 
-    Defines a QUBO [DWMP]_ with ground states corresponding to minimum
+    Defines a QUBO [Dah2013]_ with ground states corresponding to minimum
     vertex colorings and uses the sampler to sample from it.
 
     Parameters
@@ -265,7 +265,7 @@ def min_vertex_color(G, sampler=None, chromatic_lb=None, chromatic_ub=None,
     same color. A minimum vertex coloring is the problem of solving
     the vertex coloring problem using the smallest number of colors.
 
-    Defines a QUBO [DWMP]_ with ground states corresponding to minimum
+    Defines a QUBO [Dah2013]_ with ground states corresponding to minimum
     vertex colorings and uses the sampler to sample from it.
 
     Parameters

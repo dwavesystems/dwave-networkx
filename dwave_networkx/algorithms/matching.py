@@ -228,7 +228,7 @@ def maximal_matching(G, sampler=None, **sampler_args):
 
     `QUBO on Wikipedia <https://w.wiki/r9t>`_
 
-    Based on the formulation presented in [AL]_
+    Based on the formulation presented in [Luc2014]_.
 
     """
     if not G.edges:
