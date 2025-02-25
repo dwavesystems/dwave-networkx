@@ -1,15 +1,16 @@
-.. _drawing:
+.. _dnx_drawing:
 
-*******
+=======
 Drawing
-*******
+=======
 
-Tools to visualize topologies of D-Wave QPUs and weighted :term:`graph` problems on them.
+Tools to visualize topologies of D-Wave QPUs and weighted :term:`graph` problems
+on them.
 
 .. currentmodule:: dwave_networkx
 
 Chimera Graph Functions
------------------------
+=======================
 
 .. automodule:: dwave_networkx.drawing.chimera_layout
 
@@ -23,7 +24,7 @@ Chimera Graph Functions
    draw_chimera_yield
 
 Example
-~~~~~~~
+-------
 
 This example uses the :func:`.chimera_layout()` function to show the positions
 of nodes of a simple 5-node NetworkX graph in a Chimera lattice. It then uses the
@@ -64,7 +65,7 @@ positions on a Chimera unit cell.
 
 
 Pegasus Graph Functions
------------------------
+=======================
 
 .. automodule:: dwave_networkx.drawing.pegasus_layout
 
@@ -78,7 +79,7 @@ Pegasus Graph Functions
    pegasus_node_placer_2d
 
 Example
-~~~~~~~
+-------
 
 This example uses the :func:`.draw_pegasus()` function to show the positions
 of nodes of a simple 5-node graph on a small Pegasus lattice.
@@ -107,7 +108,7 @@ of nodes of a simple 5-node graph on a small Pegasus lattice.
     which is rendered in a cross layout.
 
 Zephyr Graph Functions
-----------------------
+======================
 
 .. automodule:: dwave_networkx.drawing.zephyr_layout
 
@@ -121,7 +122,7 @@ Zephyr Graph Functions
    zephyr_node_placer_2d
 
 Example
-~~~~~~~
+-------
 
 This example uses the :func:`.draw_zephyr_embedding` function to show the positions
 of a five-node clique on a small Zephyr graph.
