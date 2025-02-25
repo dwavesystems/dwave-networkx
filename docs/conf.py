@@ -79,3 +79,9 @@ intersphinx_mapping = {'python': ('https://docs.python.org/3', None),
     'networkx': ('https://networkx.github.io/documentation/stable/', None),
     'oceandocs': ('https://docs.ocean.dwavesys.com/en/latest/', None),
     'sysdocs_gettingstarted': ('https://docs.dwavesys.com/docs/latest/', None)}
+
+# global substitutions
+rst_epilog = """
+.. |dwave_short| unicode:: D-Wave
+.. |tm| unicode::  U+2122
+"""

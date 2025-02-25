@@ -28,8 +28,6 @@ This example generates a Pegasus graph of the size used by Advantage QPUs.
 >>> import dwave_networkx as dnx
 >>> graph = dnx.pegasus_graph(16)
 
-See the documentation for more examples.
-
 .. end_dnx_about
 
 Installation
@@ -55,6 +53,8 @@ Released under the Apache License 2.0.
 
 Contributing
 ============
+
+.. todo:: update this link
 
 Ocean's `contributing guide <https://docs.ocean.dwavesys.com/en/stable/contributing.html>`_
 has guidelines for contributing to Ocean packages.

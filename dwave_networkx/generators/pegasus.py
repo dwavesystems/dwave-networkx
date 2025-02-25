@@ -1121,8 +1121,7 @@ def pegasus_sublattice_mappings(source, target, offset_list=None):
 
     .. [#]
         The yield is the percentage of working qubits on a QPU and the subset 
-        of available qubits is called
-        the `working graph <https://docs.dwavesys.com/docs/latest/c_gs_4.html#the-working-graph>`_.
+        of available qubits is called the :ref:`working graph <qpu_topologies>`.
     
     Parameters
     ----------
