@@ -32,9 +32,14 @@ Like |dwave_short| quantum computers, all other supported samplers must have
 energy. You can set a default sampler using the
 :func:`~dwave_networkx.default_sampler.set_default_sampler` function.
 
-*   For an introduction to :term:`QPU` :term:`topologies <topology>` such as
-    the Pegasus graph, see the :ref:`qpu_topologies` section.
-*   For an introduction to binary quadratic models (:term:`BQM`), see the
-    :ref:`concept_models_bqm`.
-*   For an introduction to samplers, see the :ref:`concept_samplers`
-    section.
+Usage Information
+=================
+
+.. todo:: add the intersphinx prefix to enable these links for self builds
+
+*   :ref:`index_concepts` for terminology
+*   :ref:`qpu_topologies` for an introduction to :term:`QPU`
+    :term:`topologies <topology>` such as the :term:`Pegasus` graph
+*   :ref:`concept_models_bqm` for an introduction to binary quadratic models
+    (:term:`BQM`)
+*   :ref:`concept_samplers` for an introduction to :term:`samplers <sampler>`
