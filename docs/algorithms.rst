@@ -29,7 +29,7 @@ Clique
 A clique in an undirected graph G = (V, E) is a subset of the vertex set such
 that for every two vertices in C there exists an edge connecting the two.
 
-.. figure:: ../_images/clique.png
+.. figure:: _images/clique.png
     :name: Cover
     :alt: image
     :align: center
@@ -59,7 +59,7 @@ The map-coloring problem is to assign a color to each region of a map
 (represented by a vertex on a graph) such that any two regions sharing a border
 (represented by an edge of the graph) have different colors.
 
-.. figure:: ../_images/Problem_MapColoring.png
+.. figure:: _images/Problem_MapColoring.png
     :name: Problem_MapColoringColoring
     :alt: image
     :align: center
@@ -86,7 +86,7 @@ Cover
 Vertex covering is the problem of finding a set of vertices such that all the
 edges of the graph are incident to at least one of the vertices in the set.
 
-.. figure:: ../_images/Cover.png
+.. figure:: _images/Cover.png
     :name: CoverCover
     :alt: image
     :align: center
@@ -158,7 +158,7 @@ Matching
 
 A matching is a subset of graph edges in which no vertex occurs more than once.
 
-.. figure:: ../_images/Match.png
+.. figure:: _images/Match.png
     :name: Matching
     :alt: image
     :align: center
@@ -185,7 +185,7 @@ Maximum Cut
 A maximum cut is a subset of a graph's vertices such that the number of edges
 between this subset and the remaining vertices is as large as possible.
 
-.. figure:: ../_images/MaxCut.png
+.. figure:: _images/MaxCut.png
     :name: Cut
     :alt: image
     :align: center
@@ -211,7 +211,7 @@ Independent Set
 An independent set is a set of a graph's vertices with no edge connecting any of
 its member pairs.
 
-.. figure:: ../_images/Cover.png
+.. figure:: _images/Cover.png
     :name: CoverIndependentSet
     :alt: image
     :align: center
@@ -248,7 +248,7 @@ A `k`-partition consists of `k` disjoint and equally sized subsets of a graph's
 vertices such that the total number of edges between nodes in distinct subsets
 is as small as possible.
 
-.. figure:: ../_images/Partitioning.png
+.. figure:: _images/Partitioning.png
     :name: Partition
     :alt: image
     :align: center
@@ -273,7 +273,7 @@ Social
 A signed social network graph is a graph whose signed edges represent
 friendly/hostile interactions between vertices.
 
-.. figure:: ../_images/Social.png
+.. figure:: _images/Social.png
     :name: Social
     :alt: image
     :align: center
@@ -300,7 +300,7 @@ Traveling Salesperson
 A traveling salesperson route is an ordering of the vertices in a complete
 weighted graph.
 
-.. figure:: ../_images/tsp.png
+.. figure:: _images/tsp.png
     :name: TSP_route
     :alt: image
     :align: center

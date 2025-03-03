@@ -54,7 +54,7 @@ positions on a Chimera unit cell.
    >>> plt.show()
    >>> # matplotlib commands to add labels to graphic not shown
 
-.. figure:: ../_images/chimera_layout_0-rightside.png
+.. figure:: _images/chimera_layout_0-rightside.png
     :align: center
     :name: chimera_layout_0-rightside
     :scale: 60 %
@@ -98,7 +98,7 @@ of nodes of a simple 5-node graph on a small Pegasus lattice.
              edge_color='b', width=3, ax=axes)
    >>> plt.show()
 
-.. figure:: ../_images/pegasus_layout_h_on_g.png
+.. figure:: _images/pegasus_layout_h_on_g.png
     :align: center
     :name: pegasus_layout_h_on_g.png
     :scale: 60 %
@@ -139,7 +139,7 @@ of a five-node clique on a small Zephyr graph.
    >>> plt.ion()
    >>> dnx.draw_zephyr_embedding(G, embedding, show_labels=True)
 
-.. figure:: ../_images/zephyr_embedding_5clique.png
+.. figure:: _images/zephyr_embedding_5clique.png
     :align: center
     :name: zephyr_embedding_5clique.png
     :scale: 60 %

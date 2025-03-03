@@ -41,7 +41,7 @@ the `find_chimera()` function to determine the Chimera indices.
    6: (0, 0, 1, 2),
    7: (0, 0, 1, 3)}
 
-.. figure:: ../_images/find_chimera-unitcell.png
+.. figure:: _images/find_chimera-unitcell.png
 	:align: center
 	:name: find_chimera-unitcell
 	:scale: 30 %

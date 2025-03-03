@@ -6,9 +6,9 @@ dwave_networkx.egg-info
 
 venv/
 
-docs/reference/generated/
-docs/reference/algorithms/generated/
-docs/reference/drawing/generated/
+docs/generated/
+docs/algorithms/generated/
+docs/drawing/generated/
 
 htmlcov/
 .coverage

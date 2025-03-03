@@ -9,7 +9,7 @@ dwave-networkx
     :caption: Reference documentation for dwave-networkx:
     :maxdepth: 1
 
-    reference/api_ref
+    api_ref
 
 
 About dwave-networkx
