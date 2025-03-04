@@ -83,5 +83,4 @@ intersphinx_mapping = {'python': ('https://docs.python.org/3', None),
 # global substitutions
 rst_epilog = """
 .. |dwave_short| unicode:: D-Wave
-.. |tm| unicode::  U+2122
 """

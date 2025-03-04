@@ -11,15 +11,13 @@
 dwave-networkx
 ==============
 
-.. |tm| replace:: :sup:`TM`
-
 .. start_dnx_about
 
 dwave-networkx is an extension of `NetworkX <https://networkx.org>`_\ ---a
 Python language package for exploration and analysis of networks and network
 algorithms---for users of D-Wave quantum computers. It provides tools for
 working with quantum processing unit (QPU) topology graphs, such as the Pegasus
-used on the Advantage\ |tm| quantum computer, and implementations of
+used on the Advantage\ :sup:`TM` quantum computer, and implementations of
 graph-theory algorithms on D-Wave quantum computers and other binary quadratic
 model (BQM) samplers.
 
