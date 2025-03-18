@@ -52,7 +52,5 @@ Released under the Apache License 2.0.
 Contributing
 ============
 
-.. todo:: update this link
-
-Ocean's `contributing guide <https://docs.ocean.dwavesys.com/en/stable/contributing.html>`_
+Ocean's `contributing guide <https://docs.dwavequantum.com/en/latest/ocean/contribute.html>`_
 has guidelines for contributing to Ocean packages.

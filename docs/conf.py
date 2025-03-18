@@ -22,7 +22,6 @@ extensions = [
     'sphinx.ext.napoleon',
     'sphinx.ext.todo',
     'sphinx.ext.viewcode',
-    'sphinx_design',
     'sphinx.ext.ifconfig',
 ]
 
@@ -74,7 +73,6 @@ html_theme_options = {
 }
 html_sidebars = {"**": ["search-field", "sidebar-nav-bs"]}  # remove ads
 
-# TODO: verify the link to dwave docs
 intersphinx_mapping = {'python': ('https://docs.python.org/3', None),
     'networkx': ('https://networkx.github.io/documentation/stable/', None),
     'dwave': ('https://docs.dwavequantum.com/en/latest/', None),

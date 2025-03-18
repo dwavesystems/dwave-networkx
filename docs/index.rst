@@ -35,8 +35,6 @@ energy. You can set a default sampler using the
 Usage Information
 =================
 
-.. todo:: add the intersphinx prefix to enable these links for self builds
-
 *   :ref:`index_concepts` for terminology
 *   :ref:`qpu_topologies` for an introduction to :term:`QPU`
     :term:`topologies <topology>` such as the :term:`Pegasus` graph
