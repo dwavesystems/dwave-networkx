@@ -7,48 +7,42 @@
 .. image:: https://circleci.com/gh/dwavesystems/dwave-networkx.svg?style=svg
     :target: https://circleci.com/gh/dwavesystems/dwave-networkx
 
-D-Wave NetworkX
-===============
+==============
+dwave-networkx
+==============
 
-.. index-start-marker
+.. start_dnx_about
 
-D-Wave NetworkX is an extension of `NetworkX <https://networkx.org>`_\ ---a
+dwave-networkx is an extension of `NetworkX <https://networkx.org>`_\ ---a
 Python language package for exploration and analysis of networks and network
-algorithms---for users of D-Wave quantum computers. It provides tools for working 
-with Quantum Processing Unit (QPU) topology graphs, such as the Pegasus used on 
-the Advantage\ |TM| system, and implementations of graph-theory algorithms on D-Wave
-quantum computers and other binary quadratic model samplers.
-
-.. |TM| replace:: :sup:`TM`
+algorithms---for users of D-Wave quantum computers. It provides tools for
+working with quantum processing unit (QPU) topology graphs, such as the Pegasus
+used on the Advantage\ :sup:`TM` quantum computer, and implementations of
+graph-theory algorithms on D-Wave quantum computers and other binary quadratic
+model (BQM) samplers.
 
 This example generates a Pegasus graph of the size used by Advantage QPUs.
 
 >>> import dwave_networkx as dnx
 >>> graph = dnx.pegasus_graph(16)
 
-See the documentation for more examples.
-
-.. index-end-marker
+.. end_dnx_about
 
 Installation
 ============
-
-.. installation-start-marker
 
 **Installation from PyPi:**
 
 .. code-block:: bash
 
-  pip install dwave_networkx
+    pip install dwave_networkx
 
 **Installation from source:**
 
 .. code-block:: bash
 
-  pip install -r requirements.txt
-  python setup.py install
-
-.. installation-end-marker
+    pip install -r requirements.txt
+    python setup.py install
 
 License
 =======
@@ -58,5 +52,5 @@ Released under the Apache License 2.0.
 Contributing
 ============
 
-Ocean's `contributing guide <https://docs.ocean.dwavesys.com/en/stable/contributing.html>`_
+Ocean's `contributing guide <https://docs.dwavequantum.com/en/latest/ocean/contribute.html>`_
 has guidelines for contributing to Ocean packages.

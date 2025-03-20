@@ -1,12 +1,15 @@
-*********
+.. _dnx_utilities:
+
+=========
 Utilities
-*********
+=========
 
 .. automodule:: dwave_networkx.utils
 .. currentmodule:: dwave_networkx.utils
 
 Decorators
-----------
+==========
+
 .. automodule:: dwave_networkx.utils.decorators
 .. autosummary::
    :toctree: generated/
@@ -15,21 +18,15 @@ Decorators
 
 .. currentmodule:: dwave_networkx
 
-.. toctree::
-   :hidden:
-
-   utilities/index
-
 Graph Indexing
---------------
+==============
 
-See :ref:`index_conversion_classes` on instantiating the needed lattice size
-and setting correct domain and range for coordinates in a QPU working graph.
-
-For the iterator versions of these functions, see the code.
+See the :ref:`dnx_coordinates_conversion` subsection on instantiating the needed
+lattice size and setting correct domain and range for coordinates in a QPU
+working graph. For the iterator versions of these functions, see the code.
 
 Chimera
-~~~~~~~
+-------
 
 .. autosummary::
    :toctree: generated/
@@ -40,9 +37,9 @@ Chimera
    chimera_coordinates.linear_to_chimera
    chimera_sublattice_mappings
    find_chimera_indices
-   
+
 Pegasus
-~~~~~~~
+-------
 
 .. autosummary::
    :toctree: generated/
@@ -60,7 +57,7 @@ Pegasus
 
 
 Zephyr
-~~~~~~
+------
 
 .. autosummary::
    :toctree: generated/
@@ -72,8 +69,24 @@ Zephyr
    zephyr_sublattice_mappings
 
 
+.. _dnx_coordinates_conversion:
+
+Coordinates Conversion
+----------------------
+
+.. automodule:: dwave_networkx
+
+.. autoclass:: chimera_coordinates
+
+.. autoclass:: pegasus_coordinates
+
+.. autoclass:: zephyr_coordinates
+
+
+
 Exceptions
-----------
+==========
+
 .. automodule:: dwave_networkx.exceptions
 .. autosummary::
    :toctree: generated/
