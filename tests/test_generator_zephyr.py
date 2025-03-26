@@ -17,8 +17,9 @@ import unittest
 import networkx as nx
 import dwave_networkx as dnx
 import numpy as np
+from .common import GraphTesting
 
-class TestZephyrGraph(unittest.TestCase):
+class TestZephyrGraph(unittest.TestCase, GraphTesting):
     def test_single_tile(self):
 
         # fully specified
@@ -130,25 +131,16 @@ class TestZephyrGraph(unittest.TestCase):
         self.assertEqual(EH, sorted(map(sorted, coords.iter_linear_to_zephyr_pairs(Gn.edges()))))
 
     def test_graph_relabeling(self):
-        def graph_equal(g, h):
-            self.assertEqual(set(g), set(h))
-            self.assertEqual(
-                set(map(tuple, map(sorted, g.edges))),
-                set(map(tuple, map(sorted, g.edges)))
-            )
-            for v, d in g.nodes(data=True):
-                self.assertEqual(h.nodes[v], d)
-
         coords = dnx.zephyr_coordinates(3)
         for data in True, False:
             z3l = dnx.zephyr_graph(3, data=data)
             z3c = dnx.zephyr_graph(3, data=data, coordinates=True)
 
-            graph_equal(z3l, coords.graph_to_linear(z3l))
-            graph_equal(z3l, coords.graph_to_linear(z3c))
+            self.assertGraphsEqual(z3l, coords.graph_to_linear(z3l))
+            self.assertGraphsEqual(z3l, coords.graph_to_linear(z3c))
             
-            graph_equal(z3c, coords.graph_to_zephyr(z3c))
-            graph_equal(z3c, coords.graph_to_zephyr(z3l))
+            self.assertGraphsEqual(z3c, coords.graph_to_zephyr(z3c))
+            self.assertGraphsEqual(z3c, coords.graph_to_zephyr(z3l))
 
         h = dnx.zephyr_graph(2)
         del h.graph['labels']
@@ -274,7 +266,20 @@ class TestZephyrGraph(unittest.TestCase):
             G = dnx.zephyr_graph(m, t, edge_list=edge_list,
                                   check_edge_list=True)
 
-            
+    def test_defect_free_zephyr(self):
+        G = dnx.zephyr_graph(2, 4)
+        H = G.copy()
+        H.remove_nodes_from([*H][::3])
+        H.remove_edges_from([*H.edges][::3])
+        self.assertGraphsEqual(G, dnx.generators.zephyr.defect_free_zephyr(H))
+
+        G = dnx.zephyr_graph(2, 2, coordinates=True)
+        H = G.copy()
+        H.remove_nodes_from([*H][::3])
+        H.remove_edges_from([*H.edges][::3])
+        self.assertGraphsEqual(G, dnx.generators.zephyr.defect_free_zephyr(H))
+
+
 class TestZephyrTorus(unittest.TestCase):
     def test(self):
         for m in [2,3,4]:
