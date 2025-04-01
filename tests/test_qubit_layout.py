@@ -27,10 +27,6 @@ try:
 except ImportError:
     np = False
 
-# from dwave_networkx.drawing.qubit_layout import generate_edge_color_dict, generate_node_color_dict
-# from itertools import product
-# import networkx as nx 
-
 _display = os.environ.get('DISPLAY', '') != ''
 
 
