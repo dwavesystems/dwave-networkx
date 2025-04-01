@@ -23,8 +23,9 @@ from dwave_networkx.exceptions import DWaveNetworkXException
 import warnings
 
 from itertools import product
-from .chimera import _chimera_coordinates_cache
-from .common import _add_compatible_edges, _add_compatible_nodes, _add_compatible_terms
+from dwave_networkx.generators.chimera import _chimera_coordinates_cache
+from dwave_networkx.generators.common import _add_compatible_edges, _add_compatible_nodes, _add_compatible_terms
+from dwave_networkx.topology import CHIMERA, PEGASUS
 
 __all__ = ['pegasus_graph',
            'pegasus_coordinates',
@@ -33,6 +34,7 @@ __all__ = ['pegasus_graph',
            'pegasus_four_color',
            ]
 
+@PEGASUS.generator.implementation
 def pegasus_graph(m, create_using=None, node_list=None, edge_list=None, data=True,
                   offset_lists=None, offsets_index=None, coordinates=False, fabric_only=True,
                   nice_coordinates=False, check_node_list=False, check_edge_list=False):
@@ -229,7 +231,7 @@ def pegasus_graph(m, create_using=None, node_list=None, edge_list=None, data=Tru
         def label(u, w, k, z):
             return u * 12 * m * m1 + w * 12 * m1 + k * m1 + z
 
-    construction = (("family", "pegasus"), ("rows", m), ("columns", m),
+    construction = (("family", PEGASUS), ("rows", m), ("columns", m),
                     ("tile", 12), ("vertical_offsets", offset_lists[0]),
                     ("horizontal_offsets", offset_lists[1]), ("data", data),
                     ("labels", labels))
@@ -326,6 +328,25 @@ def pegasus_graph(m, create_using=None, node_list=None, edge_list=None, data=Tru
                         v += 1
 
     return G
+
+
+@PEGASUS.defect_free_graph.implementation
+def defect_free_pegasus(G):
+    """Construct a defect-free Pegasus graph based on the properties of G."""
+    attrib = G.graph
+    family = attrib.get('family')
+    if family != PEGASUS:
+        raise ValueError("G must be constructed by dwave_networkx.pegasus_graph")
+
+    offsets = eval(G.name.replace('pegasus_graph', ''))[1]
+    args = attrib['rows'],
+    kwargs = {
+        'offsets_index' if isinstance(offsets, int) else 'offset_lists': offsets,
+        'coordinates': 'coordinate' == attrib['labels'],
+        'nice_coordinates': 'nice' == attrib['labels'],
+    }
+
+    return pegasus_graph(*args, **kwargs)
 
 
 def get_tuple_fragmentation_fn(pegasus_graph):
@@ -543,6 +564,7 @@ def fragmented_edges(pegasus_graph):
 # Developer note: we could implement a function that creates the iter_*_to_* and
 # iter_*_to_*_pairs methods just-in-time, but there are a small enough number
 # that for now it makes sense to do them by hand.
+@PEGASUS.coordinates.implementation
 class pegasus_coordinates(object):
     """Provides coordinate converters for the Pegasus indexing schemes.
 
@@ -1091,6 +1113,7 @@ def _pegasus_pegasus_sublattice_mapping(source_to_nice, nice_to_target, offset):
     return mapping
 
 
+@PEGASUS.sublattice_mappings.implementation
 def pegasus_sublattice_mappings(source, target, offset_list=None):
     r"""Yields mappings from a Chimera or Pegasus graph into a Pegasus graph.
     
@@ -1154,7 +1177,7 @@ def pegasus_sublattice_mappings(source, target, offset_list=None):
     would take those isomorphisms into account, this function does not handle 
     that complex task.
     """
-    if target.graph.get('family') != 'pegasus':
+    if target.graph.get('family') != PEGASUS:
         raise ValueError("source graphs must a Pegasus graph constructed by dwave_networkx.pegasus_graph")
 
     m_t = target.graph['rows']
@@ -1170,7 +1193,7 @@ def pegasus_sublattice_mappings(source, target, offset_list=None):
         raise ValueError(f"Pegasus node labeling {labels_t} not recognized")
 
     labels_s = source.graph['labels']    
-    if source.graph.get('family') == 'chimera':
+    if source.graph.get('family') == CHIMERA:
         if source.graph['tile'] != 4:
             raise ValueError("Cannot construct sublattice mappings from Chimera to Pegasus unless the Chimera tile parameter is 4")
 
@@ -1188,7 +1211,7 @@ def pegasus_sublattice_mappings(source, target, offset_list=None):
 
         make_mapping = _chimera_pegasus_sublattice_mapping
 
-    elif source.graph.get('family') == 'pegasus':
+    elif source.graph.get('family') == PEGASUS:
         m_s = source.graph['rows']
         if offset_list is None:
             ranges = range(m_t - m_s + 1), range(m_t - m_s), range(m_t - m_s)
@@ -1214,6 +1237,7 @@ def pegasus_sublattice_mappings(source, target, offset_list=None):
         yield make_mapping(source_to_inner, nice_to_target, offset)
 
 
+@PEGASUS.torus_generator.implementation
 def pegasus_torus(m, node_list=None, edge_list=None, 
                   offset_lists=None, offsets_index=None):
     """

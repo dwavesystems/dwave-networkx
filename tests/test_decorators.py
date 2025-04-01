@@ -15,7 +15,10 @@
 import unittest
 
 import dwave_networkx as dnx
-from dwave_networkx.utils import binary_quadratic_model_sampler
+from dwave_networkx.utils.decorators import (
+    binary_quadratic_model_sampler,
+    ImplementationHook,
+)
 
 
 class MockSampler:
@@ -31,7 +34,7 @@ def mock_function(G, sampler=None, **sampler_args):
     assert sampler is not None
 
 
-class TestDecorators(unittest.TestCase):
+class TestBQMSampler(unittest.TestCase):
 
     def test_default_set(self):
         dnx.set_default_sampler(MockSampler())
@@ -47,3 +50,26 @@ class TestDecorators(unittest.TestCase):
 
     def test_sampler_provided(self):
         mock_function(0, MockSampler())
+
+
+class HooksNeeded:
+    pass
+
+
+hooks_needed = HooksNeeded()
+hooks_needed.implemented = ImplementationHook(hooks_needed, "implemented")
+hooks_needed.not_implemented = ImplementationHook(hooks_needed, "not_implemented")
+
+
+@hooks_needed.implemented.implementation
+def implemented():
+    pass
+
+
+class TestImplementationHook(unittest.TestCase):
+    def test_implemented_hook(self):
+        hooks_needed.implemented()
+
+    def test_not_implemented_hook(self):
+        with self.assertRaises(NotImplementedError):
+            hooks_needed.not_implemented()

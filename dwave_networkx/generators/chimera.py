@@ -26,7 +26,8 @@ from dwave_networkx.exceptions import DWaveNetworkXException
 
 from itertools import product
 
-from .common import _add_compatible_nodes, _add_compatible_edges, _add_compatible_terms
+from dwave_networkx.generators.common import _add_compatible_nodes, _add_compatible_edges, _add_compatible_terms
+from dwave_networkx.topology import CHIMERA
 
 __all__ = ['chimera_graph',
            'chimera_coordinates',
@@ -39,6 +40,7 @@ __all__ = ['chimera_graph',
            ]
 
 
+@CHIMERA.generator.implementation
 def chimera_graph(m, n=None, t=None, create_using=None, node_list=None, edge_list=None,
                   data=True, coordinates=False, check_node_list=False, check_edge_list=False):
     """Creates a Chimera lattice of size (m, n, t).
@@ -154,7 +156,7 @@ def chimera_graph(m, n=None, t=None, create_using=None, node_list=None, edge_lis
 
     G.name = "chimera_graph(%s, %s, %s)" % (m, n, t)
 
-    construction = (("family", "chimera"), ("rows", m), ("columns", n),
+    construction = (("family", CHIMERA), ("rows", m), ("columns", n),
                     ("tile", t), ("data", data),
                     ("labels", "coordinate" if coordinates else "int"))
 
@@ -252,6 +254,18 @@ def chimera_graph(m, n=None, t=None, create_using=None, node_list=None, edge_lis
     return G
 
 
+@CHIMERA.defect_free_graph.implementation
+def defect_free_chimera(G):
+    """Construct a defect-free Chimera graph based on the properties of G."""
+    attrib = G.graph
+    family = attrib.get('family')
+    if family != CHIMERA:
+        raise ValueError("G must be constructed by dwave_networkx.chimera_graph")
+    args = attrib['rows'], attrib['columns'], attrib['tile']
+    kwargs = {'coordinates': attrib['labels'] == 'coordinate'}
+    return chimera_graph(*args, **kwargs)
+    
+    
 def find_chimera_indices(G):
     """Determines the Chimera indices of the nodes in graph ``G``.
 
@@ -331,6 +345,7 @@ def find_chimera_indices(G):
     raise Exception('not yet implemented for Chimera graphs with more than one tile')
 
 
+@CHIMERA.coordinates.implementation
 class chimera_coordinates(object):
     """Provides coordinate converters for the chimera indexing scheme.
 
@@ -681,7 +696,7 @@ def _chimera_sublattice_mapping(source_to_chimera, chimera_to_target, offset):
 
     return mapping
 
-
+@CHIMERA.sublattice_mappings.implementation
 def chimera_sublattice_mappings(source, target, offset_list=None):
     r"""Yields mappings from a Chimera graph into a larger Chimera graph.
 
@@ -737,7 +752,7 @@ def chimera_sublattice_mappings(source, target, offset_list=None):
     into account, this function does not handle that complex task.
     
     """
-    if not (source.graph.get('family') == target.graph.get('family') == 'chimera'):
+    if not (source.graph.get('family') == target.graph.get('family') == CHIMERA):
         raise ValueError("source and target graphs must be Chimera graphs constructed by dwave_networkx.chimera_graph")
     
     t = source.graph['tile']
@@ -774,6 +789,8 @@ def chimera_sublattice_mappings(source, target, offset_list=None):
     for offset in offset_list:
         yield _chimera_sublattice_mapping(source_to_chimera, chimera_to_target, offset)
 
+
+@CHIMERA.torus_generator.implementation
 def chimera_torus(m, n=None, t=None, node_list=None, edge_list=None):
     """Creates a defect-free Chimera lattice of size :math:`(m, n, t)` 
     subject to periodic boundary conditions.

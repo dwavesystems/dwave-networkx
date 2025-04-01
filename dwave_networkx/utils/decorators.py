@@ -22,7 +22,7 @@ import inspect
 
 import dwave_networkx as dnx
 
-__all__ = ['binary_quadratic_model_sampler']
+__all__ = ['binary_quadratic_model_sampler', 'ImplementationHook']
 
 
 def binary_quadratic_model_sampler(which_args):
@@ -74,3 +74,47 @@ def binary_quadratic_model_sampler(which_args):
             return f(*new_args, **kw)
         return func
     return decorator
+
+
+class ImplementationHook:
+    """A decorator class to provide a temporary slot value which overwrites itself
+
+    This is used by the ``dwave_networkx.TopologyFamily`` enum.  Each family
+    object holds references to specific implementations of generic functions.
+    But to avoid circular dependencies, we first install this hook when the
+    family object is constructed.  Then, when each generic function is
+    implemented, that implementation gets decorated with the ``implementation``
+    method of the respective ``ImplementationHook`` object.  When the decoration
+    occurs, the hook replaces itself with the decorated function.  The decorated
+    function itself is left unchanged.
+
+    For example, in ``dwave_networkx.drawing.chimera_layout``, we implement the
+    function ``draw_chimera_embedding``.  We also want to make an alias of that
+    named ``dwave_networkx.CHIMERA.draw_embedding``.  So, in the construction
+    of ``dwave_networkx.CHIMERA`` we have put an ``ImplementationHook`` in place
+    of ``draw_embedding``.  Then, when we implement ``draw_chimera_embedding``,
+    we write
+
+        @CHIMERA.draw_embedding.implementation
+        def draw_chimera_embedding(...)
+            ...
+
+    which provides the desired alias.
+
+    """
+
+    def __init__(self, obj, name):
+        self.obj = obj
+        self.name = name
+
+    def implementation(self, f):
+        # monkeypatch the object with this implementation
+        setattr(self.obj, self.name, f)
+
+        # don't forget to return f, or the decorated function will be None
+        return f
+
+    def __call__(self, *args, **kwargs):
+        raise NotImplementedError(
+            f"the {self.name} method of {self.obj!r} has not been attached"
+        )

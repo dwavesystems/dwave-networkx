@@ -27,6 +27,7 @@ from dwave_networkx.drawing.distinguishable_colors import distinguishable_color_
 __all__ = ['draw_qubit_graph']
 
 
+
 def draw_qubit_graph(G, layout, linear_biases=None, quadratic_biases=None,
                      nodelist=None, edgelist=None, midpoint=None,
                      **kwargs):
@@ -430,7 +431,6 @@ def draw_yield(G, layout, perfect_graph, unused_color=(0.9, 0.9, 0.9, 1.0),
     perfect_graph : NetworkX graph
         The graph to be drawn with highlighted faults
 
-
     unused_color : tuple or color string (optional, default (0.9,0.9,0.9,1.0))
         The color to use for nodes and edges of G which are not faults.
         If unused_color is None, these nodes and edges will not be shown at all.
@@ -487,3 +487,5 @@ def draw_yield(G, layout, perfect_graph, unused_color=(0.9, 0.9, 0.9, 1.0),
         draw(perfect_graph, layout, nodelist=nodelist, edgelist=edgelist,
              node_color=unused_node_color, edge_color=unused_edge_color,
              **kwargs)
+
+
