@@ -21,6 +21,9 @@ from dwave_networkx.drawing.chimera_layout import draw_chimera, chimera_layout
 from dwave_networkx.drawing.pegasus_layout import draw_pegasus, pegasus_layout
 from dwave_networkx.drawing.zephyr_layout import draw_zephyr, zephyr_layout
 
+__all__ = ["draw_parallel_embeddings"]
+
+
 def _generate_node_color_dict(
     G: nx.Graph,
     embeddings: List[dict],
@@ -37,7 +40,7 @@ def _generate_node_color_dict(
         S: The optional source graph.
         one_to_iterable: If True, a single source node maps to multiple target nodes.
         shuffle_colormap: If True, embeddings are shuffled before assigning colors.
-        seed: A seed for the random number generator.
+        seed: A seed for the random number generator. Only used when ``shuffle_colormap`` is True.
 
     Returns:
         node_color_dict: A dictionary mapping each node in G to either an embedding index or NaN.
@@ -51,6 +54,7 @@ def _generate_node_color_dict(
         random.shuffle(_embeddings)
     else:
         _embeddings = embeddings
+
     if S is None:
         # If there is no source graph, color all nodes in the embeddings
         if one_to_iterable:
@@ -148,7 +152,7 @@ def draw_parallel_embeddings(
     one_to_iterable: bool = True,
     shuffle_colormap: bool = True,
     seed: Optional[int] = None,
-    use_plt=True,
+    use_plt: bool = True,
     **kwargs,
 ):
     """Visualizes the embeddings using dwave_networkx's layout functions.
@@ -165,7 +169,7 @@ def draw_parallel_embeddings(
             values of the embedding are iterables on nodes of G.
             If False, embedding values should be nodes of G.
         shuffle_colormap: If True, randomize the colormap assignment.
-        seed: A seed for the random number generator.
+        seed: A seed for the random number generator. Only used when ``shuffle_colormap`` is True.
         **kwargs: Additional keyword arguments for the drawing functions.
 
     Examples
