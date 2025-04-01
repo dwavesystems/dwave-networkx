@@ -150,13 +150,17 @@ def draw_parallel_embeddings(
     seed: Optional[int] = None,
     use_plt=True,
     **kwargs,
-) -> Tuple[dict, dict]:
+):
     """Visualizes the embeddings using dwave_networkx's layout functions.
 
     Args:
         G: The target graph to be visualized.
-        embeddings: A list of embeddings.
-        S: The source graph to visualize (optional).
+        embeddings: A list of embeddings, each embedding is a dictionary. A
+           list of embeddings can be created using methods within the module
+           `minorminer.utils.parallel_embeddings`  
+        S: The source graph to visualize. If provided then only 
+           edges relevant to the source graph are shown, as opposed to all
+           those supported by the embedding.
         one_to_iterable: If True, allow multiple target nodes per source node,
             values of the embedding are iterables on nodes of G.
             If False, embedding values should be nodes of G.
@@ -174,11 +178,10 @@ def draw_parallel_embeddings(
     >>> import matplotlib.pyplot as plt   # doctest: +SKIP
     >>> G = dnx.chimera_graph(2)
     >>> S = nx.from_edgelist({(i,i+1) for i in range(7)})
-    >>> emb = {i: 2 * (i // 2) + 4*(i % 2) for i in range(8)}  # Top-left embedding
-    >>> embs = [{k:v+8*offset for k,v in emb.items()} for offset in range(3)]
-    >>> dnx.draw_parallel_embeddings(G)    # doctest: +SKIP
+    >>> emb = {i: (i // 2) + 4*(i % 2) for i in range(8)} # Top-left embedding
+    >>> embs = [{k: (v+8*offset,) for k,v in emb.items()} for offset in range(3)]
+    >>> dnx.draw_parallel_embeddings(G, embs)    # doctest: +SKIP
     >>> plt.show()    # doctest: +SKIP
-
     """
     try:
         import matplotlib.pyplot as plt
