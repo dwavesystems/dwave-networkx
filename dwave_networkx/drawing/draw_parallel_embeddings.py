@@ -44,16 +44,16 @@ def _generate_node_color_dict(
 
     Returns:
         node_color_dict: A dictionary mapping each node in G to either an embedding index or NaN.
-        _embeddings: The potentially shuffled embeddings list used for assigning colors.
+        embeddings_: The potentially shuffled embeddings list used for assigning colors.
     """
     node_color_dict = {q: float("nan") for q in G.nodes()}
 
     if shuffle_colormap:
-        _embeddings = embeddings.copy()
+        embeddings_ = embeddings.copy()
         random.seed(seed)
-        random.shuffle(_embeddings)
+        random.shuffle(embeddings_)
     else:
-        _embeddings = embeddings
+        embeddings_ = embeddings
 
     if S is None:
         # If there is no source graph, color all nodes in the embeddings
@@ -62,7 +62,7 @@ def _generate_node_color_dict(
             node_color_dict.update(
                 {
                     q: idx
-                    for idx, emb in enumerate(_embeddings)
+                    for idx, emb in enumerate(embeddings_)
                     for c in emb.values()
                     for q in c
                 }
@@ -70,7 +70,7 @@ def _generate_node_color_dict(
         else:
             # One-to-one mapping
             node_color_dict.update(
-                {q: idx for idx, emb in enumerate(_embeddings) for q in emb.values()}
+                {q: idx for idx, emb in enumerate(embeddings_) for q in emb.values()}
             )
     else:
         # If a source graph is provided, only color nodes corresponding to S
@@ -79,7 +79,7 @@ def _generate_node_color_dict(
             node_color_dict.update(
                 {
                     q: idx if n in node_set else float("nan")
-                    for idx, emb in enumerate(_embeddings)
+                    for idx, emb in enumerate(embeddings_)
                     for n, c in emb.items()
                     for q in c
                 }
@@ -88,13 +88,13 @@ def _generate_node_color_dict(
             node_color_dict.update(
                 {
                     q: idx
-                    for idx, emb in enumerate(_embeddings)
+                    for idx, emb in enumerate(embeddings_)
                     for n, q in emb.items()
                     if n in node_set
                 }
             )
 
-    return node_color_dict, _embeddings
+    return node_color_dict, embeddings_
 
 
 def _generate_edge_color_dict(
