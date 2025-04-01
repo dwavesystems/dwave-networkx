@@ -11,11 +11,12 @@
 #    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
-from typing import Union, List, Dict, Tuple, Optional
+from typing import Union, Optional
 import random
 import math
 
 import networkx as nx
+import numpy
 
 from dwave_networkx.drawing.chimera_layout import draw_chimera, chimera_layout
 from dwave_networkx.drawing.pegasus_layout import draw_pegasus, pegasus_layout
@@ -26,12 +27,12 @@ __all__ = ["draw_parallel_embeddings"]
 
 def _generate_node_color_dict(
     G: nx.Graph,
-    embeddings: List[dict],
+    embeddings: list[dict],
     S: Optional[nx.Graph] = None,
     one_to_iterable: bool = False,
     shuffle_colormap: bool = True,
     seed: Optional[int] = None,
-) -> Tuple[Dict, List[dict]]:
+) -> tuple[dict, list[dict]]:
     """Generate a node color dictionary mapping each node in G to an embedding index or NaN.
 
     Args:
@@ -99,7 +100,7 @@ def _generate_node_color_dict(
 
 def _generate_edge_color_dict(
     G: nx.Graph,
-    embeddings: List[dict],
+    embeddings: list[dict],
     S: Optional[nx.Graph],
     one_to_iterable: bool,
     node_color_dict: dict,
@@ -147,7 +148,7 @@ def _generate_edge_color_dict(
 
 def draw_parallel_embeddings(
     G: nx.Graph,
-    embeddings: List[dict],
+    embeddings: list[dict],
     S: Optional[nx.Graph] = None,
     one_to_iterable: bool = True,
     shuffle_colormap: bool = True,
