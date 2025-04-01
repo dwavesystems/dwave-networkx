@@ -25,13 +25,15 @@ from dwave_networkx.drawing.parallel_embeddings import (
 from dwave_networkx import chimera_graph
 
 try:
-    import matplotlib.pyplot as plt
+    import matplotlib
+
     _plt = True
 except ImportError:
     _plt = False
 
 try:
     import numpy as np
+
     _np = True
 except ImportError:
     _np = False
@@ -58,6 +60,7 @@ class TestEmbeddings(unittest.TestCase):
             draw_parallel_embeddings(
                 G=G, embeddings=embeddings, S=S, one_to_iterable=one_to_iterable
             )
+
 
 class TestEmbeddingsHelpers(unittest.TestCase):
     def test_color_dict(self):

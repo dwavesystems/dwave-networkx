@@ -11,8 +11,7 @@
 #    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
-from typing import Union, Optional
-import random
+from typing import Optional
 import math
 
 import networkx as nx
@@ -162,8 +161,8 @@ def draw_parallel_embeddings(
         G: The target graph to be visualized.
         embeddings: A list of embeddings, each embedding is a dictionary. A
            list of embeddings can be created using methods within the module
-           `minorminer.utils.parallel_embeddings`  
-        S: The source graph to visualize. If provided then only 
+           `minorminer.utils.parallel_embeddings`
+        S: The source graph to visualize. If provided then only
            edges relevant to the source graph are shown, as opposed to all
            those supported by the embedding.
         one_to_iterable: If True, allow multiple target nodes per source node,
