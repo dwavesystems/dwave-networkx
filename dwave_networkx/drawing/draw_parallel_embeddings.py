@@ -27,7 +27,7 @@ __all__ = ["draw_parallel_embeddings"]
 def _generate_node_color_dict(
     G: nx.Graph,
     embeddings: List[dict],
-    S: nx.Graph = None,
+    S: Optional[nx.Graph] = None,
     one_to_iterable: bool = False,
     shuffle_colormap: bool = True,
     seed: Optional[int] = None,
@@ -50,8 +50,8 @@ def _generate_node_color_dict(
 
     if shuffle_colormap:
         embeddings_ = embeddings.copy()
-        random.seed(seed)
-        random.shuffle(embeddings_)
+        rng = numpy.random.default_rng(seed=seed)
+        rng.shuffle(embeddings_)
     else:
         embeddings_ = embeddings
 
@@ -100,10 +100,10 @@ def _generate_node_color_dict(
 def _generate_edge_color_dict(
     G: nx.Graph,
     embeddings: List[dict],
-    S: nx.Graph,
+    S: Optional[nx.Graph],
     one_to_iterable: bool,
-    node_color_dict: Dict,
-) -> Dict:
+    node_color_dict: dict,
+) -> dict:
     """Generate an edge color dictionary mapping each edge in G to an embedding index or NaN.
 
     Args:
@@ -148,7 +148,7 @@ def _generate_edge_color_dict(
 def draw_parallel_embeddings(
     G: nx.Graph,
     embeddings: List[dict],
-    S: nx.Graph = None,
+    S: Optional[nx.Graph] = None,
     one_to_iterable: bool = True,
     shuffle_colormap: bool = True,
     seed: Optional[int] = None,
