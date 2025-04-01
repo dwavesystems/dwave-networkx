@@ -1,13 +1,14 @@
 build
+_build
 dist
 dwave_networkx.egg-info
 *.pyc
 
 venv/
 
-docs/reference/generated/
-docs/reference/algorithms/generated/
-docs/reference/drawing/generated/
+docs/generated/
+docs/algorithms/generated/
+docs/drawing/generated/
 
 htmlcov/
 .coverage

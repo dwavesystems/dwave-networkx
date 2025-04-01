@@ -126,7 +126,7 @@ def minor_min_width(G):
 
     References
     ----------
-    Based on the algorithm presented in [GD]_
+    Based on the algorithm presented in [Gog2004]_.
 
     """
     # we need only deal with the adjacency structure of G. We will also
@@ -196,7 +196,7 @@ def min_fill_heuristic(G):
 
     References
     ----------
-    Based on the algorithm presented in [GD]_
+    Based on the algorithm presented in [Gog2004]_.
 
     """
     # we need only deal with the adjacency structure of G. We will also
@@ -266,7 +266,7 @@ def min_width_heuristic(G):
 
     References
     ----------
-    Based on the algorithm presented in [GD]_
+    Based on the algorithm presented in [Gog2004]_.
 
     """
     # we need only deal with the adjacency structure of G. We will also
@@ -326,7 +326,7 @@ def max_cardinality_heuristic(G):
 
     References
     ----------
-    Based on the algorithm presented in [GD]_
+    Based on the algorithm presented in [Gog2004]_.
 
     """
     # we need only deal with the adjacency structure of G. We will also
@@ -462,7 +462,7 @@ def elimination_order_width(G, order):
 def treewidth_branch_and_bound(G, elimination_order=None, treewidth_upperbound=None):
     """Computes the treewidth of graph G and a corresponding perfect elimination ordering.
 
-    Algorithm based on [GD]_.
+    Algorithm based on [Gog2004]_.
 
     Parameters
     ----------
@@ -497,7 +497,7 @@ def treewidth_branch_and_bound(G, elimination_order=None, treewidth_upperbound=N
 
     References
     ----------
-    Based on the algorithm presented in [GD]_
+    Based on the algorithm presented in [Gog2004]_.
     """
     # empty graphs have treewidth 0 and the nodes can be eliminated in
     # any order
@@ -872,8 +872,8 @@ def chimera_elimination_order(m, n=None, t=4, coordinates=False):
 def pegasus_elimination_order(n, coordinates=False):
     """Provides a variable elimination order for the Pegasus graph.
 
-    The treewidth of a Pegasus graph ``pegasus_graph(n)`` is lower-bounded by 
-    :math:`12n-11` and upper bounded by :math:`12n-4` [BBRR]_ .
+    The treewidth of a Pegasus graph ``pegasus_graph(n)`` is lower-bounded by
+    :math:`12n-11` and upper bounded by :math:`12n-4` [Boo2019]_.
 
     Simple pegasus variable elimination order rules:
 
@@ -924,9 +924,9 @@ def pegasus_elimination_order(n, coordinates=False):
 def zephyr_elimination_order(m, t=4, coordinates=False):
     """Provides a variable elimination order for the zephyr graph.
 
-    The treewidth of a Zephyr graph ``zephyr_graph(m,t)`` is upper-bounded by 
-    :math:`4tm+2t` and lower-bounded by :math:`4tm` [BRK]_ .
-    
+    The treewidth of a Zephyr graph ``zephyr_graph(m,t)`` is upper-bounded by
+    :math:`4tm+2t` and lower-bounded by :math:`4tm` [Boo2021]_.
+
     Simple zephyr variable elimination rules:
        - eliminate vertical qubits, one column at a time
        - eliminate horizontal qubits in each column from top to bottom
