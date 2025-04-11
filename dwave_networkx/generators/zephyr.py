@@ -646,7 +646,7 @@ def zephyr_sublattice_mappings(source, target, offset_list=None):
     this function does not handle that complex task.
     """
     if target.graph.get('family') != 'zephyr':
-        raise ValueError("source graphs must a Zephyr graph constructed by dwave_networkx.zephyr_graph")
+        raise ValueError("source graphs must be a Zephyr graph constructed by dwave_networkx.zephyr_graph")
 
     m_t = target.graph['rows']
     t = target.graph['tile']
