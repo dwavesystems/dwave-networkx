@@ -1155,7 +1155,7 @@ def pegasus_sublattice_mappings(source, target, offset_list=None):
     that complex task.
     """
     if target.graph.get('family') != 'pegasus':
-        raise ValueError("source graphs must be a Pegasus graph constructed by dwave_networkx.pegasus_graph")
+        raise ValueError("Source graph must be a Pegasus graph constructed by dwave_networkx.pegasus_graph")
 
     m_t = target.graph['rows']
     labels_t = target.graph['labels']
