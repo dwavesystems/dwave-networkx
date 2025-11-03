@@ -3,3 +3,4 @@ features:
   - Add support for Python 3.14.
 upgrade:
   - Drop support for Python 3.9.
+  - Drop support for ``dimod<0.12``.

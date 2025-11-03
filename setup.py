@@ -30,7 +30,7 @@ packages = ['dwave_networkx',
             ]
 
 install_requires = ['networkx>=2.4',
-                    'dimod>=0.10.8',
+                    'dimod>=0.12.5',
                     'numpy>=1.17.3',
                     ]
 

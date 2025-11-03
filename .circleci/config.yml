@@ -219,17 +219,17 @@ workflows:
           matrix:
             parameters:
               python-version: &python-versions ["3.10", "3.11", "3.12", "3.13", "3.14"]
-              dependency-versions: ["dimod==0.10.8 networkx==2.4 oldest-supported-numpy",  # oldest supported
+              dependency-versions: ["dimod==0.12.5 networkx==2.4 oldest-supported-numpy",  # oldest supported
                                     "dimod networkx numpy",                                # latest
                                     ]
             exclude:
-              # dimod 0.10.8 doesn't support Python 3.11+
-              - python-version: "3.11"
-                dependency-versions: "dimod==0.10.8 networkx==2.4 oldest-supported-numpy"
+              # dimod < 0.12.13 not supported on py312+
               - python-version: "3.12"
-                dependency-versions: "dimod==0.10.8 networkx==2.4 oldest-supported-numpy"
+                dependency-versions: "dimod==0.12.5 networkx==2.4 oldest-supported-numpy"
               - python-version: "3.13"
-                dependency-versions: "dimod==0.10.8 networkx==2.4 oldest-supported-numpy"
+                dependency-versions: "dimod==0.12.5 networkx==2.4 oldest-supported-numpy"
+              - python-version: "3.14"
+                dependency-versions: "dimod==0.12.5 networkx==2.4 oldest-supported-numpy"
       - test-osx:
           matrix:
             parameters:
