@@ -91,5 +91,6 @@ Exceptions
 .. autosummary::
    :toctree: generated/
 
-   DWaveNetworkXException
-   DWaveNetworkXMissingSampler
+   DWaveGraphsError
+   StateError
+   UndefinedSamplerError

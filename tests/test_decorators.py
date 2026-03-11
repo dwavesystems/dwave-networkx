@@ -42,7 +42,7 @@ class TestDecorators(unittest.TestCase):
                          "sampler did not unset correctly")
 
     def test_no_sampler_set(self):
-        with self.assertRaises(dnx.DWaveNetworkXMissingSampler):
+        with self.assertRaises(dnx.UndefinedSamplerError):
             mock_function(0)
 
     def test_sampler_provided(self):

@@ -1,4 +1,4 @@
-# Copyright 2018 D-Wave Systems Inc.
+# Copyright 2026 D-Wave
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
 #    you may not use this file except in compliance with the License.
@@ -13,19 +13,22 @@
 #    limitations under the License.
 
 """
-Base exceptions and errors for D-Wave NetworkX.
-
-All exceptions are derived from NetworkXException.
-
+Base exceptions and errors for dwave-graphs.
 """
 
-from networkx import NetworkXException
+# library base exception
+
+class DWaveGraphsError(Exception):
+    """Base exception for dwave-graphs errors."""
 
 
-class DWaveNetworkXException(NetworkXException):
-    """Base class for exceptions in DWaveNetworkX."""
+# category exceptions
+
+class StateError(DWaveGraphsError):
+    """Invalid state error."""
 
 
-class DWaveNetworkXMissingSampler(DWaveNetworkXException):
-    """Exception raised by an algorithm requiring a discrete model
-    sampler when none is provided."""
+# specific exceptions
+
+class UndefinedSamplerError(StateError):
+    """Discrete model sampler not provided to an algorithm that requires it."""

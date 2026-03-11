@@ -61,7 +61,7 @@ def binary_quadratic_model_sampler(which_args):
                     # this sampler has already been vetted
                     default_sampler = dwave.graphs.get_default_sampler()
                     if default_sampler is None:
-                        raise dwave.graphs.DWaveNetworkXMissingSampler('no default sampler set')
+                        raise dwave.graphs.UndefinedSamplerError('no default sampler set')
                     new_args[idx] = default_sampler
                     continue
 
