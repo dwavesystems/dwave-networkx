@@ -15,12 +15,11 @@
 """
 Generators for some graphs derived from the D-Wave System.
 """
+import warnings
+from itertools import product
+
 import networkx as nx
 
-from dwave.graphs.exceptions import DWaveNetworkXException
-import warnings
-
-from itertools import product
 from .chimera import _chimera_coordinates_cache
 from .common import _add_compatible_edges, _add_compatible_nodes, _add_compatible_terms
 
@@ -30,6 +29,7 @@ __all__ = ['pegasus_graph',
            'pegasus_torus',
            'pegasus_four_color',
            ]
+
 
 def pegasus_graph(m, create_using=None, node_list=None, edge_list=None, data=True,
                   offset_lists=None, offsets_index=None, coordinates=False, fabric_only=True,
@@ -199,7 +199,7 @@ def pegasus_graph(m, create_using=None, node_list=None, edge_list=None, data=Tru
             [(6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6,), (6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6,)],
         ][offsets_index]
     elif offsets_index is not None:
-        raise DWaveNetworkXException("provide at most one of offsets_index and offset_lists")
+        raise ValueError("provide at most one of offsets_index and offset_lists")
     else:
         for ori in 0, 1:
             for x, y in zip(offset_lists[ori][::2], offset_lists[ori][1::2]):

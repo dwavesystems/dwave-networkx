@@ -17,14 +17,11 @@ Generators for graphs derived from the D-Wave System.
 
 """
 import warnings
+from itertools import product
 
 import networkx as nx
 from networkx.algorithms.bipartite import color
 from networkx import diameter
-
-from dwave.graphs.exceptions import DWaveNetworkXException
-
-from itertools import product
 
 from .common import _add_compatible_nodes, _add_compatible_edges, _add_compatible_terms
 
@@ -296,8 +293,7 @@ def find_chimera_indices(G):
     if n_nodes == 0:
         return chimera_indices
     elif n_nodes == 1:
-        raise DWaveNetworkXException(
-            'Singleton graphs are not Chimera-structured')
+        raise ValueError('Singleton graphs are not Chimera-structured')
     elif n_nodes == 2:
         return {nlist[0]: (0, 0, 0, 0), nlist[1]: (0, 0, 1, 0)}
 

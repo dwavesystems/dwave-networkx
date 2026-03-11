@@ -42,7 +42,7 @@ class TestPegasusGraph(unittest.TestCase):
             self.assertIn(n, G)
 
     def test_bad_args(self):
-        with self.assertRaises(dnx.DWaveNetworkXException):
+        with self.assertRaises(ValueError):
             G = dnx.pegasus_graph(2, offset_lists=[], offsets_index=0)
         with warnings.catch_warnings(record=True) as w:
             warnings.simplefilter("always")

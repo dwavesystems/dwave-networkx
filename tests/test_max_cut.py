@@ -17,7 +17,7 @@ import unittest
 import networkx as nx
 import dwave.graphs as dnx
 
-from dimod import ExactSolver, SimulatedAnnealingSampler, qubo_energy
+from dimod import ExactSolver
 
 
 class TestMaxCut(unittest.TestCase):
@@ -38,7 +38,7 @@ class TestMaxCut(unittest.TestCase):
         S = dnx.maximum_cut(G, ExactSolver())
         self.assertTrue(len(S) == 5)  # half of the nodes
 
-        with self.assertRaises(dnx.DWaveNetworkXException):
+        with self.assertRaises(ValueError):
             S = dnx.weighted_maximum_cut(G, ExactSolver())
 
         nx.set_edge_attributes(G, 1, 'weight')
