@@ -1,4 +1,4 @@
-networkx==3.0
+networkx==3.2.0     # required for numpy 2 support
 dimod==0.12.17
 
 oldest-supported-numpy
