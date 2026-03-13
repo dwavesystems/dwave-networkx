@@ -1,4 +1,4 @@
-# Copyright 2018 D-Wave Systems Inc.
+# Copyright 2026 D-Wave
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
 #    you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
 #    limitations under the License.
 
 __version__ = '1.0.0.dev'
-__author__ = 'D-Wave Inc.'
+__author__ = 'D-Wave'
 __authoremail__ = 'tools@dwavesys.com'
-__description__ = 'A package providing graphs and algorithms relevant to working with the D-Wave System'
+__description__ = ('A package providing graphs and algorithms relevant to '
+                   'working with the D-Wave quantum computers')

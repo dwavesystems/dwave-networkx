@@ -25,9 +25,9 @@ source_suffix = ['.rst']
 master_doc = 'index'
 
 # General information about the project.
-project = u'D-Wave Graphs'
-copyright = u'2025, D-Wave Inc'
-author = u'D-Wave Inc'
+project = 'D-Wave Graphs'
+author = 'D-Wave'
+copyright = 'D-Wave'
 
 import dwave.graphs
 version = dwave.graphs.__version__

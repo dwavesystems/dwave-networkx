@@ -31,8 +31,7 @@ packages = ['dwave.graphs',
 
 install_requires = ['networkx>=2.4',
                     'dimod>=0.12.5',
-                    # TODO: remove !=2.4.0 after we implement `dwave-samplers#82`
-                    'numpy>=1.21.3,!=2.4.0',    # oldest that supports python 3.10
+                    'numpy>=1.21.3',    # oldest that supports python 3.10
                     ]
 
 python_requires = ">=3.10"
