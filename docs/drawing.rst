@@ -4,6 +4,12 @@
 Drawing
 =======
 
+.. deprecated:: 0.8.19
+
+    `dwave-networkx` is deprecated and will be replaced by `dwave-graphs` in Ocean 10.
+    Graph drawing utilities previously provided in the ``dwave_networkx.drawing`` module
+    are now available in `dwave-graphs` under the ``dwave.graphs.drawing`` namespace.
+
 Tools to visualize topologies of D-Wave QPUs and weighted :term:`graph` problems
 on them.
 

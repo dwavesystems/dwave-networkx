@@ -4,6 +4,12 @@
 Utilities
 =========
 
+.. deprecated:: 0.8.19
+
+    `dwave-networkx` is deprecated and will be replaced by `dwave-graphs` in
+    Ocean 10. Functionality previously provided in the ``dwave_networkx.utils``
+    module has been removed in `dwave-graphs`.
+
 .. automodule:: dwave_networkx.utils
 .. currentmodule:: dwave_networkx.utils
 

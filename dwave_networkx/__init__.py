@@ -12,6 +12,8 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
+from warnings import warn as _warn
+
 import dwave_networkx.generators
 from dwave_networkx.generators import *
 
@@ -29,3 +31,10 @@ from dwave_networkx.drawing import *
 
 from dwave_networkx.package_info import __version__, __author__, \
     __authoremail__, __description__
+
+
+_warn("dwave-networkx is deprecated and will be replaced by dwave-graphs in Ocean 10. "
+      "Most functionality previously provided by dwave-networkx is now available "
+      "as part of dwave-graphs under the 'dwave.graphs' namespace.",
+      category=DeprecationWarning,
+      stacklevel=2)

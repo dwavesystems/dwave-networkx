@@ -4,6 +4,12 @@
 Graph Generators
 ================
 
+.. deprecated:: 0.8.19
+
+    `dwave-networkx` is deprecated and will be replaced by `dwave-graphs` in Ocean 10.
+    Graph generators previously provided in the ``dwave_networkx.generators`` module
+    are now available in `dwave-graphs` under the ``dwave.graphs.generators`` namespace.
+
 Generators for graphs, such the graphs (topologies) of D-Wave System QPUs.
 
 .. currentmodule:: dwave_networkx
