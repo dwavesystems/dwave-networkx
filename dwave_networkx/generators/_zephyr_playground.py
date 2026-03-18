@@ -1,4 +1,4 @@
-# Copyright 2026 D-Wave Systems Inc.
+# Copyright 2026 D-Wave
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
 #    you may not use this file except in compliance with the License.
@@ -35,6 +35,12 @@ ZephyrSearchMetadata = namedtuple(
 
 def _validate_graph_inputs(source: nx.Graph, target: nx.Graph) -> tuple[int, int, int]:
     """Validate Zephyr graph compatibility and return ``(m, tp, t)``.
+
+    Both source and target graphs must be networkx graph instances with a 'family' metadata key set
+    to 'zephyr'. Each graph must contain required metadata fields: 'rows' (number of rows), 'tile'
+    (tile count), and 'labels' (labeling scheme). All metadata values must be positive integers.
+    The source and target graphs must have matching row counts. The target tile count must be
+    greater than or equal to the source tile count to accommodate the embedding
 
     Args:
         source (nx.Graph): Source Zephyr graph.
@@ -86,6 +92,11 @@ def _validate_search_parameters(
 ) -> None:
     """Validate high-level search parameters.
 
+    ``ksearch`` must be one of ``'by_quotient_rail'``, ``'by_quotient_node'``, or
+    ``'by_rail_then_node'``; ``yield_type`` must be one of ``'node'``, ``'edge'``, or
+    ``'rail-edge'``; ``find_embedding_timeout`` must be numeric (``int`` or ``float``)
+    and non-negative; and ``embedding`` must be ``None`` or a ``dict``.
+
     Args:
         ksearch (str): Search mode.
         yield_type (str): Optimization objective.
@@ -115,6 +126,18 @@ def _validate_search_parameters(
         )
     if embedding is not None and not isinstance(embedding, dict):
         raise TypeError(f"embedding must be a dictionary when provided. Got {type(embedding)}")
+    if embedding is not None:
+        for key, value in embedding.items():
+            if not isinstance(key, tuple) or not isinstance(value, tuple):
+                raise TypeError(
+                    f"embedding keys and values must be tuples representing nodes. Got key {key} "
+                    f"of type {type(key)} and value {value} of type {type(value)}"
+                )
+            if len(key) != 5 or len(value) != 5:
+                raise ValueError(
+                    "embedding keys and values must be 5-tuples representing Zephyr coordinates. "
+                    f"Got key {key} of length {len(key)} and value {value} of length {len(value)}"
+                )
 
 
 def _ensure_coordinate_source(
@@ -124,8 +147,8 @@ def _ensure_coordinate_source(
 ) -> tuple[nx.Graph, set[ZephyrNode], Callable[[ZephyrNode], int | ZephyrNode]]:
     """Normalise the source graph to coordinate labels.
 
-    This function ensures the rest of the search code can operate on a uniform
-    coordinate-labelled representation, regardless of the input node-labelling
+    This function ensures the rest of the search code can operate on a
+    coordinate-labelled representation of the graphs, regardless of the input node-labelling
     convention. The quotient search internally assumes Zephyr coordinates of the
     form ``(u, w, k, j, z)``.
 
@@ -139,7 +162,7 @@ def _ensure_coordinate_source(
             ``(_source, source_nodes, to_source)`` where ``_source`` is
             coordinate-labelled, ``source_nodes`` is the full canonical coordinate
             node set implied by ``m`` and ``tp``, and ``to_source`` maps
-            coordinate nodes back to the original source labelling spcae.
+            coordinate nodes back to the original source labelling space.
 
     Raises:
         ValueError: If source labels are unsupported.
@@ -197,9 +220,12 @@ def _ensure_coordinate_target(
 ) -> tuple[nx.Graph, Callable[[ZephyrNode], int | ZephyrNode]]:
     """Return a coordinate-labelled target graph and conversion callable.
 
-    This is similar to the source version but does not need to return the full canonical node set
-    since the search only needs to check for node presence in the target, not iterate over all
-    nodes; plus the target may be defective and missing some nodes.
+    This helper normalises ``target`` to coordinate labels and returns a callable that maps
+    candidate nodes into the target's original label space.
+
+    Similar to ``_ensure_coordinate_source``, but it does not return the full canonical node set
+    because the search only checks node presence in the target rather than iterating over all
+    nodes, and the target may be defective and missing some nodes.
 
     Args:
         target (nx.Graph): Target Zephyr graph, either linear or coordinate labelled.
@@ -329,6 +355,12 @@ def _node_search(
     In other words, node yield counts how many proposed nodes :math:`p_n` are present in
     :math:`V(T)`; while edge yield counts how many source edges crossing from the current block to
     already-fixed nodes are preserved as target edges :math:`(p_n, \phi(m)) \in E(T)`.
+
+    Yield types in this node-level search are interpreted as follows: ``"node"`` maximises target
+    node presence for each proposed block; ``"edge"`` maximises preserved cross-block
+    source-to-fixed edge connectivity; and ``"rail-edge"`` follows the same node-level scoring as
+    ``"edge"`` in this function (the distinction between ``"edge"`` and ``"rail-edge"`` is made
+    in rail-level search).
 
     Args:
         source (nx.Graph): Coordinate-labeled source Zephyr graph.
@@ -477,6 +509,19 @@ def _rail_search(
     score (treating source :math:`k` order as interchangeable), or evaluates permutations assigning
     proposal rails to source indices :math:`k_s \in \{0,\dots,t_p-1\}`.
 
+    Yield types in this rail-level search are interpreted as follows: ``"node"`` scores each
+    proposal rail by the number of present target nodes in that rail. ``"edge"`` prefers rails
+    that both have many internal rail edges and connect well to already-embedded neighbouring
+    rails. ``"rail-edge"`` focuses first on how good the rail itself is, measured by the number of
+    target edges inside that rail; when permutations are evaluated, it also includes the same
+    already-embedded neighbour consistency term as ``"edge"``.
+
+    Example: suppose two candidate target rails have the same internal rail structure, but one of
+    them has more edges to neighbouring rails that are already fixed in the embedding. Then
+    ``"edge"`` prefers that better-connected rail, while ``"rail-edge"`` treats the two rails as
+    equivalent in the top-rail selection path because it only compares their internal rail
+    structure there.
+
     Selected rails are then expanded back to node assignments for all :math:`(j,z)` in
     each source rail.
 
@@ -623,7 +668,7 @@ def zephyr_quotient_search(
     ksymmetric: bool = False,
     yield_type: YieldType = "edge",
 ) -> tuple[dict, dict | None, ZephyrSearchMetadata]:
-    r"""Compute a high-yield Zephyr-to-Zephyr  embedding.
+    r"""Compute a high-yield Zephyr-to-Zephyr embedding.
 
     This routine starts from a source Zephyr graph with ``m`` rows and ``tp`` tiles,
     and maps it into a target Zephyr graph with the same ``m`` rows and ``t >= tp``
@@ -633,7 +678,7 @@ def zephyr_quotient_search(
     The function can be used in (1) node-level mode (``ksearch='by_quotient_node'``), where each
     quotient node block :math:`(u,w,j,z)` is optimised by choosing target candidates with the same
     :math:`(u,w,j,z)` and selecting the highest-yield proposals; (2) rail-level mode
-    (``ksearch='by_quotient_rail'``): optimize each quotient rail block :math:`(u,w,:)` by selecting
+    (``ksearch='by_quotient_rail'``): optimise each quotient rail block :math:`(u,w,:)` by selecting
     rails :math:`(u,w_t,k_t)` that maximise yield.; and (3) hybrid mode
     (``ksearch='by_rail_then_node'``): rail search followed by node refinement.
 
@@ -642,11 +687,19 @@ def zephyr_quotient_search(
     the internal columns are assigned first, so that the unassigned nodes in the internal columns
     adjacent to the boundaries can be considered as proposals when optimising the boundary columns.
 
+    Yield types control what the greedy search tries to preserve. ``"node"`` tries to place as
+    many source nodes as possible onto target nodes that actually exist. ``"edge"`` tries to
+    preserve source edges throughout the search. ``"rail-edge"`` is a mixed strategy: during rail
+    search it first prefers rails that are internally well-formed, and if a node-refinement phase
+    runs afterward it switches to ordinary edge-preservation scoring. The final yield for both
+    ``"edge"`` and ``"rail-edge"`` is reported as a number of preserved source edges.
+
     Args:
         source (nx.Graph): Zephyr source graph (linear or coordinate labels).
         target (nx.Graph): Zephyr target graph (linear or coordinate labels).
         ksearch (KSearchType): Search strategy. One of ``'by_quotient_rail'``,
-            ``'by_quotient_node'``, or ``'by_rail_then_node'``. Defaults to ``'by_quotient_rail'``.
+            ``'by_quotient_node'``, or ``'by_rail_then_node'``. See full docstrings for a
+            description of these. Defaults to ``'by_quotient_rail'``.
         embedding (Embedding | None): Optional initial one-to-one coordinate mapping. If omitted,
             the identity on source coordinate indices is used. Defaults to ``None``.
         expand_boundary_search (bool): Enable additional boundary proposals. Defaults to ``True``.
@@ -656,7 +709,7 @@ def zephyr_quotient_search(
         ksymmetric (bool): Assume source ``k`` ordering can be treated symmetrically during greedy
             selection when valid. Defaults to ``False``.
         yield_type (YieldType): Optimization objective: ``'node'``, ``'edge'``, or ``'rail-edge'``.
-            Defaults to ``'edge'``.
+            See full docstrings for a description of these. Defaults to ``'edge'``.
 
     Returns:
         tuple[dict, dict | None, ZephyrSearchMetadata]:
