@@ -1,4 +1,4 @@
-.. _dnx_algorithms:
+.. _graphs_algorithms:
 
 ==========
 Algorithms
@@ -7,21 +7,21 @@ Algorithms
 Implementations of graph-theory algorithms on the D-Wave system and other
 binary quadratic model samplers.
 
-.. currentmodule:: dwave_networkx
+.. currentmodule:: dwave.graphs
 
-.. _dnx_canonicalization:
+.. _graphs_canonicalization:
 
 Canonicalization
 ================
 
-.. automodule:: dwave_networkx.algorithms.canonicalization
+.. automodule:: dwave.graphs.algorithms.canonicalization
 
 .. autosummary::
     :toctree: generated/
 
     canonical_chimera_labeling
 
-.. _dnx_clique:
+.. _graphs_clique:
 
 Clique
 ======
@@ -35,7 +35,7 @@ that for every two vertices in C there exists an edge connecting the two.
     :align: center
     :scale: 40 %
 
-.. automodule:: dwave_networkx.algorithms.clique
+.. automodule:: dwave.graphs.algorithms.clique
 
 .. autosummary::
     :toctree: generated/
@@ -44,7 +44,7 @@ that for every two vertices in C there exists an edge connecting the two.
     clique_number
     is_clique
 
-.. _dnx_coloring:
+.. _graphs_coloring:
 
 Coloring
 ========
@@ -67,7 +67,7 @@ The map-coloring problem is to assign a color to each region of a map
 
     Coloring a map of Canada with four colors.
 
-.. automodule:: dwave_networkx.algorithms.coloring
+.. automodule:: dwave.graphs.algorithms.coloring
 
 .. autosummary::
     :toctree: generated/
@@ -78,7 +78,7 @@ The map-coloring problem is to assign a color to each region of a map
     vertex_color
     vertex_color_qubo
 
-.. _dnx_cover:
+.. _graphs_cover:
 
 Cover
 =====
@@ -96,7 +96,7 @@ edges of the graph are incident to at least one of the vertices in the set.
     (the horizontal tile of the Chimera unit cell) and the red set (vertical
     tile) connect to all 16 edges of the graph.
 
-.. automodule:: dwave_networkx.algorithms.cover
+.. automodule:: dwave.graphs.algorithms.cover
 
 .. autosummary::
     :toctree: generated/
@@ -105,7 +105,7 @@ edges of the graph are incident to at least one of the vertices in the set.
     min_weighted_vertex_cover
     min_vertex_cover
 
-.. _dnx_elimination_ordering:
+.. _graphs_elimination_ordering:
 
 Elimination Ordering
 ====================
@@ -122,7 +122,7 @@ whose neighborhood induces a clique. A perfect elimination ordering is an
 ordering of vertices :math:`1..n` such that any vertex :math:`i` is simplicial
 for the subset of vertices :math:`i..n`.
 
-.. automodule:: dwave_networkx.algorithms.elimination_ordering
+.. automodule:: dwave.graphs.algorithms.elimination_ordering
 
 .. autosummary::
     :toctree: generated/
@@ -138,12 +138,12 @@ for the subset of vertices :math:`i..n`.
     pegasus_elimination_order
     treewidth_branch_and_bound
 
-.. _dnx_markov:
+.. _graphs_markov:
 
 Markov Networks
 ===============
 
-.. automodule:: dwave_networkx.algorithms.markov
+.. automodule:: dwave.graphs.algorithms.markov
 
 .. autosummary::
     :toctree: generated/
@@ -151,7 +151,7 @@ Markov Networks
     sample_markov_network
     markov_network_bqm
 
-.. _dnx_matching:
+.. _graphs_matching:
 
 Matching
 ========
@@ -167,7 +167,7 @@ A matching is a subset of graph edges in which no vertex occurs more than once.
     A matching for a Chimera unit cell: no vertex is incident to more than one
     edge in the set of blue edges
 
-.. automodule:: dwave_networkx.algorithms.matching
+.. automodule:: dwave.graphs.algorithms.matching
 
 .. autosummary::
     :toctree: generated/
@@ -177,7 +177,7 @@ A matching is a subset of graph edges in which no vertex occurs more than once.
     min_maximal_matching_bqm
     min_maximal_matching
 
-.. _dnx_maximum_cut:
+.. _graphs_maximum_cut:
 
 Maximum Cut
 ===========
@@ -195,7 +195,7 @@ between this subset and the remaining vertices is as large as possible.
     nodes {4, 5, 6, 7} cuts 16 edges; adding or removing a node decreases the
     number of edges between the two complementary subsets of the graph.
 
-.. automodule:: dwave_networkx.algorithms.max_cut
+.. automodule:: dwave.graphs.algorithms.max_cut
 
 .. autosummary::
     :toctree: generated/
@@ -203,7 +203,7 @@ between this subset and the remaining vertices is as large as possible.
     maximum_cut
     weighted_maximum_cut
 
-.. _dnx_independent_set:
+.. _graphs_independent_set:
 
 Independent Set
 ===============
@@ -222,7 +222,7 @@ its member pairs.
     (vertical tile) are independent sets of the graph, with no blue node
     adjacent to another blue node and likewise for red nodes.
 
-.. automodule:: dwave_networkx.algorithms.independent_set
+.. automodule:: dwave.graphs.algorithms.independent_set
 
 .. autosummary::
     :toctree: generated/
@@ -239,7 +239,7 @@ Helper Functions
 
     maximum_weighted_independent_set_qubo
 
-.. _dnx_partitioning:
+.. _graphs_partitioning:
 
 Partitioning
 ============
@@ -258,14 +258,14 @@ is as small as possible.
     and the nodes in red are in the '1' subset. There are no other arrangements
     with fewer edges between two equally sized subsets.
 
-.. automodule:: dwave_networkx.algorithms.partition
+.. automodule:: dwave.graphs.algorithms.partition
 
 .. autosummary::
     :toctree: generated/
 
     partition
 
-.. _dnx_social:
+.. _graphs_social:
 
 Social
 ======
@@ -284,7 +284,7 @@ friendly/hostile interactions between vertices.
     cleanly divided into two subsets, {Bob, Eve} and {Alice}, with friendly
     relations within each subset and only hostile relations between the subsets.
 
-.. automodule:: dwave_networkx.algorithms.social
+.. automodule:: dwave.graphs.algorithms.social
 
 .. autosummary::
     :toctree: generated/
@@ -292,7 +292,7 @@ friendly/hostile interactions between vertices.
     structural_imbalance
     structural_imbalance_ising
 
-.. _dnx_traveling_salesperson:
+.. _graphs_traveling_salesperson:
 
 Traveling Salesperson
 =====================
@@ -308,7 +308,7 @@ weighted graph.
 
     A traveling salesperson route of [2, 1, 0, 3].
 
-.. automodule:: dwave_networkx.algorithms.tsp
+.. automodule:: dwave.graphs.algorithms.tsp
 
 .. autosummary::
     :toctree: generated/

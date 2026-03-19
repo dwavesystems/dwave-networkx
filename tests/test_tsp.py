@@ -19,7 +19,7 @@ import networkx as nx
 
 import dimod
 
-import dwave_networkx as dnx
+import dwave.graphs as dnx
 
 
 # adapted from future networkx version (nx.path_weight(...))

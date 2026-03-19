@@ -16,7 +16,7 @@ import unittest
 
 import networkx as nx
 import dimod
-import dwave_networkx as dnx
+import dwave.graphs as dnx
 
 
 class TestIsIndependentSet(unittest.TestCase):

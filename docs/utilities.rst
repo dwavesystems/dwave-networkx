@@ -1,27 +1,27 @@
-.. _dnx_utilities:
+.. _graphs_utilities:
 
 =========
 Utilities
 =========
 
-.. automodule:: dwave_networkx.utils
-.. currentmodule:: dwave_networkx.utils
+.. automodule:: dwave.graphs.utils
+.. currentmodule:: dwave.graphs.utils
 
 Decorators
 ==========
 
-.. automodule:: dwave_networkx.utils.decorators
+.. automodule:: dwave.graphs.utils.decorators
 .. autosummary::
    :toctree: generated/
 
    binary_quadratic_model_sampler
 
-.. currentmodule:: dwave_networkx
+.. currentmodule:: dwave.graphs
 
 Graph Indexing
 ==============
 
-See the :ref:`dnx_coordinates_conversion` subsection on instantiating the needed
+See the :ref:`graphs_coordinates_conversion` subsection on instantiating the needed
 lattice size and setting correct domain and range for coordinates in a QPU
 working graph. For the iterator versions of these functions, see the code.
 
@@ -69,12 +69,12 @@ Zephyr
    zephyr_sublattice_mappings
 
 
-.. _dnx_coordinates_conversion:
+.. _graphs_coordinates_conversion:
 
 Coordinates Conversion
 ----------------------
 
-.. automodule:: dwave_networkx
+.. automodule:: dwave.graphs
 
 .. autoclass:: chimera_coordinates
 
@@ -87,9 +87,10 @@ Coordinates Conversion
 Exceptions
 ==========
 
-.. automodule:: dwave_networkx.exceptions
+.. automodule:: dwave.graphs.exceptions
 .. autosummary::
    :toctree: generated/
 
-   DWaveNetworkXException
-   DWaveNetworkXMissingSampler
+   DWaveGraphsError
+   StateError
+   UndefinedSamplerError

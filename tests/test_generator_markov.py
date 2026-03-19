@@ -14,7 +14,7 @@
 
 import unittest
 
-import dwave_networkx as dnx
+import dwave.graphs as dnx
 
 
 class Test_markov_network(unittest.TestCase):

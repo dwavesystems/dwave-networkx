@@ -1,8 +1,9 @@
 [run]
-# omit virtualenv and test files
-omit = venv/*, */tests/*
-source=dwave_networkx
+source = dwave.graphs
+omit = env/*, venv/*, */tests/*
 
 [report]
-exclude_lines:
+include_namespace_packages = True
+exclude_lines =
     pragma: no cover
+    raise NotImplementedError

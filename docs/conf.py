@@ -1,10 +1,3 @@
-# DWaveNetworkX documentation build configuration file, created by
-# sphinx-quickstart on Wed Jul 26 10:55:26 2017.
-#
-# This file only contains a selection of the most common options. For a full
-# list see the documentation:
-# https://www.sphinx-doc.org/en/master/usage/configuration.html
-
 import os
 import sys
 sys.path.insert(0, os.path.abspath('.'))
@@ -32,13 +25,13 @@ source_suffix = ['.rst']
 master_doc = 'index'
 
 # General information about the project.
-project = u'D-Wave NetworkX'
-copyright = u'2017, D-Wave Systems Inc'
-author = u'D-Wave Systems Inc'
+project = 'D-Wave Graphs'
+author = 'D-Wave'
+copyright = 'D-Wave'
 
-import dwave_networkx
-version = dwave_networkx.__version__
-release = dwave_networkx.__version__
+import dwave.graphs
+version = dwave.graphs.__version__
+release = dwave.graphs.__version__
 
 language = 'en'
 
@@ -56,11 +49,11 @@ pygments_style = 'sphinx'
 
 todo_include_todos = True
 
-modindex_common_prefix = ['dwave_networkx.']
+modindex_common_prefix = ['dwave.graphs.']
 
 doctest_global_setup = \
 """
-import dwave_networkx as dnx
+import dwave.graphs
 import networkx as nx
 """
 

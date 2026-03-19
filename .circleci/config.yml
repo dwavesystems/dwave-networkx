@@ -197,7 +197,7 @@ jobs:
           command: |
             . env/bin/activate
             pip install .
-            [[ "$(pip show dwave-networkx 2>/dev/null | grep Version)" == "Version: $CIRCLE_TAG" ]]
+            [[ "$(pip show dwave-graphs 2>/dev/null | grep Version)" == "Version: $CIRCLE_TAG" ]]
 
       - run:
           name: Build sdist and bdist
@@ -219,17 +219,17 @@ workflows:
           matrix:
             parameters:
               python-version: &python-versions ["3.10", "3.11", "3.12", "3.13", "3.14"]
-              dependency-versions: ["dimod==0.12.5 networkx==2.4 oldest-supported-numpy",  # oldest supported
-                                    "dimod networkx numpy",                                # latest
+              dependency-versions: [&dependencies-oldest "dimod==0.12.5 networkx==2.4 oldest-supported-numpy",
+                                    &dependencies-latest "dimod networkx numpy",
                                     ]
             exclude:
               # dimod < 0.12.13 not supported on py312+
               - python-version: "3.12"
-                dependency-versions: "dimod==0.12.5 networkx==2.4 oldest-supported-numpy"
+                dependency-versions: *dependencies-oldest
               - python-version: "3.13"
-                dependency-versions: "dimod==0.12.5 networkx==2.4 oldest-supported-numpy"
+                dependency-versions: *dependencies-oldest
               - python-version: "3.14"
-                dependency-versions: "dimod==0.12.5 networkx==2.4 oldest-supported-numpy"
+                dependency-versions: *dependencies-oldest
       - test-osx:
           matrix:
             parameters:

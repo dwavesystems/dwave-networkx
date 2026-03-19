@@ -18,7 +18,7 @@ import dimod
 import networkx as nx
 import parameterized
 
-import dwave_networkx as dnx
+import dwave.graphs as dnx
 
 
 @parameterized.parameterized_class(

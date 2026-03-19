@@ -16,7 +16,7 @@ import unittest
 
 import numpy as np
 
-import dwave_networkx as dnx
+import dwave.graphs as dnx
 
 class TestRegularColoring(unittest.TestCase):
 

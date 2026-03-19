@@ -16,7 +16,7 @@ import os
 import unittest
 
 import networkx as nx
-import dwave_networkx as dnx
+import dwave.graphs as dnx
 
 try:
     import matplotlib.pyplot as plt

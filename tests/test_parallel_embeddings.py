@@ -17,12 +17,12 @@ from itertools import product
 
 import networkx as nx
 
-from dwave_networkx.drawing.parallel_embeddings import (
+from dwave.graphs.drawing.parallel_embeddings import (
     _generate_edge_color_dict,
     _generate_node_color_dict,
     draw_parallel_embeddings,
 )
-from dwave_networkx import chimera_graph
+from dwave.graphs import chimera_graph
 
 try:
     import matplotlib

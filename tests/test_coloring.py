@@ -13,13 +13,12 @@
 #    limitations under the License.
 
 import unittest
-import itertools
 
 import networkx as nx
 
 import dimod
 
-import dwave_networkx as dnx
+import dwave.graphs as dnx
 
 
 class TestMinVertexColor(unittest.TestCase):

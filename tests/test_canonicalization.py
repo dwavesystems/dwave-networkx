@@ -13,10 +13,9 @@
 # limitations under the License.
 
 import unittest
-import collections
 
 import dimod
-import dwave_networkx as dnx
+import dwave.graphs as dnx
 import networkx as nx
 
 

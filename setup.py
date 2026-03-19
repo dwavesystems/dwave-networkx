@@ -20,18 +20,18 @@ from setuptools import setup
 my_loc = os.path.dirname(os.path.abspath(__file__))
 os.chdir(my_loc)
 
-exec(open(os.path.join(".", "dwave_networkx", "package_info.py")).read())
+exec(open(os.path.join(".", "dwave", "graphs", "package_info.py")).read())
 
-packages = ['dwave_networkx',
-            'dwave_networkx.algorithms',
-            'dwave_networkx.utils',
-            'dwave_networkx.drawing',
-            'dwave_networkx.generators',
+packages = ['dwave.graphs',
+            'dwave.graphs.algorithms',
+            'dwave.graphs.drawing',
+            'dwave.graphs.generators',
+            'dwave.graphs.utils',
             ]
 
 install_requires = ['networkx>=2.4',
                     'dimod>=0.12.5',
-                    'numpy>=1.17.3',
+                    'numpy>=1.21.3',    # oldest that supports python 3.10
                     ]
 
 python_requires = ">=3.10"
@@ -48,14 +48,14 @@ classifiers = [
 ]
 
 setup(
-    name='dwave_networkx',
+    name='dwave-graphs',
     version=__version__,
     author=__author__,
     author_email=__authoremail__,
     description=__description__,
     long_description=open('README.rst').read(),
-    url='https://github.com/dwavesystems/dwave_networkx',
-    download_url='https://github.com/dwavesystems/dwave_networkx/releases',
+    url='https://github.com/dwavesystems/dwave-graphs',
+    download_url='https://github.com/dwavesystems/dwave-graphs/releases',
     packages=packages,
     license='Apache 2.0',
     install_requires=install_requires,

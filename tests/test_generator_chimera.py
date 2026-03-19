@@ -15,7 +15,7 @@
 import unittest
 
 import networkx as nx
-import dwave_networkx as dnx
+import dwave.graphs as dnx
 import numpy as np
 
 alpha_map = dict(enumerate('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'))
@@ -132,7 +132,7 @@ class TestChimeraGraph(unittest.TestCase):
             self.assertEqual(dat['chimera_index'], chimera_indices[v])
 
     def test_coordinate_basics(self):
-        from dwave_networkx.generators.chimera import chimera_coordinates
+        from dwave.graphs.generators.chimera import chimera_coordinates
         G = dnx.chimera_graph(4)
         H = dnx.chimera_graph(4, coordinates=True)
         coords = chimera_coordinates(4)
@@ -152,7 +152,7 @@ class TestChimeraGraph(unittest.TestCase):
             self.assertEqual(q, coords.linear_to_chimera(v))
 
     def test_coordinate_subgraphs(self):
-        from dwave_networkx.generators.chimera import chimera_coordinates
+        from dwave.graphs.generators.chimera import chimera_coordinates
         from random import sample
         G = dnx.chimera_graph(4)
         H = dnx.chimera_graph(4, coordinates=True)

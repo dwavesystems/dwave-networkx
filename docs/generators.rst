@@ -1,4 +1,4 @@
-.. _dnx_generators:
+.. _graphs_generators:
 
 ================
 Graph Generators
@@ -6,7 +6,7 @@ Graph Generators
 
 Generators for graphs, such the graphs (topologies) of D-Wave System QPUs.
 
-.. currentmodule:: dwave_networkx
+.. currentmodule:: dwave.graphs
 
 D-Wave Systems
 ==============
@@ -28,9 +28,9 @@ the `find_chimera()` function to determine the Chimera indices.
 .. code-block:: python
 
   >>> import networkx as nx
-  >>> import dwave_networkx as dnx
-  >>> G = dnx.chimera_graph(1, 1, 4)
-  >>> chimera_indices = dnx.find_chimera_indices(G)
+  >>> import dwave.graphs
+  >>> G = dwave.graphs.chimera_graph(1, 1, 4)
+  >>> chimera_indices = dwave.graphs.find_chimera_indices(G)
   >>> print chimera_indices
   {0: (0, 0, 0, 0),
    1: (0, 0, 0, 1),

@@ -15,7 +15,7 @@
 import unittest
 import dimod
 
-import dwave_networkx as dnx
+import dwave.graphs as dnx
 
 
 class Test_sample_markov_network_bqm(unittest.TestCase):

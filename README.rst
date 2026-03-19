@@ -1,21 +1,19 @@
-.. image:: https://img.shields.io/pypi/v/dwave-networkx.svg
-    :target: https://pypi.org/project/dwave-networkx
+.. image:: https://img.shields.io/pypi/v/dwave-graphs.svg
+    :target: https://pypi.org/project/dwave-graphs
 
-.. image:: https://codecov.io/gh/dwavesystems/dwave-networkx/branch/main/graph/badge.svg
-    :target: https://codecov.io/gh/dwavesystems/dwave-networkx
+.. image:: https://codecov.io/gh/dwavesystems/dwave-graphs/branch/main/graph/badge.svg
+    :target: https://codecov.io/gh/dwavesystems/dwave-graphs
 
 .. image:: https://circleci.com/gh/dwavesystems/dwave-networkx.svg?style=svg
-    :target: https://circleci.com/gh/dwavesystems/dwave-networkx
+    :target: https://circleci.com/gh/dwavesystems/dwave-graphs
 
-==============
-dwave-networkx
-==============
+============
+dwave-graphs
+============
 
-.. start_dnx_about
+.. start_graphs_about
 
-dwave-networkx is an extension of `NetworkX <https://networkx.org>`_\ ---a
-Python language package for exploration and analysis of networks and network
-algorithms---for users of D-Wave quantum computers. It provides tools for
+dwave-graphs provides tools for
 working with quantum processing unit (QPU) topology graphs, such as the Pegasus
 used on the Advantage\ :sup:`TM` quantum computer, and implementations of
 graph-theory algorithms on D-Wave quantum computers and other binary quadratic
@@ -23,10 +21,10 @@ model (BQM) samplers.
 
 This example generates a Pegasus graph of the size used by Advantage QPUs.
 
->>> import dwave_networkx as dnx
->>> graph = dnx.pegasus_graph(16)
+>>> import dwave.graphs
+>>> graph = dwave.graphs.pegasus_graph(16)
 
-.. end_dnx_about
+.. end_graphs_about
 
 Installation
 ============
@@ -35,7 +33,7 @@ Installation
 
 .. code-block:: bash
 
-    pip install dwave_networkx
+    pip install dwave-graphs
 
 **Installation from source:**
 

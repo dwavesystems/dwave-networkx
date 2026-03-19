@@ -1,4 +1,4 @@
-.. _dnx_drawing:
+.. _graphs_drawing:
 
 =======
 Drawing
@@ -7,12 +7,12 @@ Drawing
 Tools to visualize topologies of D-Wave QPUs and weighted :term:`graph` problems
 on them.
 
-.. currentmodule:: dwave_networkx
+.. currentmodule:: dwave.graphs
 
 Chimera Graph Functions
 =======================
 
-.. automodule:: dwave_networkx.drawing.chimera_layout
+.. automodule:: dwave.graphs.drawing.chimera_layout
 
 .. autosummary::
    :toctree: generated/
@@ -34,12 +34,12 @@ positions on a Chimera unit cell.
 .. code-block:: python
 
    >>> import networkx as nx
-   >>> import dwave_networkx as dnx
    >>> import matplotlib.pyplot as plt
+   >>> import dwave.graphs
    >>> H = nx.Graph()
    >>> H.add_nodes_from([0, 4, 5, 6, 7])
    >>> H.add_edges_from([(0, 4), (0, 5), (0, 6), (0, 7)])
-   >>> pos=dnx.chimera_layout(H)
+   >>> pos = dwave.graphs.chimera_layout(H)
    >>> pos
    {0: array([ 0. , -0.5]),
     4: array([ 0.5,  0. ]),
@@ -48,9 +48,9 @@ positions on a Chimera unit cell.
     7: array([ 0.5, -1. ])}
    >>> # Show graph H on a Chimera unit cell
    >>> f, axes = plt.subplots(1, 1)
-   >>> G=dnx.chimera_graph(1, 1, 4)  # Draw a Chimera unit cell
-   >>> dnx.draw_chimera(G, node_color='r', ax=axes)
-   >>> dnx.draw_chimera(H, node_color='b', node_shape='*', style='dashed', edge_color='b', width=3, ax=axes)
+   >>> G = dwave.graphs.chimera_graph(1, 1, 4)  # Draw a Chimera unit cell
+   >>> dwave.graphs.draw_chimera(G, node_color='r', ax=axes)
+   >>> dwave.graphs.draw_chimera(H, node_color='b', node_shape='*', style='dashed', edge_color='b', width=3, ax=axes)
    >>> plt.show()
    >>> # matplotlib commands to add labels to graphic not shown
 
@@ -67,7 +67,7 @@ positions on a Chimera unit cell.
 Pegasus Graph Functions
 =======================
 
-.. automodule:: dwave_networkx.drawing.pegasus_layout
+.. automodule:: dwave.graphs.drawing.pegasus_layout
 
 .. autosummary::
    :toctree: generated/
@@ -86,15 +86,15 @@ of nodes of a simple 5-node graph on a small Pegasus lattice.
 
 .. code-block:: python
 
-   >>> import dwave_networkx as dnx
+   >>> import dwave.graphs
    >>> import matplotlib.pyplot as plt
-   >>> G = dnx.pegasus_graph(2)
-   >>> H = dnx.pegasus_graph(2, node_list=[4, 40, 41, 42, 43],
+   >>> G = dwave.graphs.pegasus_graph(2)
+   >>> H = dwave.graphs.pegasus_graph(2, node_list=[4, 40, 41, 42, 43],
                  edge_list=[(4, 40), (4, 41), (4, 42), (4, 43)])
    >>> # Show graph H on a small Pegasus lattice
    >>> f, axes = plt.subplots(1, 1)
-   >>> dnx.draw_pegasus(G, with_labels=True, crosses=True, node_color="Yellow", ax=axes)
-   >>> dnx.draw_pegasus(H, crosses=True, node_color='b', style='dashed',
+   >>> dwave.graphs.draw_pegasus(G, with_labels=True, crosses=True, node_color="Yellow", ax=axes)
+   >>> dwave.graphs.draw_pegasus(H, crosses=True, node_color='b', style='dashed',
              edge_color='b', width=3, ax=axes)
    >>> plt.show()
 
@@ -110,7 +110,7 @@ of nodes of a simple 5-node graph on a small Pegasus lattice.
 Zephyr Graph Functions
 ======================
 
-.. automodule:: dwave_networkx.drawing.zephyr_layout
+.. automodule:: dwave.graphs.drawing.zephyr_layout
 
 .. autosummary::
    :toctree: generated/
@@ -129,15 +129,15 @@ of a five-node clique on a small Zephyr graph.
 
 .. code-block:: python
 
-   >>> import dwave_networkx as dnx
+   >>> import dwave.graphs
    >>> import matplotlib.pyplot as plt
    >>> import networkx as nx
    ...
-   >>> G = dnx.zephyr_graph(1)
+   >>> G = dwave.graphs.zephyr_graph(1)
    >>> embedding = {"N1": [13, 44], "N2": [11], "N3": [41], "N4": [40], "N5": [9, 37]}
    ...
    >>> plt.ion()
-   >>> dnx.draw_zephyr_embedding(G, embedding, show_labels=True)
+   >>> dwave.graphs.draw_zephyr_embedding(G, embedding, show_labels=True)
 
 .. figure:: _images/zephyr_embedding_5clique.png
     :align: center

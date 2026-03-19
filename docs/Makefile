@@ -4,7 +4,7 @@
 # You can set these variables from the command line.
 SPHINXOPTS    = -q
 SPHINXBUILD   = sphinx-build
-SPHINXPROJ    = DWaveNetworkx
+SPHINXPROJ    = dwave
 SOURCEDIR     = .
 BUILDDIR      = build
 

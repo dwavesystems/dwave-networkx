@@ -15,7 +15,7 @@
 import unittest
 
 import networkx as nx
-import dwave_networkx as dnx
+import dwave.graphs as dnx
 import numpy as np
 
 class TestZephyrGraph(unittest.TestCase):
@@ -65,7 +65,7 @@ class TestZephyrGraph(unittest.TestCase):
             self.assertIn(u, G[v])
 
     def test_coordinate_basics(self):
-        from dwave_networkx.generators.zephyr import zephyr_coordinates
+        from dwave.graphs.generators.zephyr import zephyr_coordinates
         G = dnx.zephyr_graph(4)
         H = dnx.zephyr_graph(4, coordinates=True)
         coords = zephyr_coordinates(4)
@@ -85,7 +85,7 @@ class TestZephyrGraph(unittest.TestCase):
             self.assertEqual(q, coords.linear_to_zephyr(v))
 
     def test_coordinate_subgraphs(self):
-        from dwave_networkx.generators.zephyr import zephyr_coordinates
+        from dwave.graphs.generators.zephyr import zephyr_coordinates
         from random import sample
         G = dnx.zephyr_graph(4)
         H = dnx.zephyr_graph(4, coordinates=True)

@@ -1,4 +1,4 @@
-.. _dnx_api_ref:
+.. _graphs_api_ref:
 
 =============
 API Reference

@@ -14,8 +14,8 @@
 
 import unittest
 
-import dwave_networkx as dnx
-from dwave_networkx.utils import binary_quadratic_model_sampler
+import dwave.graphs as dnx
+from dwave.graphs.utils import binary_quadratic_model_sampler
 
 
 class MockSampler:
@@ -42,7 +42,7 @@ class TestDecorators(unittest.TestCase):
                          "sampler did not unset correctly")
 
     def test_no_sampler_set(self):
-        with self.assertRaises(dnx.DWaveNetworkXMissingSampler):
+        with self.assertRaises(dnx.UndefinedSamplerError):
             mock_function(0)
 
     def test_sampler_provided(self):

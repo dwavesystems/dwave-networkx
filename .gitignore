@@ -1,7 +1,7 @@
 build
 _build
 dist
-dwave_networkx.egg-info
+*.egg-info/
 *.pyc
 
 venv/
