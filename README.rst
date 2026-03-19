@@ -1,3 +1,7 @@
+:warning: *dwave-networkx* is deprecated in favor of *dwave-graphs*. The initial
+    release of dwave-graphs includes most functionality previously provided by
+    dwave-networkx, now available under the new namespace, ``dwave.graphs``.
+
 .. image:: https://img.shields.io/pypi/v/dwave-networkx.svg
     :target: https://pypi.org/project/dwave-networkx
 

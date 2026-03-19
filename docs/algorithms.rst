@@ -4,6 +4,13 @@
 Algorithms
 ==========
 
+.. deprecated:: 0.8.19
+
+    `dwave-networkx` is deprecated and will be replaced by `dwave-graphs` in
+    Ocean 10. Algorithms previously provided in the ``dwave_networkx.algorithms``
+    module are now available in `dwave-graphs` under the ``dwave.graphs.algorithms``
+    namespace.
+
 Implementations of graph-theory algorithms on the D-Wave system and other
 binary quadratic model samplers.
 
