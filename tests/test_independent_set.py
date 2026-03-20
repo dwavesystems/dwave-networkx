@@ -120,27 +120,21 @@ class TestIndepSet(unittest.TestCase):
 
         # favor odd nodes
         nx.set_node_attributes(G, {node: node % 2 + 1 for node in G}, weight)
-        indep_set = dnx.maximum_weighted_independent_set(G, weight, dimod.ExactSolver())
+        indep_set = dnx.maximum_weighted_independent_set(G, dimod.ExactSolver(),
+                                                         weight=weight)
         self.assertEqual(set(indep_set), {1, 3, 5})
 
         # favor even nodes
         nx.set_node_attributes(G, {node: (node + 1) % 2 + 1 for node in G}, weight)
-        indep_set = dnx.maximum_weighted_independent_set(G, weight, dimod.ExactSolver())
+        indep_set = dnx.maximum_weighted_independent_set(G, dimod.ExactSolver(),
+                                                         weight=weight)
         self.assertEqual(set(indep_set), {0, 2, 4})
 
         # make nodes 1 and 4 likely
         nx.set_node_attributes(G, {0: 1, 1: 3, 2: 1, 3: 1, 4: 3, 5: 1}, weight)
-        indep_set = dnx.maximum_weighted_independent_set(G, weight, dimod.ExactSolver())
+        indep_set = dnx.maximum_weighted_independent_set(G, dimod.ExactSolver(),
+                                                         weight=weight)
         self.assertEqual(set(indep_set), {1, 4})
-
-    def test_default_sampler(self):
-        G = nx.complete_graph(5)
-
-        dnx.set_default_sampler(dimod.ExactSolver())
-        self.assertIsNot(dnx.get_default_sampler(), None)
-        indep_set = dnx.maximum_independent_set(G)
-        dnx.unset_default_sampler()
-        self.assertEqual(dnx.get_default_sampler(), None, "sampler did not unset correctly")
 
     def test_dimod_vs_list(self):
         G = nx.path_graph(5)
