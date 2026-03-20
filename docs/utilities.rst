@@ -4,18 +4,6 @@
 Utilities
 =========
 
-.. automodule:: dwave.graphs.utils
-.. currentmodule:: dwave.graphs.utils
-
-Decorators
-==========
-
-.. automodule:: dwave.graphs.utils.decorators
-.. autosummary::
-   :toctree: generated/
-
-   binary_quadratic_model_sampler
-
 .. currentmodule:: dwave.graphs
 
 Graph Indexing
@@ -92,5 +80,3 @@ Exceptions
    :toctree: generated/
 
    DWaveGraphsError
-   StateError
-   UndefinedSamplerError

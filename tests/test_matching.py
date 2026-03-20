@@ -109,16 +109,3 @@ class TestMatching(unittest.TestCase):
             if energy != sampleset.first.energy:
                 if nx.is_maximal_matching(self.graph, edges):
                     self.assertGreater(len(edges), cardinality)
-
-
-class TestMinMaximalMatching(unittest.TestCase):
-    def test_default_sampler(self):
-        G = nx.complete_graph(5)
-
-        dnx.set_default_sampler(dimod.ExactSolver())
-        self.assertIsNot(dnx.get_default_sampler(), None)
-        matching = dnx.algorithms.matching.maximal_matching(G)
-        matching = dnx.min_maximal_matching(G)
-        dnx.unset_default_sampler()
-        self.assertEqual(dnx.get_default_sampler(), None,
-                         "sampler did not unset correctly")

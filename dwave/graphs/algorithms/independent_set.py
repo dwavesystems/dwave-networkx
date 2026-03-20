@@ -12,8 +12,6 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
-from dwave.graphs.utils import binary_quadratic_model_sampler
-
 __all__ = ["maximum_weighted_independent_set",
            "maximum_weighted_independent_set_qubo",
            "maximum_independent_set",
@@ -21,8 +19,7 @@ __all__ = ["maximum_weighted_independent_set",
            ]
 
 
-@binary_quadratic_model_sampler(2)
-def maximum_weighted_independent_set(G, weight=None, sampler=None, lagrange=2.0, **sampler_args):
+def maximum_weighted_independent_set(G, sampler, weight=None, lagrange=2.0, **sampler_args):
     """Returns an approximate maximum weighted independent set.
 
     Defines a QUBO with ground states corresponding to a
@@ -43,15 +40,8 @@ def maximum_weighted_independent_set(G, weight=None, sampler=None, lagrange=2.0,
         attribute as the node weight. A node without this attribute is
         assumed to have max weight.
 
-    sampler
-        A binary quadratic model sampler. A sampler is a process that
-        samples from low energy states in models defined by an Ising
-        equation or a Quadratic Unconstrained Binary Optimization
-        Problem (QUBO). A sampler is expected to have a 'sample_qubo'
-        and 'sample_ising' method. A sampler is expected to return an
-        iterable of samples, in order of increasing energy. If no
-        sampler is provided, one must be provided using the
-        `set_default_sampler` function.
+    sampler : :class:`dimod.Sampler`
+        A dimod sampler.
         
     lagrange : optional (default 2)
         Lagrange parameter to weight constraints (no edges within set) 
@@ -96,8 +86,7 @@ def maximum_weighted_independent_set(G, weight=None, sampler=None, lagrange=2.0,
     return [node for node in sample if sample[node] > 0]
 
 
-@binary_quadratic_model_sampler(1)
-def maximum_independent_set(G, sampler=None, lagrange=2.0, **sampler_args):
+def maximum_independent_set(G, sampler, lagrange=2.0, **sampler_args):
     """Returns an approximate maximum independent set.
 
     Defines a QUBO with ground states corresponding to a
@@ -113,15 +102,8 @@ def maximum_independent_set(G, sampler=None, lagrange=2.0, **sampler_args):
     G : NetworkX graph
         The graph on which to find a maximum cut independent set.
 
-    sampler
-        A binary quadratic model sampler. A sampler is a process that
-        samples from low energy states in models defined by an Ising
-        equation or a Quadratic Unconstrained Binary Optimization
-        Problem (QUBO). A sampler is expected to have a 'sample_qubo'
-        and 'sample_ising' method. A sampler is expected to return an
-        iterable of samples, in order of increasing energy. If no
-        sampler is provided, one must be provided using the
-        `set_default_sampler` function.
+    sampler : :class:`dimod.Sampler`
+        A dimod sampler.
         
     lagrange : optional (default 2)
         Lagrange parameter to weight constraints (no edges within set) 
@@ -165,7 +147,7 @@ def maximum_independent_set(G, sampler=None, lagrange=2.0, **sampler_args):
     Frontiers in Physics, Volume 2, Article 5.
 
     """
-    return maximum_weighted_independent_set(G, None, sampler, lagrange, **sampler_args)
+    return maximum_weighted_independent_set(G, sampler, lagrange=lagrange, **sampler_args)
 
 
 def is_independent_set(G, indep_nodes):

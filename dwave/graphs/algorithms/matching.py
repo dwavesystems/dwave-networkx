@@ -17,8 +17,6 @@ import warnings
 
 import dimod
 
-from dwave.graphs.utils import binary_quadratic_model_sampler
-
 __all__ = ['is_matching',
            'is_maximal_matching',
            'matching_bqm',
@@ -176,8 +174,7 @@ def min_maximal_matching_bqm(G, maximal_lagrange=2, matching_lagrange=None):
     return bqm
 
 
-@binary_quadratic_model_sampler(1)
-def maximal_matching(G, sampler=None, **sampler_args):
+def maximal_matching(G, sampler, **sampler_args):
     """Finds an approximate maximal matching.
 
     Defines a QUBO with ground states corresponding to a maximal
@@ -195,15 +192,8 @@ def maximal_matching(G, sampler=None, **sampler_args):
     G : NetworkX graph
         The graph on which to find a maximal matching.
 
-    sampler
-        A binary quadratic model sampler. A sampler is a process that
-        samples from low energy states in models defined by an Ising
-        equation or a Quadratic Unconstrained Binary Optimization
-        Problem (QUBO). A sampler is expected to have a 'sample_qubo'
-        and 'sample_ising' method. A sampler is expected to return an
-        iterable of samples, in order of increasing energy. If no
-        sampler is provided, one must be provided using the
-        `set_default_sampler` function.
+    sampler : :class:`dimod.Sampler`
+        A dimod sampler.
 
     sampler_args
         Additional keyword parameters are passed to the sampler.
@@ -240,8 +230,7 @@ def maximal_matching(G, sampler=None, **sampler_args):
     return set(tuple(edge) for edge, val in sample.items() if val > 0)
 
 
-@binary_quadratic_model_sampler(1)
-def min_maximal_matching(G, sampler=None, **sampler_args):
+def min_maximal_matching(G, sampler, **sampler_args):
     """Returns an approximate minimum maximal matching.
 
     Defines a QUBO with ground states corresponding to a minimum
@@ -257,15 +246,8 @@ def min_maximal_matching(G, sampler=None, **sampler_args):
     G : NetworkX graph
         The graph on which to find a minimum maximal matching.
 
-    sampler
-        A binary quadratic model sampler. A sampler is a process that
-        samples from low energy states in models defined by an Ising
-        equation or a Quadratic Unconstrained Binary Optimization
-        Problem (QUBO). A sampler is expected to have a 'sample_qubo'
-        and 'sample_ising' method. A sampler is expected to return an
-        iterable of samples, in order of increasing energy. If no
-        sampler is provided, one must be provided using the
-        `set_default_sampler` function.
+    sampler : :class:`dimod.Sampler`
+        A dimod sampler.
 
     sampler_args
         Additional keyword parameters are passed to the sampler.

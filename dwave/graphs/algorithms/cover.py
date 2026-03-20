@@ -13,13 +13,11 @@
 #    limitations under the License.
 
 from dwave.graphs.algorithms.independent_set import maximum_weighted_independent_set
-from dwave.graphs.utils import binary_quadratic_model_sampler
 
 __all__ = ['min_weighted_vertex_cover', 'min_vertex_cover', 'is_vertex_cover']
 
 
-@binary_quadratic_model_sampler(2)
-def min_weighted_vertex_cover(G, weight=None, sampler=None, lagrange=2.0, **sampler_args):
+def min_weighted_vertex_cover(G, sampler, weight=None, lagrange=2.0, **sampler_args):
     """Returns an approximate minimum weighted vertex cover.
 
     Defines a QUBO with ground states corresponding to a minimum weighted
@@ -38,15 +36,8 @@ def min_weighted_vertex_cover(G, weight=None, sampler=None, lagrange=2.0, **samp
         attribute as the node weight. A node without this attribute is
         assumed to have max weight.
 
-    sampler
-        A binary quadratic model sampler. A sampler is a process that
-        samples from low energy states in models defined by an Ising
-        equation or a Quadratic Unconstrained Binary Optimization
-        Problem (QUBO). A sampler is expected to have a 'sample_qubo'
-        and 'sample_ising' method. A sampler is expected to return an
-        iterable of samples, in order of increasing energy. If no
-        sampler is provided, one must be provided using the
-        `set_default_sampler` function.
+    sampler : :class:`dimod.Sampler`
+        A dimod sampler.
 
     lagrange : optional (default 2)
         Lagrange parameter to weight constraints versus objective.
@@ -79,8 +70,7 @@ def min_weighted_vertex_cover(G, weight=None, sampler=None, lagrange=2.0, **samp
     return [v for v in G if v not in indep_nodes]
 
 
-@binary_quadratic_model_sampler(1)
-def min_vertex_cover(G, sampler=None, lagrange=2.0, **sampler_args):
+def min_vertex_cover(G, sampler, lagrange=2.0, **sampler_args):
     """Returns an approximate minimum vertex cover.
 
     Defines a QUBO with ground states corresponding to a minimum
@@ -95,15 +85,8 @@ def min_vertex_cover(G, sampler=None, lagrange=2.0, **sampler_args):
     G : NetworkX graph
         The graph on which to find a minimum vertex cover.
 
-    sampler
-        A binary quadratic model sampler. A sampler is a process that
-        samples from low energy states in models defined by an Ising
-        equation or a Quadratic Unconstrained Binary Optimization
-        Problem (QUBO). A sampler is expected to have a 'sample_qubo'
-        and 'sample_ising' method. A sampler is expected to return an
-        iterable of samples, in order of increasing energy. If no
-        sampler is provided, one must be provided using the
-        `set_default_sampler` function.
+    sampler : :class:`dimod.Sampler`
+        A dimod sampler.
 
     lagrange : optional (default 2)
         Lagrange parameter to weight constraints versus objective.

@@ -20,15 +20,3 @@ Base exceptions and errors for dwave-graphs.
 
 class DWaveGraphsError(Exception):
     """Base exception for dwave-graphs errors."""
-
-
-# category exceptions
-
-class StateError(DWaveGraphsError):
-    """Invalid state error."""
-
-
-# specific exceptions
-
-class UndefinedSamplerError(StateError):
-    """Discrete model sampler not provided to an algorithm that requires it."""

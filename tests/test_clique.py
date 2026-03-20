@@ -55,16 +55,6 @@ class TestMaxClique(unittest.TestCase):
         clique = dnx.maximum_clique(G, dimod.ExactSolver())
         self.assertTrue(dnx.is_clique(G, clique))
 
-    def test_default_sampler(self):
-        G = nx.complete_graph(5)
-        dnx.set_default_sampler(dimod.ExactSolver())
-        self.assertIsNot(dnx.get_default_sampler(), None)
-
-        clique = dnx.maximum_clique(G)
-        dnx.unset_default_sampler()
-        self.assertEqual(dnx.get_default_sampler(), None,
-                         "sampler did not unset correctly")
-
     def test_two_cliques(self):
         # This graph has two major cliques [0,1,2,3,4] and [11,12,13,14]
         # but the first one is bigger so that's the maximum_clique.
