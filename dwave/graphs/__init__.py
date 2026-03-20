@@ -18,7 +18,6 @@ from dwave.graphs.generators import *
 import dwave.graphs.algorithms
 from dwave.graphs.algorithms import *
 
-import dwave.graphs.utils
 from dwave.graphs.exceptions import *
 
 import dwave.graphs.drawing
