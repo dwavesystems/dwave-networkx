@@ -11,4 +11,3 @@ API Reference
     drawing
     generators
     utilities
-    default_sampler
