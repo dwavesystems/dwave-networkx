@@ -45,7 +45,7 @@ Installation
 License
 =======
 
-Released under the Apache License 2.0.
+Released under the Apache License 2.0. See LICENSE file.
 
 Contributing
 ============
