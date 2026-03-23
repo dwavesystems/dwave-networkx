@@ -1,0 +1,57 @@
+[build-system]
+requires = [
+    "setuptools>=77.0.3",   # PEP 639
+]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dwave-graphs"
+dynamic = ["version"]
+authors = [
+    {name = "D-Wave", email = "tools@dwavesys.com"},
+]
+description = "A package providing graphs and algorithms for working with D-Wave quantum computers."
+readme = {file = "README.rst", content-type = "text/x-rst"}
+license = "Apache-2.0"
+license-files = ["LICEN[CS]E*"]
+classifiers = [
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+]
+dependencies = [
+    "dimod>=0.12.5,<0.13",
+    "networkx>=2.4,<4",
+    "numpy>=1.21.3,<3",     # oldest that supports python 3.10
+]
+# note: 3.14.1 excluded due to a regression bug breaking dataclasses in NetworkX
+# see: https://github.com/networkx/networkx/issues/8362,
+# https://github.com/python/cpython/issues/142214
+requires-python = ">=3.10, !=3.14.1"
+
+[project.urls]
+Issues = "https://github.com/dwavesystems/dwave-graphs/issues"
+Repository = "https://github.com/dwavesystems/dwave-graphs.git"
+
+[tool.setuptools.dynamic]
+version = {attr = "dwave.graphs.__version__"}
+
+[tool.setuptools.packages.find]
+include = ["dwave.*"]
+
+[tool.coverage.run]
+omit = ["tests/*"]
+source = ["dwave/graphs"]
+
+[tool.coverage.report]
+include_namespace_packages = true
+exclude_lines = [
+    "pragma: no cover",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+]

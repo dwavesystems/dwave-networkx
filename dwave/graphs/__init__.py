@@ -23,5 +23,4 @@ from dwave.graphs.exceptions import *
 import dwave.graphs.drawing
 from dwave.graphs.drawing import *
 
-from dwave.graphs.package_info import __version__, __author__, \
-    __authoremail__, __description__
+__version__ = "1.0.0.dev"
