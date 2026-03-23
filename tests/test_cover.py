@@ -65,15 +65,6 @@ class TestCover(unittest.TestCase):
             cover = dnx.min_weighted_vertex_cover(G, weight, ExactSolver())
             self.vertex_cover_check(G, cover)
 
-    def test_default_sampler(self):
-        G = nx.complete_graph(5)
-
-        dnx.set_default_sampler(ExactSolver())
-        self.assertIsNot(dnx.get_default_sampler(), None)
-        cover = dnx.min_vertex_cover(G)
-        dnx.unset_default_sampler()
-        self.assertEqual(dnx.get_default_sampler(), None, "sampler did not unset correctly")
-
     def test_dimod_vs_list(self):
         G = nx.path_graph(5)
 

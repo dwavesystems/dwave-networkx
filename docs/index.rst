@@ -29,8 +29,7 @@ quantum computers.
 Like |dwave_short| quantum computers, all other supported samplers must have
 ``sample_qubo`` and ``sample_ising`` methods for solving :term:`Ising` and
 :term:`QUBO` models and return an iterable of samples in order of increasing
-energy. You can set a default sampler using the
-:func:`~dwave.graphs.default_sampler.set_default_sampler` function.
+energy.
 
 Usage Information
 =================

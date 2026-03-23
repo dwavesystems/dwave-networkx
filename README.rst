@@ -4,7 +4,7 @@
 .. image:: https://codecov.io/gh/dwavesystems/dwave-graphs/branch/main/graph/badge.svg
     :target: https://codecov.io/gh/dwavesystems/dwave-graphs
 
-.. image:: https://circleci.com/gh/dwavesystems/dwave-networkx.svg?style=svg
+.. image:: https://circleci.com/gh/dwavesystems/dwave-graphs.svg?style=svg
     :target: https://circleci.com/gh/dwavesystems/dwave-graphs
 
 ============

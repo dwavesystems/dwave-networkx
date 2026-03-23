@@ -72,18 +72,6 @@ class TestSocial(unittest.TestCase):
         self.assertTrue(frustrated_edges == {('Ted', 'Eve'): {'sign': 1}} or
                         frustrated_edges == {('Eve', 'Ted'): {'sign': 1}})
 
-    def test_default_sampler(self):
-        S = nx.Graph()
-        S.add_edge('Alice', 'Bob', sign=1)  # Alice and Bob are friendly
-        S.add_edge('Alice', 'Eve', sign=-1)  # Alice and Eve are hostile
-        S.add_edge('Bob', 'Eve', sign=-1)  # Bob and Eve are hostile
-
-        dnx.set_default_sampler(ExactSolver())
-        self.assertIsNot(dnx.get_default_sampler(), None)
-        frustrated_edges, colors = dnx.structural_imbalance(S)
-        dnx.unset_default_sampler()
-        self.assertEqual(dnx.get_default_sampler(), None, "sampler did not unset correctly")
-
     def test_invalid_graph(self):
         """should throw an error with a graph without sign attribute"""
         S = nx.Graph()

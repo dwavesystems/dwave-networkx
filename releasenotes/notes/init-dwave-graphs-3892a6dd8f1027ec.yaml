@@ -1,0 +1,11 @@
+---
+prelude: >
+    Create ``dwave-graphs`` package based off ``dwave-networkx``.
+    ``dwave_networkx`` namespace is renamed to ``dwave.graphs``.
+upgrade:
+  - |
+    Drop the default sampler interface previously available in ``dwave-networkx``.
+    Some algorithms now explicitly require a sampler.
+  - |
+    Drop ``utils`` and ``utils.decorators`` submodules, as well as the
+    ``@binary_quadratic_model_sampler`` decorator.
