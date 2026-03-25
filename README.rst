@@ -45,10 +45,18 @@ Installation
 License
 =======
 
-Released under the Apache License 2.0.
+Released under the Apache License 2.0. See LICENSE file.
 
 Contributing
 ============
 
 Ocean's `contributing guide <https://docs.dwavequantum.com/en/latest/ocean/contribute.html>`_
 has guidelines for contributing to Ocean packages.
+
+Release Notes
+-------------
+
+We use `reno <https://docs.openstack.org/reno/>`_ to manage release notes.
+
+See reno's `user guide <https://docs.openstack.org/reno/latest/user/usage.html>`_
+for details.

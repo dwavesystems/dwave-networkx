@@ -1,9 +1,0 @@
-[run]
-source = dwave.graphs
-omit = env/*, venv/*, */tests/*
-
-[report]
-include_namespace_packages = True
-exclude_lines =
-    pragma: no cover
-    raise NotImplementedError
