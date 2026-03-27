@@ -110,17 +110,19 @@ def _validate_search_parameters(
     ``quotient_search`` must be one of ``'by_quotient_rail'``, ``'by_quotient_node'``, or
     ``'by_rail_then_node'``; ``yield_type`` must be one of ``'node'``, ``'edge'``, or
     ``'rail-edge'``; ``find_embedding_timeout`` must be numeric (``int`` or ``float``)
-    and non-negative; and ``embedding`` must be ``None`` or a ``dict``.
+    and non-negative; and ``embedding`` must be ``None`` or a ``dict`` representing a
+    one-to-one mapping of Zephyr coordinate nodes.
 
     Args:
         quotient_search (str): Search mode.
         yield_type (str): Optimization objective.
         find_embedding_timeout (float): Optional minorminer timeout.
-        embedding (Embedding | None): Optional initial mapping.
+        embedding (Embedding | None): Optional initial one-to-one coordinate mapping.
 
     Raises:
-        ValueError: If quotient_search or yield_type is invalid.
-        TypeError: If find_embedding_timeout or embedding are invalid.
+        ValueError: If ``quotient_search`` or ``yield_type`` is invalid, or if ``embedding``
+            contains duplicate target nodes (i.e. is not one-to-one).
+        TypeError: If ``find_embedding_timeout`` or ``embedding`` are invalid.
     """
     valid_ksearch = get_args(QuotientSearchType)
     valid_yield_type = get_args(YieldType)
@@ -154,6 +156,11 @@ def _validate_search_parameters(
                     "embedding keys and values must be 5-tuples representing Zephyr coordinates. "
                     f"Got key {key} of length {len(key)} and value {value} of length {len(value)}"
                 )
+        target_nodes = list(embedding.values())
+        if len(target_nodes) != len(set(target_nodes)):
+            raise ValueError(
+                "embedding must be a one-to-one mapping: duplicate target nodes detected. "
+            )
 
 
 def _ensure_coordinate_source(
@@ -728,7 +735,9 @@ def zephyr_quotient_search(
             ``'by_quotient_node'``, or ``'by_rail_then_node'``. See full docstrings for a
             description of these. Defaults to ``'by_quotient_rail'``.
         embedding (Embedding | None): Optional initial one-to-one coordinate mapping. If omitted,
-            the identity on source coordinate indices is used. Defaults to ``None``.
+            the identity on source coordinate indices is used. Defaults to ``None``. This must
+            be a node-to-node mapping (not a chain embedding such as those produced by
+            ``minorminer.find_embedding``).
         expand_boundary_search (bool): Enable additional boundary proposals. Defaults to ``True``.
         find_embedding_timeout (float): If positive and greedy search is not full-yield,
             call ``minorminer.find_embedding`` using the greedy result as an initial chain
