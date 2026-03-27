@@ -33,26 +33,20 @@ ZephyrSearchMetadata = namedtuple(
 )
 
 
-def _validate_graph_inputs(source: nx.Graph, target: nx.Graph) -> tuple[int, int, int]:
-    """Validate Zephyr graph compatibility and return ``(m, tp, t)``.
+def _validate_graph_inputs(source: nx.Graph, target: nx.Graph):
+    """Validate that source and target are Zephyr NetworkX graphs.
 
-    Both source and target graphs must be networkx graph instances with a 'family' metadata key set
-    to 'zephyr'. Each graph must contain required metadata fields: 'rows' (number of rows), 'tile'
-    (tile count), and 'labels' (labeling scheme). All metadata values must be positive integers.
-    The source and target graphs must have matching row counts. The target tile count must be
-    greater than or equal to the source tile count to accommodate the embedding
+    Both source and target graphs must be networkx graph instances with a 'family' metadata key
+    set to 'zephyr'. Each graph must also contain 'rows', 'tile' and 'labels metadata keys.
 
     Args:
         source (nx.Graph): Source Zephyr graph.
         target (nx.Graph): Target Zephyr graph.
 
-    Returns:
-        tuple[int, int, int]: ``(m, tp, t)`` where ``m`` is rows,
-            ``tp`` is source tile count, and ``t`` is target tile count.
-
     Raises:
         TypeError: If inputs are not NetworkX graphs.
-        ValueError: If graph metadata is missing or incompatible.
+        ValueError: If either graph is not a Zephyr family graph or is missing 'rows'/'tile'
+            metadata.
     """
     if not isinstance(source, nx.Graph) or not isinstance(target, nx.Graph):
         raise TypeError("source and target must both be networkx.Graph instances")
@@ -67,6 +61,27 @@ def _validate_graph_inputs(source: nx.Graph, target: nx.Graph) -> tuple[int, int
             if key not in graph.graph:
                 raise ValueError(f"{graph_name} graph is missing required '{key}' metadata")
 
+
+def _extract_graph_properties(source: nx.Graph, target: nx.Graph) -> tuple[int, int, int]:
+    """Extract and validate Zephyr graph properties, returning ``(m, tp, t)``.
+
+    Each graph must contain required metadata fields: 'rows' (number of rows) and 'tile'
+    (tile count). All metadata values must be positive integers. The source and target graphs must
+    have matching row counts. The target tile count must be greater than or equal to the source tile
+    count to accommodate the embedding.
+
+    Args:
+        source (nx.Graph): Source Zephyr graph.
+        target (nx.Graph): Target Zephyr graph.
+
+    Returns:
+        tuple[int, int, int]: ``(m, tp, t)`` where ``m`` is rows,
+            ``tp`` is source tile count, and ``t`` is target tile count.
+
+    Raises:
+        TypeError: If metadata values are not integers.
+        ValueError: If graph metadata is missing or incompatible.
+    """
     m = source.graph["rows"]
     tp = source.graph["tile"]
     t = target.graph["tile"]
@@ -104,8 +119,8 @@ def _validate_search_parameters(
         embedding (Embedding | None): Optional initial mapping.
 
     Raises:
-        ValueError: If any value is invalid.
-        TypeError: If types are invalid.
+        ValueError: If quotient_search or yield_type is invalid.
+        TypeError: If find_embedding_timeout or embedding are invalid.
     """
     valid_ksearch = get_args(QuotientSearchType)
     valid_yield_type = get_args(YieldType)
@@ -738,7 +753,8 @@ def zephyr_quotient_search(
             ``max_num_yielded``, ``starting_num_yielded``, and ``final_num_yielded``.
     """
 
-    m, tp, t = _validate_graph_inputs(source, target)
+    _validate_graph_inputs(source, target)
+    m, tp, t = _extract_graph_properties(source, target)
     _validate_search_parameters(quotient_search, yield_type, find_embedding_timeout, embedding)
 
     _source, source_nodes, to_source = _ensure_coordinate_source(source, m, tp)
