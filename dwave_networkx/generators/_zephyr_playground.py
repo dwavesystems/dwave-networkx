@@ -26,7 +26,7 @@ from dwave_networkx import zephyr_coordinates, zephyr_graph
 ZephyrNode = tuple[int, int, int, int, int]  # (u, w, k, j, z) coordinate tuple
 Embedding = dict[ZephyrNode, ZephyrNode]
 YieldType = Literal["node", "edge", "rail-edge"]
-KSearchType = Literal["by_quotient_rail", "by_quotient_node", "by_rail_then_node"]
+QuotientSearchType = Literal["by_quotient_rail", "by_quotient_node", "by_rail_then_node"]
 
 ZephyrSearchMetadata = namedtuple(
     "ZephyrSearchMetadata", ["max_num_yielded", "starting_num_yielded", "final_num_yielded"]
@@ -85,20 +85,20 @@ def _validate_graph_inputs(source: nx.Graph, target: nx.Graph) -> tuple[int, int
 
 
 def _validate_search_parameters(
-    ksearch: str,
+    quotient_search: str,
     yield_type: str,
     find_embedding_timeout: float,
     embedding: Embedding | None,
 ) -> None:
     """Validate high-level search parameters.
 
-    ``ksearch`` must be one of ``'by_quotient_rail'``, ``'by_quotient_node'``, or
+    ``quotient_search`` must be one of ``'by_quotient_rail'``, ``'by_quotient_node'``, or
     ``'by_rail_then_node'``; ``yield_type`` must be one of ``'node'``, ``'edge'``, or
     ``'rail-edge'``; ``find_embedding_timeout`` must be numeric (``int`` or ``float``)
     and non-negative; and ``embedding`` must be ``None`` or a ``dict``.
 
     Args:
-        ksearch (str): Search mode.
+        quotient_search (str): Search mode.
         yield_type (str): Optimization objective.
         find_embedding_timeout (float): Optional minorminer timeout.
         embedding (Embedding | None): Optional initial mapping.
@@ -107,11 +107,12 @@ def _validate_search_parameters(
         ValueError: If any value is invalid.
         TypeError: If types are invalid.
     """
-    valid_ksearch = get_args(KSearchType)
+    valid_ksearch = get_args(QuotientSearchType)
     valid_yield_type = get_args(YieldType)
 
-    if ksearch not in valid_ksearch:
-        raise ValueError(f"ksearch must be one of {sorted(valid_ksearch)}. Got '{ksearch}'")
+    if quotient_search not in valid_ksearch:
+        raise ValueError(f"quotient_search must be one of {sorted(valid_ksearch)}. Got "
+                         f"'{quotient_search}'")
     if yield_type not in valid_yield_type:
         raise ValueError(
             f"yield_type must be one of {sorted(valid_yield_type)}. Got '{yield_type}'"
@@ -661,7 +662,7 @@ def zephyr_quotient_search(
     source: nx.Graph,
     target: nx.Graph,
     *,
-    ksearch: KSearchType = "by_quotient_rail",
+    quotient_search: QuotientSearchType = "by_quotient_rail",
     embedding: Embedding | None = None,
     expand_boundary_search: bool = True,
     find_embedding_timeout: float = 0.0,
@@ -675,12 +676,23 @@ def zephyr_quotient_search(
     tiles. It is designed for defective targets where a direct identity map may lose
     nodes or edges.
 
-    The function can be used in (1) node-level mode (``ksearch='by_quotient_node'``), where each
-    quotient node block :math:`(u,w,j,z)` is optimised by choosing target candidates with the same
-    :math:`(u,w,j,z)` and selecting the highest-yield proposals; (2) rail-level mode
-    (``ksearch='by_quotient_rail'``): optimise each quotient rail block :math:`(u,w,:)` by selecting
-    rails :math:`(u,w_t,k_t)` that maximise yield.; and (3) hybrid mode
-    (``ksearch='by_rail_then_node'``): rail search followed by node refinement.
+    The search is organised around the **quotient graph** of the Zephyr topology, formed by
+    contracting fine-grained coordinate indices so that each equivalence class maps to a single
+    quotient node. Two coarsenings are used:
+
+    - **Quotient node** block :math:`(u, w, j, z)`: groups the ``tp`` source nodes that share
+      orientation ``u``, column ``w``, intra-cell index ``j``, and row ``z`` but differ in
+      tile index :math:`k \in \{0, \dots, tp-1\}`.
+    - **Quotient rail** block :math:`(u, w)`: groups all :math:`2 m \cdot tp` nodes that share
+      orientation ``u`` and column ``w`` (i.e. a whole Zephyr rail family) before any
+      :math:`(k, j, z)` variation.
+
+    The function can be used in (1) node-level mode (``quotient_search='by_quotient_node'``), where
+    each quotient node block :math:`(u,w,j,z)` is optimised by choosing target candidates with the
+    same :math:`(u,w,j,z)` and selecting the highest-yield proposals; (2) rail-level mode
+    (``quotient_search='by_quotient_rail'``): optimise each quotient rail block :math:`(u,w,:)` by
+    selecting rails :math:`(u,w_t,k_t)` that maximise yield.; and (3) hybrid mode
+    (``quotient_search='by_rail_then_node'``): rail search followed by node refinement.
 
     When ``expand_boundary_search=True``, boundary columns ``w=0`` and ``w=2m`` are augmented using
     proposals drawn from adjacent internal columns. Whenever this behaviour is activated, nodes from
@@ -697,7 +709,7 @@ def zephyr_quotient_search(
     Args:
         source (nx.Graph): Zephyr source graph (linear or coordinate labels).
         target (nx.Graph): Zephyr target graph (linear or coordinate labels).
-        ksearch (KSearchType): Search strategy. One of ``'by_quotient_rail'``,
+        quotient_search (QuotientSearchType): Search strategy. One of ``'by_quotient_rail'``,
             ``'by_quotient_node'``, or ``'by_rail_then_node'``. See full docstrings for a
             description of these. Defaults to ``'by_quotient_rail'``.
         embedding (Embedding | None): Optional initial one-to-one coordinate mapping. If omitted,
@@ -727,7 +739,7 @@ def zephyr_quotient_search(
     """
 
     m, tp, t = _validate_graph_inputs(source, target)
-    _validate_search_parameters(ksearch, yield_type, find_embedding_timeout, embedding)
+    _validate_search_parameters(quotient_search, yield_type, find_embedding_timeout, embedding)
 
     _source, source_nodes, to_source = _ensure_coordinate_source(source, m, tp)
     _target, to_target = _ensure_coordinate_target(target, m, t)
@@ -757,15 +769,15 @@ def zephyr_quotient_search(
     starting_yield = num_yielded
 
     if not full_yield:
-        supplement = ksearch == "by_rail_then_node"
+        supplement = quotient_search == "by_rail_then_node"
 
-        if ksearch == "by_quotient_rail" or supplement:
+        if quotient_search == "by_quotient_rail" or supplement:
             working_embedding = _rail_search(
                 source=_source,
                 target=_target,
                 embedding=working_embedding,
-                # if ksearch is by_rail_then_node, we expand boundary search only in the node
-                # search, and disable it in the rail search:
+                # if quotient_search is by_rail_then_node, we expand boundary search only in the
+                # node search, and disable it in the rail search:
                 expand_boundary_search=((not supplement) and expand_boundary_search),
                 ksymmetric=ksymmetric,
                 yield_type=yield_type,
@@ -779,7 +791,7 @@ def zephyr_quotient_search(
                     ksymmetric=False,
                     yield_type=yield_type,
                 )
-        elif ksearch == "by_quotient_node":
+        elif quotient_search == "by_quotient_node":
             working_embedding = _node_search(
                 source=_source,
                 target=_target,
@@ -897,7 +909,7 @@ def main(
     print("Number of edges in target:", target.number_of_edges())
     for (
         yield_type,
-        ksearch,
+        quotient_search,
         expand_boundary_search,
         ksymmetric,
         find_embedding_timeout,
@@ -911,7 +923,7 @@ def main(
         print("Going through configuration:")
         print("-Solver:", solver_name)
         print("-Yield type:", yield_type)
-        print("-K-search strategy:", ksearch)
+        print("-K-search strategy:", quotient_search)
         print("-Expand boundary search:", expand_boundary_search)
         print("-K-symmetric:", ksymmetric)
         print("-Find embedding timeout:", find_embedding_timeout)
@@ -923,7 +935,7 @@ def main(
             yield_type=yield_type,
             expand_boundary_search=expand_boundary_search,
             find_embedding_timeout=find_embedding_timeout,
-            ksearch=ksearch,
+            quotient_search=quotient_search,
             ksymmetric=ksymmetric,
         )
         final_time = time.time()
