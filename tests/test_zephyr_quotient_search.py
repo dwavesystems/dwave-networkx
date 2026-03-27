@@ -132,13 +132,13 @@ class TestYieldImprovement(unittest.TestCase):
             raise ValueError("Generated target graph is not connected; adjust parameters or seed.")
 
     def _assert_search_improves_yield(
-        self, yield_type, ksearch, expand_boundary_search, ksymmetric,
+        self, yield_type, quotient_search, expand_boundary_search, ksymmetric,
     ):
         sub_emb, _minor_emb, metadata = zephyr_quotient_search(
             self.source,
             self.target,
             yield_type=yield_type,
-            ksearch=ksearch,
+            quotient_search=quotient_search,
             expand_boundary_search=expand_boundary_search,
             ksymmetric=ksymmetric,
             find_embedding_timeout=0.0,
@@ -150,7 +150,8 @@ class TestYieldImprovement(unittest.TestCase):
             metadata.starting_num_yielded,
             msg=(
                 f"Yield decreased from {metadata.starting_num_yielded} to "
-                f"{metadata.final_num_yielded} with yield_type={yield_type}, ksearch={ksearch}, "
+                f"{metadata.final_num_yielded} with yield_type={yield_type}, "
+                f"quotient_search={quotient_search}, "
                 f"expand={expand_boundary_search}, ksymmetric={ksymmetric}"
             ),
         )
@@ -159,20 +160,25 @@ class TestYieldImprovement(unittest.TestCase):
 
         target_nodes = set(self.target.nodes())
         # check the nodes the source was embedded onto are actually in the target
-        self.assertTrue(set(sub_emb.values()).issubset(target_nodes))
+        # Flatten the chain tuples to check if all target nodes are in the target graph
+        all_target_nodes = {node for chain in sub_emb.values() for node in chain}
+        self.assertTrue(all_target_nodes.issubset(target_nodes))
         # check the nodes in the subgraph embedding are actually in the source
         self.assertTrue(set(sub_emb.keys()).issubset(set(self.source.nodes())))
 
     def test_search_yields_improvement(self):
-        for ksearch, expand, ksym, yt in itertools.product(
+        for quotient_search, expand, ksym, yt in itertools.product(
             self._BY_STRATEGIES, self._TRUE_FALSE, self._TRUE_FALSE, self._YIELD_TYPES,
         ):
             with self.subTest(
-                ksearch=ksearch, expand_boundary_search=expand, ksymmetric=ksym, yield_type=yt
+                quotient_search=quotient_search,
+                expand_boundary_search=expand,
+                ksymmetric=ksym,
+                yield_type=yt,
             ):
                 self._assert_search_improves_yield(
                     yield_type=yt,
-                    ksearch=ksearch,
+                    quotient_search=quotient_search,
                     expand_boundary_search=expand,
                     ksymmetric=ksym,
                 )
@@ -312,10 +318,10 @@ class TestSearchParameterValidation(unittest.TestCase):
         self.source = zephyr_graph(6, 2, coordinates=True)
         self.target = zephyr_graph(6, 4, coordinates=True)
 
-    def test_invalid_ksearch_raises_value_error(self):
-        with self.assertRaisesRegex(ValueError, r"ksearch must be one of"):
+    def test_invalid_quotient_search_raises_value_error(self):
+        with self.assertRaisesRegex(ValueError, r"quotient_search must be one of"):
             zephyr_quotient_search(
-                self.source, self.target, ksearch="unknown_strategy"  # type: ignore
+                self.source, self.target, quotient_search="unknown_strategy"  # type: ignore
             )
 
     def test_invalid_yield_type_raises_value_error(self):
@@ -345,6 +351,66 @@ class TestSearchParameterValidation(unittest.TestCase):
             zephyr_quotient_search(
                 self.source, self.target, embedding=[1, 2, 3]  # type: ignore
             )
+
+    def test_embedding_with_non_tuple_values_raises_type_error(self):
+        """Embedding values must be tuples (chain format), not single nodes."""
+        bad_embedding = {(0, 0, 0, 0, 0): [(0, 0, 0, 0, 0)]}  # List, not tuple
+        with self.assertRaisesRegex(
+            TypeError, r"embedding values must be tuples representing node chains"
+        ):
+            zephyr_quotient_search(
+                self.source, self.target, embedding=bad_embedding  # type: ignore
+            )
+
+    def test_embedding_with_empty_chain_raises_value_error(self):
+        """Embedding chains must be non-empty."""
+        bad_embedding = {(0, 0, 0, 0, 0): ()}  # Empty chain
+        with self.assertRaisesRegex(
+            ValueError, r"embedding chains must be non-empty"
+        ):
+            zephyr_quotient_search(
+                self.source, self.target, embedding=bad_embedding  # type: ignore
+            )
+
+    def test_embedding_with_non_5tuple_in_chain_raises_value_error(self):
+        """Nodes in embedding chains must be 5-tuples."""
+        bad_embedding = {(0, 0, 0, 0, 0): ((0, 0, 0, 0),)}  # 4-tuple instead of 5-tuple
+        with self.assertRaisesRegex(
+            ValueError, r"embedding chains must contain 5-tuples"
+        ):
+            zephyr_quotient_search(
+                self.source, self.target, embedding=bad_embedding  # type: ignore
+            )
+
+    def test_embedding_with_duplicate_target_nodes_raises_value_error(self):
+        """Embedding must be one-to-one: no duplicate target nodes across chains."""
+        source_node1 = (0, 0, 0, 0, 0)
+        source_node2 = (0, 0, 1, 0, 0)
+        duplicate_target = (1, 1, 1, 1, 1)
+        bad_embedding = {
+            source_node1: (duplicate_target,),
+            source_node2: (duplicate_target,),  # Duplicate target
+        }
+        with self.assertRaisesRegex(
+            ValueError, r"embedding must be a one-to-one mapping.*duplicate target nodes"
+        ):
+            zephyr_quotient_search(
+                self.source, self.target, embedding=bad_embedding  # type: ignore
+            )
+
+    def test_valid_chain_embedding_is_accepted(self):
+        """Valid chain embedding with proper format should be accepted."""
+        source = zephyr_graph(6, 2, coordinates=True)
+        target = zephyr_graph(6, 4, coordinates=True)
+        # Create a valid small chain embedding (identity mapping)
+        valid_embedding = {node: (node,) for i, node in enumerate(source.nodes()) if i < 10}
+        # Should not raise any errors
+        try:
+            zephyr_quotient_search(
+                source, target, embedding=valid_embedding, find_embedding_timeout=0.0
+            )
+        except (TypeError, ValueError) as e:
+            self.fail(f"Valid embedding raised unexpected error: {e}")
 
 
 class TestLabelingSchemeErrors(unittest.TestCase):

@@ -24,7 +24,8 @@ from dwave.embedding import is_valid_embedding, verify_embedding
 from dwave_networkx import zephyr_coordinates, zephyr_graph
 
 ZephyrNode = tuple[int, int, int, int, int]  # (u, w, k, j, z) coordinate tuple
-Embedding = dict[ZephyrNode, ZephyrNode]
+Embedding = dict[ZephyrNode, ZephyrNode]  # Internal single-node format
+EmbeddingChain = dict[ZephyrNode, tuple[ZephyrNode, ...]]  # External chain format
 YieldType = Literal["node", "edge", "rail-edge"]
 QuotientSearchType = Literal["by_quotient_rail", "by_quotient_node", "by_rail_then_node"]
 
@@ -103,7 +104,7 @@ def _validate_search_parameters(
     quotient_search: str,
     yield_type: str,
     find_embedding_timeout: float,
-    embedding: Embedding | None,
+    embedding: EmbeddingChain | None,
 ) -> None:
     """Validate high-level search parameters.
 
@@ -111,13 +112,14 @@ def _validate_search_parameters(
     ``'by_rail_then_node'``; ``yield_type`` must be one of ``'node'``, ``'edge'``, or
     ``'rail-edge'``; ``find_embedding_timeout`` must be numeric (``int`` or ``float``)
     and non-negative; and ``embedding`` must be ``None`` or a ``dict`` representing a
-    one-to-one mapping of Zephyr coordinate nodes.
+    one-to-one chain mapping of Zephyr coordinate nodes, where each value is a tuple
+    of one target nodes.
 
     Args:
         quotient_search (str): Search mode.
         yield_type (str): Optimization objective.
         find_embedding_timeout (float): Optional minorminer timeout.
-        embedding (Embedding | None): Optional initial one-to-one coordinate mapping.
+        embedding (EmbeddingChain | None): Optional initial one-to-one chain mapping.
 
     Raises:
         ValueError: If ``quotient_search`` or ``yield_type`` is invalid, or if ``embedding``
@@ -145,21 +147,47 @@ def _validate_search_parameters(
     if embedding is not None and not isinstance(embedding, dict):
         raise TypeError(f"embedding must be a dictionary when provided. Got {type(embedding)}")
     if embedding is not None:
+        # Validate chain format: keys are nodes, values are tuples of nodes
         for key, value in embedding.items():
-            if not isinstance(key, tuple) or not isinstance(value, tuple):
+            if not isinstance(key, tuple):
                 raise TypeError(
-                    f"embedding keys and values must be tuples representing nodes. Got key {key} "
-                    f"of type {type(key)} and value {value} of type {type(value)}"
+                    f"embedding keys must be tuples representing nodes. Got key {key} "
+                    f"of type {type(key)}"
                 )
-            if len(key) != 5 or len(value) != 5:
+            if len(key) != 5:
                 raise ValueError(
-                    "embedding keys and values must be 5-tuples representing Zephyr coordinates. "
-                    f"Got key {key} of length {len(key)} and value {value} of length {len(value)}"
+                    f"embedding keys must be 5-tuples representing Zephyr coordinates. "
+                    f"Got key {key} of length {len(key)}"
                 )
-        target_nodes = list(embedding.values())
-        if len(target_nodes) != len(set(target_nodes)):
+            if not isinstance(value, tuple):
+                raise TypeError(
+                    f"embedding values must be tuples representing node chains. Got value {value} "
+                    f"of type {type(value)}"
+                )
+            if len(value) == 0:
+                raise ValueError(
+                    f"embedding chains must be non-empty. Got empty tuple for key {key}"
+                )
+            elif len(value) != 1:
+                raise ValueError(
+                    f"embedding chains must contain exactly one target node for each source node. "
+                    f"Got chain of length {len(value)} for key {key}. Chain is: {value}"
+                )
+            for i, node in enumerate(value):
+                if not isinstance(node, tuple) or len(node) != 5:
+                    raise ValueError(
+                        f"embedding chains must contain 5-tuples. Got {node} "
+                        f"(length {len(node) if isinstance(node, tuple) else 'N/A'}) "
+                        f"at position {i} in chain for key {key}"
+                    )
+        # Check one-to-one constraint: flatten all chains and ensure no duplicates
+        all_target_nodes = []
+        for chain in embedding.values():
+            all_target_nodes.extend(chain)
+        if len(all_target_nodes) != len(set(all_target_nodes)):
             raise ValueError(
-                "embedding must be a one-to-one mapping: duplicate target nodes detected. "
+                "embedding must be a one-to-one mapping: duplicate target nodes detected across "
+                "chains. "
             )
 
 
@@ -685,12 +713,12 @@ def zephyr_quotient_search(
     target: nx.Graph,
     *,
     quotient_search: QuotientSearchType = "by_quotient_rail",
-    embedding: Embedding | None = None,
+    embedding: EmbeddingChain | None = None,
     expand_boundary_search: bool = True,
     find_embedding_timeout: float = 0.0,
     ksymmetric: bool = False,
     yield_type: YieldType = "edge",
-) -> tuple[dict, dict | None, ZephyrSearchMetadata]:
+) -> tuple[EmbeddingChain, EmbeddingChain | None, ZephyrSearchMetadata]:
     r"""Compute a high-yield Zephyr-to-Zephyr embedding.
 
     This routine starts from a source Zephyr graph with ``m`` rows and ``tp`` tiles,
@@ -734,10 +762,11 @@ def zephyr_quotient_search(
         quotient_search (QuotientSearchType): Search strategy. One of ``'by_quotient_rail'``,
             ``'by_quotient_node'``, or ``'by_rail_then_node'``. See full docstrings for a
             description of these. Defaults to ``'by_quotient_rail'``.
-        embedding (Embedding | None): Optional initial one-to-one coordinate mapping. If omitted,
-            the identity on source coordinate indices is used. Defaults to ``None``. This must
-            be a node-to-node mapping (not a chain embedding such as those produced by
-            ``minorminer.find_embedding``).
+        embedding (EmbeddingChain | None): Optional initial one-to-one chain mapping. If omitted,
+            the identity on source coordinate indices is used (wrapped in singleton chains).
+            Defaults to ``None``. This must be a chain mapping where each source node maps to
+            a tuple of one or more target nodes (e.g., ``{source_node: (target_node,)}`` for
+            singleton chains).
         expand_boundary_search (bool): Enable additional boundary proposals. Defaults to ``True``.
         find_embedding_timeout (float): If positive and greedy search is not full-yield,
             call ``minorminer.find_embedding`` using the greedy result as an initial chain
@@ -748,16 +777,17 @@ def zephyr_quotient_search(
             See full docstrings for a description of these. Defaults to ``'edge'``.
 
     Returns:
-        tuple[dict, dict | None, ZephyrSearchMetadata]:
+        tuple[EmbeddingChain, EmbeddingChain | None, ZephyrSearchMetadata]:
             ``(subgraph_embedding, minor_embedding, metadata)``
-            ``subgraph_embedding`` is a pruned one-to-one node map ``source_node -> target_node``.
-            It contains only mappings whose target node exists in ``target``. Note that it is not
-            guaranteed to preserve all source edges unless full edge-yield is achieved.
+            ``subgraph_embedding`` is a pruned one-to-one chain embedding
+            ``source_node -> (target_node,)`` (singleton chains). It contains only mappings whose
+            target node exists in ``target``. Note that it is not guaranteed to preserve all source
+            edges unless full edge-yield is achieved.
             ``minor_embedding`` is either a chain embedding
             ``source_node -> tuple[target_nodes, ...]`` or ``None``. If the greedy search did not
             achieve full yield and minorminer is disabled, or minorminer was not able to find an
             embedding, then ``minor_embedding`` is ``None``. If full yield is achieved, then
-            ``minor_embedding`` is a trivial chain embedding with singleton chains.
+            ``minor_embedding`` is the same as ``subgraph_embedding`` (trivial singleton chains).
             ``metadata`` is a :class:`ZephyrSearchMetadata` namedtuple with fields
             ``max_num_yielded``, ``starting_num_yielded``, and ``final_num_yielded``.
     """
@@ -773,7 +803,8 @@ def zephyr_quotient_search(
     if embedding is None:
         working_embedding: Embedding = {n: n for n in source_nodes}
     else:
-        working_embedding = embedding.copy()
+        # Convert chain format to internal single-node format
+        working_embedding = {k: v[0] for k, v in embedding.items()}
 
     if yield_type == "node":
         max_num_yielded = source.number_of_nodes()
@@ -867,8 +898,12 @@ def zephyr_quotient_search(
         for k, v in working_embedding.items()
         if v in target_nodeset
     }  # TODO:?: why would a target node in the working_embedding not be in the target_nodeset?
+    
+    # Convert to chain format for return value
+    pruned_embedding = {k: (v,) for k, v in pruned_embedding.items()}
+    
     if full_yield:
-        embedding2 = {k: (v,) for k, v in pruned_embedding.items()}
+        embedding2 = pruned_embedding
         if yield_type != "node":
             verify_embedding(emb=embedding2, source=source, target=target)
 
