@@ -1,0 +1,5 @@
+---
+upgrade:
+  - |
+    Remove deprecated Chimera and Pegasus coordinates transformation alias methods
+    (``int``/``tuple``/etc in favor of explicit e.g. ``chimera_to_linear``).

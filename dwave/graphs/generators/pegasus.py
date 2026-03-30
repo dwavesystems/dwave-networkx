@@ -204,7 +204,8 @@ def pegasus_graph(m, create_using=None, node_list=None, edge_list=None, data=Tru
         for ori in 0, 1:
             for x, y in zip(offset_lists[ori][::2], offset_lists[ori][1::2]):
                 if x != y:
-                    warnings.warn("The offets list you've provided is possibly non-physical.  Odd-coupled qubits should have the same value.")
+                    warnings.warn("The offset list you've provided is possibly non-physical. "
+                                  "Odd-coupled qubits should have the same value.")
         offsets_descriptor = offset_lists
 
     G = nx.empty_graph(0, create_using)
@@ -897,112 +898,6 @@ class pegasus_coordinates(object):
             nice_coordinates=True,
             offsets_index = 0,
         )
-
-    def int(self, q):
-        """Deprecated alias of `pegasus_to_linear`."""
-        msg = ('pegasus_coordinates.int is deprecated and will be removed in '
-               'dwave-networkx 0.9.0, please use '
-               'pegasus_coordinates.pegasus_to_linear instead')
-        warnings.warn(msg, DeprecationWarning)
-        return self.pegasus_to_linear(q)
-
-    def tuple(self, r):
-        """Deprecated alias for `linear_to_pegasus`."""
-        msg = ('pegasus_coordinates.tuple is deprecated and will be removed in '
-               'dwave-networkx 0.9.0, please use '
-               'pegasus_coordinates.linear_to_pegasus instead')
-        warnings.warn(msg, DeprecationWarning)
-        return self.linear_to_pegasus(r)
-
-    def ints(self, qlist):
-        """Deprecated alias for `iter_pegasus_to_linear`."""
-        msg = ('pegasus_coordinates.ints is deprecated and will be removed in '
-               'dwave-networkx 0.9.0, please use '
-               'pegasus_coordinates.iter_pegasus_to_linear instead')
-        warnings.warn(msg, DeprecationWarning)
-        return self.iter_pegasus_to_linear(qlist)
-
-    def tuples(self, rlist):
-        """Deprecated alias for `iter_linear_to_pegasus`."""
-        msg = ('pegasus_coordinates.tuples is deprecated and will be removed in '
-               'dwave-networkx 0.9.0, please use '
-               'pegasus_coordinates.iter_linear_to_pegasus instead')
-        warnings.warn(msg, DeprecationWarning)
-        return self.iter_linear_to_pegasus(rlist)
-
-    def int_pairs(self, plist):
-        """Deprecated alias for `iter_pegasus_to_linear_pairs`."""
-        msg = ('pegasus_coordinates.int_pairs is deprecated and will be removed'
-               ' in dwave-networkx 0.9.0, please use '
-               'pegasus_coordinates.iter_pegasus_to_linear_pairs instead')
-        warnings.warn(msg, DeprecationWarning)
-        return self.iter_pegasus_to_linear_pairs(plist)
-
-    def tuple_pairs(self, plist):
-        """Deprecated alias for `iter_linear_to_pegasus_pairs`."""
-        msg = ('pegasus_coordinates.tuple_pairs is deprecated and will be removed'
-               ' in dwave-networkx 0.9.0, please use '
-               'pegasus_coordinates.iter_linear_to_pegasus_pairs instead')
-        warnings.warn(msg, DeprecationWarning)
-        return self.iter_linear_to_pegasus_pairs(plist)
-
-
-# maintained for backwards compatibility
-def get_pegasus_to_nice_fn(*args, **kwargs):
-    """
-    Returns a coordinate translation function from the 4-term pegasus_index
-    coordinates to the 5-term "nice" coordinates.
-
-    Details on the returned function, pegasus_to_nice(u,w,k,z)
-        Inputs are 4-tuples of ints, return is a 5-tuple of ints.  See
-        pegasus_graph for description of the pegasus_index and "nice"
-        coordinate systems.
-
-    Returns
-    -------
-    pegasus_to_nice_fn(chimera_coordinates): a function
-        A function that accepts augmented chimera coordinates and returns corresponding
-        Pegasus coordinates.
-    """
-    if args or kwargs:
-        msg = "get_pegasus_to_nice_fn does not need / use parameters anymore"
-        warnings.warn(msg, DeprecationWarning)
-
-    msg = ('get_pegasus_to_nice_fn is deprecated and will be removed in '
-           'dwave-networkx 0.9.0, please use '
-           'pegasus_coordinates.pegasus_to_nice instead')
-    warnings.warn(msg, DeprecationWarning)
-
-    return lambda *args: pegasus_coordinates.pegasus_to_nice(args)
-
-
-# maintained for backwards compatibility
-def get_nice_to_pegasus_fn(*args, **kwargs):
-    """
-    Returns a coordinate translation function from the 5-term "nice"
-    coordinates to the 4-term pegasus_index coordinates.
-
-    Details on the returned function, nice_to_pegasus(t, y, x, u, k)
-        Inputs are 5-tuples of ints, return is a 4-tuple of ints.  See
-        pegasus_graph for description of the pegasus_index and "nice"
-        coordinate systems.
-
-    Returns
-    -------
-    nice_to_pegasus_fn(pegasus_coordinates): a function
-        A function that accepts Pegasus coordinates and returns the corresponding
-        augmented chimera coordinates
-    """
-    if args or kwargs:
-        msg = "get_pegasus_to_nice_fn does not need / use parameters anymore"
-        warnings.warn(msg, DeprecationWarning)
-
-    msg = ('get_nice_to_pegasus_fn is deprecated and will be removed in '
-           'dwave-networkx 0.9.0, please use '
-           'pegasus_coordinates.nice_to_pegasus instead')
-    warnings.warn(msg, DeprecationWarning)
-
-    return lambda *args: pegasus_coordinates.nice_to_pegasus(args)
 
 
 def _chimera_pegasus_sublattice_mapping(source_to_chimera, nice_to_target, offset):
