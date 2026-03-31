@@ -771,6 +771,45 @@ def zephyr_quotient_search(
             ``max_num_yielded``, ``starting_num_yielded``, and ``final_num_yielded``.
 
     Note:
+        If you want to embed a Zephyr graph with parameter ``mp`` < ``m``, where ``m`` is the row
+        count of the target, you can use
+        ``minorminer.utils.parallel_embeddings.find_sublattice_embeddings`` to locate a compatible
+        ``mp``-row sublattice first, then pass that induced subgraph as the target.
+
+        .. code-block:: python
+
+            import networkx as nx
+            import dwave_networkx as dnx
+            from minorminer.utils.parallel_embeddings import find_sublattice_embeddings
+
+            # Build an mp-row Zephyr tile and locate it in the original target.
+            tile = dnx.zephyr_graph(mp, target.graph["tile"], coordinates=True)
+            tile_embs = find_sublattice_embeddings(
+                S=tile,
+                T=target,
+                max_num_emb=1,
+                one_to_iterable=False,
+            )
+
+            if tile_embs:
+                tile_to_target = tile_embs[0]  # pick the first one
+                mp_nodes = set(tile_to_target.values())
+                target_mp = target.subgraph(mp_nodes).copy()
+
+                # Relabel to canonical mp coordinates expected by source/target metadata.
+                target_to_tile = {tgt: tile_n for tile_n, tgt in tile_to_target.items()}
+                target_mp = nx.relabel_nodes(target_mp, target_to_tile, copy=True)
+                target_mp.graph.update(family="zephyr", rows=mp, tile=target.graph["tile"],
+                                       labels="coordinate")
+
+                emb_mp, metadata = zephyr_quotient_search(source, target_mp)
+
+                # Map the final embedding back to the original target labels.
+                emb_in_original_target = {
+                    s: tuple(tile_to_target[v] for v in chain)
+                    for s, chain in emb_mp.items()
+                }
+
         If you want to refine a non-full-yield result with an external solver, run
         :func:`zephyr_quotient_search` first and only call the refinement routine when
         ``metadata.final_num_yielded < metadata.max_num_yielded``.
