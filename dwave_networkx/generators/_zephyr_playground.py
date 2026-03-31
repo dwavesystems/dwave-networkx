@@ -16,7 +16,6 @@ import itertools
 from collections import namedtuple
 from typing import Callable, Literal, get_args
 
-import minorminer
 import networkx as nx
 import numpy as np
 from dwave.embedding import is_valid_embedding, verify_embedding
@@ -103,28 +102,25 @@ def _extract_graph_properties(source: nx.Graph, target: nx.Graph) -> tuple[int, 
 def _validate_search_parameters(
     quotient_search: str,
     yield_type: str,
-    find_embedding_timeout: float,
     embedding: EmbeddingChain | None,
 ) -> None:
     """Validate high-level search parameters.
 
     ``quotient_search`` must be one of ``'by_quotient_rail'``, ``'by_quotient_node'``, or
     ``'by_rail_then_node'``; ``yield_type`` must be one of ``'node'``, ``'edge'``, or
-    ``'rail-edge'``; ``find_embedding_timeout`` must be numeric (``int`` or ``float``)
-    and non-negative; and ``embedding`` must be ``None`` or a ``dict`` representing a
+    ``'rail-edge'``; and ``embedding`` must be ``None`` or a ``dict`` representing a
     one-to-one chain mapping of Zephyr coordinate nodes, where each value is a tuple
     of one target nodes.
 
     Args:
         quotient_search (str): Search mode.
         yield_type (str): Optimization objective.
-        find_embedding_timeout (float): Optional minorminer timeout.
         embedding (EmbeddingChain | None): Optional initial one-to-one chain mapping.
 
     Raises:
         ValueError: If ``quotient_search`` or ``yield_type`` is invalid, or if ``embedding``
             contains duplicate target nodes (i.e. is not one-to-one).
-        TypeError: If ``find_embedding_timeout`` or ``embedding`` are invalid.
+        TypeError: If ``embedding`` is invalid.
     """
     valid_ksearch = get_args(QuotientSearchType)
     valid_yield_type = get_args(YieldType)
@@ -135,14 +131,6 @@ def _validate_search_parameters(
     if yield_type not in valid_yield_type:
         raise ValueError(
             f"yield_type must be one of {sorted(valid_yield_type)}. Got '{yield_type}'"
-        )
-    if not isinstance(find_embedding_timeout, (int, float)):
-        raise TypeError(
-            f"find_embedding_timeout must be numeric. Got {type(find_embedding_timeout)}"
-        )
-    if find_embedding_timeout < 0:
-        raise ValueError(
-            f"find_embedding_timeout must be non-negative. Got {find_embedding_timeout}"
         )
     if embedding is not None and not isinstance(embedding, dict):
         raise TypeError(f"embedding must be a dictionary when provided. Got {type(embedding)}")
@@ -715,10 +703,9 @@ def zephyr_quotient_search(
     quotient_search: QuotientSearchType = "by_quotient_rail",
     embedding: EmbeddingChain | None = None,
     expand_boundary_search: bool = True,
-    find_embedding_timeout: float = 0.0,
     ksymmetric: bool = False,
     yield_type: YieldType = "edge",
-) -> tuple[EmbeddingChain, EmbeddingChain | None, ZephyrSearchMetadata]:
+) -> tuple[EmbeddingChain, ZephyrSearchMetadata]:
     r"""Compute a high-yield Zephyr-to-Zephyr embedding.
 
     This routine starts from a source Zephyr graph with ``m`` rows and ``tp`` tiles,
@@ -768,33 +755,44 @@ def zephyr_quotient_search(
             a tuple of one or more target nodes (e.g., ``{source_node: (target_node,)}`` for
             singleton chains).
         expand_boundary_search (bool): Enable additional boundary proposals. Defaults to ``True``.
-        find_embedding_timeout (float): If positive and greedy search is not full-yield,
-            call ``minorminer.find_embedding`` using the greedy result as an initial chain
-            assignment. Defaults to 0 (disabled).
         ksymmetric (bool): Assume source ``k`` ordering can be treated symmetrically during greedy
             selection when valid. Defaults to ``False``.
         yield_type (YieldType): Optimization objective: ``'node'``, ``'edge'``, or ``'rail-edge'``.
             See full docstrings for a description of these. Defaults to ``'edge'``.
 
     Returns:
-        tuple[EmbeddingChain, EmbeddingChain | None, ZephyrSearchMetadata]:
-            ``(subgraph_embedding, minor_embedding, metadata)``
-            ``subgraph_embedding`` is a pruned one-to-one chain embedding
+        tuple[EmbeddingChain, ZephyrSearchMetadata]:
+            ``(embedding, metadata)``
+            ``embedding`` is a pruned one-to-one chain embedding
             ``source_node -> (target_node,)`` (singleton chains). It contains only mappings whose
             target node exists in ``target``. Note that it is not guaranteed to preserve all source
             edges unless full edge-yield is achieved.
-            ``minor_embedding`` is either a chain embedding
-            ``source_node -> tuple[target_nodes, ...]`` or ``None``. If the greedy search did not
-            achieve full yield and minorminer is disabled, or minorminer was not able to find an
-            embedding, then ``minor_embedding`` is ``None``. If full yield is achieved, then
-            ``minor_embedding`` is the same as ``subgraph_embedding`` (trivial singleton chains).
             ``metadata`` is a :class:`ZephyrSearchMetadata` namedtuple with fields
             ``max_num_yielded``, ``starting_num_yielded``, and ``final_num_yielded``.
+
+    Note:
+        If you want to refine a non-full-yield result with an external solver, run
+        :func:`zephyr_quotient_search` first and only call the refinement routine when
+        ``metadata.final_num_yielded < metadata.max_num_yielded``.
+
+        .. code-block:: python
+
+            emb, metadata = zephyr_quotient_search(source, target, yield_type="edge")
+            if metadata.final_num_yielded < metadata.max_num_yielded:
+                import minorminer
+
+                initial_chains = {s: chain for s, chain in emb.items() if chain[0] in target}
+                refined = minorminer.find_embedding(
+                    S=source,
+                    T=target,
+                    initial_chains=initial_chains,
+                    timeout=5,  # or whatever you want
+                )
     """
 
     _validate_graph_inputs(source, target)
     m, tp, t = _extract_graph_properties(source, target)
-    _validate_search_parameters(quotient_search, yield_type, find_embedding_timeout, embedding)
+    _validate_search_parameters(quotient_search, yield_type, embedding)
 
     _source, source_nodes, to_source = _ensure_coordinate_source(source, m, tp)
     _target, to_target = _ensure_coordinate_target(target, m, t)
@@ -874,24 +872,7 @@ def zephyr_quotient_search(
         if num_yielded < starting_yield:
             raise ValueError("Greedy quotient search reduced the objective value")
 
-        if not full_yield and find_embedding_timeout > 0:
-            initial_chains = {
-                k: (v,) for k, v in working_embedding.items() if v in target_nodeset
-            }
-            embedding2 = minorminer.find_embedding(
-                S=_source,
-                T=_target,
-                initial_chains=initial_chains,
-                timeout=int(find_embedding_timeout),
-            )
-            embedding2 = {
-                to_source(k): tuple(to_target(n) for n in v)
-                for k, v in embedding2.items()
-            }
-        else:
-            embedding2 = None
-    else:
-        embedding2 = None
+    
 
     pruned_embedding = {
         to_source(k): to_target(v)
@@ -902,138 +883,14 @@ def zephyr_quotient_search(
     # Convert to chain format for return value
     pruned_embedding = {k: (v,) for k, v in pruned_embedding.items()}
     
-    if full_yield:
-        embedding2 = pruned_embedding
-        if yield_type != "node":
-            verify_embedding(emb=embedding2, source=source, target=target)
+    if full_yield and yield_type != "node":
+        verify_embedding(emb=pruned_embedding, source=source, target=target)
 
     metadata = ZephyrSearchMetadata(
         max_num_yielded=max_num_yielded,
         starting_num_yielded=starting_yield,
         final_num_yielded=num_yielded,
     )
-    return pruned_embedding, embedding2, metadata
+    return pruned_embedding, metadata
 
 
-def main(
-    solver_name=None,
-    tp=2,
-    yield_types=("node", "edge"),
-    ksearches=("by_rail_then_node", "by_quotient_rail", "by_quotient_node"),
-    expand_boundary_searches=[False, True],
-    ksymmetrics=[True, False],
-    find_embedding_timeouts=[0, 5.0],
-):
-
-    import os
-    import pickle
-    import time
-
-    from dwave.system import DWaveSampler
-    from dwave.system.testing import MockDWaveSampler
-
-    if solver_name is None:
-        m = 12
-        t = 4
-
-        target = zephyr_graph(m, t, coordinates=True)
-        remove_nodes = {
-            (u, w, k, j, z)
-            for u in range(2)
-            for w in range(2 * m + 1)
-            for k in range(t - tp)
-            for j in range(2)
-            for z in range(m)
-        }
-        target.remove_nodes_from(remove_nodes)
-    else:
-        fn = f"{solver_name}.pkl"
-        if not os.path.isfile(fn):
-            qpu = DWaveSampler(profile="defaults", solver=solver_name)
-            with open(fn, "wb") as f:
-                pickle.dump(qpu.properties, f)
-        with open(fn, "rb") as f:
-            properties = pickle.load(f)
-            nodelist = properties["qubits"]
-            edgelist = properties["couplers"]
-            qpu = MockDWaveSampler(
-                properties=properties, nodelist=nodelist, edgelist=edgelist
-            )
-            target = qpu.to_networkx_graph()
-        m, t = properties["topology"]["shape"]
-
-    source = zephyr_graph(m, tp, coordinates=True)
-    print("Number of nodes in source:", source.number_of_nodes())
-    print("Number of edges in source:", source.number_of_edges())
-    print("Number of nodes in target:", target.number_of_nodes())
-    print("Number of edges in target:", target.number_of_edges())
-    for (
-        yield_type,
-        quotient_search,
-        expand_boundary_search,
-        ksymmetric,
-        find_embedding_timeout,
-    ) in itertools.product(
-        yield_types,
-        ksearches,
-        expand_boundary_searches,
-        ksymmetrics,
-        find_embedding_timeouts,
-    ):
-        print("Going through configuration:")
-        print("-Solver:", solver_name)
-        print("-Yield type:", yield_type)
-        print("-K-search strategy:", quotient_search)
-        print("-Expand boundary search:", expand_boundary_search)
-        print("-K-symmetric:", ksymmetric)
-        print("-Find embedding timeout:", find_embedding_timeout)
-        print("Starting search...")
-        start_time = time.time()
-        subgraph_embedding, minor_embedding, _metadata = zephyr_quotient_search(
-            source=source,
-            target=target,
-            yield_type=yield_type,
-            expand_boundary_search=expand_boundary_search,
-            find_embedding_timeout=find_embedding_timeout,
-            quotient_search=quotient_search,
-            ksymmetric=ksymmetric,
-        )
-        final_time = time.time()
-        print(f"Search completed in {final_time - start_time:.2f} seconds")
-        assert set(subgraph_embedding.values()).issubset(set(target.nodes()))
-        assert set(subgraph_embedding.keys()).issubset(set(source.nodes()))
-        if minor_embedding and (yield_type != "nodes" or solver_name is None):
-            assert set(minor_embedding.keys()) == set(source.nodes())
-            assert set(n for c in minor_embedding.values() for n in c).issubset(
-                set(target.nodes())
-            )
-            if not is_valid_embedding(source=source, target=target, emb=minor_embedding):
-                raise ValueError("Invalid embedding")
-            tcl = sum(1 for c in minor_embedding.values() for _ in c)
-            ny = len(subgraph_embedding)
-            ey = sum(
-                target.has_edge(subgraph_embedding[n1], subgraph_embedding[n2])
-                for n1, n2 in source.edges()
-                if n1 in subgraph_embedding and n2 in subgraph_embedding
-            )
-            print("Number of nodes in source:", source.number_of_nodes())
-            print("Total chain length:", tcl)
-            print("Number of yielded nodes:", ny)
-            print("Number of yielded edges:", ey)
-            print("Success")
-        else:
-            print("Fail")
-        if yield_type == "node":
-            print("Fail message showed bc yield type is node")
-        print()
-    return None
-
-
-if __name__ == "__main__":
-    solver_names = ["Advantage2_system1.11", "Advantage2_system1.12"]
-    for solver_name in solver_names:
-        if solver_name is None:
-            yield_types = ("node", "edge")
-        else:
-            yield_types = ("edge",)
-        main(solver_name=solver_name)

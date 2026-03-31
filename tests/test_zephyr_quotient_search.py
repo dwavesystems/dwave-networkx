@@ -134,14 +134,13 @@ class TestYieldImprovement(unittest.TestCase):
     def _assert_search_improves_yield(
         self, yield_type, quotient_search, expand_boundary_search, ksymmetric,
     ):
-        sub_emb, _minor_emb, metadata = zephyr_quotient_search(
+        sub_emb, metadata = zephyr_quotient_search(
             self.source,
             self.target,
             yield_type=yield_type,
             quotient_search=quotient_search,
             expand_boundary_search=expand_boundary_search,
             ksymmetric=ksymmetric,
-            find_embedding_timeout=0.0,
         )
 
         self.assertIsInstance(metadata, ZephyrSearchMetadata)
@@ -198,11 +197,10 @@ class TestMetadataConsistency(unittest.TestCase):
         """max >= final >= starting >= 0 for all yield types."""
         for yt in ("node", "edge", "rail-edge"):
             with self.subTest(yield_type=yt):
-                _sub, _minor, metadata = zephyr_quotient_search(
+                _sub, metadata = zephyr_quotient_search(
                     self.source,
                     self.target,
                     yield_type=yt,
-                    find_embedding_timeout=0.0,
                 )
                 self.assertGreaterEqual(metadata.max_num_yielded, 0)
                 self.assertGreaterEqual(metadata.starting_num_yielded, 0)
@@ -219,21 +217,16 @@ class TestMetadataConsistency(unittest.TestCase):
         full_target = zephyr_graph(6, 4, coordinates=True)
         for yt in ("node", "edge"):
             with self.subTest(yield_type=yt):
-                _sub, _minor, metadata = zephyr_quotient_search(
+                _sub, metadata = zephyr_quotient_search(
                     self.source,
                     full_target,
                     yield_type=yt,
-                    find_embedding_timeout=0.0,
                 )
                 self.assertEqual(metadata.starting_num_yielded, metadata.max_num_yielded)
                 self.assertEqual(metadata.final_num_yielded, metadata.max_num_yielded)
 
-    def test_return_is_three_tuple(self):
-        sub_emb, minor_emb, metadata = zephyr_quotient_search(
-            self.source,
-            self.target,
-            find_embedding_timeout=0.0,
-        )
+    def test_return_is_two_tuple(self):
+        sub_emb, metadata = zephyr_quotient_search(self.source, self.target)
         self.assertIsInstance(sub_emb, dict)
         self.assertIsInstance(metadata, ZephyrSearchMetadata)
 
@@ -330,20 +323,6 @@ class TestSearchParameterValidation(unittest.TestCase):
                 self.source, self.target, yield_type="invalid"  # type: ignore
             )
 
-    def test_negative_timeout_raises_value_error(self):
-        with self.assertRaisesRegex(
-            ValueError, r"find_embedding_timeout must be non-negative"
-        ):
-            zephyr_quotient_search(self.source, self.target, find_embedding_timeout=-1.0)
-
-    def test_non_numeric_timeout_raises_type_error(self):
-        with self.assertRaisesRegex(
-            TypeError, r"find_embedding_timeout must be numeric"
-        ):
-            zephyr_quotient_search(
-                self.source, self.target, find_embedding_timeout="fast"  # type: ignore
-            )
-
     def test_non_dict_embedding_raises_type_error(self):
         with self.assertRaisesRegex(
             TypeError, r"embedding must be a dictionary when provided"
@@ -406,9 +385,7 @@ class TestSearchParameterValidation(unittest.TestCase):
         valid_embedding = {node: (node,) for i, node in enumerate(source.nodes()) if i < 10}
         # Should not raise any errors
         try:
-            zephyr_quotient_search(
-                source, target, embedding=valid_embedding, find_embedding_timeout=0.0
-            )
+            zephyr_quotient_search(source, target, embedding=valid_embedding)
         except (TypeError, ValueError) as e:
             self.fail(f"Valid embedding raised unexpected error: {e}")
 
