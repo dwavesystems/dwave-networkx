@@ -31,7 +31,7 @@ the `find_chimera()` function to determine the Chimera indices.
   >>> import dwave.graphs
   >>> G = dwave.graphs.chimera_graph(1, 1, 4)
   >>> chimera_indices = dwave.graphs.find_chimera_indices(G)
-  >>> print chimera_indices
+  >>> print(chimera_indices)
   {0: (0, 0, 0, 0),
    1: (0, 0, 0, 1),
    2: (0, 0, 0, 2),

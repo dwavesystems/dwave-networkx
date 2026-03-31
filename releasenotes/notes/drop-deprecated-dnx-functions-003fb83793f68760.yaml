@@ -3,3 +3,6 @@ upgrade:
   - |
     Remove deprecated Chimera and Pegasus coordinates transformation alias methods
     (``int``/``tuple``/etc in favor of explicit e.g. ``chimera_to_linear``).
+  - |
+    Remove deprecated ``is_matching`` and ``is_maximal_matching`` functions from
+    ``dwave.graphs.algorithms.matching``. Use the NetworkX implementations instead.
