@@ -46,11 +46,6 @@ class TestMatching(unittest.TestCase):
             self.assertEqual(nx.is_matching(self.graph, edges), energy == 0)
             self.assertTrue(energy == 0 or energy >= 1)
 
-            # while we're at it, test deprecated is_matching
-            with self.assertWarns(DeprecationWarning):
-                self.assertEqual(nx.is_matching(self.graph, edges),
-                                 dnx.is_matching(edges))
-
     def test_maximal_matching(self):
         matching = dnx.algorithms.matching.maximal_matching(
             self.graph, dimod.ExactSolver())
@@ -67,11 +62,6 @@ class TestMatching(unittest.TestCase):
             self.assertEqual(nx.is_maximal_matching(self.graph, edges),
                              energy == 0)
             self.assertGreaterEqual(energy, 0)
-
-            # while we're at it, test deprecated is_maximal_matching
-            with self.assertWarns(DeprecationWarning):
-                self.assertEqual(nx.is_maximal_matching(self.graph, edges),
-                                 dnx.is_maximal_matching(self.graph, edges))
 
     def test_min_maximal_matching(self):
         matching = dnx.min_maximal_matching(self.graph, dimod.ExactSolver())

@@ -16,7 +16,6 @@
 Generators for graphs derived from the D-Wave System.
 
 """
-import warnings
 from itertools import product
 
 import networkx as nx
@@ -366,14 +365,6 @@ class chimera_coordinates(object):
     def __init__(self, m, n=None, t=None):
         self.args = m, m if n is None else n, 4 if t is None else t
 
-    def int(self, q):
-        """Deprecated alias for `chimera_to_linear`."""
-        msg = ('chimera_coordinates.int is deprecated and will be removed in '
-               'dwave-networkx 0.9.0, please use '
-               'chimera_coordinates.chimera_to_linear instead')
-        warnings.warn(msg, DeprecationWarning)
-        return self.chimera_to_linear(q)
-
     def chimera_to_linear(self, q):
         """Converts a 4-term Chimera coordinate to a linear index.
 
@@ -396,14 +387,6 @@ class chimera_coordinates(object):
         i, j, u, k = q
         m, n, t = self.args
         return ((n*i + j)*2 + u)*t + k
-
-    def tuple(self, r):
-        """Deprecated alias for `linear_to_chimera`."""
-        msg = ('chimera_coordinates.tuple is deprecated and will be removed in '
-               'dwave-networkx 0.9.0, please use '
-               'chimera_coordinates.linear_to_chimera instead')
-        warnings.warn(msg, DeprecationWarning)
-        return self.linear_to_chimera(r)
 
     def linear_to_chimera(self, r):
         """Converts a linear index to a 4-term Chimera coordinate.
@@ -429,28 +412,12 @@ class chimera_coordinates(object):
         i, j = divmod(r, n)
         return i, j, u, k
 
-    def ints(self, qlist):
-        """Deprecated alias for `iter_chimera_to_linear`."""
-        msg = ('chimera_coordinates.ints is deprecated and will be removed in '
-               'dwave-networkx 0.9.0, please use '
-               'chimera_coordinates.iter_chimera_to_linear instead')
-        warnings.warn(msg, DeprecationWarning)
-        return self.iter_chimera_to_linear(qlist)
-
     def iter_chimera_to_linear(self, qlist):
         """Converts a sequence of 4-term Chimera coordinates to linear indices.
         """
         m, n, t = self.args
         for (i, j, u, k) in qlist:
             yield ((n*i + j)*2 + u)*t + k
-
-    def tuples(self, rlist):
-        """Deprecated alias for `iter_linear_to_chimera`."""
-        msg = ('chimera_coordinates.tuples is deprecated and will be removed in '
-               'dwave-networkx 0.9.0, please use '
-               'chimera_coordinates.iter_linear_to_chimera instead')
-        warnings.warn(msg, DeprecationWarning)
-        return self.iter_linear_to_chimera(rlist)
 
     def iter_linear_to_chimera(self, rlist):
         """Converts a sequence of linear indices to 4-term Chimera coordinates.
@@ -472,26 +439,10 @@ class chimera_coordinates(object):
             v = next(ulist)
             yield u, v
 
-    def int_pairs(self, plist):
-        """Deprecated alias for `iter_chimera_to_linear_pairs`."""
-        msg = ('chimera_coordinates.int_pairs is deprecated and will be removed in '
-               'dwave-networkx 0.9.0, please use '
-               'chimera_coordinates.iter_chimera_to_linear_pairs instead')
-        warnings.warn(msg, DeprecationWarning)
-        return self.iter_chimera_to_linear_pairs(plist)
-
     def iter_chimera_to_linear_pairs(self, plist):
         """Converts pairs of 4-term Chimera coordinates to pairs of linear indices.
         """
         return self._pair_repack(self.iter_chimera_to_linear, plist)
-
-    def tuple_pairs(self, plist):
-        """Deprecated alias for `iter_linear_to_chimera_pairs`."""
-        msg = ('chimera_coordinates.tuple_pairs is deprecated and will be removed in '
-               'dwave-networkx 0.9.0, please use '
-               'chimera_coordinates.iter_linear_to_chimera_pairs instead')
-        warnings.warn(msg, DeprecationWarning)
-        return self.iter_linear_to_chimera_pairs(plist)
 
     def iter_linear_to_chimera_pairs(self, plist):
         """Converts pairs of linear indices to pairs of 4-term Chimera coordinates.
