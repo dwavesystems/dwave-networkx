@@ -205,7 +205,7 @@ def pegasus_graph(m, create_using=None, node_list=None, edge_list=None, data=Tru
             for x, y in zip(offset_lists[ori][::2], offset_lists[ori][1::2]):
                 if x != y:
                     warnings.warn("The offset list you've provided is possibly non-physical. "
-                                  "Odd-coupled qubits should have the same value.")
+                                  "Odd-coupled qubits should have the same value.", stacklevel=2)
         offsets_descriptor = offset_lists
 
     G = nx.empty_graph(0, create_using)
