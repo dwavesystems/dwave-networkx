@@ -15,7 +15,6 @@ readme = {file = "README.rst", content-type = "text/x-rst"}
 license = "Apache-2.0"
 license-files = ["LICEN[CS]E*"]
 classifiers = [
-    "License :: OSI Approved :: Apache Software License",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3 :: Only",
     "Programming Language :: Python :: 3.10",

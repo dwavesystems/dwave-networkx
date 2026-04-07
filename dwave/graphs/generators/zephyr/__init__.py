@@ -1,4 +1,4 @@
-# Copyright 2018 D-Wave Systems Inc.
+# Copyright 2026 D-Wave
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
 #    you may not use this file except in compliance with the License.
@@ -11,9 +11,11 @@
 #    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
+#
+# ================================================================================================
 
-from dwave.graphs.generators.chimera import *
-from dwave.graphs.generators.markov import markov_network
-from dwave.graphs.generators.pegasus import *
-from dwave.graphs.generators.zephyr import *
-from dwave.graphs.generators.common import *
+from dwave.graphs.generators.zephyr.zcoord import *
+from dwave.graphs.generators.zephyr.zephyr import *
+from dwave.graphs.generators.zephyr.znode_edge import *
+from dwave.graphs.generators.zephyr.zplaneshift import *
+from dwave.graphs.generators.zephyr.zshape import *
