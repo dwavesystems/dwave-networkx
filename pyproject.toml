@@ -24,9 +24,9 @@ classifiers = [
     "Programming Language :: Python :: 3.14",
 ]
 dependencies = [
-    "dimod>=0.12.5,<0.13",
-    "networkx>=2.4,<4",
-    "numpy>=1.21.3,<3",     # oldest that supports python 3.10
+    "dimod>=0.12.16,<0.13",
+    "networkx>=3.2,<4",
+    "numpy>=2,<3",
 ]
 # note: 3.14.1 excluded due to a regression bug breaking dataclasses in NetworkX
 # see: https://github.com/networkx/networkx/issues/8362,

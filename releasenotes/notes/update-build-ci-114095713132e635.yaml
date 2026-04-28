@@ -1,0 +1,4 @@
+---
+upgrade:
+  - |
+    Drop support for NumPy 1.x.
