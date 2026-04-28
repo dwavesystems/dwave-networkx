@@ -1,9 +1,0 @@
-# install requirements
-numpy==2.2.6; python_version < '3.11'       # last that supports 3.10
-numpy==2.4.4; python_version >= '3.11'      # latest as of April 2026
-
-dimod==0.12.21      # first to support python 3.10 through 3.14
-networkx==3.2.0     # first to support numpy 2
-
-# dev requirements
-reno==4.1.0

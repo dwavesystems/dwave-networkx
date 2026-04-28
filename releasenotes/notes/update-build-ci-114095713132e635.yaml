@@ -2,3 +2,5 @@
 upgrade:
   - |
     Drop support for NumPy 1.x.
+  - |
+    Replace dev/test/docs ``requirements.txt`` files with Dependency Groups (PEP-735).

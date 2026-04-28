@@ -18,34 +18,25 @@ jobs:
     steps:
       - checkout
 
-      - restore_cache: &restore-cache-env
-          key: pip-{{ checksum "requirements.txt" }}-{{ checksum "tests/requirements.txt" }}-{{ .Environment.CIRCLE_JOB }}
-
       - run: &create-venv-install-deps
           name: Create virtual environment and install dependencies
           command: |
             python -m venv env
             . env/bin/activate
-            pip install -U pip setuptools wheel
-            pip install -U twine
-            pip install -r requirements.txt -r tests/requirements.txt
+            pip install --upgrade pip
+            pip install --group dev --group test
 
       - run:
-          name: Install dependencies
+          name: Override dependencies
           command: |
             . env/bin/activate
             pip install --upgrade << parameters.dependency-versions >>
-
-      - save_cache: &save-cache-env
-          key: pip-{{ checksum "requirements.txt" }}-{{ checksum "tests/requirements.txt" }}-{{ .Environment.CIRCLE_JOB }}
-          paths:
-            - ~/.cache/pip
 
       - run: &run-tests
           name: Run unittests
           command: |
             . env/bin/activate
-            coverage run -m unittest discover
+            coverage run -m unittest
             coverage xml
 
       - codecov/upload: &upload-python-code-coverage
@@ -86,8 +77,6 @@ jobs:
             - /usr/local/Homebrew
             - ~/.pyenv
 
-      - restore_cache: *restore-cache-env
-
       - run:
           name: Create virtualenv and install dependencies
           command: |
@@ -96,10 +85,8 @@ jobs:
             python -m venv env
             . env/bin/activate
             python --version
-            pip install pip --upgrade
-            pip install -r requirements.txt -r tests/requirements.txt
-
-      - save_cache: *save-cache-env
+            pip install --upgrade pip
+            pip install --group dev --group test
 
       - run: *run-tests
 
@@ -134,23 +121,21 @@ jobs:
           command: |
             env\Scripts\activate.ps1
             python --version
-            pip install -r requirements.txt
-            pip install -r tests\requirements.txt
+            pip install --upgrade pip
+            pip install --group dev --group test
 
       - run:
           name: Run unittests
           command: |
             env\Scripts\activate.ps1
-            python -m unittest discover
+            python -m unittest
 
-  test-doctest:
+  test-docs:
     docker:
       - image: python:3.12
 
     steps:
       - checkout
-
-      - restore_cache: *restore-cache-env
 
       - run: *create-venv-install-deps
 
@@ -158,9 +143,7 @@ jobs:
           name: Install docs dependencies
           command: |
             . env/bin/activate
-            pip install -r docs/requirements.txt
-
-      - save_cache: *save-cache-env
+            pip install --group docs
 
       - run:
           name: build docs
@@ -236,7 +219,7 @@ workflows:
           matrix:
             parameters:
               python-version: *python-versions
-      - test-doctest
+      - test-docs
 
   deploy:
     jobs:

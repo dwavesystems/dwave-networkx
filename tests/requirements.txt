@@ -1,5 +1,0 @@
-coverage[toml]
-parameterized==0.7.4
-
-# optional dependencies required for some tests
-matplotlib==3.10.9      # latest as of April 2026
