@@ -29,7 +29,7 @@ This example generates a Pegasus graph of the size used by Advantage QPUs.
 Installation
 ============
 
-**Installation from PyPi:**
+**Installation from PyPI:**
 
 .. code-block:: bash
 
@@ -39,8 +39,23 @@ Installation
 
 .. code-block:: bash
 
-    pip install -r requirements.txt
-    python setup.py install
+    pip install .
+
+**Development setup**
+
+Install development requirements and the package in editable mode:
+
+.. code-block:: bash
+
+    pip install --group dev
+    pip install --editable .
+
+Tests require the ``test`` dependency group:
+
+.. code-block:: bash
+
+    pip install --group test
+    python -m unittest
 
 License
 =======

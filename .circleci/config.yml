@@ -18,34 +18,25 @@ jobs:
     steps:
       - checkout
 
-      - restore_cache: &restore-cache-env
-          key: pip-{{ checksum "requirements.txt" }}-{{ checksum "tests/requirements.txt" }}-{{ .Environment.CIRCLE_JOB }}
-
       - run: &create-venv-install-deps
           name: Create virtual environment and install dependencies
           command: |
             python -m venv env
             . env/bin/activate
-            pip install -U pip setuptools wheel
-            pip install -U twine
-            pip install -r requirements.txt -r tests/requirements.txt
+            pip install --upgrade pip
+            pip install --group dev --group test
 
       - run:
-          name: Install dependencies
+          name: Override dependencies
           command: |
             . env/bin/activate
             pip install --upgrade << parameters.dependency-versions >>
-
-      - save_cache: &save-cache-env
-          key: pip-{{ checksum "requirements.txt" }}-{{ checksum "tests/requirements.txt" }}-{{ .Environment.CIRCLE_JOB }}
-          paths:
-            - ~/.cache/pip
 
       - run: &run-tests
           name: Run unittests
           command: |
             . env/bin/activate
-            coverage run -m unittest discover
+            coverage run -m unittest
             coverage xml
 
       - codecov/upload: &upload-python-code-coverage
@@ -86,8 +77,6 @@ jobs:
             - /usr/local/Homebrew
             - ~/.pyenv
 
-      - restore_cache: *restore-cache-env
-
       - run:
           name: Create virtualenv and install dependencies
           command: |
@@ -96,10 +85,8 @@ jobs:
             python -m venv env
             . env/bin/activate
             python --version
-            pip install pip --upgrade
-            pip install -r requirements.txt -r tests/requirements.txt
-
-      - save_cache: *save-cache-env
+            pip install --upgrade pip
+            pip install --group dev --group test
 
       - run: *run-tests
 
@@ -134,23 +121,21 @@ jobs:
           command: |
             env\Scripts\activate.ps1
             python --version
-            pip install -r requirements.txt
-            pip install -r tests\requirements.txt
+            python -m pip install --upgrade pip
+            pip install --group dev --group test
 
       - run:
           name: Run unittests
           command: |
             env\Scripts\activate.ps1
-            python -m unittest discover
+            python -m unittest
 
-  test-doctest:
+  test-docs:
     docker:
       - image: python:3.12
 
     steps:
       - checkout
-
-      - restore_cache: *restore-cache-env
 
       - run: *create-venv-install-deps
 
@@ -158,9 +143,7 @@ jobs:
           name: Install docs dependencies
           command: |
             . env/bin/activate
-            pip install -r docs/requirements.txt
-
-      - save_cache: *save-cache-env
+            pip install --group docs
 
       - run:
           name: build docs
@@ -183,7 +166,7 @@ jobs:
             . env/bin/activate
             make -C docs/ linkcheck
 
-  deploy:
+  build-dist:
     docker:
       - image: python:3.12
 
@@ -193,24 +176,51 @@ jobs:
       - run: *create-venv-install-deps
 
       - run:
+          name: Install build deps
+          command: env/bin/pip install build twine
+
+      - run: &build-package
+          name: Build package
+          command: env/bin/python -m build
+
+      - run:
+          name: Check package
+          command: env/bin/twine check ./dist/*
+
+      - store_artifacts:
+          path: ./dist
+
+      - persist_to_workspace:
+          root: ./dist
+          paths: .
+
+  pypi-deploy:
+    docker:
+      - image: python:3.12
+
+    steps:
+      - attach_workspace:
+          at: ./dist
+
+      - run:
+          name: Install package from sdist
+          command: |
+            python -m venv env
+            . env/bin/activate
+            pip install dist/dwave?graphs*.tar.gz
+
+      - run:
           name: Verify version matches tag
           command: |
             . env/bin/activate
-            pip install .
             [[ "$(pip show dwave-graphs 2>/dev/null | grep Version)" == "Version: $CIRCLE_TAG" ]]
 
       - run:
-          name: Build sdist and bdist
+          name: Upload package to PyPI
           command: |
             . env/bin/activate
-            pip install setuptools wheel
-            python setup.py sdist bdist_wheel
-
-      - run:
-          name: Upload to PyPI
-          command: |
-            . env/bin/activate
-            twine upload -u $PYPI_USERNAME -p $PYPI_PASSWORD --skip-existing ./dist/*
+            pip install twine
+            twine upload -u "$PYPI_USERNAME" -p "$PYPI_PASSWORD" --skip-existing ./dist/*
 
 workflows:
   test:
@@ -219,32 +229,39 @@ workflows:
           matrix:
             parameters:
               python-version: &python-versions ["3.10", "3.11", "3.12", "3.13", "3.14"]
-              dependency-versions: [&dependencies-oldest "dimod==0.12.5 networkx==2.4 oldest-supported-numpy",
+              dependency-versions: [&dependencies-oldest "dimod==0.12.16 networkx==3.2 numpy==2",
                                     &dependencies-latest "dimod networkx numpy",
                                     ]
             exclude:
-              # dimod < 0.12.13 not supported on py312+
-              - python-version: "3.12"
-                dependency-versions: *dependencies-oldest
+              # dimod < 0.12.17 not supported on py313+
               - python-version: "3.13"
                 dependency-versions: *dependencies-oldest
               - python-version: "3.14"
                 dependency-versions: *dependencies-oldest
+
       - test-osx:
           matrix:
             parameters:
               python-version: *python-versions
+
       - test-win:
           matrix:
             parameters:
               python-version: *python-versions
-      - test-doctest
+
+      - build-dist
+      - test-docs
 
   deploy:
     jobs:
-      - deploy:
-          filters:
+      - build-dist:
+          filters: &on-tag
             tags:
               only: /^[0-9]+(\.[0-9]+)*((\.dev|rc)([0-9]+)?)?$/
             branches:
               ignore: /.*/
+
+      - pypi-deploy:
+          requires:
+            - build-dist
+          filters: *on-tag

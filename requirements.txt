@@ -1,7 +1,0 @@
-networkx==3.2.0     # required for numpy 2 support
-dimod==0.12.17
-
-oldest-supported-numpy
-
-# dev requirements
-reno==4.1.0
