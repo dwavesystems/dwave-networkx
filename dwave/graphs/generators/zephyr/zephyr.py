@@ -15,24 +15,50 @@
 """
 Generators for some graphs derived from the D-Wave System.
 """
+
 from itertools import product
+from typing import Iterable
 
 import networkx as nx
+from dwave.graphs.generators.chimera import _chimera_coordinates_cache
+from dwave.graphs.generators.common import (
+    INFINITE,
+    QUOTIENT,
+    CoordKind,
+    EdgeKind,
+    Topology,
+    _add_compatible_edges,
+    _add_compatible_nodes,
+    _add_compatible_terms,
+    _Infinite,
+    _Quotient,
+)
+from dwave.graphs.generators.zephyr.zcoord import ZephyrCartesianCoord, ZephyrCoord
+from dwave.graphs.generators.zephyr.znode_edge import ZephyrEdge, ZephyrNode
+from dwave.graphs.generators.zephyr.zplaneshift import ZephyrPlaneShift
+from dwave.graphs.generators.zephyr.zshape import ZephyrShape
 
-from .chimera import _chimera_coordinates_cache
+__all__ = [
+    "zephyr_graph",
+    "zephyr_coordinates",
+    "zephyr_sublattice_mappings",
+    "zephyr_torus",
+    "zephyr_four_color",
+    "Zephyr",
+]
 
-from .common import _add_compatible_edges, _add_compatible_nodes, _add_compatible_terms
 
-__all__ = ['zephyr_graph',
-           'zephyr_coordinates',
-           'zephyr_sublattice_mappings',
-           'zephyr_torus',
-           'zephyr_four_color',
-           ]
-
-def zephyr_graph(m, t=4, create_using=None, node_list=None, edge_list=None,
-                 data=True, coordinates=False, check_node_list=False,
-                 check_edge_list=False):
+def zephyr_graph(
+    m,
+    t=4,
+    create_using=None,
+    node_list=None,
+    edge_list=None,
+    data=True,
+    coordinates=False,
+    check_node_list=False,
+    check_edge_list=False,
+):
     """
     Creates a Zephyr graph with grid parameter ``m`` and tile parameter ``t``.
 
@@ -49,15 +75,15 @@ def zephyr_graph(m, t=4, create_using=None, node_list=None, edge_list=None,
         with the new graph. Usually used to set the type of the graph.
     node_list : iterable (optional, default None)
         Iterable of nodes in the graph. If not specified, calculated from (``m``, ``t``)
-        and ``coordinates``. The nodes should typically be compatible with the 
-        requested lattice shape parameters and coordinate system, incompatible 
-        nodes are accepted unless you set :code:`check_node_list=True`. If not 
-        specified, all :math:`4 t m (2 m + 1)` nodes compatible with the 
+        and ``coordinates``. The nodes should typically be compatible with the
+        requested lattice shape parameters and coordinate system, incompatible
+        nodes are accepted unless you set :code:`check_node_list=True`. If not
+        specified, all :math:`4 t m (2 m + 1)` nodes compatible with the
         topology description are included.
     edge_list : iterable (optional, default None)
-        Iterable of edges in the graph. Edges must be 2-tuples of the nodes 
-        specified in node_list, or calculated from (``m``, ``t``) and ``coordinates`` 
-        per the topology description below; incompatible edges are ignored 
+        Iterable of edges in the graph. Edges must be 2-tuples of the nodes
+        specified in node_list, or calculated from (``m``, ``t``) and ``coordinates``
+        per the topology description below; incompatible edges are ignored
         unless you set :code:`check_edge_list=True`. If not specified, all edges
         compatible with the ``node_list`` and topology description are included.
     data : bool, optional (default :code:`True`)
@@ -70,15 +96,15 @@ def zephyr_graph(m, t=4, create_using=None, node_list=None, edge_list=None,
     check_node_list : bool (optional, default :code:`False`)
         If :code:`True`, the ``node_list`` elements are checked for compatibility with
         the graph topology and node labeling conventions, and an error is thrown
-        if any node is incompatible or duplicates exist. 
-        In other words, ``node_lists`` must specify a subgraph of the default 
-        (full yield) graph described below. An exception is allowed if 
+        if any node is incompatible or duplicates exist.
+        In other words, ``node_lists`` must specify a subgraph of the default
+        (full yield) graph described below. An exception is allowed if
         ``check_edge_list=False``, any node in edge_list will also be treated as valid.
     check_edge_list : bool (optional, default :code:`False`)
         If :code:`True`, ``edge_list`` elements are checked for compatibility with
         the graph topology and node labeling conventions, and an error is thrown
-        if any edge is incompatible or duplicates exist. 
-        In other words, ``edge_list`` must specify a subgraph of the default 
+        if any edge is incompatible or duplicates exist.
+        In other words, ``edge_list`` must specify a subgraph of the default
         (full yield) graph described below.
 
     Returns
@@ -154,8 +180,8 @@ def zephyr_graph(m, t=4, create_using=None, node_list=None, edge_list=None,
 
     References
     ----------
-    Boothby, Raymond, King. 
-    Zephyr Topology of D-Wave Quantum Processors 
+    Boothby, Raymond, King.
+    Zephyr Topology of D-Wave Quantum Processors
     October 2021.
     https://dwavesys.com/media/fawfas04/14-1056a-a_zephyr_topology_of_d-wave_quantum_processors.pdf
     """
@@ -165,55 +191,72 @@ def zephyr_graph(m, t=4, create_using=None, node_list=None, edge_list=None,
 
     G.name = "zephyr_graph(%s, %s)" % (m, t)
 
-    M = 2*m+1
+    M = 2 * m + 1
 
     if coordinates:
+
         def label(*q):
             return q
-        labels = 'coordinate'
+
+        labels = "coordinate"
     else:
-        labels = 'int'
+        labels = "int"
+
         def label(u, w, k, j, z):
             return (((u * M + w) * t + k) * 2 + j) * m + z
 
-    construction = (("family", "zephyr"), ("rows", m), ("columns", m),
-                    ("tile", t), ("data", data), ("labels", labels))
+    construction = (
+        ("family", "zephyr"),
+        ("rows", m),
+        ("columns", m),
+        ("tile", t),
+        ("data", data),
+        ("labels", labels),
+    )
 
     G.graph.update(construction)
-    
+
     if edge_list is None:
         check_edge_list = False
     if node_list is None:
         check_node_list = False
-    
+
     if edge_list is None or check_edge_list is True:
         # external edges
-        G.add_edges_from((label(u, w, k, j, z), label(u, w, k, j, z + 1))
-                         for u, w, k, j, z in product(
-                            (0, 1), range(M), range(t), (0, 1), range(m-1)
-                         ))
+        G.add_edges_from(
+            (label(u, w, k, j, z), label(u, w, k, j, z + 1))
+            for u, w, k, j, z in product((0, 1), range(M), range(t), (0, 1), range(m - 1))
+        )
 
         # odd edges
-        G.add_edges_from((label(u, w, k, 0, z), label(u, w, k, 1, z-a))
-                         for u, w, k, a in product(
-                            (0, 1), range(M), range(t), (0, 1)
-                         )
-                         for z in range(a, m))
+        G.add_edges_from(
+            (label(u, w, k, 0, z), label(u, w, k, 1, z - a))
+            for u, w, k, a in product((0, 1), range(M), range(t), (0, 1))
+            for z in range(a, m)
+        )
 
         # internal edges
-        G.add_edges_from((label(0, 2*w+1+a*(2*i-1), k, j, z), label(1, 2*z+1+b*(2*j-1), h, i, w))
-                         for w, z, h, k, i, j, a, b in product(
-                            range(m), range(m), range(t), range(t), (0, 1), (0, 1), (0, 1), (0, 1)
-                         ))
+        G.add_edges_from(
+            (
+                label(0, 2 * w + 1 + a * (2 * i - 1), k, j, z),
+                label(1, 2 * z + 1 + b * (2 * j - 1), h, i, w),
+            )
+            for w, z, h, k, i, j, a, b in product(
+                range(m), range(m), range(t), range(t), (0, 1), (0, 1), (0, 1), (0, 1)
+            )
+        )
         if edge_list is not None:
             _add_compatible_edges(G, edge_list)
     else:
         if check_node_list or node_list is None:
-            G.add_nodes_from(label(u, w, k, j, z) for u in range(2)
-                             for w in range(2*m+1)
-                             for k in range(t)
-                             for j in range(2)
-                             for z in range(m))
+            G.add_nodes_from(
+                label(u, w, k, j, z)
+                for u in range(2)
+                for w in range(2 * m + 1)
+                for k in range(t)
+                for j in range(2)
+                for z in range(m)
+            )
         G.add_edges_from(edge_list)
 
     if node_list is not None:
@@ -226,16 +269,18 @@ def zephyr_graph(m, t=4, create_using=None, node_list=None, edge_list=None,
 
     if data:
         if coordinates:
+
             def fill_data():
                 d = get_node_data((u, w, k, j, z))
                 if d is not None:
-                    d['linear_index'] = v
+                    d["linear_index"] = v
 
         else:
+
             def fill_data():
                 d = get_node_data(v)
                 if d is not None:
-                    d['zephyr_index'] = (u, w, k, j, z)
+                    d["zephyr_index"] = (u, w, k, j, z)
 
         v = 0
         get_node_data = G.nodes.get
@@ -268,6 +313,7 @@ class zephyr_coordinates(object):
     :func:`.zephyr_graph` : Describes the various coordinate conventions.
 
     """
+
     def __init__(self, m, t=4):
         self.args = m, 2 * m + 1, t
 
@@ -310,15 +356,13 @@ class zephyr_coordinates(object):
         return u, w, k, j, z
 
     def iter_zephyr_to_linear(self, qlist):
-        """Converts a sequence of 5-term Zephyr coordinates to linear indices.
-        """
+        """Converts a sequence of 5-term Zephyr coordinates to linear indices."""
         m, M, t = self.args
-        for (u, w, k, j, z) in qlist:
+        for u, w, k, j, z in qlist:
             yield (((u * M + w) * t + k) * 2 + j) * m + z
 
     def iter_linear_to_zephyr(self, rlist):
-        """Converts a sequence of linear indices to 5-term Zephyr coordinates.
-        """
+        """Converts a sequence of linear indices to 5-term Zephyr coordinates."""
         m, M, t = self.args
         for r in rlist:
             r, z = divmod(r, m)
@@ -338,32 +382,30 @@ class zephyr_coordinates(object):
             yield u, v
 
     def iter_zephyr_to_linear_pairs(self, plist):
-        """Converts pairs of 5-term Zephyr coordinates to pairs of linear indices.
-        """
+        """Converts pairs of 5-term Zephyr coordinates to pairs of linear indices."""
         return self._pair_repack(self.iter_zephyr_to_linear, plist)
 
     def iter_linear_to_zephyr_pairs(self, plist):
-        """Converts pairs of linear indices to pairs of 5-term Zephyr coordinates.
-        """
+        """Converts pairs of linear indices to pairs of 5-term Zephyr coordinates."""
         return self._pair_repack(self.iter_linear_to_zephyr, plist)
 
     def graph_to_linear(self, g):
         """Returns a copy of the graph ``g`` relabeled to have linear indices.
-        
+
         Parameters
         ----------
         g : NetworkX Graph
-            The Zephyr graph to be relabeled.        
-        
+            The Zephyr graph to be relabeled.
+
         Returns
         -------
         G : NetworkX Graph
             A Zephyr graph relabeled with linear indices.
         """
-        labels = g.graph.get('labels')
-        if labels == 'int':
+        labels = g.graph.get("labels")
+        if labels == "int":
             return g.copy()
-        elif labels == 'coordinate':
+        elif labels == "coordinate":
             nodes = self.iter_zephyr_to_linear(g)
             edges = self.iter_zephyr_to_linear_pairs(g.edges)
         else:
@@ -373,31 +415,31 @@ class zephyr_coordinates(object):
             )
 
         return zephyr_graph(
-            g.graph['rows'],
-            t = g.graph['tile'],
+            g.graph["rows"],
+            t=g.graph["tile"],
             node_list=nodes,
             edge_list=edges,
-            data=g.graph['data'],
+            data=g.graph["data"],
         )
 
     def graph_to_zephyr(self, g):
         """Returns a copy of the graph ``g`` relabeled to have Zephyr coordinates.
-        
+
         Parameters
         ----------
         g : NetworkX Graph
-            The Zephyr graph to be relabeled.        
-        
+            The Zephyr graph to be relabeled.
+
         Returns
         -------
         G : NetworkX Graph
             A Zephyr graph relabeled with Zephyr coordinates.
         """
-        labels = g.graph.get('labels')
-        if labels == 'int':
+        labels = g.graph.get("labels")
+        if labels == "int":
             nodes = self.iter_linear_to_zephyr(g)
             edges = self.iter_linear_to_zephyr_pairs(g.edges)
-        elif labels == 'coordinate':
+        elif labels == "coordinate":
             return g.copy()
         else:
             raise ValueError(
@@ -406,11 +448,11 @@ class zephyr_coordinates(object):
             )
 
         return zephyr_graph(
-            g.graph['rows'],
-            t=g.graph['tile'],
+            g.graph["rows"],
+            t=g.graph["tile"],
             node_list=nodes,
             edge_list=edges,
-            data=g.graph['data'],
+            data=g.graph["data"],
             coordinates=True,
         )
 
@@ -477,6 +519,7 @@ def _zephyr_zephyr_sublattice_mapping(source_to_zephyr, zephyr_to_target, offset
 
     return mapping
 
+
 def _single_chimera_zephyr_sublattice_mapping(source_to_chimera, zephyr_to_target, offset):
     """Constructs a mapping from a Chimera graph to a Zephyr graph, via an offset.
     This function is used by zephyr_sublattice_mappings, and serves to construct
@@ -533,6 +576,7 @@ def _single_chimera_zephyr_sublattice_mapping(source_to_chimera, zephyr_to_targe
 
     return mapping
 
+
 def _double_chimera_zephyr_sublattice_mapping(source_to_chimera, zephyr_to_target, offset):
     """Constructs a mapping from a Chimera graph to a Zephyr graph, via an offset.
     This function is used by zephyr_sublattice_mappings, and serves to construct
@@ -567,6 +611,7 @@ def _double_chimera_zephyr_sublattice_mapping(source_to_chimera, zephyr_to_targe
 
     """
     t, y_offset, x_offset, j0, j1 = offset
+
     def mapping(q):
         y, x, u, k = source_to_chimera(q)
         wz, kz = divmod(k, t)
@@ -593,24 +638,24 @@ def zephyr_sublattice_mappings(source, target, offset_list=None):
         * a ``chimera_graph(m_s, n_s, 2*t)`` to nodes of a ``zephyr_graph(m_t, t)``
           where ``m_s <= m_t`` and ``n_s <= m_t``.
 
-    This sublattice mapping is used to identify subgraphs of the target Zephyr graph 
+    This sublattice mapping is used to identify subgraphs of the target Zephyr graph
     which are isomorphic to the source graph. However, if the target graph is not of
     perfect yield,\ [#]_ this function does not generally produce isomorphisms; for
     example, if a node is missing in the target graph, it may still appear in
     the image of the source graph.
 
-    The tile parameter of Chimera graphs must be either the same or double 
-    that of the target Zephyr graphs; if both graphs are Zephyr graphs, 
-    the tile parameters must be the same. The mappings produced preserve 
+    The tile parameter of Chimera graphs must be either the same or double
+    that of the target Zephyr graphs; if both graphs are Zephyr graphs,
+    the tile parameters must be the same. The mappings produced preserve
     the linear ordering of tile indices; see the
     ``_zephyr_zephyr_sublattice_mapping``,
     ``_double_chimera_zephyr_sublattice_mapping``, and
     ``_single_chimera_zephyr_sublattice_mapping`` internal functions in the source code.
-    
+
     .. [#]
-        The yield is the percentage of working qubits on a QPU and the subset 
+        The yield is the percentage of working qubits on a QPU and the subset
         of available qubits is called the :ref:`working graph <qpu_topologies>`.
-        
+
     Parameters
     ----------
         source : NetworkX Graph
@@ -639,38 +684,42 @@ def zephyr_sublattice_mappings(source, target, offset_list=None):
     isomorphisms of Zephyr graphs permit permutations of major tile indices on a
     per-row and per-column basis in addition to reflections of the grid that
     induce inversion of orthogonal minor offsets and rotations that induce
-    inversions of minor offsets, orientation, or both. Although the full set 
+    inversions of minor offsets, orientation, or both. Although the full set
     of sublattice mappings would take those isomorphisms into account,
     this function does not handle that complex task.
     """
-    if target.graph.get('family') != 'zephyr':
-        raise ValueError("Source graph must be a Zephyr graph constructed by dwave.graphs.zephyr_graph")
+    if target.graph.get("family") != "zephyr":
+        raise ValueError(
+            "Source graph must be a Zephyr graph constructed by dwave.graphs.zephyr_graph"
+        )
 
-    m_t = target.graph['rows']
-    t = target.graph['tile']
-    labels_t = target.graph['labels']
-    if labels_t == 'int':
+    m_t = target.graph["rows"]
+    t = target.graph["tile"]
+    labels_t = target.graph["labels"]
+    if labels_t == "int":
         zephyr_to_target = _zephyr_coordinates_cache[m_t, t].zephyr_to_linear
-    elif labels_t == 'coordinate':
+    elif labels_t == "coordinate":
+
         def zephyr_to_target(q):
             return q
+
     else:
         raise ValueError(f"Zephyr node labeling {labels_t} not recognized")
 
-    labels_s = source.graph['labels']
-    if source.graph.get('family') == 'chimera':
-        t_t = source.graph['tile']
-        m_s = source.graph['rows']
-        n_s = source.graph['columns']
+    labels_s = source.graph["labels"]
+    if source.graph.get("family") == "chimera":
+        t_t = source.graph["tile"]
+        m_s = source.graph["rows"]
+        n_s = source.graph["columns"]
 
         if t_t == t:
             make_mapping = _single_chimera_zephyr_sublattice_mapping
             if offset_list is None:
-                krange = range(t+1)
-                mrange = range(2*m_t - m_s + 1)
-                nrange = range(2*m_t - n_s + 1)
+                krange = range(t + 1)
+                mrange = range(2 * m_t - m_s + 1)
+                nrange = range(2 * m_t - n_s + 1)
                 offset_list = product([t], mrange, nrange, krange, krange)
-        elif t_t == 2*t:
+        elif t_t == 2 * t:
             make_mapping = _double_chimera_zephyr_sublattice_mapping
             if offset_list is None:
                 jrange = range(2)
@@ -678,50 +727,59 @@ def zephyr_sublattice_mappings(source, target, offset_list=None):
                 nrange = range(m_t - n_s + 1)
                 offset_list = product([t], mrange, nrange, jrange, jrange)
         else:
-            raise ValueError("Cannot construct sublattice mappings from Chimera "
-                             "to this Zephyr graph unless the tile parameter of "
-                             f"the chimera graph is {t} or {2*t}.")
+            raise ValueError(
+                "Cannot construct sublattice mappings from Chimera "
+                "to this Zephyr graph unless the tile parameter of "
+                f"the chimera graph is {t} or {2*t}."
+            )
 
-        if labels_s == 'coordinate':
+        if labels_s == "coordinate":
+
             def source_to_inner(q):
                 return q
-        elif labels_s == 'int':
+
+        elif labels_s == "int":
             source_to_inner = _chimera_coordinates_cache[m_s, n_s, t_t].linear_to_chimera
         else:
             raise ValueError(f"Chimera node labeling {labels_s} not recognized")
 
-    elif source.graph.get('family') == 'zephyr':
-        m_s = source.graph['rows']
+    elif source.graph.get("family") == "zephyr":
+        m_s = source.graph["rows"]
         if offset_list is None:
-            mrange = range((2*m_t+1) - (2*m_s+1) + 1)
+            mrange = range((2 * m_t + 1) - (2 * m_s + 1) + 1)
             offset_list = product(mrange, mrange)
 
-        labels_s = source.graph['labels']
-        if labels_s == 'int':
+        labels_s = source.graph["labels"]
+        if labels_s == "int":
             source_to_inner = _zephyr_coordinates_cache[m_s, t].linear_to_zephyr
-        elif labels_s == 'coordinate':
+        elif labels_s == "coordinate":
+
             def source_to_inner(q):
                 return q
+
         else:
             raise ValueError(f"Zephyr node labeling {labels_s} not recognized")
 
         make_mapping = _zephyr_zephyr_sublattice_mapping
 
     else:
-        raise ValueError("source graph must be a Chimera graph or Zephyr graph "
-                         "constructed by dwave.graphs.chimera_graph or "
-                         "dwave.graphs.zephyr_graph respectively")
+        raise ValueError(
+            "source graph must be a Chimera graph or Zephyr graph "
+            "constructed by dwave.graphs.chimera_graph or "
+            "dwave.graphs.zephyr_graph respectively"
+        )
 
     for offset in offset_list:
         yield make_mapping(source_to_inner, zephyr_to_target, offset)
 
+
 def zephyr_torus(m, t=4, node_list=None, edge_list=None):
     """
     Creates a Zephyr graph modified to allow for periodic boundary conditions and translational invariance.
-    
+
     The graph matches the local connectivity properties of a standard Zephyr graph,
     but with modified periodic boundary condition. Tiles of :math:`8t` nodes are arranged
-    on an :math:`m` by :math:`m` torus. 
+    on an :math:`m` by :math:`m` torus.
 
     Parameters
     ----------
@@ -731,15 +789,15 @@ def zephyr_torus(m, t=4, node_list=None, edge_list=None):
     t : int
         Tile parameter for the Zephyr lattice.
     node_list : iterable (optional, default None)
-        Iterable of nodes in the graph. If None, nodes are generated 
+        Iterable of nodes in the graph. If None, nodes are generated
         for an undiluted torus calculated from ``m`` and ``t``
         as described below. The node list must describe a subset
-        of the torus nodes to be maintained in the graph 
+        of the torus nodes to be maintained in the graph
         using the coordinate node labeling scheme.
     edge_list : iterable (optional, default None)
         Iterable of edges in the graph. If None, edges are generated
         for an undiluted torus calculated from ``m`` and ``t``
-        as described below. The edge list must describe 
+        as described below. The edge list must describe
         a subgraph of the torus, using the coordinate node labeling scheme.
 
     Returns
@@ -751,12 +809,12 @@ def zephyr_torus(m, t=4, node_list=None, edge_list=None):
 
     A Zephyr torus is a generalization of the standard Zephyr graph
     whereby degree-twenty connectivity is maintained, but the boundary
-    condition is modified to enforce an additional translational-invariance 
+    condition is modified to enforce an additional translational-invariance
     symmetry [Ray2023]_. Local connectivity in the Zephyr torus
     is identical to connectivity for Zephyr graph nodes away from the boundary.
-    A tile consists of :math:`8t` nodes, and the torus has :math:`m` by :math:`m` tiles. 
+    A tile consists of :math:`8t` nodes, and the torus has :math:`m` by :math:`m` tiles.
     Tile displacement modulo :math:`m` defines an automorphism.
-    
+
     See :func:`.zephyr_graph` for additional information.
 
     Examples
@@ -768,35 +826,54 @@ def zephyr_torus(m, t=4, node_list=None, edge_list=None):
     False
 
     """
-    G = zephyr_graph(m=m, t=t, node_list=None, edge_list=None,
-                         data=True, coordinates=True)
-    
+    G = zephyr_graph(m=m, t=t, node_list=None, edge_list=None, data=True, coordinates=True)
+
     def relabel(u, w, k, j, z):
-        return (u, w%(2*m), k, j, z)
-    
+        return (u, w % (2 * m), k, j, z)
+
     # Contract internal couplers spanning the boundary:
-    G.add_edges_from([(relabel(*edge[0]), relabel(*edge[1]))
-                      for edge in G.edges() if edge[0][1]==2*m or edge[1][1]==2*m])
-    
-    if m>1:
+    G.add_edges_from(
+        [
+            (relabel(*edge[0]), relabel(*edge[1]))
+            for edge in G.edges()
+            if edge[0][1] == 2 * m or edge[1][1] == 2 * m
+        ]
+    )
+
+    if m > 1:
         # Add boundary spanning external couplers:
-        G.add_edges_from([((u, w, k, 1, m - 1), (u, w, k, 0, 0))
-                          for u in range(2)
-                          for w in range(2*m)
-                          for k in range(t)])
-        G.add_edges_from([((u, w, k, j, m - 1), (u, w, k, j, 0))
-                          for u in range(2)
-                          for w in range(2*m)
-                          for k in range(t)
-                          for j in range(2)])
-        
+        G.add_edges_from(
+            [
+                ((u, w, k, 1, m - 1), (u, w, k, 0, 0))
+                for u in range(2)
+                for w in range(2 * m)
+                for k in range(t)
+            ]
+        )
+        G.add_edges_from(
+            [
+                ((u, w, k, j, m - 1), (u, w, k, j, 0))
+                for u in range(2)
+                for w in range(2 * m)
+                for k in range(t)
+                for j in range(2)
+            ]
+        )
+
     # Delete variables contracted at the boundary:
-    G.remove_nodes_from([(u, 2*m, k, j, z)
-                         for u in range(2) for k in range(t) for j in range(2) for z in range(m)])
-    
+    G.remove_nodes_from(
+        [
+            (u, 2 * m, k, j, z)
+            for u in range(2)
+            for k in range(t)
+            for j in range(2)
+            for z in range(m)
+        ]
+    )
+
     _add_compatible_terms(G, node_list, edge_list)
-    
-    G.graph['boundary_condition'] = 'torus'
+
+    G.graph["boundary_condition"] = "torus"
 
     return G
 
@@ -809,7 +886,7 @@ def zephyr_four_color(q, scheme=0):
         q : tuple
             Qubit label in standard coordinate format: u, w, k, j, z
         scheme : int
-            Two patterns not related by automorphism are supported 
+            Two patterns not related by automorphism are supported
     Returns
     -------
         color : int
@@ -823,10 +900,188 @@ def zephyr_four_color(q, scheme=0):
     >>> colors = {q: dwave.graphs.zephyr_four_color(q) for q in G.nodes()}
     """
     u, w, _, j, z = q
-    
+
     if scheme == 0:
-        return j + ((w + 2*(z+u) + j)&2)
+        return j + ((w + 2 * (z + u) + j) & 2)
     elif scheme == 1:
-        return (2*u + w + 2*z + j) & 3
+        return (2 * u + w + 2 * z + j) & 3
     else:
-        raise ValueError('Unknown scheme')
+        raise ValueError("Unknown scheme")
+
+
+class Zephyr(Topology):
+    """A class to access various classes associated with D-Wave's Zephyr topology."""
+
+    def __init__(self):
+        super().__init__(
+            planeshift_class=ZephyrPlaneShift,
+            shape_class=ZephyrShape,
+            coord_class=[ZephyrCartesianCoord, ZephyrCoord],
+            node_class=ZephyrNode,
+            edge_class=ZephyrEdge,
+        )
+
+    def _find_shape(
+        self, shape: ZephyrShape | tuple[int | _Infinite, int | _Quotient]
+    ) -> ZephyrShape:
+        """Finds the Zephyr shape of the graph.
+
+        Args:
+            shape: The shape of Zephyr graph.
+
+        Raises:
+            ValueError: If shape is not a valid Zephyr shape.
+
+        Returns:
+            ZephyrShape: The shape of the Zephyr graph.
+        """
+        if not isinstance(shape, ZephyrShape):
+            try:
+                shape = ZephyrShape(*shape)
+            except (ValueError, TypeError):
+                raise ValueError(f"{shape} cannot be an instance of ZephyrShape")
+        return shape
+
+    def nodes(
+        self,
+        shape: ZephyrShape | tuple[int | _Infinite, int | _Quotient],
+        coord_kind: CoordKind = CoordKind.CARTESIAN,
+    ) -> list[ZephyrNode]:
+        """Returns the nodes of a Zephyr graph.
+
+        Args:
+            shape: The shape of the Zephyr graph.
+            coord_kind:
+                The kind of coordinate the edges endpoints are represented with.
+                Defaults to ``CoordKind.CARTESIAN``.
+        Raises:
+            ValueError: If the grid size of the shape is infinite.
+
+        Returns:
+            list[ZephyrNode]: The nodes of the Zephyr graph.
+        """
+        shape = self._find_shape(shape)
+        if shape.m is INFINITE:
+            raise ValueError(
+                "Cannot generate infinite number of nodes!\nProvide a finite grid size."
+            )
+        m, t = shape
+        nodes = []
+        range_x = range(4 * m + 1)
+        range_t = [QUOTIENT] if t is QUOTIENT else range(t)
+        for x in range_x:
+            if x % 2 == 0:
+                range_y = range(1, 4 * m + 1, 2)
+            else:
+                range_y = range(0, 4 * m + 1, 2)
+            for y, k in product(range_y, range_t):
+                nodes.append(
+                    ZephyrNode(
+                        coord=ZephyrCartesianCoord(x, y, k),
+                        shape=shape,
+                        coord_kind=coord_kind,
+                        check_node_valid=False,
+                    )
+                )
+        return nodes
+
+    def edges(
+        self,
+        shape: ZephyrShape | tuple[int | _Infinite, int | _Quotient],
+        edge_kind: EdgeKind | Iterable[EdgeKind] | None = None,
+        coord_kind: CoordKind = CoordKind.CARTESIAN,
+    ) -> list[ZephyrEdge]:
+        """Returns the edges of a Zephyr graph with a shape and optional
+            coordinate and edge kind.
+
+        Args:
+            shape: The shape of Zephyr graph.
+            edge_kind:
+                Edge kind filter. Restricts edges to the given edge kind(s).
+                If ``None``, no filtering is applied. Defaults to ``None``.
+            coord_kind:
+                The kind of coordinate the edges endpoints are represented with.
+                Defaults to ``CoordKind.CARTESIAN``.
+
+        Returns:
+            list[ZephyrEdge]: The edges of the Zephyr graph.
+        """
+
+        def get_internal_edges():
+            for x in range(0, 4 * m, 2):
+                for y in range(1, 4 * m, 2):
+                    square = [(x, y), (x + 1, y - 1), (x + 2, y), (x + 1, y + 1), (x, y)]
+                    for i, sq_e in enumerate(square):
+                        if i == 4:
+                            continue
+                        for k1, k2 in product(k_vals, k_vals):
+                            coord1 = ZephyrCartesianCoord(*sq_e, k=k1)
+                            coord1 = coord1.convert(coord_kind)
+                            node1 = ZephyrNode(
+                                coord1, shape=shape, coord_kind=coord_kind, check_node_valid=False
+                            )
+                            coord2 = ZephyrCartesianCoord(*square[i + 1], k=k2)
+                            node2 = ZephyrNode(
+                                coord2, shape=shape, coord_kind=coord_kind, check_node_valid=False
+                            )
+                            e12 = ZephyrEdge(x=node1, y=node2, check_edge_valid=False)
+                            edges.append(e12)
+
+        def get_external_edges():
+            for x in range(1, 4 * m - 4, 2):
+                for y in range(0, 4 * m + 1, 2):
+                    ccoord = (x, y)
+                    ccoord_ext = (x + 4, y)
+                    for k in k_vals:
+                        for step in (-1, 1):
+                            coord1 = ZephyrCartesianCoord(*ccoord[::step], k, check_coord=False)
+                            node1 = ZephyrNode(
+                                coord1, shape=shape, coord_kind=coord_kind, check_node_valid=False
+                            )
+                            coord2 = ZephyrCartesianCoord(*ccoord_ext[::step], k, check_coord=False)
+                            node2 = ZephyrNode(
+                                coord2, shape=shape, coord_kind=coord_kind, check_node_valid=False
+                            )
+                            e12 = ZephyrEdge(x=node1, y=node2, check_edge_valid=False)
+                            edges.append(e12)
+
+        def get_odd_edges():
+            for x in range(1, 4 * m - 2, 2):
+                for y in range(0, 4 * m + 1, 2):
+                    ccoord = (x, y)
+                    ccoord_odd = (x + 2, y)
+                    for k in k_vals:
+                        for step in (-1, 1):
+                            coord1 = ZephyrCartesianCoord(*ccoord[::step], k, check_coord=False)
+                            node1 = ZephyrNode(
+                                coord1, shape=shape, coord_kind=coord_kind, check_node_valid=False
+                            )
+                            coord2 = ZephyrCartesianCoord(*ccoord_odd[::step], k, check_coord=False)
+                            node2 = ZephyrNode(
+                                coord2, shape=shape, coord_kind=coord_kind, check_node_valid=False
+                            )
+                            e12 = ZephyrEdge(x=node1, y=node2, check_edge_valid=False)
+                            edges.append(e12)
+
+        shape = self._find_shape(shape)
+        if shape.m is INFINITE:
+            raise ValueError(
+                "Cannot generate infinite number of nodes!\nProvide a finite grid size."
+            )
+        m, t = shape
+        k_vals = [QUOTIENT] if t is QUOTIENT else range(t)
+        if edge_kind is None:
+            _edge_kinds = {EdgeKind.INTERNAL, EdgeKind.EXTERNAL, EdgeKind.ODD}
+        elif isinstance(edge_kind, EdgeKind):
+            _edge_kinds = {edge_kind}
+        else:
+            _edge_kinds = set(edge_kind)
+        edges = []
+        if EdgeKind.INTERNAL in _edge_kinds:
+            get_internal_edges()
+        if EdgeKind.EXTERNAL in _edge_kinds:
+            get_external_edges()
+        if EdgeKind.ODD in _edge_kinds:
+            get_odd_edges()
+
+        return edges

@@ -17,6 +17,9 @@ import unittest
 import networkx as nx
 import dwave.graphs as dnx
 import numpy as np
+from parameterized import parameterized
+from dwave.graphs.generators.zephyr import Zephyr
+
 
 class TestZephyrGraph(unittest.TestCase):
     def test_single_tile(self):
@@ -331,3 +334,22 @@ class TestZephyrTorus(unittest.TestCase):
             # 1 invalid edge
             G = dnx.zephyr_torus(m=m, t=t, edge_list = edge_list)
             
+
+class TestZephyrTopology(unittest.TestCase):
+    def test_basic(self):
+        Zephyr()
+    
+    @parameterized.expand(
+        [((4, 2), ), ((6, 1), ), ((12, 4), )]
+        )
+    def test_num_nodes(self, shape):
+        zeph = Zephyr()
+        self.assertEqual(len(zeph.nodes(shape=shape)), len(dnx.zephyr_graph(m=shape[0], t= shape[1]).nodes()))
+
+    @parameterized.expand(
+        [((4, 2), ), ((6, 1), ), ((12, 3), )]
+        )
+    def test_num_edges(self, shape):
+        zeph = Zephyr()
+        self.assertEqual(len(zeph.edges(shape=shape)), len(dnx.zephyr_graph(m=shape[0], t= shape[1]).edges()))
+
